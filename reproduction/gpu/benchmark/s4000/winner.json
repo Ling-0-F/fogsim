@@ -1,0 +1,48 @@
+{
+  "trial": 26,
+  "evolution_seed": 50026,
+  "selection": "mean validation makespan",
+  "validation_seeds": [
+    80000,
+    80001,
+    80002
+  ],
+  "validation_mean_s": 2289.5451298979547,
+  "test_seeds": [
+    90000,
+    90001,
+    90002,
+    90003,
+    90004,
+    90005,
+    90006,
+    90007,
+    90008,
+    90009,
+    90010,
+    90011,
+    90012,
+    90013,
+    90014,
+    90015,
+    90016,
+    90017,
+    90018,
+    90019,
+    90020,
+    90021,
+    90022,
+    90023,
+    90024,
+    90025,
+    90026,
+    90027,
+    90028,
+    90029
+  ],
+  "test_mean_s": 2373.851645153538,
+  "rules": {
+    "sequencing": "(+ (+ TIS (+ (Max (Max TWT NIQ) (+ (- TIS TIS) PT)) (- NIQ PT))) NTR)",
+    "routing": "(+ (+ (/ (/ (Min (Max DT UT) NTR) (- PT DT)) (Max (/ MRT PT) (/ WIQ MRT))) (Max (Max (- PT (Max (- PT DT) (- PT DT))) (Max DT UT)) TTIQ)) (Max (/ (/ (Max TWT UT) (Max TIS NIQ)) (+ WIQ (* (Max DT PT) (+ NTR TTIQ)))) (Max (Max (- PT DT) (Max DT UT)) (/ (+ (- DT TWT) (Max MRT NTR)) (Min (/ UT DT) (+ TIS TIS))))))"
+  }
+}

@@ -49,3 +49,5 @@ $env:JAVA_TOOL_OPTIONS = '-Dsun.stderr.encoding=UTF-8 -Dsun.stdout.encoding=UTF-
 差值图可用 `python reproduction/plot.py --results reproduction/results` 从汇总表重建。此命令从仓库根目录运行，需要 Matplotlib 和 NumPy。
 
 **表 VI 规模入口。** `run_mtgp.py --profile paper` 采用 1000 个体、51 代、10 精英和每场景 30 个演化种子。其余实例生成与验证协议沿用本实验的取值。九场景合计 13,770,000 个体代训练位置，另有验证与测试；同代重复规则共享一次适应度计算。本次交付实际执行了 `pilot` 和单场景 `long` 两个配置。Linux 可使用相同的 Python 脚本，环境变量 PYTHONPATH 的路径分隔符改为冒号。
+
+同一入口可用 `--engine cuda` 或 `--engine musa` 进行 GPU 评价。固定 `--profile paper --scales small --devices 1`，RTX 3080 Ti 实测使用 `--workers 8 --lanes 32`，MTT S4000 使用 `--workers 2 --lanes 64`。可用 `--first-trial 26 --trial-count 1` 单独重跑第 26 个试次。两种 Linux 编译命令、Python 参考分数校验、各 30 次的完整记录和出图命令见 [GPU 搜索](gpu/README.md)。
