@@ -1,0 +1,1627 @@
+{
+  "status": "COMPLETED",
+  "passed": true,
+  "scope": "V2-01..05 fixed-input acceptance with explicit numeric domain boundary",
+  "named_parity": {
+    "scope": "0.2 named fixed-instance acceptance; positive representable execution intervals",
+    "passed": true,
+    "cases": [
+      {
+        "case": "single_local",
+        "passed": true,
+        "events": {
+          "python": 4,
+          "java": 4
+        },
+        "decisions": {
+          "python": 1,
+          "java": 1
+        },
+        "first_difference": null,
+        "report": "single_local/comparison.json"
+      },
+      {
+        "case": "single_local_release5",
+        "passed": true,
+        "events": {
+          "python": 4,
+          "java": 4
+        },
+        "decisions": {
+          "python": 1,
+          "java": 1
+        },
+        "first_difference": null,
+        "report": "single_local_release5/comparison.json"
+      },
+      {
+        "case": "chain_remote",
+        "passed": true,
+        "events": {
+          "python": 7,
+          "java": 7
+        },
+        "decisions": {
+          "python": 3,
+          "java": 3
+        },
+        "first_difference": null,
+        "report": "chain_remote/comparison.json"
+      },
+      {
+        "case": "chain_fcfs",
+        "passed": true,
+        "events": {
+          "python": 7,
+          "java": 7
+        },
+        "decisions": {
+          "python": 3,
+          "java": 3
+        },
+        "first_difference": null,
+        "report": "chain_fcfs/comparison.json"
+      },
+      {
+        "case": "v2_diamond",
+        "passed": true,
+        "events": {
+          "python": 13,
+          "java": 13
+        },
+        "decisions": {
+          "python": 8,
+          "java": 8
+        },
+        "first_difference": null,
+        "report": "v2_diamond/comparison.json"
+      },
+      {
+        "case": "v2_contention",
+        "passed": true,
+        "events": {
+          "python": 12,
+          "java": 12
+        },
+        "decisions": {
+          "python": 5,
+          "java": 5
+        },
+        "first_difference": null,
+        "report": "v2_contention/comparison.json"
+      },
+      {
+        "case": "v2_candidates",
+        "passed": true,
+        "events": {
+          "python": 27,
+          "java": 27
+        },
+        "decisions": {
+          "python": 10,
+          "java": 10
+        },
+        "first_difference": null,
+        "report": "v2_candidates/comparison.json"
+      },
+      {
+        "case": "v2_collision_m0",
+        "passed": true,
+        "events": {
+          "python": 20,
+          "java": 20
+        },
+        "decisions": {
+          "python": 8,
+          "java": 8
+        },
+        "first_difference": null,
+        "report": "v2_collision_m0/comparison.json"
+      },
+      {
+        "case": "v2_collision_e0",
+        "passed": true,
+        "events": {
+          "python": 20,
+          "java": 20
+        },
+        "decisions": {
+          "python": 8,
+          "java": 8
+        },
+        "first_difference": null,
+        "report": "v2_collision_e0/comparison.json"
+      },
+      {
+        "case": "v2_equal_heap",
+        "passed": true,
+        "events": {
+          "python": 39,
+          "java": 39
+        },
+        "decisions": {
+          "python": 29,
+          "java": 29
+        },
+        "first_difference": null,
+        "report": "v2_equal_heap/comparison.json"
+      },
+      {
+        "case": "v2_float_local",
+        "passed": true,
+        "events": {
+          "python": 16,
+          "java": 16
+        },
+        "decisions": {
+          "python": 7,
+          "java": 7
+        },
+        "first_difference": null,
+        "report": "v2_float_local/comparison.json"
+      },
+      {
+        "case": "v2_float_remote",
+        "passed": true,
+        "events": {
+          "python": 16,
+          "java": 16
+        },
+        "decisions": {
+          "python": 7,
+          "java": 7
+        },
+        "first_difference": null,
+        "report": "v2_float_remote/comparison.json"
+      },
+      {
+        "case": "v2_shared_server",
+        "passed": true,
+        "events": {
+          "python": 15,
+          "java": 15
+        },
+        "decisions": {
+          "python": 8,
+          "java": 8
+        },
+        "first_difference": null,
+        "report": "v2_shared_server/comparison.json"
+      },
+      {
+        "case": "v2_order",
+        "passed": true,
+        "events": {
+          "python": 12,
+          "java": 12
+        },
+        "decisions": {
+          "python": 4,
+          "java": 4
+        },
+        "first_difference": null,
+        "report": "v2_order/comparison.json"
+      }
+    ],
+    "java_build_fingerprint": "a69f3c65cce9eae3111d7c15f95c3aeac49946d2308df8c02d594ec8b189b921",
+    "first_difference": null,
+    "not_validated": [
+      "arbitrary-input equivalence",
+      "full multi-device model extension",
+      "precision-collapse inputs (separate negative acceptance)",
+      "random generation/GP/training statistics"
+    ]
+  },
+  "sweep_seed": 20261029,
+  "sweep_cases": [
+    {
+      "index": 0,
+      "passed": true,
+      "events": {
+        "python": 56,
+        "java": 56
+      },
+      "decisions": {
+        "python": 39,
+        "java": 39
+      },
+      "first_difference": null
+    },
+    {
+      "index": 1,
+      "passed": true,
+      "events": {
+        "python": 24,
+        "java": 24
+      },
+      "decisions": {
+        "python": 12,
+        "java": 12
+      },
+      "first_difference": null
+    },
+    {
+      "index": 2,
+      "passed": true,
+      "events": {
+        "python": 40,
+        "java": 40
+      },
+      "decisions": {
+        "python": 25,
+        "java": 25
+      },
+      "first_difference": null
+    },
+    {
+      "index": 3,
+      "passed": true,
+      "events": {
+        "python": 30,
+        "java": 30
+      },
+      "decisions": {
+        "python": 19,
+        "java": 19
+      },
+      "first_difference": null
+    },
+    {
+      "index": 4,
+      "passed": true,
+      "events": {
+        "python": 37,
+        "java": 37
+      },
+      "decisions": {
+        "python": 18,
+        "java": 18
+      },
+      "first_difference": null
+    },
+    {
+      "index": 5,
+      "passed": true,
+      "events": {
+        "python": 23,
+        "java": 23
+      },
+      "decisions": {
+        "python": 13,
+        "java": 13
+      },
+      "first_difference": null
+    },
+    {
+      "index": 6,
+      "passed": true,
+      "events": {
+        "python": 28,
+        "java": 28
+      },
+      "decisions": {
+        "python": 18,
+        "java": 18
+      },
+      "first_difference": null
+    },
+    {
+      "index": 7,
+      "passed": true,
+      "events": {
+        "python": 27,
+        "java": 27
+      },
+      "decisions": {
+        "python": 17,
+        "java": 17
+      },
+      "first_difference": null
+    },
+    {
+      "index": 8,
+      "passed": true,
+      "events": {
+        "python": 38,
+        "java": 38
+      },
+      "decisions": {
+        "python": 19,
+        "java": 19
+      },
+      "first_difference": null
+    },
+    {
+      "index": 9,
+      "passed": true,
+      "events": {
+        "python": 43,
+        "java": 43
+      },
+      "decisions": {
+        "python": 29,
+        "java": 29
+      },
+      "first_difference": null
+    },
+    {
+      "index": 10,
+      "passed": true,
+      "events": {
+        "python": 24,
+        "java": 24
+      },
+      "decisions": {
+        "python": 12,
+        "java": 12
+      },
+      "first_difference": null
+    },
+    {
+      "index": 11,
+      "passed": true,
+      "events": {
+        "python": 32,
+        "java": 32
+      },
+      "decisions": {
+        "python": 19,
+        "java": 19
+      },
+      "first_difference": null
+    },
+    {
+      "index": 12,
+      "passed": true,
+      "events": {
+        "python": 33,
+        "java": 33
+      },
+      "decisions": {
+        "python": 23,
+        "java": 23
+      },
+      "first_difference": null
+    },
+    {
+      "index": 13,
+      "passed": true,
+      "events": {
+        "python": 20,
+        "java": 20
+      },
+      "decisions": {
+        "python": 10,
+        "java": 10
+      },
+      "first_difference": null
+    },
+    {
+      "index": 14,
+      "passed": true,
+      "events": {
+        "python": 40,
+        "java": 40
+      },
+      "decisions": {
+        "python": 21,
+        "java": 21
+      },
+      "first_difference": null
+    },
+    {
+      "index": 15,
+      "passed": true,
+      "events": {
+        "python": 30,
+        "java": 30
+      },
+      "decisions": {
+        "python": 21,
+        "java": 21
+      },
+      "first_difference": null
+    },
+    {
+      "index": 16,
+      "passed": true,
+      "events": {
+        "python": 37,
+        "java": 37
+      },
+      "decisions": {
+        "python": 21,
+        "java": 21
+      },
+      "first_difference": null
+    },
+    {
+      "index": 17,
+      "passed": true,
+      "events": {
+        "python": 26,
+        "java": 26
+      },
+      "decisions": {
+        "python": 13,
+        "java": 13
+      },
+      "first_difference": null
+    },
+    {
+      "index": 18,
+      "passed": true,
+      "events": {
+        "python": 30,
+        "java": 30
+      },
+      "decisions": {
+        "python": 18,
+        "java": 18
+      },
+      "first_difference": null
+    },
+    {
+      "index": 19,
+      "passed": true,
+      "events": {
+        "python": 30,
+        "java": 30
+      },
+      "decisions": {
+        "python": 17,
+        "java": 17
+      },
+      "first_difference": null
+    },
+    {
+      "index": 20,
+      "passed": true,
+      "events": {
+        "python": 48,
+        "java": 48
+      },
+      "decisions": {
+        "python": 27,
+        "java": 27
+      },
+      "first_difference": null
+    },
+    {
+      "index": 21,
+      "passed": true,
+      "events": {
+        "python": 20,
+        "java": 20
+      },
+      "decisions": {
+        "python": 13,
+        "java": 13
+      },
+      "first_difference": null
+    },
+    {
+      "index": 22,
+      "passed": true,
+      "events": {
+        "python": 34,
+        "java": 34
+      },
+      "decisions": {
+        "python": 19,
+        "java": 19
+      },
+      "first_difference": null
+    },
+    {
+      "index": 23,
+      "passed": true,
+      "events": {
+        "python": 46,
+        "java": 46
+      },
+      "decisions": {
+        "python": 26,
+        "java": 26
+      },
+      "first_difference": null
+    },
+    {
+      "index": 24,
+      "passed": true,
+      "events": {
+        "python": 44,
+        "java": 44
+      },
+      "decisions": {
+        "python": 28,
+        "java": 28
+      },
+      "first_difference": null
+    },
+    {
+      "index": 25,
+      "passed": true,
+      "events": {
+        "python": 40,
+        "java": 40
+      },
+      "decisions": {
+        "python": 22,
+        "java": 22
+      },
+      "first_difference": null
+    },
+    {
+      "index": 26,
+      "passed": true,
+      "events": {
+        "python": 62,
+        "java": 62
+      },
+      "decisions": {
+        "python": 39,
+        "java": 39
+      },
+      "first_difference": null
+    },
+    {
+      "index": 27,
+      "passed": true,
+      "events": {
+        "python": 49,
+        "java": 49
+      },
+      "decisions": {
+        "python": 32,
+        "java": 32
+      },
+      "first_difference": null
+    },
+    {
+      "index": 28,
+      "passed": true,
+      "events": {
+        "python": 49,
+        "java": 49
+      },
+      "decisions": {
+        "python": 30,
+        "java": 30
+      },
+      "first_difference": null
+    },
+    {
+      "index": 29,
+      "passed": true,
+      "events": {
+        "python": 26,
+        "java": 26
+      },
+      "decisions": {
+        "python": 15,
+        "java": 15
+      },
+      "first_difference": null
+    },
+    {
+      "index": 30,
+      "passed": true,
+      "events": {
+        "python": 28,
+        "java": 28
+      },
+      "decisions": {
+        "python": 15,
+        "java": 15
+      },
+      "first_difference": null
+    },
+    {
+      "index": 31,
+      "passed": true,
+      "events": {
+        "python": 34,
+        "java": 34
+      },
+      "decisions": {
+        "python": 17,
+        "java": 17
+      },
+      "first_difference": null
+    },
+    {
+      "index": 32,
+      "passed": true,
+      "events": {
+        "python": 20,
+        "java": 20
+      },
+      "decisions": {
+        "python": 10,
+        "java": 10
+      },
+      "first_difference": null
+    },
+    {
+      "index": 33,
+      "passed": true,
+      "events": {
+        "python": 55,
+        "java": 55
+      },
+      "decisions": {
+        "python": 37,
+        "java": 37
+      },
+      "first_difference": null
+    },
+    {
+      "index": 34,
+      "passed": true,
+      "events": {
+        "python": 43,
+        "java": 43
+      },
+      "decisions": {
+        "python": 24,
+        "java": 24
+      },
+      "first_difference": null
+    },
+    {
+      "index": 35,
+      "passed": true,
+      "events": {
+        "python": 17,
+        "java": 17
+      },
+      "decisions": {
+        "python": 9,
+        "java": 9
+      },
+      "first_difference": null
+    },
+    {
+      "index": 36,
+      "passed": true,
+      "events": {
+        "python": 32,
+        "java": 32
+      },
+      "decisions": {
+        "python": 17,
+        "java": 17
+      },
+      "first_difference": null
+    },
+    {
+      "index": 37,
+      "passed": true,
+      "events": {
+        "python": 24,
+        "java": 24
+      },
+      "decisions": {
+        "python": 13,
+        "java": 13
+      },
+      "first_difference": null
+    },
+    {
+      "index": 38,
+      "passed": true,
+      "events": {
+        "python": 27,
+        "java": 27
+      },
+      "decisions": {
+        "python": 13,
+        "java": 13
+      },
+      "first_difference": null
+    },
+    {
+      "index": 39,
+      "passed": true,
+      "events": {
+        "python": 49,
+        "java": 49
+      },
+      "decisions": {
+        "python": 33,
+        "java": 33
+      },
+      "first_difference": null
+    },
+    {
+      "index": 40,
+      "passed": true,
+      "events": {
+        "python": 29,
+        "java": 29
+      },
+      "decisions": {
+        "python": 17,
+        "java": 17
+      },
+      "first_difference": null
+    },
+    {
+      "index": 41,
+      "passed": true,
+      "events": {
+        "python": 39,
+        "java": 39
+      },
+      "decisions": {
+        "python": 23,
+        "java": 23
+      },
+      "first_difference": null
+    },
+    {
+      "index": 42,
+      "passed": true,
+      "events": {
+        "python": 50,
+        "java": 50
+      },
+      "decisions": {
+        "python": 34,
+        "java": 34
+      },
+      "first_difference": null
+    },
+    {
+      "index": 43,
+      "passed": true,
+      "events": {
+        "python": 26,
+        "java": 26
+      },
+      "decisions": {
+        "python": 15,
+        "java": 15
+      },
+      "first_difference": null
+    },
+    {
+      "index": 44,
+      "passed": true,
+      "events": {
+        "python": 17,
+        "java": 17
+      },
+      "decisions": {
+        "python": 8,
+        "java": 8
+      },
+      "first_difference": null
+    },
+    {
+      "index": 45,
+      "passed": true,
+      "events": {
+        "python": 33,
+        "java": 33
+      },
+      "decisions": {
+        "python": 22,
+        "java": 22
+      },
+      "first_difference": null
+    },
+    {
+      "index": 46,
+      "passed": true,
+      "events": {
+        "python": 30,
+        "java": 30
+      },
+      "decisions": {
+        "python": 15,
+        "java": 15
+      },
+      "first_difference": null
+    },
+    {
+      "index": 47,
+      "passed": true,
+      "events": {
+        "python": 37,
+        "java": 37
+      },
+      "decisions": {
+        "python": 19,
+        "java": 19
+      },
+      "first_difference": null
+    },
+    {
+      "index": 48,
+      "passed": true,
+      "events": {
+        "python": 29,
+        "java": 29
+      },
+      "decisions": {
+        "python": 20,
+        "java": 20
+      },
+      "first_difference": null
+    },
+    {
+      "index": 49,
+      "passed": true,
+      "events": {
+        "python": 71,
+        "java": 71
+      },
+      "decisions": {
+        "python": 48,
+        "java": 48
+      },
+      "first_difference": null
+    },
+    {
+      "index": 50,
+      "passed": true,
+      "events": {
+        "python": 37,
+        "java": 37
+      },
+      "decisions": {
+        "python": 19,
+        "java": 19
+      },
+      "first_difference": null
+    },
+    {
+      "index": 51,
+      "passed": true,
+      "events": {
+        "python": 27,
+        "java": 27
+      },
+      "decisions": {
+        "python": 18,
+        "java": 18
+      },
+      "first_difference": null
+    },
+    {
+      "index": 52,
+      "passed": true,
+      "events": {
+        "python": 53,
+        "java": 53
+      },
+      "decisions": {
+        "python": 29,
+        "java": 29
+      },
+      "first_difference": null
+    },
+    {
+      "index": 53,
+      "passed": true,
+      "events": {
+        "python": 14,
+        "java": 14
+      },
+      "decisions": {
+        "python": 6,
+        "java": 6
+      },
+      "first_difference": null
+    },
+    {
+      "index": 54,
+      "passed": true,
+      "events": {
+        "python": 46,
+        "java": 46
+      },
+      "decisions": {
+        "python": 32,
+        "java": 32
+      },
+      "first_difference": null
+    },
+    {
+      "index": 55,
+      "passed": true,
+      "events": {
+        "python": 39,
+        "java": 39
+      },
+      "decisions": {
+        "python": 22,
+        "java": 22
+      },
+      "first_difference": null
+    },
+    {
+      "index": 56,
+      "passed": true,
+      "events": {
+        "python": 29,
+        "java": 29
+      },
+      "decisions": {
+        "python": 17,
+        "java": 17
+      },
+      "first_difference": null
+    },
+    {
+      "index": 57,
+      "passed": true,
+      "events": {
+        "python": 28,
+        "java": 28
+      },
+      "decisions": {
+        "python": 16,
+        "java": 16
+      },
+      "first_difference": null
+    },
+    {
+      "index": 58,
+      "passed": true,
+      "events": {
+        "python": 37,
+        "java": 37
+      },
+      "decisions": {
+        "python": 20,
+        "java": 20
+      },
+      "first_difference": null
+    },
+    {
+      "index": 59,
+      "passed": true,
+      "events": {
+        "python": 33,
+        "java": 33
+      },
+      "decisions": {
+        "python": 19,
+        "java": 19
+      },
+      "first_difference": null
+    },
+    {
+      "index": 60,
+      "passed": true,
+      "events": {
+        "python": 14,
+        "java": 14
+      },
+      "decisions": {
+        "python": 7,
+        "java": 7
+      },
+      "first_difference": null
+    },
+    {
+      "index": 61,
+      "passed": true,
+      "events": {
+        "python": 34,
+        "java": 34
+      },
+      "decisions": {
+        "python": 18,
+        "java": 18
+      },
+      "first_difference": null
+    },
+    {
+      "index": 62,
+      "passed": true,
+      "events": {
+        "python": 40,
+        "java": 40
+      },
+      "decisions": {
+        "python": 21,
+        "java": 21
+      },
+      "first_difference": null
+    },
+    {
+      "index": 63,
+      "passed": true,
+      "events": {
+        "python": 17,
+        "java": 17
+      },
+      "decisions": {
+        "python": 8,
+        "java": 8
+      },
+      "first_difference": null
+    },
+    {
+      "index": 64,
+      "passed": true,
+      "events": {
+        "python": 53,
+        "java": 53
+      },
+      "decisions": {
+        "python": 30,
+        "java": 30
+      },
+      "first_difference": null
+    },
+    {
+      "index": 65,
+      "passed": true,
+      "events": {
+        "python": 17,
+        "java": 17
+      },
+      "decisions": {
+        "python": 9,
+        "java": 9
+      },
+      "first_difference": null
+    },
+    {
+      "index": 66,
+      "passed": true,
+      "events": {
+        "python": 52,
+        "java": 52
+      },
+      "decisions": {
+        "python": 39,
+        "java": 39
+      },
+      "first_difference": null
+    },
+    {
+      "index": 67,
+      "passed": true,
+      "events": {
+        "python": 30,
+        "java": 30
+      },
+      "decisions": {
+        "python": 16,
+        "java": 16
+      },
+      "first_difference": null
+    },
+    {
+      "index": 68,
+      "passed": true,
+      "events": {
+        "python": 15,
+        "java": 15
+      },
+      "decisions": {
+        "python": 5,
+        "java": 5
+      },
+      "first_difference": null
+    },
+    {
+      "index": 69,
+      "passed": true,
+      "events": {
+        "python": 40,
+        "java": 40
+      },
+      "decisions": {
+        "python": 26,
+        "java": 26
+      },
+      "first_difference": null
+    },
+    {
+      "index": 70,
+      "passed": true,
+      "events": {
+        "python": 30,
+        "java": 30
+      },
+      "decisions": {
+        "python": 16,
+        "java": 16
+      },
+      "first_difference": null
+    },
+    {
+      "index": 71,
+      "passed": true,
+      "events": {
+        "python": 43,
+        "java": 43
+      },
+      "decisions": {
+        "python": 24,
+        "java": 24
+      },
+      "first_difference": null
+    },
+    {
+      "index": 72,
+      "passed": true,
+      "events": {
+        "python": 8,
+        "java": 8
+      },
+      "decisions": {
+        "python": 2,
+        "java": 2
+      },
+      "first_difference": null
+    },
+    {
+      "index": 73,
+      "passed": true,
+      "events": {
+        "python": 20,
+        "java": 20
+      },
+      "decisions": {
+        "python": 9,
+        "java": 9
+      },
+      "first_difference": null
+    },
+    {
+      "index": 74,
+      "passed": true,
+      "events": {
+        "python": 20,
+        "java": 20
+      },
+      "decisions": {
+        "python": 11,
+        "java": 11
+      },
+      "first_difference": null
+    },
+    {
+      "index": 75,
+      "passed": true,
+      "events": {
+        "python": 30,
+        "java": 30
+      },
+      "decisions": {
+        "python": 20,
+        "java": 20
+      },
+      "first_difference": null
+    },
+    {
+      "index": 76,
+      "passed": true,
+      "events": {
+        "python": 45,
+        "java": 45
+      },
+      "decisions": {
+        "python": 29,
+        "java": 29
+      },
+      "first_difference": null
+    },
+    {
+      "index": 77,
+      "passed": true,
+      "events": {
+        "python": 11,
+        "java": 11
+      },
+      "decisions": {
+        "python": 5,
+        "java": 5
+      },
+      "first_difference": null
+    },
+    {
+      "index": 78,
+      "passed": true,
+      "events": {
+        "python": 47,
+        "java": 47
+      },
+      "decisions": {
+        "python": 32,
+        "java": 32
+      },
+      "first_difference": null
+    },
+    {
+      "index": 79,
+      "passed": true,
+      "events": {
+        "python": 37,
+        "java": 37
+      },
+      "decisions": {
+        "python": 22,
+        "java": 22
+      },
+      "first_difference": null
+    },
+    {
+      "index": 80,
+      "passed": true,
+      "events": {
+        "python": 33,
+        "java": 33
+      },
+      "decisions": {
+        "python": 19,
+        "java": 19
+      },
+      "first_difference": null
+    },
+    {
+      "index": 81,
+      "passed": true,
+      "events": {
+        "python": 28,
+        "java": 28
+      },
+      "decisions": {
+        "python": 16,
+        "java": 16
+      },
+      "first_difference": null
+    },
+    {
+      "index": 82,
+      "passed": true,
+      "events": {
+        "python": 62,
+        "java": 62
+      },
+      "decisions": {
+        "python": 41,
+        "java": 41
+      },
+      "first_difference": null
+    },
+    {
+      "index": 83,
+      "passed": true,
+      "events": {
+        "python": 24,
+        "java": 24
+      },
+      "decisions": {
+        "python": 12,
+        "java": 12
+      },
+      "first_difference": null
+    },
+    {
+      "index": 84,
+      "passed": true,
+      "events": {
+        "python": 36,
+        "java": 36
+      },
+      "decisions": {
+        "python": 24,
+        "java": 24
+      },
+      "first_difference": null
+    },
+    {
+      "index": 85,
+      "passed": true,
+      "events": {
+        "python": 23,
+        "java": 23
+      },
+      "decisions": {
+        "python": 12,
+        "java": 12
+      },
+      "first_difference": null
+    },
+    {
+      "index": 86,
+      "passed": true,
+      "events": {
+        "python": 28,
+        "java": 28
+      },
+      "decisions": {
+        "python": 13,
+        "java": 13
+      },
+      "first_difference": null
+    },
+    {
+      "index": 87,
+      "passed": true,
+      "events": {
+        "python": 39,
+        "java": 39
+      },
+      "decisions": {
+        "python": 29,
+        "java": 29
+      },
+      "first_difference": null
+    },
+    {
+      "index": 88,
+      "passed": true,
+      "events": {
+        "python": 36,
+        "java": 36
+      },
+      "decisions": {
+        "python": 20,
+        "java": 20
+      },
+      "first_difference": null
+    },
+    {
+      "index": 89,
+      "passed": true,
+      "events": {
+        "python": 27,
+        "java": 27
+      },
+      "decisions": {
+        "python": 14,
+        "java": 14
+      },
+      "first_difference": null
+    },
+    {
+      "index": 90,
+      "passed": true,
+      "events": {
+        "python": 56,
+        "java": 56
+      },
+      "decisions": {
+        "python": 38,
+        "java": 38
+      },
+      "first_difference": null
+    },
+    {
+      "index": 91,
+      "passed": true,
+      "events": {
+        "python": 38,
+        "java": 38
+      },
+      "decisions": {
+        "python": 21,
+        "java": 21
+      },
+      "first_difference": null
+    },
+    {
+      "index": 92,
+      "passed": true,
+      "events": {
+        "python": 24,
+        "java": 24
+      },
+      "decisions": {
+        "python": 12,
+        "java": 12
+      },
+      "first_difference": null
+    },
+    {
+      "index": 93,
+      "passed": true,
+      "events": {
+        "python": 24,
+        "java": 24
+      },
+      "decisions": {
+        "python": 16,
+        "java": 16
+      },
+      "first_difference": null
+    },
+    {
+      "index": 94,
+      "passed": true,
+      "events": {
+        "python": 44,
+        "java": 44
+      },
+      "decisions": {
+        "python": 23,
+        "java": 23
+      },
+      "first_difference": null
+    },
+    {
+      "index": 95,
+      "passed": true,
+      "events": {
+        "python": 33,
+        "java": 33
+      },
+      "decisions": {
+        "python": 18,
+        "java": 18
+      },
+      "first_difference": null
+    }
+  ],
+  "totals": {
+    "events_per_language": 3469,
+    "decisions_per_language": 2021
+  },
+  "reservation_checks": {
+    "canAddToQueue_calls": 395,
+    "guard_disagreements_in_normal_runs": [],
+    "note": "busy visits short-circuit canAddToQueue; all event boundaries also compare pending starts"
+  },
+  "injected_boundary": {
+    "scope": "injected component states only",
+    "cases": [
+      {
+        "scenario": "empty",
+        "original_allowed": true,
+        "python_reservation_allows": true,
+        "equal": true,
+        "reachable_run": false,
+        "check": {
+          "event_sequence": 0,
+          "time": 0.0,
+          "task": [
+            0,
+            "B"
+          ],
+          "resource_id": "M0",
+          "available_time": 0.0,
+          "original_allowed": true,
+          "observed_pending_starts": [],
+          "global_root": null
+        }
+      },
+      {
+        "scenario": "staged_only",
+        "original_allowed": true,
+        "python_reservation_allows": false,
+        "equal": false,
+        "reachable_run": false,
+        "check": {
+          "event_sequence": 0,
+          "time": 0.0,
+          "task": [
+            0,
+            "B"
+          ],
+          "resource_id": "M0",
+          "available_time": 0.0,
+          "original_allowed": true,
+          "observed_pending_starts": [
+            [
+              0,
+              "A"
+            ]
+          ],
+          "global_root": null
+        }
+      },
+      {
+        "scenario": "matching_root",
+        "original_allowed": false,
+        "python_reservation_allows": false,
+        "equal": true,
+        "reachable_run": false,
+        "check": {
+          "event_sequence": 0,
+          "time": 0.0,
+          "task": [
+            0,
+            "B"
+          ],
+          "resource_id": "M0",
+          "available_time": 0.0,
+          "original_allowed": false,
+          "observed_pending_starts": [
+            [
+              0,
+              "A"
+            ]
+          ],
+          "global_root": {
+            "type": "ProcessStartEvent",
+            "time": 0.0,
+            "owner": "M0",
+            "workflow_id": 0,
+            "task_id": "A",
+            "resource_id": "M0"
+          }
+        }
+      },
+      {
+        "scenario": "matching_below_other_root",
+        "original_allowed": true,
+        "python_reservation_allows": false,
+        "equal": false,
+        "reachable_run": false,
+        "check": {
+          "event_sequence": 0,
+          "time": 0.0,
+          "task": [
+            0,
+            "B"
+          ],
+          "resource_id": "M0",
+          "available_time": 0.0,
+          "original_allowed": true,
+          "observed_pending_starts": [
+            [
+              0,
+              "A"
+            ]
+          ],
+          "global_root": {
+            "type": "ProcessStartEvent",
+            "time": 0.0,
+            "owner": "M0",
+            "workflow_id": 0,
+            "task_id": "A",
+            "resource_id": "E0"
+          }
+        }
+      }
+    ]
+  },
+  "precision_boundary": {
+    "parity_passed": false,
+    "python_status": "FAILED",
+    "python_reason": "execution duration lost to floating-point precision for (3, 'A', 'M0'): start=9007199254740992.0, PT=1.0, DT=0.0; reduce the time origin or use higher-precision time arithmetic",
+    "java_status": "SUCCEEDED",
+    "java_overlaps": [
+      {
+        "resource_id": "M0",
+        "first": [
+          2,
+          "A"
+        ],
+        "second": [
+          5,
+          "A"
+        ],
+        "first_finish": 9007199254741000.0,
+        "second_start": 9007199254740996.0
+      }
+    ],
+    "first_difference": {
+      "path": "$.result.events[11].actions[0]",
+      "python_value": 0,
+      "java_value": 1,
+      "reason": "list length differs after common prefix",
+      "phase": "actions",
+      "event_sequence": 12,
+      "event_type": "TaskVisitEvent",
+      "time": 9007199254740992.0
+    },
+    "expected_boundary_detected": true
+  },
+  "java_build_fingerprint": "a69f3c65cce9eae3111d7c15f95c3aeac49946d2308df8c02d594ec8b189b921",
+  "not_validated": [
+    "arbitrary-input equivalence",
+    "DAX/Java RNG/workload distributions",
+    "GP/training/paper-scale experiments"
+  ]
+}

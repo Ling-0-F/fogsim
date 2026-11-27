@@ -1,0 +1,25 @@
+平台：SCNet超算互联网平台
+
+相关文件（夹）：
+reproduction    ，
+fogsim-0.4.0-B04   ，
+fogsim-0.4.0-B04-references
+
+相关命令：
+deps=fogsim-0.4.0/development/S9-B02
+
+grep -v '^numpy==' "$deps/requirements-train.lock" > requirements-scnet.lock
+
+.venv/bin/python -m pip install --no-index --require-hashes --find-links "$deps/wheels" -r requirements-scnet.lock
+
+.venv/bin/python -m pip check
+
+.venv/bin/python -c 'import numpy, deap, moocore; print("NumPy", numpy.__version__)'
+
+cd ~/fogsim-scnet
+
+paper_jobid=$(sbatch --parsable -p kshcnormal --time=2-00:00:00 --array=0-29%12 mtgp.slurm paper medium)
+
+echo "Medium 3 正式作业号 $paper_jobid"
+
+squeue -j "$paper_jobid"

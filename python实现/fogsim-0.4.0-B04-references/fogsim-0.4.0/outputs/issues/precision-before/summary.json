@@ -1,0 +1,47 @@
+{
+  "scope": "0.2 phase 1: existing single-task and chain configurations",
+  "passed": false,
+  "cases": [
+    {
+      "case": "v2_collapsed_time",
+      "passed": false,
+      "events": {
+        "python": 24,
+        "java": 24
+      },
+      "decisions": {
+        "python": 9,
+        "java": 9
+      },
+      "first_difference": {
+        "path": "$.result.events[18].actions[0]",
+        "python_value": 0,
+        "java_value": 2,
+        "reason": "list length differs after common prefix",
+        "phase": "actions",
+        "event_sequence": 19,
+        "event_type": "ProcessFinishEvent",
+        "time": 9007199254740992.0
+      },
+      "report": "v2_collapsed_time/comparison.json"
+    }
+  ],
+  "java_build_fingerprint": "7cdcdf7f95691a741966f2de5d7d36e332355aaed15920b74846fb2870c27c3c",
+  "first_difference": {
+    "case": "v2_collapsed_time",
+    "path": "$.result.events[18].actions[0]",
+    "python_value": 0,
+    "java_value": 2,
+    "reason": "list length differs after common prefix",
+    "phase": "actions",
+    "event_sequence": 19,
+    "event_type": "ProcessFinishEvent",
+    "time": 9007199254740992.0
+  },
+  "not_validated": [
+    "complex DAG/contention acceptance",
+    "full multi-device integration",
+    "arbitrary-input equivalence",
+    "random generation/GP/training statistics"
+  ]
+}

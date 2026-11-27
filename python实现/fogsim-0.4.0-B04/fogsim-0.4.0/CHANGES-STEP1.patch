@@ -1,0 +1,1765 @@
+--- a/README.md
++++ b/README.md
+@@ -1,4 +1,6 @@
+ # 雾计算工作流调度复现：0.2.1 固定实例验收版
++
++> 当前工作副本已按冻结设计完成扩展第 1 步：新配置、不可变输入和身份映射。新增契约及固定兼容性已验证；动态运行、采样、重放和 Java 新对照尚未实现。使用方式、真实测试结果和后续衔接见 [第 1 步记录](docs/STEP1-PROGRESS.md)。以下 286 项及跨语言结果是原 0.2.1 的历史验收证据；本包为 step1 开发快照，不是新的完整验收版。
+ 
+ 按提供的设计及 Xu 等（2023）Java 源码实现固定输入模拟器。已完成本轮 V2-01～V2-05：正式 14 配置及 96 组固定扫查，共每种语言 3,469 条事件、2,021 次决策逐项一致。最终 286 项测试通过，0 失败、0 错误、0 跳过。环境为 Linux x86_64、CPython 3.12.14、pytest 9.2.0、Temurin 17.0.16+8。
+ 
+--- /dev/null
++++ b/configs/examples/step1_dynamic.json
+@@ -0,0 +1,19 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 1,
++  "mode": "dynamic",
++  "source": {
++    "seed": -1,
++    "dag_root": "../../dax",
++    "workflow_types": {"lower": 0, "upper": 19},
++    "environment": {
++      "num_mobile_devices": 2,
++      "num_edge_servers": 1,
++      "num_cloud_servers": 1,
++      "can_mobile_devices_process_tasks": true
++    }
++  },
++  "run": {"num_jobs_recorded": 10, "warmup_jobs": 0},
++  "repeat": {"count": 1},
++  "output": {"dataset_role": "debug"}
++}
+--- /dev/null
++++ b/configs/examples/step1_replay.json
+@@ -0,0 +1,8 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 1,
++  "mode": "replay",
++  "source": {"input_path": "../../data/dynamic/input.json", "purpose": "reuse_inputs"},
++  "run": {"trace_enabled": true},
++  "repeat": {"count": 2}
++}
+--- a/docs/IMPLEMENTATION-NOTES.md
++++ b/docs/IMPLEMENTATION-NOTES.md
+@@ -218,3 +218,7 @@
+ ## N27：按用户原意撤回具体 JDK build 限制（0.2.1）
+ 
+ 用户要求 JDK 17 主版本，并非固定 Temurin 17.0.16+8。N26 中额外收紧到 vendor/build/源码的决定已撤回；保留作为历史决策记录，当前以 N27 为准。reference_jdk 仅拒绝主版本非 17；其他更新版本、厂商和源码指纹不同只记录，不拒绝。源码归档可选。零 skip 和真实行为对照门禁继续保留。本次实际完整回归仍使用 17.0.16+8，未冒充用户的 Windows 17.0.20.1+1 实测。
++
++## N28：冻结扩展设计第 1 步（2026-11-04）
++
++本次用户明确冻结上传设计并授权编码，设计中历史审阅措辞不再阻塞实施。仅新增纯配置、不可变输入与身份契约；未调整调度、统计或生命周期语义。sampler 子字段拼写、不可变归档记录包装和 same_input 配置表示是普通实现具体化，详见 [STEP1-PROGRESS](STEP1-PROGRESS.md)。新配置入口独立，旧 RunConfig 和固定加载器不猜测新格式。边清理实际服务按第 7 步落实，当前不是 V20 完成声明。当前 Java 缺少运行库及 javac，不影响本轮纯 Python 验证，不宣称新的动态跨语言通过。
+--- a/docs/SOURCES.md
++++ b/docs/SOURCES.md
+@@ -17,3 +17,13 @@
+ 本次没有实现论文 VI/后续实验中的 GP、采样、训练和统计机制。阅读材料不视作运行验证；真实验证结果分别记录在 VALIDATION 和 outputs 中。
+ 
+ `references/design/`保持原始文件内容不变。0.1包只保留局部oracle及阅读映射所需Java文件；0.2.0a1包为支持重新编译固定适配器，纳入原Java源码和12个非javadoc依赖jar。原ZIP、PDF和JDK二进制不重复打包。原647份Java源码及12个依赖jar已与提供ZIP逐项核对一致，见 `outputs/parity/build/source-integrity.json`。当前项目快照、顺序映射、构建补丁和轨迹指纹分别见validation-manifest、parity/build及各案例run-manifest。
++# 第 1 步资料可访问性补充（2026-11-04）
++
++本轮对话提供的七份材料均可访问：0.2.1 verified ZIP、冻结扩展设计 MD、简易实施顺序 PNG、multiDeviceDebug Java ZIP、2026-10-08 学习计划 MD、早期设计 ZIP、Xu 2023 双语 PDF。仅使用本对话附件，未搜索其他私人文件。
++
++实际优先读取冻结设计全文、顺序图、README、VALIDATION、IMPLEMENTATION-NOTES、ISSUES-AND-FIXES、roadmap、semantics 及本轮配置/模型/建图/测试源码；Java 原始解析、资源构造、工作流生成和接纳方法静态核对。学习计划读取总体路线；早期设计仅核对目录与现有文档引用，论文可访问但本轮没有用它替代 Java 源码或开展新的模型结论核验。
++
++冻结设计原文副本位于 `references/design/NEXT-STAGE-FROZEN.md`，顺序图位于 `references/design/NEXT-STAGE-ORDER.png`；设计正文历史“初稿/未进入编码”状态由本轮用户指令覆盖，未篡改原文。当前实施状态见 `STEP1-PROGRESS.md`。
++
++Python 基线 ZIP 本轮 SHA256 为 b481609243dcd6c73c6428f3a242555f0ffaf5e27a63d5049e2fc50a72877c2e；Java ZIP 为 17a273961e66f409c4cfc8305ee31433bf7022232da3a2cbd0cc8e70e4c32c9a，均与设计来源表一致。
++
+--- /dev/null
++++ b/docs/STEP1-PROGRESS.md
+@@ -0,0 +1,76 @@
++# 冻结设计实施记录：第 1 步
++
++日期：2026-11-04（America/Los_Angeles）。这是基于 0.2.1 的开发快照，尚非完整动态版本或新的正式验收版。用户本次指令冻结上传设计；文档中的历史审阅状态不再阻止编码。原始 ZIP 保留不变。
++
++## 本轮交付
++
++| 模块 | 已实现的职责 |
++| --- | --- |
++| `experiment_config.py`，`input_validation.py` | `fogsim.experiment` v1；dynamic/replay 分层；严格字段、类型、范围、有限值和跨字段校验；纯参数冻结及有效参数指纹 |
++| `seed.py` | signed64-bits-v1 编码和 Java long 加 10000 的纯回绕函数；尚未创建随机流或实现 context 生命周期 |
++| `instances/templates.py`，`identity.py` | 不可变拓扑及类型+内容哈希引用；XML ID→Java 位置；资源独立编号空间；不解析 ID 后缀来建立运行身份 |
++| `environment/spec.py` | 有序设备/服务器实际数值快照、候选合法性、来源及内容指纹；不采样，不建运行资源 |
++| `instances/generated.py` | 完整物理任务/边/候选、生成原因/尝试、接纳映射、不可变归档；引用、顺序和数值校验 |
++| `model/task.py`，`workflow.py` | 在原字段后追加来源元数据、可空 Java 序号及边状态；明确区分 UNAVAILABLE/RETAINED/RELEASED 的访问器 |
++| `simulation/state.py` | 固定建图复用显式资源身份映射，资源对象创建与遍历顺序不变 |
++| `config.py`，包公共导出 | 新配置入口可导入；`RunConfig/load_config/create_engine/simulate` 的固定语义不变 |
++
++未增加 GP、采样器空壳、动态模拟入口空壳或另一套事件循环。`release_edge_data` 的实际释放服务按用户实施顺序留在第 7 步，当前只建立状态/访问契约，不宣称 V20 已通过；不能在后续最终交付时省略该服务。
++
++## 精确配置用法与本轮实现选择
++
++```python
++from fogsim import load_experiment_config, parse_experiment_config
++
++config = load_experiment_config("configs/examples/step1_dynamic.json")
++assert config.run.max_events is None
++single = config.single_run(0)  # 纯配置展开；不会创建环境、准备工作流或运行事件
++```
++
++示例文件仅可解析；尚不能用旧 CLI 执行。它们放在 `configs/examples/`，避免被原固定配置发现逻辑误读。输入路径在配置阶段不要求存在，DAX 文件与目录检查在第 2 步执行。`parse_experiment_config` 遇到相对路径必须显式给 `base_dir`；直接构造 SourceConfig 须给绝对 `Path`。有效路径在加载后固定。
++
++`source.samplers` 的可调实数均匀范围字段为 `workload`、`data_size`、`edge_data`、`processing_rate_device`、`processing_rate_edge`、`processing_rate_cloud`，值均为 `{lower, upper}`。工作量/算力下界严格正，数据下界允许 0，所有实数范围严格 lower<upper。类型范围允许整数单点。冻结设计未规定 sampler 子字段的 JSON 拼写，本轮据此具体化，未改变任何分布语义。
++
++固定 profile 字段为 `inter_release_mean=100`、`weight_profile="two_six_two"`、`cloud_bandwidth_profile="bandwidth_cloud"`、`edge_bandwidth=1024`；可省略，显式冲突时报错。不开放其他分布家族。`effective_parameters()` 另外完整列出固定值、阈值、取值顺序和算法标识；`to_dict()` 保持可被严格配置解析器重新读取。返回字典都是独立副本。
++
++动态 repeat.count>1 须显式选择 fresh_same_seed / fresh_seed_list / java_rerun。seed 列表模式可不写 source.seed；同时给时须等于首项。`single_run(index)` 仅展开一轮配置，java_rerun 的上下文延续将由第 7 步实验执行器负责。replay 的 repeat 归一化为 same_input，每轮来源位置重置；不接受 seed 或 N/W 覆盖。verify_reference 必须给参考路径且不准覆盖规则；input-only 执行使用 reuse_inputs，比较状态由后续模块标为 NOT_COMPARED。配置解析不读取输入，因此 replay 目标资源实际合法性留到输入装载后校验。
++
++没有调整冻结语义。N=1,W=0 配置仍合法；本轮不提前把其运行失败结论记为已验证。计数上限与 seed 回绕分开处理。
++
++## 输入与身份约束
++
++- 拓扑、环境和归档使用冻结 dataclass 和逐层复制的 tuple；不包含运行对象、队列、RNG、Context 或参考输出。`OptionSpec` 复用旧不可变描述，新增 TaskInput 对其数值做严格校验。
++- Task.id 为原字符串，Java 序号为模板列表位置；固定模式旧 ID 和任务顺序保持。运行 Task.java_index 对旧输入默认为 None；动态建图在第 3 步按模板映射填写。
++- 资源数字身份由明确顺序产生：设备独立从 0 开始；服务器边缘后云。固定自定义 ID 和原始资源字典顺序保持。标准动态名字的合法性校验不承担运行 numeric_id 分配。
++- 模板 dependencies 保留 XML 边序；候选 edges 使用任务→children 采样序，两者通过父子 ID 关联。归档检查完整匹配，绝不将边值数组顺序当成 parents 累计顺序。
++- 每条候选记录与一次尝试一对一，record_id 为从 1 连续尝试序号的十进制字符串；正式 ID 取接纳前 G，拒绝不占号。初始化设备顺序及一次 Arrival 仅触发一次尝试通过引用校验保护。
++- 归档可保存已完成候选的有效前缀，用于准备期诊断；它不是带 capture.complete 的 ReplayInput。完整重放文件及覆盖判定属于第 6 步。边总量/UT/PT/DT 的公式审计属于第 3/6 步，不静默重算替换记录值。
++- 运行边映射是另外建立的可变副本。清空或修改它们不影响归档；旧固定数据未知时保持 None，不伪造 0。
++
++## 证据与本轮验证
++
++| 类别 | 事实及适用范围 |
++| --- | --- |
++| Java 源码事实 | `WorkflowParser.java:114–121` 按 job 出现位置编号；`DynamicSimulation.java:127–163` 设备独立、边缘后云；`MobileDevice.java:348–433` 两遍生成、取全局 ID 后接纳；`SystemState.java:69–83` 严格 release>clock 才登记。仅静态读取，本轮未运行 Java 动态路径 |
++| Python 0.2.1 既有事实 | 固定严格加载；每轮规范对象图；旧 RunConfig max_events=100000；已有可空物理字段；四事件、比较器、队列、日志和固定 repeat 不变 |
++| 冻结设计要求 | §§5、8.1、9.5、16–18 的数据、配置、身份和 seed 边界已经落实到本轮代码；V09/V11/V15/V21/V22 只完成相应纯契约部分 |
++| 实际运行结果 | 见下列命令与 `outputs/step1/`，不同于原 0.2.1 历史证据 |
++
++执行目录为项目根目录；当前环境将 pytest 9.2.0 安装在工作区独立测试依赖目录，无需重建完整 Java 环境。可在常规开发环境直接执行 `python -m pytest`，本次实际命令为：
++
++```text
++PYTHONPATH=../../.test-deps:src python -m pytest -q tests/unit/test_experiment_config.py tests/unit/test_input_contracts.py --junitxml=outputs/step1/contracts.xml
++PYTHONPATH=../../.test-deps:src python -m pytest -q tests/unit tests/integration --junitxml=outputs/step1/python-regression.xml
++```
++
++当前结果：新增契约测试 **193 passed**；单元+集成共 **355 passed，0 failed，0 errors，0 skipped**。其中 14 个正式固定配置的完整 result/events/decisions 与保存的 0.2.1 Python 轨迹精确相等；旧输入、旧配置、CLI、repeat、规范引用和已知执行精度负例通过对应回归测试。首次三组旧接口检查为 76 passed，首次新增契约为 189 passed，补齐顺序/隔离测试后为上述最终计数。
++
++开发中曾有一轮 355 passed、1 failed：动态示例重复保留在顶层 configs，被原固定配置自动发现，旧严格加载器正确拒绝了新格式。删除该重复文件，仅保留 configs/examples 下的示例后重跑；未修改已有预期或放宽旧加载器。开发期 XML 另存于 `outputs/step1/development-example-placement.xml`。
++
++校验不抽数的测试禁止创建 random.Random 及调用常用抽样方法，并检查全局 random 状态未变；这只证明本轮纯校验路径。共享输入流、sampler 构造/复制、reset/rerun/rotateSeed 资源及 B 延续均未实现，不能据此宣称生命周期验收通过。
++
++未执行：完整 V01（96 扫查、组件 oracle 与 Java 重新对照）、V02–V22 的动态运行部分。当前 `/usr/bin/java -version` 因缺少 libjli.so 失败，未找到 javac；未为第 1 步搭建 Java 环境。没有使用跳过测试伪造正式跨语言门禁通过，也未调用正式 release 工具。原 `outputs/validation-manifest.json`、`RELEASE-FILES.json` 及旧 outputs 是 **0.2.1 历史证据**，不描述当前工作副本；本轮包标为 step1 开发快照，当前文件指纹见 `outputs/step1/current-files.json`。
++
++## 后续衔接
++
++第 1 步已实现并完成上述 Python 验证。第 2 步接入现有 DagTemplate / WorkflowTypeRange / SamplerParameters / seed 编码，完成 20 类型 DAX 目录与严格保序解析、共享 Random 的构造及 sampler；落实 V02–V05 与 seed 测试。参数校验后再加载模板，所有模板合法后才允许采环境；校验和模板加载均不推进随机流。环境采样及两遍建图仍归第 3 步。Java 导出器在第 6 步前完成，不阻塞第 2 步。
+--- a/docs/VALIDATION.md
++++ b/docs/VALIDATION.md
+@@ -1,4 +1,6 @@
+ # 0.2 固定实例完整验收记录
++
++> 第 1 步扩展的本轮证据另见 [STEP1-PROGRESS](STEP1-PROGRESS.md) 和 `outputs/step1/`。以下为 0.2.1 历史完整验收，不能作为当前扩展的动态或跨语言通过证据。
+ 
+ 日期：2026-10-29（America/Los_Angeles）。版本：0.2.1。范围为设计 11 的 V2-01～V2-05，以及原有 0.1/0.2.0a1 回归。原第一阶段记录另存于 `docs/history/VALIDATION-0.2.0a1.md`，原始交付证据保留在 `outputs/history-0.2.0a1/`。
+ 
+--- a/docs/roadmap.md
++++ b/docs/roadmap.md
+@@ -1,4 +1,6 @@
+ # 进度与后续工作
++
++2026-11-04：按用户冻结设计完成第 1 步的数据/配置/身份契约；本轮实际验证及后续范围见 [STEP1-PROGRESS](STEP1-PROGRESS.md)。下一步为 DAX 目录、严格解析、RNG 与 sampler。以下内容保留 0.2.1 历史状态。
+ 
+ 0.1 已实现固定输入、模型、四事件、兼容堆、队列/预约、FCFS 与日志/重跑。0.2.0a1 完成 Java 固定入口及 4 个简单实例对照，历史记录保留。
+ 
+--- a/docs/semantics.md
++++ b/docs/semantics.md
+@@ -1,4 +1,6 @@
+ # 当前语义基线
++
++第 1 步扩展增加的纯配置和输入契约见 [STEP1-PROGRESS](STEP1-PROGRESS.md)。本文件以下仍描述已验证的固定运行路径；新数据类型不会使 create_engine/simulate 自动进入动态模式。新运行元数据为可空附加字段，不改变键或平分顺序。
+ 
+ 权威设计依次为原设计 04（字段）、07（状态归属）、08（事件）、09（接口）、10（比较与归并）；输入使用03的完整示例，验证使用11。README 写明正式命令/格式，IMPLEMENTATION-NOTES 记录具体落地选择。
+ 
+--- a/src/fogsim/__init__.py
++++ b/src/fogsim/__init__.py
+@@ -1,6 +1,8 @@
+ from .config import RunConfig
+ from .instances import load_fixed_instance, parse_instance, InstanceSpec
+ from .simulation.engine import create_engine, simulate
++from .experiment_config import ExperimentConfig, load_experiment_config, parse_experiment_config
+ 
+ __version__ = "0.2.1"
+-__all__ = ["RunConfig", "InstanceSpec", "load_fixed_instance", "parse_instance", "create_engine", "simulate"]
++__all__ = ["RunConfig", "InstanceSpec", "load_fixed_instance", "parse_instance", "create_engine", "simulate",
++           "ExperimentConfig", "load_experiment_config", "parse_experiment_config"]
+--- a/src/fogsim/config.py
++++ b/src/fogsim/config.py
+@@ -2,6 +2,7 @@
+ from pathlib import Path
+ from fogsim.errors import InputError
+ from fogsim.instances.fixed import read_json, object_fields
++from fogsim.experiment_config import ExperimentConfig, load_experiment_config, parse_experiment_config
+ 
+ 
+ @dataclass(frozen=True)
+--- /dev/null
++++ b/src/fogsim/environment/__init__.py
+@@ -0,0 +1,4 @@
++"""Environment value descriptions; no runtime resources or sampling."""
++from .spec import DeviceSnapshot, ServerSnapshot, EnvironmentSnapshot
++
++__all__ = ["DeviceSnapshot", "ServerSnapshot", "EnvironmentSnapshot"]
+--- /dev/null
++++ b/src/fogsim/environment/spec.py
+@@ -0,0 +1,70 @@
++from dataclasses import dataclass, asdict
++import hashlib
++import json
++from fogsim.errors import InputError
++from fogsim.input_validation import integer, finite, boolean, choice, text, sequence, unique, INT32_MAX
++
++
++@dataclass(frozen=True)
++class DeviceSnapshot:
++    id: str
++    numeric_id: int
++    processing_rate: float
++    can_process_tasks: bool
++
++    def __post_init__(self):
++        text(self.id, "device.id")
++        integer(self.numeric_id, "device.numeric_id", 0, INT32_MAX)
++        object.__setattr__(self, "processing_rate", finite(self.processing_rate, "processing_rate", True))
++        boolean(self.can_process_tasks, "can_process_tasks")
++
++
++@dataclass(frozen=True)
++class ServerSnapshot:
++    id: str
++    numeric_id: int
++    type: str
++    processing_rate: float
++    upload_bandwidth: float
++    download_bandwidth: float
++
++    def __post_init__(self):
++        text(self.id, "server.id")
++        integer(self.numeric_id, "server.numeric_id", 0, INT32_MAX)
++        choice(self.type, ("EDGE", "CLOUD"), "server.type")
++        for key in ("processing_rate", "upload_bandwidth", "download_bandwidth"):
++            object.__setattr__(self, key, finite(getattr(self, key), key, True))
++
++
++@dataclass(frozen=True)
++class EnvironmentSnapshot:
++    devices: tuple[DeviceSnapshot, ...]
++    servers: tuple[ServerSnapshot, ...]
++    parameter_source: str
++
++    def __post_init__(self):
++        devices = sequence(self.devices, DeviceSnapshot, "devices", True)
++        servers = sequence(self.servers, ServerSnapshot, "servers")
++        text(self.parameter_source, "parameter_source")
++        unique([r.id for r in (*devices, *servers)], "environment.resources")
++        if tuple(r.numeric_id for r in devices) != tuple(range(len(devices))):
++            raise InputError("device numeric IDs must follow device order")
++        if tuple(r.numeric_id for r in servers) != tuple(range(len(servers))):
++            raise InputError("server numeric IDs must follow server order")
++        if list(servers) != [s for kind in ("EDGE", "CLOUD") for s in servers if s.type == kind]:
++            raise InputError("servers must be ordered EDGE then CLOUD")
++        if not servers and any(not d.can_process_tasks for d in devices):
++            raise InputError("every device must have at least one eligible resource")
++        object.__setattr__(self, "devices", devices)
++        object.__setattr__(self, "servers", servers)
++
++    @property
++    def fingerprint(self):
++        payload = json.dumps(asdict(self), sort_keys=True, separators=(",", ":"), allow_nan=False)
++        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
++
++    def eligible_resource_ids(self, owner_device_id):
++        owner = next((d for d in self.devices if d.id == owner_device_id), None)
++        if owner is None:
++            raise InputError(f"unknown MOBILE owner: {owner_device_id}")
++        return ((owner.id,) if owner.can_process_tasks else ()) + tuple(s.id for s in self.servers)
+--- /dev/null
++++ b/src/fogsim/experiment_config.py
+@@ -0,0 +1,402 @@
++"""Versioned, pure experiment configuration; does not load inputs or create RNGs.
++
++The fixed-mode RunConfig/load_config contract remains in config.py unchanged.
++"""
++from dataclasses import dataclass, field, asdict, replace
++from pathlib import Path
++import hashlib
++import json
++from fogsim.errors import InputError
++from fogsim.instances.fixed import object_fields, read_json
++from fogsim.input_validation import integer, finite, boolean, choice, text, INT32_MAX
++from fogsim.seed import encode_seed
++
++
++@dataclass(frozen=True)
++class RealRange:
++    lower: float
++    upper: float
++
++    def __post_init__(self):
++        for key in ("lower", "upper"):
++            object.__setattr__(self, key, finite(getattr(self, key), key))
++        if self.lower >= self.upper:
++            raise InputError("real uniform range requires lower < upper")
++
++
++@dataclass(frozen=True)
++class WorkflowTypeRange:
++    lower: int
++    upper: int
++
++    def __post_init__(self):
++        integer(self.lower, "workflow_types.lower", 0, 19)
++        integer(self.upper, "workflow_types.upper", 0, 19)
++        if self.lower > self.upper:
++            raise InputError("workflow_types requires lower <= upper")
++
++
++@dataclass(frozen=True)
++class SamplerParameters:
++    workload: RealRange = field(default_factory=lambda: RealRange(5000, 15000))
++    data_size: RealRange = field(default_factory=lambda: RealRange(5120, 20480))
++    edge_data: RealRange = field(default_factory=lambda: RealRange(100, 200))
++    processing_rate_device: RealRange = field(default_factory=lambda: RealRange(125, 250))
++    processing_rate_edge: RealRange = field(default_factory=lambda: RealRange(250, 500))
++    processing_rate_cloud: RealRange = field(default_factory=lambda: RealRange(500, 1000))
++    inter_release_mean: float = 100.0
++    weight_profile: str = "two_six_two"
++    cloud_bandwidth_profile: str = "bandwidth_cloud"
++    edge_bandwidth: float = 1024.0
++
++    def __post_init__(self):
++        for key in RANGE_FIELDS:
++            value = getattr(self, key)
++            if type(value) is not RealRange:
++                raise InputError(f"samplers.{key}: expected RealRange")
++            if key not in ("data_size", "edge_data") and value.lower <= 0:
++                raise InputError(f"samplers.{key}: lower bound must be positive")
++        for key, expected in (("inter_release_mean", 100.0), ("edge_bandwidth", 1024.0)):
++            value = finite(getattr(self, key), key, True)
++            if value != expected:
++                raise InputError(f"java_legacy profile requires {key}={expected}")
++            object.__setattr__(self, key, value)
++        choice(self.weight_profile, ("two_six_two",), "weight_profile")
++        choice(self.cloud_bandwidth_profile, ("bandwidth_cloud",), "cloud_bandwidth_profile")
++
++    def effective_parameters(self):
++        """Include fixed distributions explicitly in fingerprints/recorded config."""
++        return dict(asdict(self), distributions={
++            "real_uniform": "reject-zero-java-scaling-v1",
++            "workflow_type": "randint-inclusive",
++            "inter_release": {"family": "exponential", "mean": self.inter_release_mean},
++            "weight": {"values": [4, 2, 1], "thresholds": [0.2, 0.8]},
++            "cloud_bandwidth": {"values": [256, 512, 128], "thresholds": [0.2, 0.8]},
++            "edge_bandwidth": {"family": "constant", "value": self.edge_bandwidth},
++        })
++
++
++RANGE_FIELDS = ("workload", "data_size", "edge_data", "processing_rate_device",
++                "processing_rate_edge", "processing_rate_cloud")
++SAMPLER_FIELDS = (*RANGE_FIELDS, "inter_release_mean", "weight_profile",
++                  "cloud_bandwidth_profile", "edge_bandwidth")
++
++
++@dataclass(frozen=True)
++class EnvironmentConfig:
++    num_mobile_devices: int
++    num_edge_servers: int
++    num_cloud_servers: int
++    can_mobile_devices_process_tasks: bool
++
++    def __post_init__(self):
++        integer(self.num_mobile_devices, "num_mobile_devices", 1, INT32_MAX)
++        integer(self.num_edge_servers, "num_edge_servers", 0, INT32_MAX)
++        integer(self.num_cloud_servers, "num_cloud_servers", 0, INT32_MAX)
++        boolean(self.can_mobile_devices_process_tasks, "can_mobile_devices_process_tasks")
++        if self.num_edge_servers + self.num_cloud_servers > INT32_MAX:
++            raise InputError("combined server count exceeds int32")
++        if not self.can_mobile_devices_process_tasks and not (self.num_edge_servers + self.num_cloud_servers):
++            raise InputError("no eligible resource: local processing disabled and no servers")
++
++    def is_eligible_for_all(self, resource_id):
++        # Membership in the standard generator's names only. Runtime numeric IDs
++        # still come exclusively from ordered identity maps (also for custom IDs).
++        for prefix, count in (("E", self.num_edge_servers), ("C", self.num_cloud_servers)):
++            if type(resource_id) is str and resource_id.startswith(prefix):
++                suffix = resource_id[len(prefix):]
++                if len(suffix) <= 10 and suffix.isascii() and suffix.isdecimal():
++                    index = int(suffix)
++                    return resource_id == f"{prefix}{index}" and index < count
++        return (self.can_mobile_devices_process_tasks and self.num_mobile_devices == 1
++                and resource_id == "M0")
++
++
++@dataclass(frozen=True)
++class RuleConfig:
++    kind: str = "fcfs"
++    resource_id: str | None = None
++
++    def __post_init__(self):
++        choice(self.kind, ("fcfs", "fixed_resource"), "rule.kind")
++        if self.kind == "fixed_resource":
++            text(self.resource_id, "rule.resource_id")
++        elif self.resource_id is not None:
++            raise InputError("resource_id is only valid for fixed_resource")
++
++
++def _diagnostics(config):
++    if config.max_events is not None:
++        integer(config.max_events, "max_events", 1)
++    boolean(config.check_invariants, "check_invariants")
++    boolean(config.trace_enabled, "trace_enabled")
++    choice(config.edge_data_policy, ("retain", "release_after_materialization"), "edge_data_policy")
++
++
++@dataclass(frozen=True)
++class DynamicRunConfig:
++    num_jobs_recorded: int
++    warmup_jobs: int
++    statistics_policy: str = "java_legacy"
++    failure_policy: str = "explicit_failure"
++    event_policy: str = "java_compatible"
++    routing_rule: RuleConfig = field(default_factory=RuleConfig)
++    sequencing_rule: RuleConfig = field(default_factory=RuleConfig)
++    max_events: int | None = None
++    check_invariants: bool = True
++    trace_enabled: bool = True
++    edge_data_policy: str = "retain"
++
++    def __post_init__(self):
++        integer(self.num_jobs_recorded, "num_jobs_recorded", 1, INT32_MAX // 500)
++        integer(self.warmup_jobs, "warmup_jobs", 0, INT32_MAX // 500)
++        if self.num_jobs_recorded + self.warmup_jobs > INT32_MAX // 500:
++            raise InputError("num_jobs_recorded + warmup_jobs exceeds floor(INT32_MAX/500)")
++        choice(self.statistics_policy, ("java_legacy",), "statistics_policy")
++        choice(self.failure_policy, ("explicit_failure",), "failure_policy")
++        choice(self.event_policy, ("java_compatible",), "event_policy")
++        _rules(self.routing_rule, self.sequencing_rule)
++        _diagnostics(self)
++
++
++def _rules(routing, sequencing):
++    if type(routing) is not RuleConfig or type(sequencing) is not RuleConfig:
++        raise InputError("routing_rule/sequencing_rule: expected RuleConfig")
++    if sequencing.kind != "fcfs":
++        raise InputError("only fcfs sequencing is supported")
++
++
++@dataclass(frozen=True)
++class ReplayRunOptions:
++    max_events: int | None = None
++    check_invariants: bool = True
++    trace_enabled: bool = True
++    edge_data_policy: str = "retain"
++    routing_rule: RuleConfig | None = None
++    sequencing_rule: RuleConfig | None = None
++
++    def __post_init__(self):
++        _diagnostics(self)
++        if self.routing_rule is not None and type(self.routing_rule) is not RuleConfig:
++            raise InputError("routing_rule: expected RuleConfig")
++        if self.sequencing_rule is not None:
++            _rules(self.routing_rule or RuleConfig(), self.sequencing_rule)
++
++
++def _absolute_path(path, where):
++    if not isinstance(path, Path) or not path.is_absolute():
++        raise InputError(f"{where}: use absolute Path or parse_experiment_config(base_dir=...)")
++
++
++@dataclass(frozen=True)
++class DynamicSourceConfig:
++    dag_root: Path
++    workflow_types: WorkflowTypeRange
++    environment: EnvironmentConfig
++    seed: int | None = None
++    samplers: SamplerParameters = field(default_factory=SamplerParameters)
++
++    def __post_init__(self):
++        _absolute_path(self.dag_root, "dag_root")
++        if type(self.workflow_types) is not WorkflowTypeRange or type(self.environment) is not EnvironmentConfig:
++            raise InputError("source requires WorkflowTypeRange and EnvironmentConfig")
++        if type(self.samplers) is not SamplerParameters:
++            raise InputError("source.samplers: expected SamplerParameters")
++        if self.seed is not None:
++            encode_seed(self.seed)
++
++
++@dataclass(frozen=True)
++class ReplaySourceConfig:
++    input_path: Path
++    purpose: str = "verify_reference"
++    reference_path: Path | None = None
++
++    def __post_init__(self):
++        _absolute_path(self.input_path, "input_path")
++        choice(self.purpose, ("verify_reference", "reuse_inputs"), "purpose")
++        if self.reference_path is not None:
++            _absolute_path(self.reference_path, "reference_path")
++        if self.purpose == "verify_reference" and self.reference_path is None:
++            raise InputError("verify_reference requires reference_path; input-only runs use reuse_inputs")
++
++
++@dataclass(frozen=True)
++class RepeatConfig:
++    count: int = 1
++    mode: str | None = None
++    seeds: tuple[int, ...] | None = None
++
++    def __post_init__(self):
++        integer(self.count, "repeat.count", 1)
++        if self.mode is not None:
++            choice(self.mode, ("fresh_same_seed", "fresh_seed_list", "java_rerun", "same_input"), "repeat.mode")
++        if self.mode == "fresh_seed_list":
++            if type(self.seeds) not in (list, tuple) or len(self.seeds) != self.count:
++                raise InputError("fresh_seed_list requires exactly repeat.count seeds")
++            for seed in self.seeds:
++                encode_seed(seed)
++            object.__setattr__(self, "seeds", tuple(self.seeds))
++        elif self.seeds is not None:
++            raise InputError("repeat.seeds is only valid for fresh_seed_list")
++
++
++@dataclass(frozen=True)
++class OutputConfig:
++    dataset_role: str = "debug"
++
++    def __post_init__(self):
++        choice(self.dataset_role, ("debug", "train", "test"), "dataset_role")
++
++
++@dataclass(frozen=True)
++class ExperimentConfig:
++    mode: str
++    source: DynamicSourceConfig | ReplaySourceConfig
++    run: DynamicRunConfig | ReplayRunOptions
++    repeat: RepeatConfig = field(default_factory=RepeatConfig)
++    output: OutputConfig = field(default_factory=OutputConfig)
++    format: str = "fogsim.experiment"
++    schema_version: int = 1
++
++    def __post_init__(self):
++        choice(self.mode, ("dynamic", "replay"), "mode")
++        choice(self.format, ("fogsim.experiment",), "format")
++        integer(self.schema_version, "schema_version", 1, 1)
++        if type(self.repeat) is not RepeatConfig or type(self.output) is not OutputConfig:
++            raise InputError("repeat/output: expected typed configuration")
++        repeat = self.repeat
++        if self.mode == "dynamic":
++            if type(self.source) is not DynamicSourceConfig or type(self.run) is not DynamicRunConfig:
++                raise InputError("dynamic requires DynamicSourceConfig and DynamicRunConfig")
++            if repeat.count > 1 and repeat.mode is None:
++                raise InputError("dynamic repeat.count > 1 requires explicit repeat.mode")
++            if repeat.mode == "same_input":
++                raise InputError("dynamic cannot repeat same input; use recorded replay")
++            if repeat.mode == "fresh_seed_list":
++                if self.source.seed is not None and self.source.seed != repeat.seeds[0]:
++                    raise InputError("source.seed must equal repeat.seeds[0] when both are supplied")
++            elif self.source.seed is None:
++                raise InputError("dynamic source.seed is required outside fresh_seed_list")
++            rule = self.run.routing_rule
++            if rule.kind == "fixed_resource" and not self.source.environment.is_eligible_for_all(rule.resource_id):
++                raise InputError("fixed_resource target must be eligible for every device")
++            if repeat.mode is None:
++                object.__setattr__(self, "repeat", replace(repeat, mode="fresh_same_seed"))
++        else:
++            if type(self.source) is not ReplaySourceConfig or type(self.run) is not ReplayRunOptions:
++                raise InputError("replay requires ReplaySourceConfig and ReplayRunOptions")
++            if repeat.mode not in (None, "same_input"):
++                raise InputError("replay repeat means independent runs from the same input start")
++            if self.source.purpose == "verify_reference" and (self.run.routing_rule or self.run.sequencing_rule):
++                raise InputError("rule overrides require replay purpose=reuse_inputs")
++            object.__setattr__(self, "repeat", replace(repeat, mode="same_input"))
++
++    def to_dict(self):
++        def convert(value):
++            if isinstance(value, Path):
++                return str(value)
++            if isinstance(value, dict):
++                return {k: convert(v) for k, v in value.items()}
++            if isinstance(value, (list, tuple)):
++                return [convert(v) for v in value]
++            return value
++        result = convert(asdict(self))
++        # Keep this normalized config parseable by the strict loader.
++        if result["repeat"]["seeds"] is None:
++            del result["repeat"]["seeds"]
++        if self.mode == "dynamic" and result["source"]["seed"] is None:
++            del result["source"]["seed"]
++        if self.mode == "replay":
++            if result["source"]["reference_path"] is None:
++                del result["source"]["reference_path"]
++            for key in ("routing_rule", "sequencing_rule"):
++                if result["run"][key] is None:
++                    del result["run"][key]
++        return result
++
++    def effective_parameters(self):
++        result = self.to_dict()
++        if self.mode == "dynamic":
++            result["source"]["samplers"] = self.source.samplers.effective_parameters()
++        return result
++
++    @property
++    def fingerprint(self):
++        payload = json.dumps(self.effective_parameters(), sort_keys=True, separators=(",", ":"), allow_nan=False)
++        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
++
++    def single_run(self, index=0):
++        """Expand a seed-list row only; context lifecycle is not implemented here."""
++        integer(index, "run index", 0, self.repeat.count - 1)
++        if self.mode == "replay":
++            return replace(self, repeat=RepeatConfig(mode="same_input"))
++        seed = self.repeat.seeds[index] if self.repeat.mode == "fresh_seed_list" else self.source.seed
++        return replace(self, source=replace(self.source, seed=seed), repeat=RepeatConfig(mode="fresh_same_seed"))
++
++
++def _path(value, base_dir, where):
++    text(value, where)
++    path = Path(value)
++    if not path.is_absolute():
++        if base_dir is None:
++            raise InputError(f"{where}: relative path requires explicit base_dir")
++        path = Path(base_dir) / path
++    return path.resolve()
++
++
++def _rule(value):
++    object_fields(value, ("kind",), ("resource_id",), "rule")
++    return RuleConfig(**value)
++
++
++def parse_experiment_config(data, *, base_dir=None) -> ExperimentConfig:
++    object_fields(data, ("format", "schema_version", "mode", "source"), ("run", "repeat", "output"), "experiment")
++    choice(data["format"], ("fogsim.experiment",), "format")
++    integer(data["schema_version"], "schema_version", 1, 1)
++    choice(data["mode"], ("dynamic", "replay"), "mode")
++    source, run = data["source"], data.get("run", {})
++    if data["mode"] == "dynamic":
++        object_fields(source, ("dag_root", "workflow_types", "environment"), ("seed", "samplers"), "source")
++        if "seed" in source:
++            encode_seed(source["seed"])
++        object_fields(source["workflow_types"], ("lower", "upper"), where="workflow_types")
++        object_fields(source["environment"], ("num_mobile_devices", "num_edge_servers", "num_cloud_servers",
++                      "can_mobile_devices_process_tasks"), where="environment")
++        sampler_data = source.get("samplers", {})
++        object_fields(sampler_data, (), SAMPLER_FIELDS, "samplers")
++        samplers = {}
++        for key, value in sampler_data.items():
++            if key in RANGE_FIELDS:
++                object_fields(value, ("lower", "upper"), where=f"samplers.{key}")
++                value = RealRange(**value)
++            samplers[key] = value
++        source_cfg = DynamicSourceConfig(
++            _path(source["dag_root"], base_dir, "dag_root"), WorkflowTypeRange(**source["workflow_types"]),
++            EnvironmentConfig(**source["environment"]), source.get("seed"), SamplerParameters(**samplers))
++        required = ("num_jobs_recorded", "warmup_jobs")
++        optional = ("statistics_policy", "failure_policy", "event_policy", "routing_rule", "sequencing_rule",
++                    "max_events", "check_invariants", "trace_enabled", "edge_data_policy")
++        object_fields(run, required, optional, "run")
++        run_type = DynamicRunConfig
++    else:
++        object_fields(source, ("input_path",), ("reference_path", "purpose"), "source")
++        source_cfg = ReplaySourceConfig(_path(source["input_path"], base_dir, "input_path"),
++            source.get("purpose", "verify_reference"),
++            _path(source["reference_path"], base_dir, "reference_path") if "reference_path" in source else None)
++        object_fields(run, (), ("max_events", "check_invariants", "trace_enabled", "edge_data_policy",
++                                "routing_rule", "sequencing_rule"), "run")
++        run_type = ReplayRunOptions
++    run_values = {key: (_rule(value) if key in ("routing_rule", "sequencing_rule") else value)
++                  for key, value in run.items()}
++    repeat = data.get("repeat", {})
++    output = data.get("output", {})
++    object_fields(repeat, (), ("count", "mode", "seeds"), "repeat")
++    if "seeds" in repeat and repeat.get("mode") != "fresh_seed_list":
++        raise InputError("repeat.seeds is only valid for fresh_seed_list")
++    object_fields(output, (), ("dataset_role",), "output")
++    return ExperimentConfig(data["mode"], source_cfg, run_type(**run_values), RepeatConfig(**repeat), OutputConfig(**output))
++
++
++def load_experiment_config(path) -> ExperimentConfig:
++    return parse_experiment_config(read_json(path), base_dir=Path(path).resolve().parent)
+--- /dev/null
++++ b/src/fogsim/input_validation.py
+@@ -0,0 +1,94 @@
++"""Pure validation shared by the new input contracts; no I/O or random state."""
++import math
++import re
++from fogsim.errors import InputError
++
++INT32_MAX = (1 << 31) - 1
++SIGNED64_MIN = -(1 << 63)
++SIGNED64_MAX = (1 << 63) - 1
++
++
++def integer(value, where, lower=0, upper=None):
++    if type(value) is not int or value < lower or (upper is not None and value > upper):
++        raise InputError(f"{where}: expected integer in [{lower}, {upper}]")
++    return value
++
++
++def finite(value, where, positive=False):
++    if type(value) not in (int, float):
++        raise InputError(f"{where}: expected real number, not bool/string")
++    try:
++        result = float(value)
++    except OverflowError as exc:
++        raise InputError(f"{where}: binary64 overflow") from exc
++    if not math.isfinite(result) or (result <= 0 if positive else result < 0):
++        raise InputError(f"{where}: expected finite {'positive' if positive else 'nonnegative'} value")
++    return result
++
++
++def text(value, where):
++    if type(value) is not str or not value.strip():
++        raise InputError(f"{where}: expected nonempty string")
++    return value
++
++
++def boolean(value, where):
++    if type(value) is not bool:
++        raise InputError(f"{where}: expected boolean")
++    return value
++
++
++def choice(value, allowed, where):
++    if type(value) is not str or value not in allowed:
++        raise InputError(f"{where}: expected one of {allowed}")
++    return value
++
++
++def sha256(value, where):
++    if type(value) is not str or re.fullmatch(r"[0-9a-f]{64}", value) is None:
++        raise InputError(f"{where}: expected lowercase SHA256 hex digest")
++    return value
++
++
++def sequence(value, item_type, where, nonempty=False):
++    if type(value) not in (list, tuple) or (nonempty and not value):
++        raise InputError(f"{where}: expected {'nonempty ' if nonempty else ''}ordered sequence")
++    if any(type(item) is not item_type for item in value):
++        raise InputError(f"{where}: expected {item_type.__name__} items")
++    return tuple(value)
++
++
++def unique(values, where):
++    if len(set(values)) != len(values):
++        raise InputError(f"{where}: duplicate identity")
++
++
++def dependencies(value, task_ids, where):
++    """Validate an ordered DAG without changing task or adjacency order."""
++    if type(value) not in (list, tuple):
++        raise InputError(f"{where}: expected ordered dependencies")
++    edges = []
++    children = {tid: [] for tid in task_ids}
++    indegree = {tid: 0 for tid in task_ids}
++    for edge in value:
++        if type(edge) not in (list, tuple) or len(edge) != 2 or any(type(x) is not str for x in edge):
++            raise InputError(f"{where}: expected parent/child string pair")
++        parent, child = edge
++        if parent not in children or child not in children or parent == child:
++            raise InputError(f"{where}: invalid dependency {edge}")
++        edges.append((parent, child))
++        children[parent].append(child)
++        indegree[child] += 1
++    unique(edges, where)
++    todo = [tid for tid in task_ids if indegree[tid] == 0]
++    visited = 0
++    while todo:
++        parent = todo.pop()
++        visited += 1
++        for child in children[parent]:
++            indegree[child] -= 1
++            if indegree[child] == 0:
++                todo.append(child)
++    if visited != len(task_ids):
++        raise InputError(f"{where}: dependency cycle")
++    return tuple(edges)
+--- /dev/null
++++ b/src/fogsim/instances/generated.py
+@@ -0,0 +1,238 @@
++"""Complete immutable candidate/archive values, separate from runtime objects.
++
++This is not a generator or replay loader. Recorded durations remain authoritative;
++formula/cumulative-value audits belong to generation and replay verification.
++"""
++from dataclasses import dataclass
++from fogsim.errors import InputError
++from fogsim.input_validation import integer, finite, text, boolean, choice, sequence, unique, dependencies, INT32_MAX
++from fogsim.environment.spec import EnvironmentSnapshot
++from .templates import DagTemplate, TemplateRef
++from .spec import OptionSpec
++
++
++@dataclass(frozen=True)
++class TaskInput:
++    id: str
++    workload: float
++    data_size: float
++    total_input_data: float
++    total_output_data: float
++    options: tuple[OptionSpec, ...]
++
++    def __post_init__(self):
++        text(self.id, "task.id")
++        for key in ("workload", "data_size", "total_input_data", "total_output_data"):
++            object.__setattr__(self, key, finite(getattr(self, key), key, key == "workload"))
++        options = sequence(self.options, OptionSpec, "task.options", True)
++        for option in options:
++            text(option.resource_id, "option.resource_id")
++            for key in ("upload_time", "processing_time", "download_time"):
++                finite(getattr(option, key), key, key == "processing_time")
++        unique([o.resource_id for o in options], "task.options")
++        object.__setattr__(self, "options", options)
++
++
++@dataclass(frozen=True)
++class EdgeInput:
++    parent_id: str
++    child_id: str
++    data_size: float
++
++    def __post_init__(self):
++        text(self.parent_id, "parent_id")
++        text(self.child_id, "child_id")
++        object.__setattr__(self, "data_size", finite(self.data_size, "edge.data_size"))
++        if self.parent_id == self.child_id:
++            raise InputError("edge cannot reference itself")
++
++
++@dataclass(frozen=True)
++class WorkflowInput:
++    candidate_id: int
++    owner_device_id: str
++    template_ref: TemplateRef
++    release_time: float
++    inter_release_time: float
++    weight: float
++    tasks: tuple[TaskInput, ...]
++    edges: tuple[EdgeInput, ...]
++
++    def __post_init__(self):
++        # INT32_MAX can be proposed by a rejected attempt; accepting it would
++        # overflow G+1 and is checked by the archive/admission boundary.
++        integer(self.candidate_id, "candidate_id", 0, INT32_MAX)
++        text(self.owner_device_id, "owner_device_id")
++        if type(self.template_ref) is not TemplateRef:
++            raise InputError("template_ref: expected TemplateRef")
++        for key in ("release_time", "inter_release_time", "weight"):
++            object.__setattr__(self, key, finite(getattr(self, key), key, key == "weight"))
++        tasks = sequence(self.tasks, TaskInput, "workflow.tasks", True)
++        edges = sequence(self.edges, EdgeInput, "workflow.edges")
++        ids = [t.id for t in tasks]
++        unique(ids, "workflow.tasks")
++        dependencies([(e.parent_id, e.child_id) for e in edges], ids, "workflow.edges")
++        object.__setattr__(self, "tasks", tasks)
++        object.__setattr__(self, "edges", edges)
++
++
++@dataclass(frozen=True)
++class GenerationCause:
++    phase: str
++    owner_device_id: str
++    clock_time: float
++    causing_workflow_id: int | None = None
++    event_sequence: int | None = None
++
++    def __post_init__(self):
++        choice(self.phase, ("initialize", "after_arrival"), "phase")
++        text(self.owner_device_id, "cause.owner_device_id")
++        object.__setattr__(self, "clock_time", finite(self.clock_time, "cause.clock_time"))
++        if self.phase == "initialize":
++            if self.clock_time != 0 or self.causing_workflow_id is not None or self.event_sequence is not None:
++                raise InputError("initialize cause requires clock=0 and no triggering workflow/event")
++        else:
++            integer(self.causing_workflow_id, "causing_workflow_id", 0, INT32_MAX)
++            if self.event_sequence is not None:
++                integer(self.event_sequence, "event_sequence", 1)
++
++
++@dataclass(frozen=True)
++class GenerationAttempt:
++    attempt_sequence: int
++    cause: GenerationCause
++    workflow_input_ref: str
++    observed_acceptance: bool
++    rejection_reason: str | None = None
++
++    def __post_init__(self):
++        integer(self.attempt_sequence, "attempt_sequence", 1)
++        if type(self.cause) is not GenerationCause:
++            raise InputError("cause: expected GenerationCause")
++        text(self.workflow_input_ref, "workflow_input_ref")
++        if self.workflow_input_ref != str(self.attempt_sequence):
++            raise InputError("record_id must be the stable decimal attempt sequence")
++        boolean(self.observed_acceptance, "observed_acceptance")
++        if self.observed_acceptance:
++            if self.rejection_reason is not None:
++                raise InputError("accepted attempt cannot have rejection_reason")
++        elif self.rejection_reason != "REJECTED_RELEASE_NOT_FUTURE":
++            raise InputError("rejected attempt requires REJECTED_RELEASE_NOT_FUTURE")
++
++
++@dataclass(frozen=True)
++class CandidateRecord:
++    record_id: str
++    workflow_input: WorkflowInput
++
++    def __post_init__(self):
++        text(self.record_id, "record_id")
++        if type(self.workflow_input) is not WorkflowInput:
++            raise InputError("workflow_input: expected WorkflowInput")
++
++
++@dataclass(frozen=True)
++class AdmissionMapping:
++    record_id: str
++    workflow_id: int
++
++    def __post_init__(self):
++        text(self.record_id, "record_id")
++        integer(self.workflow_id, "workflow_id", 0, INT32_MAX - 1)
++
++
++@dataclass(frozen=True)
++class InputArchive:
++    templates: tuple[DagTemplate, ...]
++    environment: EnvironmentSnapshot
++    candidates: tuple[CandidateRecord, ...]
++    generation_attempts: tuple[GenerationAttempt, ...]
++    admissions: tuple[AdmissionMapping, ...]
++
++    def __post_init__(self):
++        templates = sequence(self.templates, DagTemplate, "templates")
++        candidates = sequence(self.candidates, CandidateRecord, "candidates")
++        attempts = sequence(self.generation_attempts, GenerationAttempt, "generation_attempts")
++        admissions = sequence(self.admissions, AdmissionMapping, "admissions")
++        if type(self.environment) is not EnvironmentSnapshot:
++            raise InputError("environment: expected EnvironmentSnapshot")
++        unique([t.ref for t in templates], "templates")
++        typed_ids = [t.dag_type_id for t in templates if t.dag_type_id is not None]
++        unique(typed_ids, "template type IDs")
++        if typed_ids != sorted(typed_ids):
++            raise InputError("standard templates must be stored in type ID order")
++        unique([c.record_id for c in candidates], "candidates")
++        unique([a.record_id for a in admissions], "admissions.records")
++        unique([a.workflow_id for a in admissions], "admissions.workflow_ids")
++        if tuple(a.attempt_sequence for a in attempts) != tuple(range(1, len(attempts) + 1)):
++            raise InputError("attempt_sequence must be contiguous from 1")
++        if tuple(c.record_id for c in candidates) != tuple(a.workflow_input_ref for a in attempts):
++            raise InputError("candidates and attempts must be one-to-one in attempt order")
++        templates_by_ref = {t.ref: t for t in templates}
++        accepted = []
++        accepted_inputs = {}
++        initialization_count = 0
++        triggered_workflows = set()
++        previous_clock = 0.0
++        for record, attempt in zip(candidates, attempts):
++            workflow = record.workflow_input
++            template = templates_by_ref.get(workflow.template_ref)
++            if template is None:
++                raise InputError("candidate references unknown template")
++            if tuple(t.id for t in workflow.tasks) != tuple(t.xml_id for t in template.tasks):
++                raise InputError("candidate task IDs/order do not match template")
++            if {(e.parent_id, e.child_id) for e in workflow.edges} != set(template.dependencies):
++                raise InputError("candidate edges do not match template dependencies")
++            children = {t.xml_id: [] for t in template.tasks}
++            for parent, child in template.dependencies:
++                children[parent].append(child)
++            sample_order = tuple((t.xml_id, child) for t in template.tasks for child in children[t.xml_id])
++            if tuple((e.parent_id, e.child_id) for e in workflow.edges) != sample_order:
++                raise InputError("candidate edges must follow task/children sampling order")
++            expected = self.environment.eligible_resource_ids(workflow.owner_device_id)
++            for task in workflow.tasks:
++                if tuple(o.resource_id for o in task.options) != expected:
++                    raise InputError("candidate options/order do not match eligible resources")
++                for option in task.options:
++                    if option.resource_id == workflow.owner_device_id and (option.upload_time != 0 or option.download_time != 0):
++                        raise InputError("local upload/download must be zero")
++            cause = attempt.cause
++            if cause.owner_device_id != workflow.owner_device_id:
++                raise InputError("attempt/candidate owner mismatch")
++            if cause.clock_time < previous_clock:
++                raise InputError("attempt clocks must not move backwards")
++            previous_clock = cause.clock_time
++            if cause.phase == "initialize":
++                if (initialization_count >= len(self.environment.devices) or triggered_workflows
++                        or cause.owner_device_id != self.environment.devices[initialization_count].id):
++                    raise InputError("initialization attempts must follow device order exactly once")
++                initialization_count += 1
++            else:
++                if initialization_count != len(self.environment.devices):
++                    raise InputError("after_arrival cannot precede complete initialization")
++                if cause.causing_workflow_id in triggered_workflows:
++                    raise InputError("each arrival can cause only one generation attempt")
++                trigger = accepted_inputs.get(cause.causing_workflow_id)
++                if trigger is None or trigger.owner_device_id != cause.owner_device_id or trigger.release_time != cause.clock_time:
++                    raise InputError("after_arrival must reference an accepted owner workflow at its release time")
++                triggered_workflows.add(cause.causing_workflow_id)
++            if workflow.candidate_id != len(accepted):
++                raise InputError("candidate_id must equal G before acceptance; rejections do not consume IDs")
++            if workflow.release_time != cause.clock_time + workflow.inter_release_time:
++                raise InputError("release_time must preserve clock + sampled inter_release_time")
++            if attempt.observed_acceptance != (workflow.release_time > cause.clock_time):
++                raise InputError("observed acceptance conflicts with release > clock")
++            if attempt.observed_acceptance:
++                accepted.append(AdmissionMapping(record.record_id, workflow.candidate_id))
++                accepted_inputs[workflow.candidate_id] = workflow
++        if tuple(accepted) != admissions:
++            raise InputError("admissions must exactly map accepted candidates in acceptance order")
++        for name, value in (("templates", templates), ("candidates", candidates),
++                            ("generation_attempts", attempts), ("admissions", admissions)):
++            object.__setattr__(self, name, value)
++
++    def workflow_input(self, record_id):
++        for record in self.candidates:
++            if record.record_id == record_id:
++                return record.workflow_input
++        raise InputError(f"unknown input record: {record_id}")
+--- /dev/null
++++ b/src/fogsim/instances/identity.py
+@@ -0,0 +1,38 @@
++"""Explicit identities: list positions, never numeric suffixes or sorting."""
++from dataclasses import dataclass
++from fogsim.input_validation import text, unique, choice, integer
++
++
++@dataclass(frozen=True)
++class ResourceIdentity:
++    id: str
++    type: str
++    numeric_id: int
++
++    def __post_init__(self):
++        text(self.id, "resource.id")
++        choice(self.type, ("MOBILE", "EDGE", "CLOUD"), "resource.type")
++        integer(self.numeric_id, "resource.numeric_id")
++
++
++def resource_identities(resources) -> tuple[ResourceIdentity, ...]:
++    """Input order preserved; devices and EDGE-then-CLOUD have separate spaces."""
++    resources = tuple(resources)
++    for resource in resources:
++        text(resource.id, "resource.id")
++        choice(resource.type, ("MOBILE", "EDGE", "CLOUD"), "resource.type")
++    unique([r.id for r in resources], "resources")
++    numeric = {}
++    for kinds in (("MOBILE",), ("EDGE", "CLOUD")):
++        ordered = [r for kind in kinds for r in resources if r.type == kind]
++        numeric.update((r.id, index) for index, r in enumerate(ordered))
++    return tuple(ResourceIdentity(r.id, r.type, numeric[r.id]) for r in resources)
++
++
++def task_identities(task_ids) -> tuple[tuple[str, int], ...]:
++    """Ordered XML/string-ID to Java-position mapping, scoped to one workflow."""
++    ids = tuple(task_ids)
++    for tid in ids:
++        text(tid, "task.id")
++    unique(ids, "tasks")
++    return tuple((tid, index) for index, tid in enumerate(ids))
+--- /dev/null
++++ b/src/fogsim/instances/templates.py
+@@ -0,0 +1,54 @@
++"""Immutable topology contracts. XML parsing is deliberately a later module."""
++from dataclasses import dataclass
++from fogsim.errors import InputError
++from fogsim.input_validation import integer, text, sha256, sequence, dependencies
++from .identity import task_identities
++
++
++@dataclass(frozen=True)
++class TemplateRef:
++    dag_type_id: int | None
++    source_sha256: str
++
++    def __post_init__(self):
++        if self.dag_type_id is not None:
++            integer(self.dag_type_id, "dag_type_id", 0, 19)
++        sha256(self.source_sha256, "source_sha256")
++
++
++@dataclass(frozen=True)
++class DagTaskSpec:
++    xml_id: str
++    java_index: int
++
++    def __post_init__(self):
++        text(self.xml_id, "xml_id")
++        integer(self.java_index, "java_index")
++
++
++@dataclass(frozen=True)
++class DagTemplate:
++    dag_type_id: int | None
++    source_name: str
++    source_sha256: str
++    tasks: tuple[DagTaskSpec, ...]
++    dependencies: tuple[tuple[str, str], ...]
++
++    def __post_init__(self):
++        TemplateRef(self.dag_type_id, self.source_sha256)
++        text(self.source_name, "source_name")
++        tasks = sequence(self.tasks, DagTaskSpec, "template.tasks", nonempty=True)
++        mapping = task_identities(t.xml_id for t in tasks)
++        if tuple(t.java_index for t in tasks) != tuple(index for _, index in mapping):
++            raise InputError("java_index must equal template task position, starting at 0")
++        edges = dependencies(self.dependencies, [t.xml_id for t in tasks], "template.dependencies")
++        object.__setattr__(self, "tasks", tasks)
++        object.__setattr__(self, "dependencies", edges)
++
++    @property
++    def ref(self):
++        return TemplateRef(self.dag_type_id, self.source_sha256)
++
++    @property
++    def task_mapping(self):
++        return task_identities(t.xml_id for t in self.tasks)
+--- a/src/fogsim/model/task.py
++++ b/src/fogsim/model/task.py
+@@ -1,9 +1,17 @@
+ from __future__ import annotations
+ from dataclasses import dataclass, field
++from enum import Enum
++from fogsim.errors import StateError
+ from typing import TYPE_CHECKING
+ if TYPE_CHECKING:
+     from .workflow import Workflow
+     from .resource import Resource
++
++
++class EdgeDataState(str, Enum):
++    UNAVAILABLE = "UNAVAILABLE"
++    RETAINED = "RETAINED"
++    RELEASED = "RELEASED"
+ 
+ 
+ @dataclass(eq=False)
+@@ -21,6 +29,25 @@
+     output_data_by_child: dict[str, float] | None = None
+     total_input_data: float | None = None
+     total_output_data: float | None = None
++    edge_data_state: EdgeDataState = EdgeDataState.UNAVAILABLE
++    java_index: int | None = None
++
++    def validate_edge_data(self):
++        if self.edge_data_state == EdgeDataState.RETAINED:
++            valid = isinstance(self.input_data_by_parent, dict) and isinstance(self.output_data_by_child, dict)
++        elif self.edge_data_state in (EdgeDataState.UNAVAILABLE, EdgeDataState.RELEASED):
++            valid = self.input_data_by_parent is None and self.output_data_by_child is None
++        else:
++            valid = False
++        if not valid:
++            raise StateError(f"inconsistent edge data state for {self.key}")
++
++    def edge_data(self):
++        """Return explicit retained maps; missing/released data never means zero."""
++        self.validate_edge_data()
++        if self.edge_data_state != EdgeDataState.RETAINED:
++            raise StateError(f"edge data {self.edge_data_state.value} for {self.key}")
++        return self.input_data_by_parent, self.output_data_by_child
+ 
+     @property
+     def key(self):
+--- a/src/fogsim/model/workflow.py
++++ b/src/fogsim/model/workflow.py
+@@ -17,6 +17,9 @@
+     completed_executions: list[Execution] = field(default_factory=list)
+     completion_registered: bool = False
+     weight: float | None = None
++    dag_type_id: int | None = None
++    template_hash: str | None = None
++    input_record_id: str | None = None
+ 
+     @property
+     def task_count(self):
+--- /dev/null
++++ b/src/fogsim/seed.py
+@@ -0,0 +1,14 @@
++"""Seed representation only. RNG creation and lifecycle belong to step 2/5."""
++from .input_validation import integer, SIGNED64_MIN, SIGNED64_MAX
++
++SEED_ENCODING = "signed64-bits-v1"
++
++
++def encode_seed(seed: int) -> int:
++    return integer(seed, "seed", SIGNED64_MIN, SIGNED64_MAX) & ((1 << 64) - 1)
++
++
++def rotated_seed(seed: int) -> int:
++    """Pure Java-long addition by 10000; does not reset any RNG."""
++    bits = (encode_seed(seed) + 10000) & ((1 << 64) - 1)
++    return bits if bits <= SIGNED64_MAX else bits - (1 << 64)
+--- a/src/fogsim/simulation/state.py
++++ b/src/fogsim/simulation/state.py
+@@ -4,6 +4,7 @@
+ from fogsim.model.resource import MobileDevice, Server, ResourceType
+ from fogsim.model.workflow import Workflow
+ from fogsim.model.task import Task, TaskOption
++from fogsim.instances.identity import resource_identities
+ 
+ 
+ @dataclass(eq=False)
+@@ -121,11 +122,12 @@
+     mobile = [r for r in spec.resources if r.type == "MOBILE"]
+     servers = [r for kind in ("EDGE", "CLOUD") for r in spec.resources if r.type == kind]
+     objects = {}
+-    for index, r in enumerate(mobile):
+-        obj = MobileDevice(r.id, index, ResourceType.MOBILE, can_process_tasks=r.can_process_tasks)
++    identities = {r.id: r.numeric_id for r in resource_identities(spec.resources)}
++    for r in mobile:
++        obj = MobileDevice(r.id, identities[r.id], ResourceType.MOBILE, can_process_tasks=r.can_process_tasks)
+         state.mobile_devices.append(obj); objects[r.id] = obj
+-    for index, r in enumerate(servers):
+-        obj = Server(r.id, index, ResourceType(r.type))
++    for r in servers:
++        obj = Server(r.id, identities[r.id], ResourceType(r.type))
+         state.servers.append(obj); objects[r.id] = obj
+     state.resources_by_id = {r.id: objects[r.id] for r in spec.resources}
+     for w in spec.workflows:
+--- /dev/null
++++ b/tests/integration/test_step1_fixed_compatibility.py
+@@ -0,0 +1,21 @@
++"""Compare all 14 current fixed-mode results with saved 0.2.1 evidence.
++
++This runs Python only. It does not re-run Java or claim new cross-language parity.
++"""
++import json
++import pytest
++from conftest import ROOT
++from fogsim import load_fixed_instance, simulate
++from fogsim.config import load_config
++
++
++CASES = [p.stem for p in sorted((ROOT / "configs").glob("*.json"))
++         if p.stem != "v2_precision_collapse"]
++
++
++@pytest.mark.parametrize("case", CASES)
++def test_all_fixed_results_unchanged(case):
++    path, config = load_config(ROOT / "configs" / f"{case}.json")
++    actual = simulate(load_fixed_instance(path), config).to_dict()
++    saved = json.loads((ROOT / "outputs" / "parity" / case / "python-raw.json").read_text())
++    assert actual == saved["result"]  # exact result + events + decisions, no normalization
+--- /dev/null
++++ b/tests/unit/test_experiment_config.py
+@@ -0,0 +1,247 @@
++"""Step 1: frozen design sections 8/9/16/17/18; no sampling or DAX I/O."""
++from copy import deepcopy
++from dataclasses import FrozenInstanceError, replace
++from pathlib import Path
++import json
++import random
++import pytest
++from fogsim import load_experiment_config, parse_experiment_config, RunConfig
++from fogsim.config import load_config
++from fogsim.errors import InputError
++from fogsim.experiment_config import (
++    RealRange, SamplerParameters, EnvironmentConfig, DynamicRunConfig,
++    WorkflowTypeRange, RepeatConfig, ReplayRunOptions, RuleConfig, DynamicSourceConfig,
++)
++from fogsim.seed import encode_seed, rotated_seed, SEED_ENCODING
++
++
++def dynamic():
++    return {
++        "format": "fogsim.experiment", "schema_version": 1, "mode": "dynamic",
++        "source": {"seed": 0, "dag_root": "dax", "workflow_types": {"lower": 0, "upper": 19},
++                   "environment": {"num_mobile_devices": 2, "num_edge_servers": 1, "num_cloud_servers": 1,
++                                   "can_mobile_devices_process_tasks": True}},
++        "run": {"num_jobs_recorded": 10, "warmup_jobs": 0},
++    }
++
++
++def replay():
++    return {"format": "fogsim.experiment", "schema_version": 1, "mode": "replay",
++            "source": {"input_path": "input.json", "reference_path": "reference.json"}}
++
++
++def set_value(data, path, value):
++    parts = path.split(".")
++    for part in parts[:-1]:
++        data = data.setdefault(part, {})
++    data[parts[-1]] = value
++
++
++def test_normalization_paths_defaults_and_immutability(tmp_path, monkeypatch):
++    data = dynamic()
++    path = tmp_path / "experiment.json"
++    path.write_text(json.dumps(data))
++    monkeypatch.chdir(tmp_path.parent)
++    cfg = load_experiment_config(path)
++    assert cfg.source.dag_root == tmp_path / "dax"
++    assert not cfg.source.dag_root.exists()  # pure config, not DAX validation
++    assert cfg.run.max_events is None and RunConfig().max_events == 100000
++    assert cfg.run.statistics_policy == "java_legacy"
++    assert cfg.repeat.mode == "fresh_same_seed" and cfg.output.dataset_role == "debug"
++    assert cfg.source.samplers.data_size == RealRange(5120, 20480)
++    params = cfg.effective_parameters()["source"]["samplers"]
++    assert params["distributions"]["cloud_bandwidth"] == {"values": [256, 512, 128], "thresholds": [0.2, 0.8]}
++    assert parse_experiment_config(cfg.to_dict()) == cfg
++    with pytest.raises(FrozenInstanceError):
++        cfg.source.samplers.workload.lower = 1
++    data["source"]["environment"]["num_mobile_devices"] = 99
++    params["workload"]["lower"] = 1
++    assert cfg.source.environment.num_mobile_devices == 2
++    assert cfg.source.samplers.workload.lower == 5000
++
++
++@pytest.mark.parametrize("path,value", [
++    ("format", "fixed"), ("schema_version", True), ("schema_version", 2), ("mode", "fixed"),
++    ("source.seed", True), ("source.seed", 1.0), ("source.seed", "1"), ("source.seed", None),
++    ("source.seed", -(1 << 63) - 1), ("source.seed", 1 << 63),
++    ("source.workflow_types.lower", -1), ("source.workflow_types.upper", 20),
++    ("source.workflow_types.lower", True), ("source.workflow_types.lower", 20),
++    ("source.environment.num_mobile_devices", 0), ("source.environment.num_mobile_devices", True),
++    ("source.environment.num_edge_servers", -1), ("source.environment.num_cloud_servers", 1 << 31),
++    ("source.environment.can_mobile_devices_process_tasks", 1),
++    ("source.environment.num_mobile_devices", 1.0),
++    ("run.num_jobs_recorded", 0), ("run.num_jobs_recorded", True), ("run.warmup_jobs", -1),
++    ("run.num_jobs_recorded", ((1 << 31) - 1) // 500 + 1),
++    ("run.max_events", 0), ("run.max_events", True), ("run.max_events", 3.5),
++    ("run.check_invariants", 1), ("run.trace_enabled", "false"),
++    ("run.statistics_policy", "all_completed"), ("run.failure_policy", "continue"),
++    ("run.event_policy", "stable"), ("run.edge_data_policy", "drop"),
++    ("run.routing_rule", {"kind": "gp"}), ("run.routing_rule", {"kind": "fcfs", "resource_id": "E0"}),
++    ("run.sequencing_rule", {"kind": "fixed_resource", "resource_id": "E0"}),
++    ("repeat.count", 0), ("repeat.count", True), ("repeat.count", 2),
++    ("repeat.mode", "same_input"), ("repeat.mode", "rotate_seed"),
++    ("output.dataset_role", "validation"), ("source.dag_root", ""), ("source.dag_root", None),
++    ("source.samplers.inter_release_mean", 101), ("source.samplers.inter_release_mean", True),
++    ("source.samplers.edge_bandwidth", 1000), ("source.samplers.weight_profile", "uniform"),
++    ("source.samplers.cloud_bandwidth_profile", "constant"),
++    ("source.samplers.workload", {"lower": 0, "upper": 1}),
++    ("source.samplers.workload", {"lower": 10, "upper": 10}),
++    ("source.samplers.data_size", {"lower": -1, "upper": 1}),
++    ("source.samplers.edge_data", {"lower": 0, "upper": float("inf")}),
++    ("source.samplers.processing_rate_edge", {"lower": float("nan"), "upper": 10}),
++    ("source.samplers.processing_rate_cloud", {"lower": 1, "upper": 10**400}),
++    ("source.samplers.processing_rate_device", {"lower": True, "upper": 10}),
++])
++def test_invalid_config_before_sampling(path, value, tmp_path):
++    data = dynamic()
++    set_value(data, path, value)
++    with pytest.raises(InputError):
++        parse_experiment_config(data, base_dir=tmp_path)
++
++
++@pytest.mark.parametrize("path", ["unknown", "source.unknown", "source.environment.unknown",
++    "source.workflow_types.unknown", "source.samplers.unknown", "run.unknown", "repeat.unknown", "output.unknown"])
++def test_unknown_fields_at_every_layer(path, tmp_path):
++    data = dynamic()
++    set_value(data, path, 1)
++    with pytest.raises(InputError, match="unknown"):
++        parse_experiment_config(data, base_dir=tmp_path)
++
++
++def test_cross_field_limits_and_warmup_boundary(tmp_path):
++    data = dynamic()
++    data["run"] = {"num_jobs_recorded": 1, "warmup_jobs": 0}
++    assert parse_experiment_config(data, base_dir=tmp_path).run.warmup_jobs == 0
++    data["run"] = {"num_jobs_recorded": ((1 << 31) - 1) // 500, "warmup_jobs": 1}
++    with pytest.raises(InputError): parse_experiment_config(data, base_dir=tmp_path)
++    with pytest.raises(InputError): EnvironmentConfig(1, (1 << 31) - 1, 1, True)
++    with pytest.raises(InputError): EnvironmentConfig(1, 0, 0, False)
++
++
++@pytest.mark.parametrize("devices,local,target,valid", [
++    (2, True, "E0", True), (2, False, "C0", True), (2, True, "M0", False),
++    (1, True, "M0", True), (1, False, "M0", False), (1, True, "E1", False),
++    (1, True, "E00", False), (1, True, "E-1", False), (1, True, "C1", False),
++    (1, True, "E" + "9" * 5000, False),
++])
++def test_fixed_target_must_work_for_all_devices(devices, local, target, valid, tmp_path):
++    data = dynamic()
++    data["source"]["environment"].update(num_mobile_devices=devices, can_mobile_devices_process_tasks=local)
++    data["run"]["routing_rule"] = {"kind": "fixed_resource", "resource_id": target}
++    if valid:
++        assert parse_experiment_config(data, base_dir=tmp_path).run.routing_rule.resource_id == target
++    else:
++        with pytest.raises(InputError): parse_experiment_config(data, base_dir=tmp_path)
++
++
++def test_seed_list_and_single_run_expansion(tmp_path):
++    data = dynamic()
++    del data["source"]["seed"]
++    seeds = [-(1 << 63), -1, (1 << 63) - 1]
++    data["repeat"] = {"count": 3, "mode": "fresh_seed_list", "seeds": seeds}
++    cfg = parse_experiment_config(data, base_dir=tmp_path)
++    seeds[0] = 99
++    assert [cfg.single_run(i).source.seed for i in range(3)] == [-(1 << 63), -1, (1 << 63) - 1]
++    assert cfg.source.seed is None
++    assert cfg.single_run(1).repeat.count == 1
++    assert parse_experiment_config(cfg.to_dict()) == cfg
++    with pytest.raises(InputError): cfg.single_run(True)
++    with pytest.raises(InputError): cfg.single_run(3)
++    data["source"]["seed"] = 0
++    with pytest.raises(InputError): parse_experiment_config(data, base_dir=tmp_path)
++
++
++@pytest.mark.parametrize("repeat", [
++    {"mode": "fresh_seed_list"}, {"count": 2, "mode": "fresh_seed_list", "seeds": [0]},
++    {"mode": "fresh_seed_list", "seeds": [True]}, {"mode": "fresh_seed_list", "seeds": [1 << 63]},
++    {"mode": "fresh_same_seed", "seeds": []}, {"mode": "java_rerun", "seeds": None},
++])
++def test_invalid_repeat(repeat, tmp_path):
++    data = dynamic(); data["repeat"] = repeat
++    with pytest.raises(InputError): parse_experiment_config(data, base_dir=tmp_path)
++
++
++def test_replay_defaults_rules_and_no_regeneration(tmp_path):
++    data = replay()
++    cfg = parse_experiment_config(data, base_dir=tmp_path)
++    assert cfg.repeat.mode == "same_input"
++    assert cfg.source.input_path == tmp_path / "input.json"
++    assert parse_experiment_config(cfg.to_dict()) == cfg
++    data["run"] = {"routing_rule": {"kind": "fixed_resource", "resource_id": "custom-server"}}
++    with pytest.raises(InputError): parse_experiment_config(data, base_dir=tmp_path)
++    data["source"]["purpose"] = "reuse_inputs"
++    del data["source"]["reference_path"]
++    cfg = parse_experiment_config(data, base_dir=tmp_path)
++    assert cfg.run.routing_rule.resource_id == "custom-server"  # validated against input later
++    assert parse_experiment_config(cfg.to_dict()) == cfg
++
++
++@pytest.mark.parametrize("path,value", [
++    ("source.seed", 0), ("source.environment", {}), ("source.reference_path", None),
++    ("source.purpose", "unknown"), ("run.num_jobs_recorded", 1), ("run.warmup_jobs", 0),
++    ("run.event_policy", "java_compatible"), ("repeat.mode", "java_rerun"),
++    ("repeat.seeds", [0]), ("run.max_events", float("inf")),
++])
++def test_replay_forbidden_overrides(path, value, tmp_path):
++    data = replay(); set_value(data, path, value)
++    with pytest.raises(InputError): parse_experiment_config(data, base_dir=tmp_path)
++
++
++def test_missing_fields_and_path_requirements(tmp_path):
++    for path in ("source.seed", "source.dag_root", "source.workflow_types", "source.environment", "run.num_jobs_recorded"):
++        data = dynamic(); parts = path.split("."); del data[parts[0]][parts[1]]
++        with pytest.raises(InputError): parse_experiment_config(data, base_dir=tmp_path)
++    with pytest.raises(InputError): parse_experiment_config(dynamic())
++    data = replay(); del data["source"]["reference_path"]
++    with pytest.raises(InputError): parse_experiment_config(data, base_dir=tmp_path)
++    with pytest.raises(InputError): DynamicSourceConfig(Path("dax"), WorkflowTypeRange(0, 0), EnvironmentConfig(1, 1, 0, True), 0)
++
++
++def test_duplicate_json_and_old_loader_stays_strict(tmp_path):
++    path = tmp_path / "config.json"
++    path.write_text('{"format":"fogsim.experiment","format":"fogsim.experiment"}')
++    with pytest.raises(InputError, match="duplicate JSON key"): load_experiment_config(path)
++    path.write_text(json.dumps(dynamic()))
++    with pytest.raises(InputError): load_config(path)
++    path.write_text('{"instance":"x","routing_rule":{"kind":"fcfs"},"sequencing_rule":{"kind":"fcfs"}}')
++    with pytest.raises(InputError): load_experiment_config(path)
++
++
++def test_programmatic_contracts():
++    for factory in (
++        lambda: SamplerParameters(workload={"lower": 1, "upper": 2}),
++        lambda: DynamicRunConfig(1, 0, routing_rule={"kind": "fcfs"}),
++        lambda: ReplayRunOptions(sequencing_rule=RuleConfig("fixed_resource", "E0")),
++        lambda: RepeatConfig(seeds=[0]),
++        lambda: WorkflowTypeRange(0, 0.0),
++    ):
++        with pytest.raises(InputError): factory()
++
++
++@pytest.mark.parametrize("seed,bits", [(0, 0), (1, 1), (-1, (1 << 64) - 1),
++    (-(1 << 63), 1 << 63), ((1 << 63) - 1, (1 << 63) - 1)])
++def test_seed_bits(seed, bits):
++    assert SEED_ENCODING == "signed64-bits-v1"
++    assert encode_seed(seed) == bits
++
++
++@pytest.mark.parametrize("seed", [True, False, 1.0, "1", None, -(1 << 63) - 1, 1 << 63])
++def test_invalid_seeds(seed):
++    with pytest.raises(InputError): encode_seed(seed)
++    with pytest.raises(InputError): rotated_seed(seed)
++
++
++def test_seed_wrap_and_pure_validation(tmp_path, monkeypatch):
++    assert rotated_seed((1 << 63) - 1) == -(1 << 63) + 9999
++    assert rotated_seed(-1) == 9999
++    assert encode_seed(1) != encode_seed(-1)
++    state = random.getstate()
++    def forbidden(*args, **kwargs):
++        raise AssertionError("pure validation must not create or consume RNG")
++    monkeypatch.setattr(random, "Random", forbidden)
++    for method in ("random", "seed", "randint", "getrandbits", "expovariate"):
++        monkeypatch.setattr(random, method, forbidden)
++    cfg = parse_experiment_config(dynamic(), base_dir=tmp_path)
++    assert cfg.fingerprint == parse_experiment_config(deepcopy(cfg.to_dict())).fingerprint
++    assert cfg.single_run().source.seed == 0
++    assert random.getstate() == state
+--- /dev/null
++++ b/tests/unit/test_input_contracts.py
+@@ -0,0 +1,269 @@
++"""Step 1 value/reference contracts; V09/V11 building blocks, not dynamic parity."""
++from dataclasses import FrozenInstanceError, replace, fields
++from copy import deepcopy
++import random
++import pytest
++from fogsim import create_engine, parse_instance
++from fogsim.errors import InputError, StateError
++from fogsim.environment.spec import DeviceSnapshot, ServerSnapshot, EnvironmentSnapshot
++from fogsim.instances.templates import DagTaskSpec, DagTemplate, TemplateRef
++from fogsim.instances.identity import resource_identities, task_identities
++from fogsim.instances.generated import (
++    TaskInput, EdgeInput, WorkflowInput, GenerationCause, GenerationAttempt,
++    CandidateRecord, AdmissionMapping, InputArchive,
++)
++from fogsim.instances.spec import OptionSpec, ResourceSpec
++from fogsim.model.task import EdgeDataState
++from fogsim.model.workflow import Workflow
++
++
++HASH = "a" * 64
++
++
++def template():
++    # IDs intentionally do not sort like Java positions.
++    return DagTemplate(0, "tiny.xml", HASH,
++        [DagTaskSpec("node-Z", 0), DagTaskSpec("node-A", 1), DagTaskSpec("node-01", 2)],
++        [["node-A", "node-01"], ["node-Z", "node-01"]])
++
++
++def environment():
++    return EnvironmentSnapshot([DeviceSnapshot("phone-X", 0, 125, True), DeviceSnapshot("phone-3", 1, 200, True)],
++        [ServerSnapshot("edge-99", 0, "EDGE", 250, 1024, 1024),
++         ServerSnapshot("cloud-00", 1, "CLOUD", 500, 512, 128)], "test-values")
++
++
++def candidate(wid=0, owner="phone-X", release=1, delta=1):
++    tasks = [TaskInput(t.xml_id, 5000, 5120, 0 if t.java_index != 2 else 250,
++                       0 if t.java_index == 2 else 125,
++                       [OptionSpec(owner, 0, 40, 0), OptionSpec("edge-99", 5, 20, 6),
++                        OptionSpec("cloud-00", 10, 10, 20)]) for t in template().tasks]
++    # Edge sampling order differs from template dependency order.
++    return WorkflowInput(wid, owner, template().ref, release, delta, 2, tasks,
++                         [EdgeInput("node-Z", "node-01", 125), EdgeInput("node-A", "node-01", 125)])
++
++
++def archive():
++    c1 = candidate()
++    rejected = candidate(1, "phone-3", 0, 0)
++    c3 = candidate(1, release=2, delta=1)
++    return InputArchive([template()], environment(),
++        [CandidateRecord("1", c1), CandidateRecord("2", rejected), CandidateRecord("3", c3)],
++        [GenerationAttempt(1, GenerationCause("initialize", "phone-X", 0), "1", True),
++         GenerationAttempt(2, GenerationCause("initialize", "phone-3", 0), "2", False, "REJECTED_RELEASE_NOT_FUTURE"),
++         GenerationAttempt(3, GenerationCause("after_arrival", "phone-X", 1, 0, 1), "3", True)],
++        [AdmissionMapping("1", 0), AdmissionMapping("3", 1)])
++
++
++def test_deep_immutability_and_exact_orders():
++    t = template()
++    assert t.task_mapping == (("node-Z", 0), ("node-A", 1), ("node-01", 2))
++    assert t.dependencies == (("node-A", "node-01"), ("node-Z", "node-01"))
++    a = archive()
++    assert isinstance(a.candidates, tuple) and isinstance(a.templates[0].dependencies[0], tuple)
++    assert a.admissions == (AdmissionMapping("1", 0), AdmissionMapping("3", 1))
++    assert a.workflow_input("2").candidate_id == a.workflow_input("3").candidate_id == 1
++    assert a.workflow_input("1").tasks is not a.workflow_input("3").tasks
++    with pytest.raises(FrozenInstanceError): a.candidates[0].workflow_input.tasks[0].workload = 1
++    with pytest.raises(FrozenInstanceError): a.environment.devices[0].processing_rate = 1
++    tasks = list(t.tasks); edges = [list(e) for e in t.dependencies]
++    other = replace(t, tasks=tasks, dependencies=edges)
++    tasks.clear(); edges[0].clear()
++    assert other == t
++    with pytest.raises(InputError): a.workflow_input("missing")
++
++
++@pytest.mark.parametrize("changes", [
++    {"dag_type_id": True}, {"dag_type_id": 20}, {"source_sha256": "bad"}, {"source_name": " "},
++    {"tasks": []}, {"tasks": [DagTaskSpec("x", 1)]},
++    {"tasks": [DagTaskSpec("x", 0), DagTaskSpec("x", 1)]},
++    {"dependencies": [("node-Z", "missing")]}, {"dependencies": [("node-Z", "node-Z")]},
++    {"dependencies": [("node-Z", "node-A"), ("node-Z", "node-A")]},
++    {"dependencies": [("node-Z", "node-A"), ("node-A", "node-Z")]},
++])
++def test_template_contract_errors(changes):
++    with pytest.raises(InputError): replace(template(), **changes)
++
++
++@pytest.mark.parametrize("factory", [
++    lambda: DagTaskSpec(" ", 0), lambda: DagTaskSpec("x", True), lambda: TemplateRef(-1, HASH),
++    lambda: DeviceSnapshot("m", True, 1, True), lambda: DeviceSnapshot("m", 0, float("inf"), True),
++    lambda: DeviceSnapshot("m", 0, 1, 1), lambda: ServerSnapshot("s", 0, "MOBILE", 1, 1, 1),
++    lambda: ServerSnapshot("s", 0, "EDGE", 0, 1, 1), lambda: ServerSnapshot("s", 0, "EDGE", 1, True, 1),
++    lambda: EdgeInput("x", "x", 0), lambda: EdgeInput("x", "y", -1),
++    lambda: EdgeInput("x", "y", float("nan")), lambda: EdgeInput("x", "y", True),
++])
++def test_scalar_input_errors(factory):
++    with pytest.raises(InputError): factory()
++
++
++@pytest.mark.parametrize("changes", [
++    {"workload": 0}, {"data_size": -1}, {"total_input_data": float("inf")}, {"total_output_data": True},
++    {"options": []}, {"options": [OptionSpec("M0", 0, 0, 0)]},
++    {"options": [OptionSpec("M0", 0, True, 0)]}, {"options": [OptionSpec("M0", 0, 10**400, 0)]},
++    {"options": [OptionSpec("M0", 0, 1, 0), OptionSpec("M0", 0, 2, 0)]},
++])
++def test_task_input_errors(changes):
++    with pytest.raises(InputError): replace(candidate().tasks[0], **changes)
++
++
++@pytest.mark.parametrize("changes", [
++    {"candidate_id": True}, {"candidate_id": -1}, {"candidate_id": 1 << 31}, {"template_ref": "hash"},
++    {"release_time": float("inf")}, {"inter_release_time": -1}, {"weight": 0},
++    {"tasks": []}, {"tasks": [candidate().tasks[0], candidate().tasks[0]]},
++    {"edges": [EdgeInput("node-Z", "absent", 1)]},
++])
++def test_workflow_input_errors(changes):
++    with pytest.raises(InputError): replace(candidate(), **changes)
++
++
++def test_environment_identity_and_fingerprint():
++    e = environment()
++    assert e.eligible_resource_ids("phone-3") == ("phone-3", "edge-99", "cloud-00")
++    assert e.fingerprint == deepcopy(e).fingerprint
++    assert replace(e, parameter_source="other").fingerprint != e.fingerprint
++    with pytest.raises(InputError): e.eligible_resource_ids("edge-99")
++    for changes in (
++        {"devices": []}, {"devices": [DeviceSnapshot("phone-X", 1, 1, True)]},
++        {"servers": list(reversed(e.servers))},
++        {"servers": [replace(e.servers[0], id="phone-X")]},
++        {"devices": [replace(e.devices[0], can_process_tasks=False)], "servers": []},
++        {"servers": [replace(e.servers[1], numeric_id=0), replace(e.servers[0], numeric_id=1)]},
++    ):
++        with pytest.raises(InputError): replace(e, **changes)
++
++
++@pytest.mark.parametrize("factory", [
++    lambda: GenerationCause("initialize", "m", 1),
++    lambda: GenerationCause("initialize", "m", 0, 0),
++    lambda: GenerationCause("initialize", "m", 0, event_sequence=1),
++    lambda: GenerationCause("after_arrival", "m", 1),
++    lambda: GenerationCause("after_arrival", "m", 1, 0, True),
++    lambda: GenerationAttempt(0, GenerationCause("initialize", "m", 0), "0", True),
++    lambda: GenerationAttempt(1, GenerationCause("initialize", "m", 0), "2", True),
++    lambda: GenerationAttempt(1, GenerationCause("initialize", "m", 0), "1", 1),
++    lambda: GenerationAttempt(1, GenerationCause("initialize", "m", 0), "1", True, "reason"),
++    lambda: GenerationAttempt(1, GenerationCause("initialize", "m", 0), "1", False),
++])
++def test_attempt_errors(factory):
++    with pytest.raises(InputError): factory()
++
++
++@pytest.mark.parametrize("defect", ["unknown_template", "missing_edge", "task_order", "option_order",
++    "other_mobile_option", "local_communication", "wrong_owner", "wrong_id", "release_addition",
++    "wrong_trigger", "wrong_trigger_owner", "wrong_trigger_clock", "wrong_acceptance", "attempt_gap",
++    "orphan_candidate", "missing_candidate", "duplicate_record", "missing_admission", "wrong_admission",
++    "duplicate_template", "edge_sampling_order", "initialize_order", "duplicate_arrival_trigger"])
++def test_archive_reference_errors(defect):
++    a = archive(); candidates = list(a.candidates); attempts = list(a.generation_attempts)
++    workflow = candidates[0].workflow_input
++    if defect == "unknown_template": workflow = replace(workflow, template_ref=TemplateRef(1, HASH))
++    elif defect == "missing_edge": workflow = replace(workflow, edges=workflow.edges[:1])
++    elif defect == "edge_sampling_order": workflow = replace(workflow, edges=tuple(reversed(workflow.edges)))
++    elif defect == "task_order": workflow = replace(workflow, tasks=tuple(reversed(workflow.tasks)))
++    elif defect in ("option_order", "other_mobile_option", "local_communication"):
++        task = workflow.tasks[0]
++        options = list(task.options)
++        if defect == "option_order": options.reverse()
++        elif defect == "other_mobile_option": options[0] = replace(options[0], resource_id="phone-3")
++        else: options[0] = replace(options[0], upload_time=1)
++        workflow = replace(workflow, tasks=(replace(task, options=options), *workflow.tasks[1:]))
++    elif defect == "wrong_owner": workflow = replace(workflow, owner_device_id="unknown")
++    elif defect == "wrong_id": workflow = replace(workflow, candidate_id=1)
++    elif defect == "release_addition": workflow = replace(workflow, release_time=3)
++    elif defect.startswith("wrong_trigger"):
++        cause = attempts[2].cause
++        if defect == "wrong_trigger": cause = replace(cause, causing_workflow_id=9)
++        elif defect == "wrong_trigger_owner": cause = replace(cause, owner_device_id="phone-3")
++        else: cause = replace(cause, clock_time=2)
++        attempts[2] = replace(attempts[2], cause=cause)
++    elif defect == "wrong_acceptance":
++        attempts[0] = replace(attempts[0], observed_acceptance=False, rejection_reason="REJECTED_RELEASE_NOT_FUTURE")
++    elif defect == "attempt_gap": attempts.pop(1)
++    elif defect == "orphan_candidate": attempts.pop()
++    elif defect == "missing_candidate": candidates.pop()
++    elif defect == "duplicate_record": candidates[1] = replace(candidates[1], record_id="1")
++    elif defect == "missing_admission":
++        with pytest.raises(InputError): replace(a, admissions=[])
++        return
++    elif defect == "wrong_admission":
++        with pytest.raises(InputError): replace(a, admissions=[AdmissionMapping("1", 0), AdmissionMapping("2", 1)])
++        return
++    elif defect == "duplicate_template":
++        with pytest.raises(InputError): replace(a, templates=[template(), template()])
++        return
++    elif defect == "initialize_order":
++        attempts[0] = replace(attempts[0], cause=replace(attempts[0].cause, owner_device_id="phone-3"))
++    elif defect == "duplicate_arrival_trigger":
++        candidates.append(CandidateRecord("4", candidate(2, release=2, delta=1)))
++        attempts.append(GenerationAttempt(4, attempts[2].cause, "4", True))
++    candidates[0] = replace(candidates[0], workflow_input=workflow)
++    with pytest.raises(InputError): replace(a, candidates=candidates, generation_attempts=attempts)
++
++
++def test_no_rng_during_contract_construction(monkeypatch):
++    state = random.getstate()
++    def forbidden(*args, **kwargs): raise AssertionError("input validation cannot sample")
++    monkeypatch.setattr(random, "Random", forbidden)
++    monkeypatch.setattr(random, "random", forbidden)
++    assert archive().environment.fingerprint
++    assert random.getstate() == state
++
++
++def test_resource_and_task_mapping_uses_positions_only():
++    resources = [ResourceSpec("cloud-999", "CLOUD"), ResourceSpec("phone-42", "MOBILE"),
++                 ResourceSpec("edge-10", "EDGE"), ResourceSpec("phone-00", "MOBILE"), ResourceSpec("edge-2", "EDGE")]
++    assert [(r.id, r.numeric_id) for r in resource_identities(resources)] == [
++        ("cloud-999", 2), ("phone-42", 0), ("edge-10", 0), ("phone-00", 1), ("edge-2", 1)]
++    assert task_identities(["ID10", "ID2", " 原 ID "]) == (("ID10", 0), ("ID2", 1), (" 原 ID ", 2))
++
++
++def test_fixed_graph_shares_canonical_resources_not_cross_run_objects(raw):
++    data = deepcopy(raw)
++    other = deepcopy(data["workflows"][0]); other["id"] = 37
++    data["workflows"].append(other)
++    spec = parse_instance(data)
++    left = create_engine(spec); right = create_engine(spec)
++    state = left.state
++    for workflow in state.workflows_by_id.values():
++        assert workflow.owner_device is state.resources_by_id[workflow.owner_device.id]
++        assert workflow.weight is None and workflow.input_record_id is None
++        for task in workflow.tasks:
++            assert state.tasks_by_key[task.key] is task
++            assert right.state.tasks_by_key[task.key] is not task
++            assert task.workflow is workflow and task.edge_data_state == EdgeDataState.UNAVAILABLE
++            assert task.java_index is None and task.workload is None
++            for option in task.options:
++                assert option.task is task and option.resource is state.resources_by_id[option.resource.id]
++            for child in task.children:
++                assert task in child.parents and child is state.tasks_by_key[child.key]
++    assert state.tasks_by_key[(0, "A")] is not state.tasks_by_key[(37, "A")]
++    assert state.tasks_by_key[(0, "A")].options[1].resource is state.tasks_by_key[(37, "A")].options[1].resource
++    assert left.run().to_dict() == right.run().to_dict()
++    assert not any(f.name in ("context", "archive", "catalog") for f in fields(Workflow))
++
++
++def test_edge_data_state_accessors(engine):
++    task = next(iter(engine.state.tasks_by_key.values()))
++    with pytest.raises(StateError, match="UNAVAILABLE"): task.edge_data()
++    task.edge_data_state = EdgeDataState.RETAINED
++    with pytest.raises(StateError, match="inconsistent"): task.edge_data()
++    task.input_data_by_parent = {}; task.output_data_by_child = {"B": 100}
++    assert task.edge_data() == ({}, {"B": 100})
++    task.edge_data_state = EdgeDataState.RELEASED
++    with pytest.raises(StateError, match="inconsistent"): task.edge_data()
++    task.input_data_by_parent = task.output_data_by_child = None
++    with pytest.raises(StateError, match="RELEASED"): task.edge_data()
++
++
++def test_retained_runtime_maps_cannot_mutate_archive(engine):
++    a = archive()
++    original = a.workflow_input("1")
++    task = next(iter(engine.state.tasks_by_key.values()))
++    task.input_data_by_parent = {}
++    task.output_data_by_child = {e.child_id: e.data_size for e in original.edges if e.parent_id == "node-Z"}
++    task.edge_data_state = EdgeDataState.RETAINED
++    task.output_data_by_child["node-01"] = 999
++    task.output_data_by_child.clear()
++    assert original.edges[0].data_size == 125
++    assert a.workflow_input("1") == original

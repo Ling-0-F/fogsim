@@ -1,0 +1,1271 @@
+--- a/src/fogsim/training/cli.py
++++ b/src/fogsim/training/cli.py
+@@ -28,7 +28,10 @@
+     try:
+         if args.command == "train":
+             from .trainer import train
+-            result = train(args.config, args.output).to_dict()
++            from .preflight import preflight_report
++            cfg = load_training_config(args.config)
++            print(json.dumps(preflight_report(cfg, build_training_plans(cfg))), flush=True)
++            result = train(cfg, args.output).to_dict()
+             print(json.dumps(result))
+             return 0 if result["status"] == "COMPLETED" else 130 if result["status"] == "INCOMPLETE" else 1
+         if args.command == "validate":
+@@ -40,14 +43,8 @@
+                 write_json(output / f"plans/train-{g:04d}.json", plan.to_dict())
+             write_json(output / "plans/validation.json", plans.validation.to_dict())
+             write_json(output / "plans/test.json", plans.test.to_dict())
+-            resolved = cfg.to_dict()
+-            count = sum(len(p.to_dict()["entries"]) for p in plans.training)
+-            estimate = count * resolved["evolution"]["population_size"] * len(resolved["trials"]["evolution_seeds"])
+-            from .trainer import simulation_budget
+-            summary = dict(closed_loop_budget=simulation_budget(resolved, plans), status="PREFLIGHT_ONLY", simulations_executed=0, training_simulation_upper_bound=estimate,
+-                deferred="validate performs no simulation; train executes the configured mode",
+-                event_budgets=[e["effective_config"].get("run", {}).get("max_events") for p in plans.all_plans() for e in p.to_dict()["entries"]],
+-                plan_ids=[p.plan_id for p in plans.all_plans()])
++            from .preflight import preflight_report
++            summary = preflight_report(cfg, plans)
+             write_json(output / "preflight.json", summary)
+             print(json.dumps(summary))
+             return 0
+--- a/src/fogsim/training/evaluation.py
++++ b/src/fogsim/training/evaluation.py
+@@ -148,6 +148,9 @@
+             if process.is_alive():
+                 process.kill()
+                 process.join()
++        # EOF can precede exitcode publication; join above establishes the final status.
++        if interrupted and interrupted["classification"] == "WORKER_EXIT":
++            interrupted["exitcode"] = process.exitcode
+         parent.close()
+         child.close()
+         if output and interrupted:
+--- a/src/fogsim/training/preflight.py
++++ b/src/fogsim/training/preflight.py
+@@ -0,0 +1,32 @@
++"""Cost and retention facts, computed without simulation or evolution RNG draws."""
++import platform
++import sys
++from importlib.metadata import version, PackageNotFoundError
++
++
++def preflight_report(config, plans):
++    from .trainer import simulation_budget
++    from .protocols import SEMANTICS
++    cfg = config.to_dict()
++    entries = [entry for plan in plans.all_plans() for entry in plan.to_dict()["entries"]]
++    budgets = [entry["effective_config"].get("run", {}).get("max_events") for entry in entries]
++    dependencies = {}
++    for name in ("deap", "numpy", "moocore", "cffi", "platformdirs", "pycparser"):
++        try:
++            dependencies[name] = version(name)
++        except PackageNotFoundError:
++            dependencies[name] = None
++    bound = simulation_budget(cfg, plans)
++    # A coarse ceiling for processed events, not CPU, elapsed time, RAM or disk.
++    event_bound = None if any(b is None for b in budgets) else bound["total_upper_bound"] * max(budgets)
++    return dict(format="fogsim.training-preflight", schema_version=1,
++        status="PREFLIGHT_ONLY", simulations_executed=0, mode=cfg["mode"],
++        closed_loop_budget=bound,
++        training_simulation_upper_bound=bound["training_per_trial"] * bound["trials"],
++        event_budgets=budgets, processed_event_upper_bound=event_bound,
++        wallclock_seconds_per_run=cfg["limits"]["wallclock_seconds_per_run"],
++        retention=cfg["output"], semantics=SEMANTICS,
++        versions=dict(python=sys.version, platform=platform.platform(), dependencies=dependencies),
++        plan_ids=[p.plan_id for p in plans.all_plans()],
++        deferred="Preflight performs no simulation. Use train or --execute to run the configured experiment.",
++        cost_note="Bounds cover one configured execution; candidate deduplication or interruption can reduce runs. No time, memory or byte estimate is inferred from event counts.")
+--- a/src/fogsim/training/trainer.py
++++ b/src/fogsim/training/trainer.py
+@@ -44,6 +44,8 @@
+     for plan in plans.all_plans():preflight(placeholder,plan.to_dict(),cfg['trees'])
+     output=empty_output(output_dir)
+     write_json(output/'resolved_config.json',cfg)
++    from .preflight import preflight_report
++    write_json(output/'preflight.json',preflight_report(config,plans))
+     pmap=dict(training=[p.to_dict() for p in plans.training],validation=plans.validation.to_dict(),test=plans.test.to_dict())
+     for g,plan in enumerate(pmap['training']):write_json(output/f'plans/train-{g:04d}.json',plan)
+     for key in ('validation','test'):write_json(output/f'plans/{key}.json',pmap[key])
+--- a/tests/training/test_b04.py
++++ b/tests/training/test_b04.py
+@@ -0,0 +1,120 @@
++"""B04 delivery preflight and durable independent-evaluation interruption facts."""
++from copy import deepcopy
++from pathlib import Path
++import json
++import os
++import random
++import subprocess
++import sys
++import pytest
++from fogsim.training.config import load_training_config, parse_training_config
++from fogsim.training.plans import build_training_plans
++from fogsim.training.protocols import read_json, write_json
++from fogsim.training.preflight import preflight_report
++from fogsim.training.evaluation import evaluate_rule_pair
++from fogsim.rules.factory import prepare_rules
++from fogsim.rules.specs import RuleSpec
++
++ROOT = Path(__file__).resolve().parents[2]
++
++
++def pair():
++    return prepare_rules(RuleSpec("routing", "gp", expression="PT"), RuleSpec("sequencing", "fcfs"))
++
++
++@pytest.mark.parametrize("name", ["single", "dual"])
++def test_large_template_preflight_without_simulation_or_rng(name, monkeypatch, tmp_path):
++    import fogsim.training.runtime as runtime
++    def forbidden(*args, **kwargs):
++        raise AssertionError("preflight must not simulate")
++    monkeypatch.setattr(runtime, "run_entry", forbidden)
++    state = random.getstate()
++    cfg = load_training_config(ROOT / f"configs/training/large-{name}-template.json")
++    plans = build_training_plans(cfg)
++    report = preflight_report(cfg, plans)
++    assert random.getstate() == state
++    assert report["closed_loop_budget"] == dict(trials=5, training_per_trial=10000,
++        validation_upper_bound_per_trial=100, test_per_trial=2, total_upper_bound=50510)
++    assert report["processed_event_upper_bound"] == 101020000
++    assert report["retention"] == dict(trace="none", save_run_results=True, save_input_archives=True)
++    assert report["simulations_executed"] == 0
++    assert report["versions"]["dependencies"]["deap"] == "1.4.4"
++    write_json(tmp_path / "preflight.json", report)
++
++
++@pytest.mark.parametrize("mode", ["single_routing", "dual_tree"])
++def test_launcher_defaults_to_preflight_then_explicit_small_execution(mode, tmp_path):
++    raw = load_training_config(ROOT / "configs/training/smoke-dual.json").to_dict()
++    raw.pop("resolution_root")
++    raw.update(mode=mode, trials=dict(evolution_seeds=[71301]))
++    raw["evolution"].update(population_size=2, generations=1, elite_count=1)
++    raw["output"]["trace"] = "none"
++    config = tmp_path / "small.json"
++    write_json(config, raw)
++    env = dict(os.environ, PYTHONPATH=str(ROOT / "src"))
++    command = [sys.executable, str(ROOT / "tools/run_s9_training.py"), "--config", str(config)]
++    pre = subprocess.run(command + ["--output", str(tmp_path / "preflight")], env=env, capture_output=True, text=True)
++    assert pre.returncode == 0, pre.stderr
++    assert read_json(tmp_path / "preflight/preflight.json")["simulations_executed"] == 0
++    assert not list((tmp_path / "preflight").rglob("evaluation.json"))
++    run = subprocess.run(command + ["--output", str(tmp_path / "actual"), "--execute"], env=env, capture_output=True, text=True)
++    (tmp_path / "execution.stdout.txt").write_text(run.stdout)
++    (tmp_path / "execution.stderr.txt").write_text(run.stderr)
++    assert run.returncode == 0, run.stderr
++    assert json.loads(run.stdout.splitlines()[0])["closed_loop_budget"]["total_upper_bound"] == 8
++    result = read_json(tmp_path / "actual/training-result.json")
++    assert result["status"] == "COMPLETED"
++    evaluations = list((tmp_path / "actual").rglob("evaluation.json"))
++    assert sum(read_json(p)["completed_runs"] for p in evaluations) == 8
++    assert all(read_json(p)["status"] == "FEASIBLE" for p in evaluations)
++    for p in (tmp_path / "actual").rglob("result.json"):
++        assert read_json(p)["events"] == []
++        assert read_json(p)["decisions"] == []
++    protected = subprocess.run(command + ["--output", str(tmp_path / "actual"), "--execute"], env=env, capture_output=True, text=True)
++    assert protected.returncode == 2 and "absent or empty" in protected.stderr
++
++
++class EofConnection:
++    def poll(self, *args): return True
++    def recv(self): raise EOFError
++    def close(self): pass
++
++
++class ReapedProcess:
++    pid = None
++    exitcode = None
++    def start(self): self.pid = 42
++    def is_alive(self): return False
++    def join(self, **kwargs): self.exitcode = 42
++
++
++class ExitContext:
++    def Pipe(self): return EofConnection(), EofConnection()
++    def Process(self, **kwargs): return ReapedProcess()
++
++
++def test_evaluation_eof_before_join_records_final_exitcode(monkeypatch, tmp_path):
++    import fogsim.training.evaluation as evaluation
++    cfg = load_training_config(ROOT / "configs/training/smoke-dual.json")
++    plan = build_training_plans(cfg).test
++    monkeypatch.setattr(evaluation.multiprocessing, "get_context", lambda name: ExitContext())
++    result = evaluate_rule_pair(pair(), plan, tmp_path).to_dict()
++    assert result["status"] == "INCOMPLETE" and result["fitness"] is None
++    assert result["interruption"] == dict(classification="WORKER_EXIT", exitcode=42)
++    assert read_json(tmp_path / "failures/interruption.json") == result["interruption"]
++    assert read_json(tmp_path / "evaluation.json")["interruption"] == result["interruption"]
++
++
++def abrupt_exit_worker(*args):
++    os._exit(42)
++
++
++def test_evaluation_actual_worker_abrupt_exit(monkeypatch, tmp_path):
++    import fogsim.training.evaluation as evaluation
++    plan = build_training_plans(load_training_config(ROOT / "configs/training/smoke-dual.json")).test
++    monkeypatch.setattr(evaluation, "evaluation_worker", abrupt_exit_worker)
++    result = evaluate_rule_pair(pair(), plan, tmp_path).to_dict()
++    assert result["status"] == "INCOMPLETE"
++    assert result["interruption"]["classification"] == "WORKER_EXIT"
++    assert result["interruption"]["exitcode"] == 42
++    assert result["completed_runs"] == 0
+--- a/tools/accept_s9_b04.py
++++ b/tools/accept_s9_b04.py
+@@ -0,0 +1,66 @@
++"""Assemble final S01-S17 scope from explicit inherited and new evidence."""
++from pathlib import Path
++import argparse
++import xml.etree.ElementTree as ET
++from fogsim.training.protocols import read_json,write_json,source_provenance
++from freeze_s9_b04 import files,ROOT
++OUT=ROOT/'outputs/step9/B04'
++
++
++def junit(path):
++    suites=list(ET.parse(path).getroot().iter('testsuite'))
++    return {k:sum(int(s.get(k,'0')) for s in suites) for k in ('tests','failures','errors','skipped')}|dict(seconds=sum(float(s.get('time','0')) for s in suites))
++
++
++def main():
++    unit=junit(OUT/'unit-final.xml');regression=junit(OUT/'regression.xml')
++    assert all(x['tests']>0 and all(x[k]==0 for k in ('failures','errors','skipped')) for x in (unit,regression))
++    frozen=read_json(OUT/'source-freeze.json');assert files()==frozen['files']
++    source=read_json(OUT/'source-audit.json');assert source['passed']
++    contracts=read_json(OUT/'contracts-audit.json');assert not contracts['unresolved']
++    schema=read_json(OUT/'schema-audit.json');assert schema['passed']
++    independent=read_json(OUT/'independent-selected-check.json');assert independent['passed'] and independent['completed_runs']==4
++    no_deap=read_json(OUT/'no-deap.json');wheel=read_json(OUT/'wheel-check.json');assert no_deap['passed'] and wheel['passed']
++    inherited={b:read_json(ROOT/f'outputs/step9/{b}/acceptance.json') for b in ('B01','B02','B03')}
++    assert all(x['acceptance_passed'] for x in inherited.values())
++    preflights={m:read_json(OUT/f'preflight-large-{m}/preflight.json') for m in ('single','dual')}
++    assert all(x['status']=='PREFLIGHT_ONLY' and x['simulations_executed']==0 and x['closed_loop_budget']['total_upper_bound']==50510 for x in preflights.values())
++    gate_specs={
++        'S01':('configuration, plans, split, signed64 and seed rotation',['tests/training/test_b01.py'],['B01']),
++        'S02':('DEAP/B08 ordered identities, Java grow, full, node roles and clone isolation',['tests/training/test_b02.py','tests/training/test_b03.py'],['B02','B03']),
++        'S03':('D03 full-plan equal-run mean and denominators',['tests/training/test_b01.py'],['B01']),
++        'S04':('domain continuation versus program/input/interruption failures',['tests/training/test_b01.py','tests/training/test_b02.py'],['B01','B02']),
++        'S05':('NaN/infinity/signed-zero rule score and identity compatibility',['tests/training/test_b01.py','tests/training/test_b02.py','tests/training/test_b03.py'],['B01','B02','B03']),
++        'S06':('fresh context/objects/queue/B order isolation',['tests/training/test_b01.py'],['B01']),
++        'S07':('evolution versus simulator/caller RNG isolation',['tests/training/test_b01.py','tests/training/test_b02.py'],['B01','B02']),
++        'S08':('plan rotation, elite/copy re-evaluation, actual counts, final-generation stop',['tests/training/test_b02.py','tests/training/test_b03.py'],['B02','B03']),
++        'S09':('single routing/explicit FCFS real decisions, controlled operators and full closure',['tests/training/test_b02.py'],['B02']),
++        'S10':('dual roles real decisions, four branches/tail/retries/source and clones',['tests/training/test_b03.py'],['B03']),
++        'S11':('executed independent J01-J06 local Java cases and lifecycle; original evidence retained',[],['B01','B02','B03']),
++        'S12':('dedup/all occurrences, fixed validation, pre-test freeze and no candidate switching',['tests/training/test_b02.py','tests/training/test_b03.py'],['B02','B03']),
++        'S13':('single and dual two seeds plus complete same-config repeats; semantic comparison',[],['B02','B03']),
++        'S14':('height/nodes/mutation/init/event/wallclock/EOF-exit evidence',['tests/training/test_b01.py','tests/training/test_b02.py','tests/training/test_b03.py','tests/training/test_b04.py'],['B01','B02','B03']),
++        'S15':('CLI/API/protocols/source/lineage/independent freeze loading and output protection',['tests/training/test_b04.py'],['B01','B02','B03']),
++        'S16':('final combined legacy/training regression, DEAP-free paths and pinned dependencies',['tests'],['B01','B02','B03']),
++        'S17':('editable large templates preflight, budget/retention/versions, default validate entry and small explicit runs',['tests/training/test_b04.py'],[])}
++    gates={k:dict(status='PASSED',scope=scope,current_tests=tests,inherited_batches=batches,
++        current_evidence=['outputs/step9/B04/unit-final.xml','outputs/step9/B04/regression.xml'] if tests else [],
++        inherited_evidence=[f'outputs/step9/{b}/acceptance.json' for b in batches]) for k,(scope,tests,batches) in gate_specs.items()}
++    java={b:inherited[b].get('java_lifecycle',inherited[b].get('java_local')) for b in inherited}
++    result=dict(format='fogsim.training-acceptance',schema_version=1,batch='S9-B04',version='0.4.0',design='S9-frozen-1',
++        acceptance_passed=True,source=source_provenance(),source_freeze_id=frozen['source_freeze_id'],
++        unit_tests=unit,combined_regression=regression,gates=gates,legacy_contract_count=len(contracts['contracts']),unresolved_contracts=contracts['unresolved'],
++        source_retention=source,schema_audit=dict(checked=schema['checked'],references=schema['reference_count'],passed=True),
++        inherited_java_evidence=java,inherited_closure_simulations={b:inherited[b]['closure_simulations'] for b in ('B02','B03')},
++        historical_closure_budget_upper_bound=848,closure_reexecuted_in_B04=False,
++        source_independent_evaluations=independent,wheel_independent_evaluations=wheel,
++        large_templates=dict(executed_simulations=0,preflights=preflights),
++        impact='Current-source preflight observations and evaluation EOF exit evidence only; unchanged training/simulator algorithms inherit accepted closure/Java semantics. Historical source IDs remain historical; not claimed as new current-source trials.',
++        limitations=['No paper-scale training or paper-table/numerical reproduction.','No numeric ERC search, parallel speedup or arbitrary checkpoint resume.',
++            'Java/Python native RNG streams may differ; controlled local alignment is not arbitrary-input equivalence.',
++            'Two optional old large native fixed projections remain NOT_EXECUTED and are outside required minimum scope.',
++            'JDK17 is an external environment requirement, not bundled. Offline dependency wheels target CPython3.12/Linux x86_64.',
++            'Legacy JUnit case count is not an instrumented simulation total.'])
++    write_json(OUT/'acceptance.json',result)
++    print(__import__('json').dumps(dict(acceptance_passed=True,unit_tests=unit,combined_regression=regression,gates=len(gates))))
++if __name__=='__main__':main()
+--- a/tools/audit_s9_b04.py
++++ b/tools/audit_s9_b04.py
+@@ -0,0 +1,79 @@
++"""Final source-retention and current protocol audit; never reruns historical trials."""
++from pathlib import Path
++import argparse
++import hashlib
++import json
++import zipfile
++from importlib.metadata import version
++from fogsim.training.protocols import read_json, write_json, source_provenance
++ROOT = Path(__file__).resolve().parents[1]
++OUT = ROOT / "outputs/step9/B04"
++ALLOWED = {"README.md", "docs/SOURCE-DISTRIBUTION.md", "src/fogsim/training/cli.py",
++    "src/fogsim/training/trainer.py", "src/fogsim/training/evaluation.py"}
++
++
++def source_audit(baseline):
++    changed = []; missing = []; checked = 0; historical = 0
++    with zipfile.ZipFile(baseline) as archive:
++        # Read B03's delivered content manifest; do not rerun its evidence or algorithms.
++        manifest = json.loads(archive.read("fogsim-0.4.0/S9-B03-FILES.json"))["files"]
++    for name, row in manifest.items():
++        p = ROOT / name; checked += 1
++        historical += name.startswith(("outputs/", "development/"))
++        if not p.is_file(): missing.append(name); continue
++        actual = hashlib.sha256(p.read_bytes()).hexdigest()
++        if actual != row["sha256"]:
++            changed.append(dict(path=name, before=row["sha256"], after=actual))
++    unexpected = [row for row in changed if row["path"] not in ALLOWED]
++    src = source_provenance()
++    # B03 acceptance describes the exact previous simulator/training source.
++    old = read_json(ROOT / "outputs/step9/B03/acceptance.json")["source"]["source_files"]
++    source_delta = [k for k in sorted(old.keys() | src["source_files"].keys()) if old.get(k) != src["source_files"].get(k)]
++    expected_delta = {"training/cli.py", "training/trainer.py", "training/evaluation.py", "training/preflight.py"}
++    result = dict(passed=not missing and not unexpected and set(source_delta) == expected_delta,
++        baseline="fogsim-0.4.0-B03.zip", files_checked=checked, historical_members_checked=historical,
++        changed=changed, missing=missing, unexpected=unexpected, production_source_delta=source_delta,
++        algorithms_unchanged=all(k.startswith("training/") and k in expected_delta for k in source_delta),
++        scope="B04 cumulative byte-retention/impact audit; no historical result re-execution", source=src)
++    write_json(OUT / "source-audit.json", result)
++    return result
++
++
++def schema_audit():
++    import jsonschema
++    formats = {"fogsim.training-preflight": "preflight", "fogsim.individual-evaluation": "evaluation",
++        "fogsim.training-plan": "plan", "fogsim.evolution-result": "evolution-result",
++        "fogsim.training-result": "training-result", "fogsim.selected-rule": "selected-rule",
++        "fogsim.candidate-archive": "candidate-archive"}
++    checked = []; references = []; errors = []
++    names = {"preflight.json", "evaluation.json", "evolution-result.json", "training-result.json", "selected_rule.json", "archive.json", "plan.json"}
++    for p in sorted(OUT.rglob("*.json")):
++        if p.name not in names and "plans" not in p.parts: continue
++        d = read_json(p); kind = formats.get(d.get("format")) if isinstance(d, dict) else None
++        if not kind: continue
++        rel = p.relative_to(ROOT).as_posix()
++        try:
++            jsonschema.validate(d, read_json(ROOT / f"schemas/training/{kind}.schema.json"))
++            checked.append(rel)
++            if kind == "evaluation":
++                for row in d["runs"]:
++                    for field in ("result_ref", "input_ref"):
++                        if row[field]:
++                            target = p.parent / row[field]
++                            if not target.is_file(): raise ValueError("missing referenced file " + str(target))
++                            references.append(target.relative_to(ROOT).as_posix())
++        except Exception as exc:
++            errors.append(dict(path=rel, error=str(exc)))
++    result = dict(passed=bool(checked) and not errors, checked=len(checked), reference_count=len(references),
++        files=checked, errors=errors, jsonschema_version=version("jsonschema"))
++    write_json(OUT / "schema-audit.json", result)
++    return result
++
++
++def main():
++    parser=argparse.ArgumentParser();parser.add_argument("action",choices=["source","schemas"])
++    parser.add_argument("--baseline",type=Path);args=parser.parse_args()
++    result=source_audit(args.baseline) if args.action=="source" else schema_audit()
++    print(json.dumps({k:v for k,v in result.items() if k in ("passed","files_checked","checked","reference_count","changed","errors","missing","unexpected","production_source_delta")}))
++    return 0 if result["passed"] else 1
++if __name__=="__main__":raise SystemExit(main())
+--- a/tools/build_s9_b04.py
++++ b/tools/build_s9_b04.py
+@@ -0,0 +1,96 @@
++"""Build disjoint complete local packages; verify any part without old workspaces."""
++from pathlib import Path
++import argparse
++import hashlib
++import json
++import zipfile
++from restore_sources import safe_relative
++ROOT=Path(__file__).resolve().parents[1]
++MANIFEST="S9-B04-FILES.json"
++PARTS=("main","evidence","references","rollback")
++SUMMARY={"acceptance.json","source-freeze.json","source-audit.json","contracts-audit.json",
++    "schema-audit.json","independent-selected-check.json","no-deap.json","wheel-check.json",
++    "unit-final.xml","regression.xml","recorded-simulation-counts.json"}
++
++
++def sha(path):
++    h=hashlib.sha256()
++    with Path(path).open("rb") as stream:
++        for block in iter(lambda:stream.read(1024*1024),b""):h.update(block)
++    return h.hexdigest()
++
++
++def write(path,data):
++    Path(path).write_text(json.dumps(data,ensure_ascii=False,indent=2,allow_nan=False)+"\n")
++
++
++def classify(rel,indexed):
++    parts=Path(rel).parts
++    if rel.startswith("rollback/S9-"):return "rollback"
++    if rel in indexed or rel.startswith("references/java/") or rel.startswith("rollback/"):return "references"
++    if any(s in ("wheels","test-wheels","dist") for s in parts):return "references"
++    if rel.startswith("outputs/step9/B04/") and len(parts)==4 and Path(rel).name in SUMMARY:return "main"
++    if rel.startswith("outputs/") or (rel.startswith("development/") and any(s in ("evidence","cases","java-build") for s in parts)):return "evidence"
++    return "main"
++
++
++def verify(root,part="all"):
++    doc=json.loads((root/MANIFEST).read_text());errors=[];checked=0
++    for rel,row in doc["files"].items():
++        safe_relative(rel)
++        if part!="all" and row["part"]!=part:continue
++        p=root/rel;checked+=1
++        if not p.is_file() or p.is_symlink() or p.stat().st_size!=row["bytes"] or sha(p)!=row["sha256"]:errors.append(rel)
++    return dict(passed=not errors,part=part,files=checked,mismatches=errors)
++
++
++def build(root,output):
++    if output.exists() and any(output.iterdir()):raise ValueError("output must be absent or empty")
++    if root==output or root in output.parents:raise ValueError("output must be outside project")
++    if not json.loads((root/"outputs/step9/B04/acceptance.json").read_text())["acceptance_passed"]:raise ValueError("final acceptance has not passed")
++    indexed={e["path"]:e for e in json.loads((root/"SOURCE-INDEX.json").read_text())["entries"]}
++    for rel,row in indexed.items():
++        p=root/rel
++        if not p.is_file() or sha(p)!=row["sha256"]:raise ValueError("restored source missing/changed: "+rel)
++    files={};excluded=[]
++    for p in sorted(root.rglob("*")):
++        if p.is_dir():continue
++        rel=p.relative_to(root).as_posix();parts=p.relative_to(root).parts
++        if rel in (MANIFEST,"B04-EXCLUDED-GENERATED.json"):continue
++        if p.is_symlink():
++            excluded.append(dict(path=rel,reason="generated symbolic link"));continue
++        if any(s in ("__pycache__",".pytest_cache",".git",".venv","build",".b02-deps",".b03-deps",".b04-deps") or s.endswith(".egg-info") for s in parts) and rel not in indexed:
++            # Keep evidence build environment/manifests; only compiled/cache material is disposable.
++            if "build" not in parts or p.suffix in (".class",".pyc") or any(s in ("__pycache__",".pytest_cache",".git",".venv") or s.endswith(".egg-info") for s in parts):
++                excluded.append(dict(path=rel,bytes=p.stat().st_size,sha256=sha(p),reason="rebuildable cache/install artifact"));continue
++        if p.suffix in (".pyc",".class") and rel not in indexed:
++            excluded.append(dict(path=rel,bytes=p.stat().st_size,sha256=sha(p),reason="rebuildable generated artifact"));continue
++        files[rel]=dict(bytes=p.stat().st_size,sha256=sha(p),part=classify(rel,indexed))
++    write(root/"B04-EXCLUDED-GENERATED.json",dict(format="fogsim.excluded-generated",schema_version=1,files=excluded))
++    p=root/"B04-EXCLUDED-GENERATED.json";files[p.name]=dict(bytes=p.stat().st_size,sha256=sha(p),part="main")
++    write(root/MANIFEST,dict(format="fogsim.batch-files",schema_version=1,batch="S9-B04",files=files,
++        source_index_sha256=sha(root/"SOURCE-INDEX.json"),complete_local=True))
++    output.mkdir(parents=True,exist_ok=True);packages=[]
++    for part in PARTS:
++        name="fogsim-0.4.0-B04"+("" if part=="main" else "-"+part)+".zip";target=output/name
++        members=[rel for rel,row in files.items() if row["part"]==part]
++        if part=="main":members.append(MANIFEST)
++        with zipfile.ZipFile(target,"w",zipfile.ZIP_DEFLATED,compresslevel=6,allowZip64=True) as archive:
++            archive.writestr("fogsim-0.4.0/","")
++            for rel in sorted(members):archive.write(root/rel,"fogsim-0.4.0/"+rel)
++        packages.append(dict(file=name,part=part,bytes=target.stat().st_size,sha256=sha(target),files=len(members),
++            purpose={"main":"cumulative code, cases, contracts, manual and final summary","evidence":"original current/historical results, inputs, failures, Java outputs","references":"restored pinned sources and offline dependency wheels","rollback":"unchanged prior S9 deliveries"}[part],
++            required_for_basic_use=part=="main",required_for_offline_training=part in ("main","references"),required_for_complete_review=True))
++    index=dict(format="fogsim.delivery-parts",schema_version=1,batch="S9-B04",packages=packages,
++        extraction_order=[p["file"] for p in packages],target="same new parent directory; all archives contain fogsim-0.4.0/",
++        disjoint_file_paths=True,external_environment="JDK17 required for Java checks, not bundled; CPython3.12/Linux x86_64 offline wheels")
++    write(output/"fogsim-0.4.0-B04-parts.json",index)
++    return index
++
++
++def main():
++    p=argparse.ArgumentParser();p.add_argument("action",choices=["build","verify"]);p.add_argument("--root",type=Path,default=ROOT)
++    p.add_argument("--output",type=Path);p.add_argument("--part",choices=["all",*PARTS],default="all");a=p.parse_args()
++    result=verify(a.root.resolve(),a.part) if a.action=="verify" else build(a.root.resolve(),a.output.resolve())
++    print(json.dumps(result,ensure_ascii=False,indent=2));return 0 if result.get("passed",True) else 1
++if __name__=="__main__":raise SystemExit(main())
+--- a/tools/check_s9_b04_delivery.py
++++ b/tools/check_s9_b04_delivery.py
+@@ -0,0 +1,89 @@
++"""Exercise current source and installed wheel without DEAP; audit portable frozen rules."""
++from pathlib import Path
++import argparse
++import json
++import os
++import subprocess
++import sys
++import time
++import zipfile
++from fogsim.training.protocols import read_json, write_json
++ROOT=Path(__file__).resolve().parents[1]
++OUT=ROOT/'outputs/step9/B04'
++
++
++def command(name,argv,pythonpath,expected=0):
++    start=time.monotonic();env=dict(os.environ,PYTHONPATH=str(pythonpath))
++    run=subprocess.run(argv,cwd=ROOT,env=env,capture_output=True,text=True)
++    folder=OUT/'commands';folder.mkdir(parents=True,exist_ok=True)
++    (folder/(name+'.stdout.txt')).write_text(run.stdout)
++    (folder/(name+'.stderr.txt')).write_text(run.stderr)
++    write_json(folder/(name+'.json'),dict(argv=argv,cwd=str(ROOT),environment=dict(PYTHONPATH=str(pythonpath)),
++        exit_code=run.returncode,expected_exit=expected,duration_seconds=time.monotonic()-start))
++    if run.returncode!=expected:raise RuntimeError(name+': '+run.stderr)
++    return run.stdout
++
++
++def independent(prefix,pythonpath,execute=True):
++    rows=[]
++    for mode,batch,lane in [('single','B02','single-first'),('dual','B03','dual-first')]:
++        historical=ROOT/f'outputs/step9/{batch}/{lane}'
++        trial=historical/'trial-0001';output=OUT/(prefix+'-'+mode)
++        if execute:
++            command(prefix+'-'+mode,[sys.executable,'-S','-m','fogsim.training.cli','evaluate',
++                '--rules',str(trial/'selected_rule.json'),'--plan',str(historical/'plans/test.json'),
++                '--output',str(output)],pythonpath)
++        evaluation=read_json(output/'evaluation.json');old=read_json(trial/'test/evaluation.json')
++        matched=evaluation['status']=='FEASIBLE' and evaluation['rule_pair_id']==old['rule_pair_id'] and evaluation['fitness']==old['fitness']
++        result_bytes_equal=True;input_semantic_equal=True;origin_changes=[]
++        from fogsim.replay.export_input import implementation_fingerprint
++        for a,b in zip(evaluation['runs'],old['runs']):
++            result_bytes_equal &= (output/a['result_ref']).read_bytes()==(trial/'test'/b['result_ref']).read_bytes()
++            before=read_json(trial/'test'/b['input_ref']);after=read_json(output/a['input_ref'])
++            old_fp=before['origin']['code_dependency_fingerprint'];new_fp=after['origin']['code_dependency_fingerprint']
++            origin_changes.append(dict(path='/origin/code_dependency_fingerprint',historical=old_fp,current=new_fp))
++            # Source changed between batches; only this recorded origin field may differ.
++            # Check the new value against the current implementation, then compare every other field.
++            input_semantic_equal &= new_fp==implementation_fingerprint()
++            after['origin']['code_dependency_fingerprint']=old_fp
++            input_semantic_equal &= before==after
++        matched &= result_bytes_equal and input_semantic_equal
++        matched &= len(evaluation['runs'])==len(old['runs'])==2
++        rows.append(dict(mode=mode,completed_runs=evaluation['completed_runs'],matched=bool(matched),result_bytes_equal=bool(result_bytes_equal),input_semantic_equal=bool(input_semantic_equal),origin_changes=origin_changes,
++            source_evidence=str((trial/'test').relative_to(ROOT)),current_evidence=str(output.relative_to(ROOT))))
++    return rows
++
++
++def main():
++    parser=argparse.ArgumentParser();parser.add_argument('--wheel',type=Path,required=True);parser.add_argument('--install-target',type=Path,required=True);parser.add_argument('--audit-existing',action='store_true',help='audit already executed current-source outputs; do not simulate again');args=parser.parse_args()
++    if args.install_target.exists() and not args.audit_existing:raise ValueError('installation target must be new')
++    source=independent('independent-selected',ROOT/'src',execute=not args.audit_existing)
++    write_json(OUT/'independent-selected-check.json',dict(passed=all(r['matched'] for r in source),runs=source,completed_runs=sum(r['completed_runs'] for r in source)))
++    code="""import json,sys,importlib.abc
++class NoDeap(importlib.abc.MetaPathFinder):
++ def find_spec(self,fullname,*args):
++  if fullname.split('.')[0]=='deap':raise AssertionError('DEAP must not be imported')
++sys.meta_path.insert(0,NoDeap())
++from fogsim import create_engine,parse_instance,RunConfig
++from fogsim.training.selection import load_selected_rule
++raw=json.load(open('data/cases/chain_remote.json'))
++r=create_engine(parse_instance(raw),RunConfig(routing_kind='fixed_resource',fixed_resource_id='E0')).run()
++assert r.status=='SUCCEEDED'
++for p in ['outputs/step9/B02/single-first/trial-0001/selected_rule.json','outputs/step9/B03/dual-first/trial-0001/selected_rule.json']:load_selected_rule(p)
++print(json.dumps(dict(passed=True,status=r.status,deap_loaded='deap' in sys.modules)))
++"""
++    raw=command('no-deap-fixed',[sys.executable,'-S','-c',code],ROOT/'src')
++    command('no-deap-train',[sys.executable,'-S','-m','fogsim.training.cli','train','--config','configs/training/smoke-dual.json','--output',str(OUT/'must-not-create')],ROOT/'src',2)
++    assert not (OUT/'must-not-create').exists()
++    write_json(OUT/'no-deap.json',dict(passed=True,fixed_and_loading=json.loads(raw),source_independent_runs=4,missing_training_dependency_exit=2))
++    if not args.audit_existing:command('wheel-install',[sys.executable,'-m','pip','install','--no-deps','--target',str(args.install_target),str(args.wheel.resolve())],ROOT/'src')
++    with zipfile.ZipFile(args.wheel) as archive:
++        mismatches=[name for name in archive.namelist() if name.startswith('fogsim/') and name.endswith('.py') and archive.read(name)!=(ROOT/'src'/name).read_bytes()]
++    installed=independent('wheel-selected',args.install_target,execute=not args.audit_existing)
++    location=command('wheel-import',[sys.executable,'-S','-c','import fogsim;print(fogsim.__file__)'],args.install_target).strip()
++    passed=not mismatches and all(r['matched'] for r in installed) and Path(location).is_relative_to(args.install_target)
++    write_json(OUT/'wheel-check.json',dict(passed=passed,wheel=str(args.wheel.resolve().relative_to(ROOT)),source_mismatches=mismatches,import_location=location,
++        independent_evaluations=installed,completed_runs=sum(r['completed_runs'] for r in installed)))
++    assert passed and all(r['matched'] for r in source)
++    print(json.dumps(dict(passed=True,source_independent_runs=4,wheel_independent_runs=4)))
++if __name__=='__main__':main()
+--- a/tools/freeze_s9_b04.py
++++ b/tools/freeze_s9_b04.py
+@@ -0,0 +1,41 @@
++"""Bind final executable source, tests, configs, protocols, adapters and locks."""
++from pathlib import Path
++import argparse
++import hashlib
++import json
++from fogsim.training.protocols import write_json, identity
++ROOT = Path(__file__).resolve().parents[1]
++
++
++def files():
++    paths = []
++    for name in ("src", "tests", "tools", "configs", "schemas"):
++        paths.extend(p for p in (ROOT / name).rglob("*") if p.is_file()
++            and "__pycache__" not in p.parts and not any(x.endswith(".egg-info") for x in p.parts)
++            and p.suffix not in (".pyc", ".class"))
++    paths.extend(ROOT / name for name in ("pyproject.toml", "README.md", "docs/RUNNING-0.4.0.md",
++        "docs/TRAINING-PROTOCOL-B04.md", "docs/SOURCE-DISTRIBUTION.md", "development/S9-B04/PLAN.md",
++        "development/S9-B04/environment.json", "development/S9-B04/requirements-test.lock",
++        "development/S9-B02/requirements-train.lock", "references/design/fogsim-0.4.0-design.md",
++        "references/design/fogsim-stage-d-detailed-design.md"))
++    return {p.relative_to(ROOT).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
++
++
++def main():
++    parser = argparse.ArgumentParser()
++    parser.add_argument("action", choices=["freeze", "verify"])
++    parser.add_argument("--output", type=Path, required=True)
++    args = parser.parse_args()
++    current = files()
++    if args.action == "freeze":
++        if args.output.exists(): raise ValueError("refuse to overwrite source freeze")
++        result = dict(format="fogsim.source-freeze", schema_version=1, batch="S9-B04",
++            files=current, source_freeze_id=identity("source-freeze", current))
++        write_json(args.output, result)
++        print(result["source_freeze_id"])
++    else:
++        expected = json.loads(args.output.read_text())["files"]
++        differences = [k for k in sorted(expected.keys() | current.keys()) if expected.get(k) != current.get(k)]
++        print(json.dumps(dict(passed=not differences, files=len(current), differences=differences)))
++        if differences: raise SystemExit(1)
++if __name__ == "__main__": main()
+--- a/tools/run_s9_training.py
++++ b/tools/run_s9_training.py
+@@ -0,0 +1,19 @@
++"""Default to preflight; --execute explicitly runs the editable training config."""
++import argparse
++from pathlib import Path
++from fogsim.training.cli import main as training_main
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++def main(argv=None):
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--config", default=str(ROOT / "configs/training/large-dual-template.json"))
++    parser.add_argument("--output", required=True)
++    parser.add_argument("--execute", action="store_true", help="run training after displaying budget and retention")
++    args = parser.parse_args(argv)
++    return training_main(["train" if args.execute else "validate", "--config", args.config, "--output", args.output])
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+--- a/configs/chain_fcfs.json
++++ b/configs/chain_fcfs.json
+@@ -1,11 +1,11 @@
+-{
+-  "instance": "../data/cases/chain_remote.json",
+-  "routing_rule": {
+-    "kind": "fcfs"
+-  },
+-  "sequencing_rule": {
+-    "kind": "fcfs"
+-  },
+-  "trace_enabled": true,
+-  "event_policy": "java_compatible"
+-}
++{
++  "instance": "../data/cases/chain_remote.json",
++  "routing_rule": {
++    "kind": "fcfs"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  },
++  "trace_enabled": true,
++  "event_policy": "java_compatible"
++}
+--- a/configs/chain_remote.json
++++ b/configs/chain_remote.json
+@@ -1,12 +1,12 @@
+-{
+-  "instance": "../data/cases/chain_remote.json",
+-  "routing_rule": {
+-    "kind": "fixed_resource",
+-    "resource_id": "E0"
+-  },
+-  "sequencing_rule": {
+-    "kind": "fcfs"
+-  },
+-  "trace_enabled": true,
+-  "event_policy": "java_compatible"
+-}
++{
++  "instance": "../data/cases/chain_remote.json",
++  "routing_rule": {
++    "kind": "fixed_resource",
++    "resource_id": "E0"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  },
++  "trace_enabled": true,
++  "event_policy": "java_compatible"
++}
+--- a/configs/single_local.json
++++ b/configs/single_local.json
+@@ -1,12 +1,12 @@
+-{
+-  "instance": "../data/cases/single_local.json",
+-  "routing_rule": {
+-    "kind": "fixed_resource",
+-    "resource_id": "M0"
+-  },
+-  "sequencing_rule": {
+-    "kind": "fcfs"
+-  },
+-  "trace_enabled": true,
+-  "event_policy": "java_compatible"
+-}
++{
++  "instance": "../data/cases/single_local.json",
++  "routing_rule": {
++    "kind": "fixed_resource",
++    "resource_id": "M0"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  },
++  "trace_enabled": true,
++  "event_policy": "java_compatible"
++}
+--- a/configs/single_local_release5.json
++++ b/configs/single_local_release5.json
+@@ -1,12 +1,12 @@
+-{
+-  "instance": "../data/cases/single_local_release5.json",
+-  "routing_rule": {
+-    "kind": "fixed_resource",
+-    "resource_id": "M0"
+-  },
+-  "sequencing_rule": {
+-    "kind": "fcfs"
+-  },
+-  "trace_enabled": true,
+-  "event_policy": "java_compatible"
+-}
++{
++  "instance": "../data/cases/single_local_release5.json",
++  "routing_rule": {
++    "kind": "fixed_resource",
++    "resource_id": "M0"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  },
++  "trace_enabled": true,
++  "event_policy": "java_compatible"
++}
+--- a/configs/training/large-dual-template.json
++++ b/configs/training/large-dual-template.json
+@@ -0,0 +1,29 @@
++{
++  "format": "fogsim.training-config",
++  "schema_version": 1,
++  "mode": "dual_tree",
++  "plans": {
++    "training": "B03-train-sources.json",
++    "validation": "B03-validation-sources.json",
++    "test": "B03-test-sources.json"
++  },
++  "output": {
++    "trace": "none",
++    "save_run_results": true,
++    "save_input_archives": true
++  },
++  "trials": {
++    "evolution_seeds": [
++      50001,
++      50002,
++      50003,
++      50004,
++      50005
++    ]
++  },
++  "evolution": {
++    "population_size": 100,
++    "generations": 50,
++    "elite_count": 2
++  }
++}
+--- a/configs/training/large-single-template.json
++++ b/configs/training/large-single-template.json
+@@ -0,0 +1,29 @@
++{
++  "format": "fogsim.training-config",
++  "schema_version": 1,
++  "mode": "single_routing",
++  "plans": {
++    "training": "B03-train-sources.json",
++    "validation": "B03-validation-sources.json",
++    "test": "B03-test-sources.json"
++  },
++  "output": {
++    "trace": "none",
++    "save_run_results": true,
++    "save_input_archives": true
++  },
++  "trials": {
++    "evolution_seeds": [
++      50001,
++      50002,
++      50003,
++      50004,
++      50005
++    ]
++  },
++  "evolution": {
++    "population_size": 100,
++    "generations": 50,
++    "elite_count": 2
++  }
++}
+--- a/schemas/training/preflight.schema.json
++++ b/schemas/training/preflight.schema.json
+@@ -0,0 +1,134 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "closed_loop_budget",
++    "training_simulation_upper_bound",
++    "event_budgets",
++    "processed_event_upper_bound",
++    "wallclock_seconds_per_run",
++    "retention",
++    "semantics",
++    "versions",
++    "plan_ids",
++    "deferred",
++    "cost_note",
++    "format",
++    "schema_version",
++    "status",
++    "simulations_executed",
++    "mode"
++  ],
++  "properties": {
++    "closed_loop_budget": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": [
++        "trials",
++        "training_per_trial",
++        "validation_upper_bound_per_trial",
++        "test_per_trial",
++        "total_upper_bound"
++      ],
++      "properties": {
++        "trials": {
++          "type": "integer",
++          "minimum": 0
++        },
++        "training_per_trial": {
++          "type": "integer",
++          "minimum": 0
++        },
++        "validation_upper_bound_per_trial": {
++          "type": "integer",
++          "minimum": 0
++        },
++        "test_per_trial": {
++          "type": "integer",
++          "minimum": 0
++        },
++        "total_upper_bound": {
++          "type": "integer",
++          "minimum": 0
++        }
++      }
++    },
++    "training_simulation_upper_bound": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "event_budgets": {
++      "type": "array",
++      "items": {
++        "type": [
++          "integer",
++          "null"
++        ],
++        "minimum": 0
++      }
++    },
++    "processed_event_upper_bound": {
++      "type": [
++        "integer",
++        "null"
++      ],
++      "minimum": 0
++    },
++    "wallclock_seconds_per_run": {},
++    "retention": {
++      "type": "object",
++      "additionalProperties": false,
++      "required": [
++        "trace",
++        "save_run_results",
++        "save_input_archives"
++      ],
++      "properties": {
++        "trace": {
++          "enum": [
++            "all",
++            "none",
++            "selected_cases"
++          ]
++        },
++        "save_run_results": {
++          "const": true
++        },
++        "save_input_archives": {
++          "const": true
++        }
++      }
++    },
++    "semantics": {},
++    "versions": {
++      "type": "object",
++      "required": [
++        "python",
++        "platform",
++        "dependencies"
++      ]
++    },
++    "plan_ids": {},
++    "deferred": {},
++    "cost_note": {},
++    "format": {
++      "const": "fogsim.training-preflight"
++    },
++    "schema_version": {
++      "const": 1
++    },
++    "status": {
++      "const": "PREFLIGHT_ONLY"
++    },
++    "simulations_executed": {
++      "const": 0
++    },
++    "mode": {
++      "enum": [
++        "single_routing",
++        "dual_tree"
++      ]
++    }
++  }
++}
+--- a/docs/ACCEPTANCE-S9-B04.md
++++ b/docs/ACCEPTANCE-S9-B04.md
+@@ -0,0 +1,32 @@
++# S9-B04 最终验收矩阵
++
++全部必需范围通过。当前检查与继承证据分别列出；继承不是本批重跑。历史闭环合计840条（上界848），B04不重复计数。
++
++| 门禁 | 范围 | 当前B04检查 | 已验收继承 |
++| --- | --- | --- | --- |
++| S01 PASS | configuration, plans, split, signed64 and seed rotation | tests/training/test_b01.py | B01 acceptance.json |
++| S02 PASS | DEAP/B08 ordered identities, Java grow, full, node roles and clone isolation | tests/training/test_b02.py, tests/training/test_b03.py | B02, B03 acceptance.json |
++| S03 PASS | D03 full-plan equal-run mean and denominators | tests/training/test_b01.py | B01 acceptance.json |
++| S04 PASS | domain continuation versus program/input/interruption failures | tests/training/test_b01.py, tests/training/test_b02.py | B01, B02 acceptance.json |
++| S05 PASS | NaN/infinity/signed-zero rule score and identity compatibility | tests/training/test_b01.py, tests/training/test_b02.py, tests/training/test_b03.py | B01, B02, B03 acceptance.json |
++| S06 PASS | fresh context/objects/queue/B order isolation | tests/training/test_b01.py | B01 acceptance.json |
++| S07 PASS | evolution versus simulator/caller RNG isolation | tests/training/test_b01.py, tests/training/test_b02.py | B01, B02 acceptance.json |
++| S08 PASS | plan rotation, elite/copy re-evaluation, actual counts, final-generation stop | tests/training/test_b02.py, tests/training/test_b03.py | B02, B03 acceptance.json |
++| S09 PASS | single routing/explicit FCFS real decisions, controlled operators and full closure | tests/training/test_b02.py | B02 acceptance.json |
++| S10 PASS | dual roles real decisions, four branches/tail/retries/source and clones | tests/training/test_b03.py | B03 acceptance.json |
++| S11 PASS | executed independent J01-J06 local Java cases and lifecycle; original evidence retained | 影响审计；原算法未改 | B01, B02, B03 acceptance.json |
++| S12 PASS | dedup/all occurrences, fixed validation, pre-test freeze and no candidate switching | tests/training/test_b02.py, tests/training/test_b03.py | B02, B03 acceptance.json |
++| S13 PASS | single and dual two seeds plus complete same-config repeats; semantic comparison | 影响审计；原算法未改 | B02, B03 acceptance.json |
++| S14 PASS | height/nodes/mutation/init/event/wallclock/EOF-exit evidence | tests/training/test_b01.py, tests/training/test_b02.py, tests/training/test_b03.py, tests/training/test_b04.py | B01, B02, B03 acceptance.json |
++| S15 PASS | CLI/API/protocols/source/lineage/independent freeze loading and output protection | tests/training/test_b04.py | B01, B02, B03 acceptance.json |
++| S16 PASS | final combined legacy/training regression, DEAP-free paths and pinned dependencies | tests | B01, B02, B03 acceptance.json |
++| S17 PASS | editable large templates preflight, budget/retention/versions, default validate entry and small explicit runs | tests/training/test_b04.py | 无 acceptance.json |
++
++当前JUnit：outputs/step9/B04/unit-final.xml（147）和regression.xml（5956），均零失败/错误/跳过。
++149条旧合同关联审计、828份协议及696个文件引用、源码/旧证据保留、DEAP缺席、wheel及规则独立加载详见outputs/step9/B04/acceptance.json。
++
++S11原证据：outputs/step9/B01/lifecycle-final、B02/java-final、B03/java-final；S13原证据：B02/single-first与single-repeat、B03/dual-first与dual-repeat及各自reproducibility.json。
++
++S17新证据：preflight-large-single/dual；cases-final/test_launcher*及regression-cases同类目录。未实际执行大模板。
++
++未执行/不纳入必需范围：论文规模/数值复现、旧两个可选大型native固定投影；并行/任意恢复/数值ERC未实现。完整交付需全部四个分包，JDK17不随包。
+--- a/docs/RUNNING-0.4.0.md
++++ b/docs/RUNNING-0.4.0.md
+@@ -0,0 +1,68 @@
++# fogsim 0.4.0 运行手册
++
++本版本完成 S9 的固定评估、单树 routing＋FCFS sequencing、双树 sequencing/routing 学习闭环。设计为 S9-frozen-1，固定执行语义为 D-frozen-1。最终状态见 outputs/step9/B04/acceptance.json 和 development/S9-B04/REPORT.md；S01—S17 的证据定位在 docs/ACCEPTANCE-S9-B04.md。
++
++## 解压与安装
++
++四个分包均以 fogsim-0.4.0/ 为顶层，解压到同一个新目录：主包 B04、evidence、references、rollback，路径互不覆盖。分包索引记录字节数与SHA-256。主包提供源码、测试、所有必要小场景/DAX、配置、schema、设计和运行手册；references提供离线依赖及原Java/历史来源；evidence提供历批及本批原始证据；rollback保留前批原交付。基本源码使用需要主包；离线训练安装还需references，完整复核及回滚需要全部分包。不要覆盖旧实验目录。
++
++已验证运行环境是 Linux x86_64、CPython 3.12.14；包内训练轮子适用于CPython3.12/Linux x86_64（moocore为abi3）。项目允许Python≥3.11，但未声称其他环境随机序列可复现。换平台须取得对应精确版本轮子、另存锁/环境并重新验收。JDK17用于Java对照，普通Python模拟与训练不需要Java；JDK不随包，其下载URL/SHA-256在development/S9-B02/dependency-lock.json。
++
++```bash
++python3.12 -m venv .venv
++. .venv/bin/activate
++python -m pip install --no-index --find-links development/S9-B02/wheels --require-hashes -r development/S9-B02/requirements-train.lock
++python -m pip install --no-deps development/S9-B04/dist/fogsim_reproduction-0.4.0-py3-none-any.whl
++```
++
++B01—B04的安装版号均为0.4.0；已有旧批次时加 --force-reinstall 安装当前wheel。也可在工程根目录使用 PYTHONPATH=src，避免安装项目wheel。旧固定/动态/重放与独立加载冻结规则无需DEAP。未装训练依赖时train按输入错误退出2，旧功能仍可运行。
++
++## 小规模训练与独立评估
++
++```bash
++PYTHONPATH=src python -m fogsim.training.cli validate --config configs/training/smoke-single.json --output outputs/my-single-preflight
++PYTHONPATH=src python -m fogsim.training.cli train --config configs/training/smoke-single.json --output outputs/my-single
++PYTHONPATH=src python -m fogsim.training.cli train --config configs/training/smoke-dual.json --output outputs/my-dual
++PYTHONPATH=src python -m fogsim.training.cli evaluate --rules outputs/my-dual/trial-0001/selected_rule.json --plan outputs/my-dual/plans/test.json --output outputs/my-dual-independent
++```
++
++validate不模拟、不创建进化RNG；结果为PREFLIGHT_ONLY。train在开始模拟前显示预算/保存策略/实际版本，并保存preflight.json。两种正式smoke各为12个体×4代×2seed，每次上界212条；若检验复现，使用相同配置另开输出目录，逐trial比较。历史B02/B03的首跑＋复跑840条证据已保留，本批不自动重启它们。
++
++API由fogsim.training导出parse_training_config、build_training_plans、evaluate_rule_pair、train、evaluate_selected_rule。API返回不可变JSON快照，不暴露Engine或RNG。evaluate_selected_rule读取完整selected-rule身份与B08 rule_manifest，既可单独调用也可由CLI读取。进度回调只观察已发生事实；异常中止控制流程并留证。使用spawn的程序入口须有 if __name__ == '__main__' 保护。
++
++## 大规模自运行
++
++两个可编辑文件：configs/training/large-single-template.json、large-dual-template.json。默认入口只预检：
++
++```bash
++PYTHONPATH=src python tools/run_s9_training.py --config configs/training/large-dual-template.json --output outputs/my-large-preflight
++```
++
++两模板当前均为100个体×50代×5个不同evolution seed；训练每代2条、固定验证2条、测试2条。每trial上界100×50×2＋50×2＋2=10102，五trial上界50510。事件预算2000/条，粗略累计上界101020000。候选按rule_pair_id去重可能减少验证次数。预检不会将50510条标记为已执行。
++
++只有用户后续明确选择执行时，另用新的输出目录：
++
++```bash
++PYTHONPATH=src python tools/run_s9_training.py --config configs/training/large-dual-template.json --output outputs/my-large --execute
++```
++
++修改规模用evolution.population_size/generations/elite_count和trials.evolution_seeds；修改场景先复制六份B03-*-0/1.json及三份source清单、修改引用，再编辑资源/采样范围/num_jobs_recorded/warmup_jobs/max_events。source seed与evolution seed分离，跨split输入不能重用，每代训练seed步长10000且溢出会预检拒绝。路径相对所属配置文件解析。固定验证/测试在训练前展开，不依据测试成绩换候选。
++
++模板沿用B03工程小场景，不代表论文数据和实验设置。output.trace=none可关闭常规完整事件trace；all或selected_cases按现有协议启用（selected_cases当前保守保存完整trace）。规则、计划、配置、谱系、原结果、可导出输入和故障摘要仍保留；save_run_results/save_input_archives必须true，不提供关闭。当前没有磁盘配额或自动清理，大实验应先缩小规模测量实际时间/空间，手动预留容量。事件数不能换算为时间/内存/磁盘保证；B08只读图检查在积压下可能很慢。可设置limits.wallclock_seconds_per_run，默认null，触发时单独标记INCOMPLETE，不能当领域失败。
++
++## 读取输出与退出
++
++resolved_config.json记录全部默认值，provenance.json记录当前源码与依赖；plans/冻结公共计划。每trial的generations.jsonl/individuals.jsonl/operations.jsonl记录代、出生、谱系与算子；candidates/archive.json包含首次及全部出处；validation/统一评分；selected_rule.json在test/之前冻结。training-result.json/evolution-result.json记录终态。正式fitness为完整计划全部成功后的运行等权平均，成功子集均值仅为诊断。不同代训练成绩不构成全局排名；跨trial不按test挑冠军。
++
++退出0成功；2配置/输入错误（包括非空输出目录）；1领域不可行/无验证赢家/最终测试失败；控制流程返回的INCOMPLETE退出130。KeyboardInterrupt由Python进程终止语义处理并留中断证据；未知程序异常保留异常链并非惩罚适应度。失败/中断看failures/，只承认完整提交JSONL行；received-only/capture_complete=false档案不能假装完整重放输入。保存记录不等于支持任意断点续训。重新运行使用新目录。
++
++## 新旧联合复核
++
++测试工具离线安装：python -m pip install --no-index --find-links development/S9-B04/test-wheels --require-hashes -r development/S9-B04/requirements-test.lock。Java对照还需要JDK17，设置FOGSIM_JAVA为其bin/java路径。完整复核在新的工程解压副本中执行，避免旧脚本在历史相对路径生成文件：
++
++```bash
++PYTHONPATH=src:tools PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests -q --junitxml=outputs/my-regression.xml --basetemp=outputs/my-regression-cases
++PYTHONPATH=src:tools python tools/audit_contracts.py --junit outputs/my-regression.xml --output outputs/my-contract-audit.json
++```
++
++测试会在独立副本的若干旧路径生成当前结果；不能据此覆盖保留的原交付证据。源码/历史保留和协议审计另见B04命令记录。原Java/Python本地RNG序列允许不同；局部受控对照不等于任意输入Java等价。无数值ERC搜索、并行加速、任意中断点恢复、论文规模训练或论文表格复现。两个旧大型native固定投影仍为非必需、未执行项，不伪称完成。
+--- a/docs/SOURCE-DISTRIBUTION.md
++++ b/docs/SOURCE-DISTRIBUTION.md
+@@ -1,23 +1,18 @@
+-# S9-B03 当前来源去重分发
++# S9-B04 最终完整本地交付
+ 
+-当前累计主包fogsim-0.4.0-B03.zip，顶层fogsim-0.4.0/。B03全部新源码/测试/配置、Java适配器/原输出、正式闭环与复跑、故障/中断及诊断证据随包。当前清单S9-B03-FILES.json，校验：
++B04以来源中已验收B03累计包为唯一当前代码基线。B01—B03结果沿用，B04源码修改、专项、新旧联合回归和协议/合同审计均另存；旧原始证据不重写。
+ 
+-```bash
+-python tools/build_s9_b03.py verify
+-```
++本次不再依赖沙箱绝对路径或用户另找旧来源。四个分包以fogsim-0.4.0/为顶层，解压到同一新目录，成员路径互不重叠：
+ 
+-SOURCE-INDEX.json与restore_sources.py沿用B01原字节；Java/history/rollback三组仍按已提供来源摘要恢复，恢复不会覆盖当前src。
++| 分包 | 内容 | 使用要求 |
++| --- | --- | --- |
++| fogsim-0.4.0-B04.zip | 累计源码/测试/工具、必要场景/DAX、配置、schema、设计、手册与验收摘要 | 基本使用必需 |
++| fogsim-0.4.0-B04-evidence.zip | 原B01/B02/B03及B04原结果、输入、故障、Java原输出和历史证据 | 完整复核必需 |
++| fogsim-0.4.0-B04-references.zip | 已恢复Java/history/rollback来源、离线训练与测试依赖、当前及历史wheel | 离线安装/Java复核必需 |
++| fogsim-0.4.0-B04-rollback.zip | 原B01去重包、B02/B03累计包与其已提供交付附件 | 原批次回滚必需 |
+ 
+-| 来源 | 字节数 | SHA-256 |
+-| --- | ---: | --- |
+-| fogsim-0.3.0-b08.zip | 38390156 | 61c4b14bf2305a9bbc2821ebbe85949e27ba45c8472005d8e5bfe7cbba967ecc |
+-| Fog-Computing-multiDeviceDebug.zip | 55532796 | 17a273961e66f409c4cfc8305ee31433bf7022232da3a2cbd0cc8e70e4c32c9a |
++外部分包索引列出文件名、用途、体积、SHA-256、合并顺序、目标目录和必需性。SOURCE-INDEX.json及restore_sources.py保持原字节；索引3373成员已恢复并随分包提供，基本使用不需要再恢复。references中rollback/fogsim-0.3.0-b08.zip亦为原字节。JDK17按既有约定不随包，仅为独立Java复核的外部环境要求；版本、URL、摘要在依赖锁。
+ 
+-```bash
+-python tools/restore_sources.py restore --source-dir /your/current-source-zips
+-python tools/restore_sources.py verify
+-```
++主包保存所有分包成员的S9-B04-FILES.json：python tools/build_s9_b04.py verify。也可用--part main检查基本包，--part references/evidence/rollback检查指定分包。全量verify要求四包全部解压。旧B01/B02/B03清单只描述对应旧批次，不用其旧清单校验B04变化。
+ 
+-不重复嵌入旧ZIP/Java/历史块。B01/B02旧清单和工具保持原字节，只描述对应原批次。原B02分发说明另存development/S9-B03/original-docs。缓存、安装目录、pytest current链接和可重建class不入包；B03-EXCLUDED-GENERATED.json逐项列出移出的class等生成文件。必要新源码、补丁、配置及真实原输出不清除。
+-
+-正式JDK17环境记录在outputs/step9/B03/java-final/build/environment.json，JDK下载信息沿用B02依赖锁。B03当前完整代码以本包为准；B01/B02结果沿用已有验收，新兼容回归均在独立恢复副本执行、另存B03目录。B04再整理最终本地完整交付。
++可重建缓存、class、虚拟环境、安装临时目录和egg-info不交付；删除项清单B04-EXCLUDED-GENERATED.json记录本批排除内容。历史压缩包内部不重打包、不改字节，必要原始失败记录不删。新文件/变更清单S9-B04-NEW-FILES.json与CHANGES-S9-B04.patch保留。
+--- a/docs/TRAINING-PROTOCOL-B04.md
++++ b/docs/TRAINING-PROTOCOL-B04.md
+@@ -0,0 +1,9 @@
++# S9-B04 协议补充
++
++S9-frozen-1与D-frozen-1不变。B01—B03规则、计划、候选、谱系、领域失败与结果协议原语义不变。新增fogsim.training-preflight schema_version=1，仅为成本/环境事实，不计训练或模拟通过。versions.dependencies可为null，表示当前环境未安装该包；validate仍可独立运行。retention与resolved_config一致。
++
++processed_event_upper_bound=total_upper_bound×所有冻结条目max_events的最大值，仅当每条预算均存在才给出；包含候选上界，非性能或存储估计。closed_loop_budget按trial数×（population×各代条目数之和＋generations×验证条目数＋测试条目数）。候选去重可能减少实际模拟，异常/中断另计。
++
++train API在创建输出目录后、启动工作进程前保存preflight.json；CLI train在调用前打印同内容并flush。validate只保存预检、resolved_config与展开计划。tools/run_s9_training.py默认调用validate，--execute调用train；输出保护沿用旧合同。
++
++独立evaluate_rule_pair的EOF分支在进程join后补记WORKER_EXIT.exitcode，与train监督器一致；不中断分类、不改已提交运行、数值和身份payload。完整源码摘要因此变更。生成新的训练/评估ID记录当前摘要，旧证据保留原摘要；不把旧闭环伪称为当前源码的新执行。
+--- a/docs/history/VALIDATION-0.2.0a1.md
++++ b/docs/history/VALIDATION-0.2.0a1.md
+@@ -1,82 +1,82 @@
+-# 0.2 第一阶段实际验收记录
+-
+-日期：2026-10-22。实现版本：**0.2.0a1**。本次完成Java固定实例入口及已有单任务/链式配置的逐事件、逐决策对照；未声明完整0.2验收完成。
+-
+-## 最终实际结果
+-
+-**145项测试通过，0失败、0错误、0跳过**，实际耗时见pytest原始报告。运行环境为Windows x64、CPython3.12.12、pytest9.1.1、Eclipse Temurin OpenJDK17.0.16+8。
+-
+-实际执行：
+-
+-```powershell
+-.\.venv\Scripts\python.exe tools/validate.py
+-```
+-
+-证据：[测试控制台](../outputs/pytest-console.txt)、[JUnit XML](../outputs/pytest-results.xml)、[源码/输入/配置清单](../outputs/validation-manifest.json)、[固定对照总报告](../outputs/parity/summary.json)。清单中的snapshot_sha256标识本次真实测试的源码快照。
+-
+-| 配置 | Java/Python事件 | Java/Python决策 | Java/Python makespan | 首个调度差异 |
+-| --- | --- | --- | --- | --- |
+-| single_local | 4/4 | 1/1 | 3/3 | null，未发现 |
+-| single_local_release5 | 4/4 | 1/1 | 3/3；最终时钟8/8 | null，未发现 |
+-| chain_remote | 7/7 | 3/3 | 13/13 | null，未发现 |
+-| chain_fcfs | 7/7 | 3/3 | 17/17 | null，未发现 |
+-
+-总计22条实际事件、8次决策。两组链式的路由轮次均为[1,1,2]，第二轮后才发出后继Visit。固定E0任务时刻为A=[0,2,2,5,6]、B=[6,7,7,11,13]；FCFS为A=[0,0,0,10,10]、B=[10,11,11,15,17]，列顺序为派发、到达、开始、派生计算结束、实际完成。
+-
+-## 对照了哪些内容
+-
+-- 输入文件SHA、实际配置、从两侧已构建模型读取的依赖/ID/候选顺序及UT/PT/DT。
+-- 每条事件的顺序、时间、类型、任务/资源、owner、生产设备。
+-- 事件前后任务标记、ready_time、priority、资源available_time、队列与两个缓存、完成记录、集合与完成登记。
+-- 事件内部DECISION/EMIT的真实交错顺序；每次决策的全部候选、即时评分、选择、轮次及候选/资源状态。
+-- 实际任务时间、工作流时间、计数、最终状态和makespan。
+-- Java观察到的待开始Process与Python预约按明确映射比较，Java未加入Python保护逻辑。
+-
+-原始文件不改写；另存规范化副本。已知表示差异及映射见每个comparison.json和[适配文档](JAVA-FIXED-ADAPTER.md)。Java未完成时间0.0与PythonNone、原Java缺少pending_start属于表示差异，不能说raw逐字相同。未登记非零时间、多个Java待开始项目不会被转换规则隐藏。
+-
+-## 每个案例的原始证据
+-
+-| 案例 | Python原始轨迹 | Java原始轨迹 | 对照报告 |
+-| --- | --- | --- | --- |
+-| 本地单任务 | [Python](../outputs/parity/single_local/python-raw.json) | [Java](../outputs/parity/single_local/java-raw.json) | [报告](../outputs/parity/single_local/comparison.json) |
+-| release=5 | [Python](../outputs/parity/single_local_release5/python-raw.json) | [Java](../outputs/parity/single_local_release5/java-raw.json) | [报告](../outputs/parity/single_local_release5/comparison.json) |
+-| 固定E0链式 | [Python](../outputs/parity/chain_remote/python-raw.json) | [Java](../outputs/parity/chain_remote/java-raw.json) | [报告](../outputs/parity/chain_remote/comparison.json) |
+-| FCFS链式 | [Python](../outputs/parity/chain_fcfs/python-raw.json) | [Java](../outputs/parity/chain_fcfs/java-raw.json) | [报告](../outputs/parity/chain_fcfs/comparison.json) |
+-
+-各目录还含run-manifest、Java实际请求、进程命令和stdout/stderr。构建证据位于outputs/parity/build：两份构造补丁、overlay、Java版本、编译命令/输出、647份源码与12个依赖jar的哈希。
+-
+-[来源完整性核对](../outputs/parity/build/source-integrity.json)实际比较659个文件，与提供Java ZIP字节一致；没有改references原始源码。原依赖在JDK17下产生44条旧API/strictfp等警告，0编译错误。
+-
+-## 测试覆盖与证据边界
+-
+-| 测试组 | 实际验证 |
+-| --- | --- |
+-| 原0.1测试 | 输入、模型身份、状态、规则、事件/堆、缓存/预约、失败、日志、重跑、手算案例，113项继续通过 |
+-| tests/integration/test_v01_regression.py | 新结果去掉新增日志字段后与保存0.1轨迹完全一致，4案例 |
+-| tests/parity/test_fixed_java.py | 真正编译并运行原Java类的4案例、构造补丁范围、原件未改、日志无干扰、新JVM重复、Unicode任务ID、旧trace保护、真实轨迹故障注入 |
+-| tests/unit/test_trace_compare.py | 合成日志的错序、错误时间/评分/选择、漏第二轮、ready/预约差异、非法完成时间、字段顺序、容差、失败不能假通过、CLI报告 |
+-| 原Java组件oracle | 4,764条操作、3,797条输出仍逐行一致；属于局部方法/堆证据，独立于新增完整生命周期适配 |
+-
+-合成日志负例只证明对照器检测能力，不当作Java调度证据。完整生命周期的Java证据来自parity实际JVM输出。
+-
+-## 首差检测负例与开发修正
+-
+-复制真实chain_fcfs Java轨迹，将首次路由的首项分数从0.0改为99.0。对照器正确定位第1事件的actions[0].decision.candidates[0].priority，并报告两侧0.0/99.0。原始Java轨迹SHA保持不变。证据：[人工故障报告](../outputs/parity/fault_injection/comparison.json)、[修改副本](../outputs/parity/fault_injection/java-score-altered.json)。这是人工故障，不是4个正常配置的调度差异。
+-
+-首次完整测试144通过、1失败：漏第二轮路由负例已经找到正确事件/action，但诊断路径只到对象层。改进共同字段比较后，进一步定位到kind字段，最终145项全通过。初次XML保留在[开发记录](../outputs/development/pytest-0.2-first.xml)，没有改变调度来使测试通过。
+-
+-## 未执行与尚待验证
+-
+-- 同一单设备规模下的复杂分叉汇合、完整资源竞争、复杂同刻交错及Java/Python对照：后续0.2主验收。
+-- pending_start与原Java canAddToQueue在所有可达竞争情形的差异：尚未确认。
+-- 多设备完整集成、任意输入等价性、作者实际运行build：未证明。
+-- 原始随机/训练入口、warm-up统计、DAX/RNG/seed、GP及论文规模结果：不在本次范围，未执行。
+-- 其他Python版本及操作系统：未实际运行。
+-
+-0.1原始输出保留于outputs/v0.1，旧fogsim-0.1.0.zip不覆盖。当前结论仅为：指定参考JDK和明确固定模式适配下，这4个现有配置通过逐事件、逐决策和状态/结果对照。
+-
+-## 交付包独立验证
+-
+-已在基础Python的 `-I` 隔离进程中加载解压包内源码，使用包内647份Java源文件及随附依赖重新编译，四个固定配置再次全部对照通过。已断言导入模块、编译源目录和全部Java运行classpath条目位于解压目录；仅参考JDK可执行文件来自外部。证据：[package-smoke.json](../outputs/package-smoke.json)。
+-
+-新版安装和 `python -m fogsim --version` 已实际验证为0.2.0a1；compileall语法检查通过。交付ZIP构建时核对已验证源码哈希、压缩包CRC及每个打包文件的SHA，包内附RELEASE-FILES.json。
++# 0.2 第一阶段实际验收记录
++
++日期：2026-10-22。实现版本：**0.2.0a1**。本次完成Java固定实例入口及已有单任务/链式配置的逐事件、逐决策对照；未声明完整0.2验收完成。
++
++## 最终实际结果
++
++**145项测试通过，0失败、0错误、0跳过**，实际耗时见pytest原始报告。运行环境为Windows x64、CPython3.12.12、pytest9.1.1、Eclipse Temurin OpenJDK17.0.16+8。
++
++实际执行：
++
++```powershell
++.\.venv\Scripts\python.exe tools/validate.py
++```
++
++证据：[测试控制台](../outputs/pytest-console.txt)、[JUnit XML](../outputs/pytest-results.xml)、[源码/输入/配置清单](../outputs/validation-manifest.json)、[固定对照总报告](../outputs/parity/summary.json)。清单中的snapshot_sha256标识本次真实测试的源码快照。
++
++| 配置 | Java/Python事件 | Java/Python决策 | Java/Python makespan | 首个调度差异 |
++| --- | --- | --- | --- | --- |
++| single_local | 4/4 | 1/1 | 3/3 | null，未发现 |
++| single_local_release5 | 4/4 | 1/1 | 3/3；最终时钟8/8 | null，未发现 |
++| chain_remote | 7/7 | 3/3 | 13/13 | null，未发现 |
++| chain_fcfs | 7/7 | 3/3 | 17/17 | null，未发现 |
++
++总计22条实际事件、8次决策。两组链式的路由轮次均为[1,1,2]，第二轮后才发出后继Visit。固定E0任务时刻为A=[0,2,2,5,6]、B=[6,7,7,11,13]；FCFS为A=[0,0,0,10,10]、B=[10,11,11,15,17]，列顺序为派发、到达、开始、派生计算结束、实际完成。
++
++## 对照了哪些内容
++
++- 输入文件SHA、实际配置、从两侧已构建模型读取的依赖/ID/候选顺序及UT/PT/DT。
++- 每条事件的顺序、时间、类型、任务/资源、owner、生产设备。
++- 事件前后任务标记、ready_time、priority、资源available_time、队列与两个缓存、完成记录、集合与完成登记。
++- 事件内部DECISION/EMIT的真实交错顺序；每次决策的全部候选、即时评分、选择、轮次及候选/资源状态。
++- 实际任务时间、工作流时间、计数、最终状态和makespan。
++- Java观察到的待开始Process与Python预约按明确映射比较，Java未加入Python保护逻辑。
++
++原始文件不改写；另存规范化副本。已知表示差异及映射见每个comparison.json和[适配文档](JAVA-FIXED-ADAPTER.md)。Java未完成时间0.0与PythonNone、原Java缺少pending_start属于表示差异，不能说raw逐字相同。未登记非零时间、多个Java待开始项目不会被转换规则隐藏。
++
++## 每个案例的原始证据
++
++| 案例 | Python原始轨迹 | Java原始轨迹 | 对照报告 |
++| --- | --- | --- | --- |
++| 本地单任务 | [Python](../outputs/parity/single_local/python-raw.json) | [Java](../outputs/parity/single_local/java-raw.json) | [报告](../outputs/parity/single_local/comparison.json) |
++| release=5 | [Python](../outputs/parity/single_local_release5/python-raw.json) | [Java](../outputs/parity/single_local_release5/java-raw.json) | [报告](../outputs/parity/single_local_release5/comparison.json) |
++| 固定E0链式 | [Python](../outputs/parity/chain_remote/python-raw.json) | [Java](../outputs/parity/chain_remote/java-raw.json) | [报告](../outputs/parity/chain_remote/comparison.json) |
++| FCFS链式 | [Python](../outputs/parity/chain_fcfs/python-raw.json) | [Java](../outputs/parity/chain_fcfs/java-raw.json) | [报告](../outputs/parity/chain_fcfs/comparison.json) |
++
++各目录还含run-manifest、Java实际请求、进程命令和stdout/stderr。构建证据位于outputs/parity/build：两份构造补丁、overlay、Java版本、编译命令/输出、647份源码与12个依赖jar的哈希。
++
++[来源完整性核对](../outputs/parity/build/source-integrity.json)实际比较659个文件，与提供Java ZIP字节一致；没有改references原始源码。原依赖在JDK17下产生44条旧API/strictfp等警告，0编译错误。
++
++## 测试覆盖与证据边界
++
++| 测试组 | 实际验证 |
++| --- | --- |
++| 原0.1测试 | 输入、模型身份、状态、规则、事件/堆、缓存/预约、失败、日志、重跑、手算案例，113项继续通过 |
++| tests/integration/test_v01_regression.py | 新结果去掉新增日志字段后与保存0.1轨迹完全一致，4案例 |
++| tests/parity/test_fixed_java.py | 真正编译并运行原Java类的4案例、构造补丁范围、原件未改、日志无干扰、新JVM重复、Unicode任务ID、旧trace保护、真实轨迹故障注入 |
++| tests/unit/test_trace_compare.py | 合成日志的错序、错误时间/评分/选择、漏第二轮、ready/预约差异、非法完成时间、字段顺序、容差、失败不能假通过、CLI报告 |
++| 原Java组件oracle | 4,764条操作、3,797条输出仍逐行一致；属于局部方法/堆证据，独立于新增完整生命周期适配 |
++
++合成日志负例只证明对照器检测能力，不当作Java调度证据。完整生命周期的Java证据来自parity实际JVM输出。
++
++## 首差检测负例与开发修正
++
++复制真实chain_fcfs Java轨迹，将首次路由的首项分数从0.0改为99.0。对照器正确定位第1事件的actions[0].decision.candidates[0].priority，并报告两侧0.0/99.0。原始Java轨迹SHA保持不变。证据：[人工故障报告](../outputs/parity/fault_injection/comparison.json)、[修改副本](../outputs/parity/fault_injection/java-score-altered.json)。这是人工故障，不是4个正常配置的调度差异。
++
++首次完整测试144通过、1失败：漏第二轮路由负例已经找到正确事件/action，但诊断路径只到对象层。改进共同字段比较后，进一步定位到kind字段，最终145项全通过。初次XML保留在[开发记录](../outputs/development/pytest-0.2-first.xml)，没有改变调度来使测试通过。
++
++## 未执行与尚待验证
++
++- 同一单设备规模下的复杂分叉汇合、完整资源竞争、复杂同刻交错及Java/Python对照：后续0.2主验收。
++- pending_start与原Java canAddToQueue在所有可达竞争情形的差异：尚未确认。
++- 多设备完整集成、任意输入等价性、作者实际运行build：未证明。
++- 原始随机/训练入口、warm-up统计、DAX/RNG/seed、GP及论文规模结果：不在本次范围，未执行。
++- 其他Python版本及操作系统：未实际运行。
++
++0.1原始输出保留于outputs/v0.1，旧fogsim-0.1.0.zip不覆盖。当前结论仅为：指定参考JDK和明确固定模式适配下，这4个现有配置通过逐事件、逐决策和状态/结果对照。
++
++## 交付包独立验证
++
++已在基础Python的 `-I` 隔离进程中加载解压包内源码，使用包内647份Java源文件及随附依赖重新编译，四个固定配置再次全部对照通过。已断言导入模块、编译源目录和全部Java运行classpath条目位于解压目录；仅参考JDK可执行文件来自外部。证据：[package-smoke.json](../outputs/package-smoke.json)。
++
++新版安装和 `python -m fogsim --version` 已实际验证为0.2.0a1；compileall语法检查通过。交付ZIP构建时核对已验证源码哈希、压缩包CRC及每个打包文件的SHA，包内附RELEASE-FILES.json。
+--- a/README.md
++++ b/README.md
+@@ -1,13 +1,11 @@
+-# fogsim 0.4.0 — S9-B03 双树闭环
++# fogsim 0.4.0 — S9-B04 最终交付
+ 
+-累计基线为已验收B02。本批新增双树0=sequencing/1=routing，特殊交叉/整树交换/四分支回退和双树变异；复用既有候选归档、验证、规则冻结与测试。单树routing+FCFS及旧固定/动态/重放保持可用。
++在已验收B03累计基线上完成最终兼容与交付。支持固定规则评估、单树routing＋FCFS sequencing及双树GP训练、候选归档、固定验证选优、冻结规则独立加载与最终测试。默认大规模入口只预检，不启动论文规模训练。
+ 
+-先读[运行说明](docs/RUNNING-S9-B03.md)、[协议](docs/TRAINING-PROTOCOL-B03.md)、[本批报告](development/S9-B03/REPORT.md)、[执行范围和预算](development/S9-B03/PLAN.md)。本批正式结果在outputs/step9/B03/acceptance.json；旧B01/B02结论和证据原字节保留，不重新验收原包。
++阅读 [运行手册](docs/RUNNING-0.4.0.md)、[最终验收矩阵](docs/ACCEPTANCE-S9-B04.md)、[报告](development/S9-B04/REPORT.md) 和 [分发说明](docs/SOURCE-DISTRIBUTION.md)。权威机器结论为outputs/step9/B04/acceptance.json。B01—B03和B08的历史结论及原始证据保留，最终新旧联合检查另存B04目录。
+ 
+ ```bash
+-PYTHONPATH=src python -m fogsim.training.cli train --config configs/training/smoke-dual.json --output outputs/my-dual
++PYTHONPATH=src python tools/run_s9_training.py --config configs/training/large-dual-template.json --output outputs/my-preflight
+ ```
+ 
+-依赖沿用development/S9-B02的精确锁及轮子。当前安装wheel在development/S9-B03/dist。每种模式完整配置两个trial上界212，B03双树首跑+复跑上界424；组件/故障另计。不启动论文规模训练，不自动进入B04。
+-
+-本包顶层fogsim-0.4.0/，当前清单S9-B03-FILES.json，校验用python tools/build_s9_b03.py verify。Java/history/rollback继续按SOURCE-INDEX.json恢复。原B02包保留在来源，回滚时独立解压它，不覆盖历史记录。完整分发说明见[来源说明](docs/SOURCE-DISTRIBUTION.md)。
++精确训练锁/轮子在development/S9-B02；当前安装wheel在development/S9-B04/dist。所有分包解压到同一新目录，不覆盖旧工程。主包为fogsim-0.4.0-B04.zip，统一顶层fogsim-0.4.0/；evidence、references、rollback分包与索引一并交付。JDK17不随包，获取信息保留。

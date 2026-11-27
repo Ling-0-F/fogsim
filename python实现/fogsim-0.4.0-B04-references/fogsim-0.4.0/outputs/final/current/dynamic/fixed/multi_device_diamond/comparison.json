@@ -1,0 +1,463 @@
+{
+  "passed": true,
+  "classification": "NORMAL_PARITY_PASSED",
+  "lanes": [
+    {
+      "passed": true,
+      "first_difference": null,
+      "event_count": {
+        "python": 182,
+        "java": 182
+      },
+      "decision_count": {
+        "python": 138,
+        "java": 138
+      },
+      "tolerance": {
+        "abs_tol": 1e-09,
+        "rel_tol": 1e-12
+      },
+      "representation_mappings": [
+        "unregistered Java workflow completion_time==0.0 -> Python None; nonzero values are not hidden",
+        "Python pending_start -> zero/one item list; Java pending starts are observed event references only",
+        "Java accepted Process plans/completed ProcessFinishEvent history -> task-keyed execution observations"
+      ],
+      "comparison_order": "input, config, loaded model; each event header, before, chronological actions, emitted, after, error; final records",
+      "java_observations": {
+        "suppressed_generation_calls": 14,
+        "anomalies": [],
+        "pending_is_observed_only": true,
+        "reservation_checks": [
+          {
+            "event_sequence": 2,
+            "time": 36.441941736985186,
+            "task": [
+              0,
+              "root"
+            ],
+            "resource_id": "M0",
+            "available_time": 0.0,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "JobArrivalEvent",
+              "time": 201.98988467906236,
+              "owner": "M0",
+              "workflow_id": 2,
+              "task_id": null,
+              "resource_id": null
+            }
+          },
+          {
+            "event_sequence": 5,
+            "time": 142.83456583602225,
+            "task": [
+              0,
+              "left"
+            ],
+            "resource_id": "E0",
+            "available_time": 0.0,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "TaskVisitEvent",
+              "time": 149.59024964318422,
+              "owner": "M0",
+              "workflow_id": 0,
+              "task_id": "right",
+              "resource_id": "E0"
+            }
+          },
+          {
+            "event_sequence": 12,
+            "time": 210.2712716630515,
+            "task": [
+              1,
+              "root"
+            ],
+            "resource_id": "M1",
+            "available_time": 0.0,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "JobArrivalEvent",
+              "time": 223.676833044498,
+              "owner": "M0",
+              "workflow_id": 3,
+              "task_id": null,
+              "resource_id": null
+            }
+          },
+          {
+            "event_sequence": 15,
+            "time": 225.55678432016043,
+            "task": [
+              2,
+              "root"
+            ],
+            "resource_id": "C0",
+            "available_time": 0.0,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "ProcessFinishEvent",
+              "time": 225.75555850336605,
+              "owner": "M0",
+              "workflow_id": 0,
+              "task_id": "right",
+              "resource_id": "E0"
+            }
+          },
+          {
+            "event_sequence": 18,
+            "time": 225.75555850336605,
+            "task": [
+              0,
+              "join"
+            ],
+            "resource_id": "M0",
+            "available_time": 132.68596145673547,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "TaskVisitEvent",
+              "time": 255.3445257884246,
+              "owner": "M0",
+              "workflow_id": 3,
+              "task_id": "root",
+              "resource_id": "C0"
+            }
+          },
+          {
+            "event_sequence": 23,
+            "time": 279.01750445415945,
+            "task": [
+              2,
+              "left"
+            ],
+            "resource_id": "E0",
+            "available_time": 225.75555850336605,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "JobArrivalEvent",
+              "time": 280.25146823797843,
+              "owner": "M1",
+              "workflow_id": 4,
+              "task_id": null,
+              "resource_id": null
+            }
+          },
+          {
+            "event_sequence": 43,
+            "time": 332.78097671216284,
+            "task": [
+              9,
+              "root"
+            ],
+            "resource_id": "C0",
+            "available_time": 318.2836548069247,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "TaskVisitEvent",
+              "time": 340.28347776798404,
+              "owner": "M0",
+              "workflow_id": 3,
+              "task_id": "left",
+              "resource_id": "C0"
+            }
+          },
+          {
+            "event_sequence": 56,
+            "time": 375.5837739069371,
+            "task": [
+              7,
+              "root"
+            ],
+            "resource_id": "E0",
+            "available_time": 357.81967134159834,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "TaskVisitEvent",
+              "time": 376.9123455483683,
+              "owner": "M0",
+              "workflow_id": 2,
+              "task_id": "join",
+              "resource_id": "E0"
+            }
+          },
+          {
+            "event_sequence": 64,
+            "time": 388.58360252112004,
+            "task": [
+              10,
+              "root"
+            ],
+            "resource_id": "M0",
+            "available_time": 369.94034612668645,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "TaskVisitEvent",
+              "time": 389.8925691209635,
+              "owner": "M1",
+              "workflow_id": 4,
+              "task_id": "right",
+              "resource_id": "E0"
+            }
+          },
+          {
+            "event_sequence": 85,
+            "time": 491.14730282661367,
+            "task": [
+              10,
+              "left"
+            ],
+            "resource_id": "M0",
+            "available_time": 491.14730282661367,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "TaskVisitEvent",
+              "time": 491.14730282661367,
+              "owner": "M0",
+              "workflow_id": 10,
+              "task_id": "right",
+              "resource_id": "M0"
+            }
+          },
+          {
+            "event_sequence": 124,
+            "time": 656.5635515537971,
+            "task": [
+              10,
+              "join"
+            ],
+            "resource_id": "M0",
+            "available_time": 656.5635515537971,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "TaskVisitEvent",
+              "time": 664.6415485759481,
+              "owner": "M0",
+              "workflow_id": 5,
+              "task_id": "join",
+              "resource_id": "E0"
+            }
+          },
+          {
+            "event_sequence": 147,
+            "time": 786.7120147232225,
+            "task": [
+              12,
+              "left"
+            ],
+            "resource_id": "M0",
+            "available_time": 702.5966856081876,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "TaskVisitEvent",
+              "time": 786.7120147232225,
+              "owner": "M0",
+              "workflow_id": 12,
+              "task_id": "right",
+              "resource_id": "M0"
+            }
+          },
+          {
+            "event_sequence": 154,
+            "time": 821.5381093742086,
+            "task": [
+              6,
+              "join"
+            ],
+            "resource_id": "C0",
+            "available_time": 786.7120147232225,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "TaskVisitEvent",
+              "time": 828.2673992651464,
+              "owner": "M0",
+              "workflow_id": 13,
+              "task_id": "left",
+              "resource_id": "C0"
+            }
+          },
+          {
+            "event_sequence": 159,
+            "time": 833.8595168440563,
+            "task": [
+              11,
+              "left"
+            ],
+            "resource_id": "M1",
+            "available_time": 833.8595168440563,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "TaskVisitEvent",
+              "time": 833.8595168440563,
+              "owner": "M1",
+              "workflow_id": 11,
+              "task_id": "right",
+              "resource_id": "M1"
+            }
+          },
+          {
+            "event_sequence": 171,
+            "time": 910.9634379939247,
+            "task": [
+              12,
+              "join"
+            ],
+            "resource_id": "E0",
+            "available_time": 846.0483790080659,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "ProcessFinishEvent",
+              "time": 912.2676938813141,
+              "owner": "M1",
+              "workflow_id": 11,
+              "task_id": "left",
+              "resource_id": "M1"
+            }
+          },
+          {
+            "event_sequence": 179,
+            "time": 988.3659329780315,
+            "task": [
+              11,
+              "join"
+            ],
+            "resource_id": "C0",
+            "available_time": 907.4041518482027,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "ProcessFinishEvent",
+              "time": 989.5099666435174,
+              "owner": "M0",
+              "workflow_id": 13,
+              "task_id": "join",
+              "resource_id": "E0"
+            }
+          }
+        ],
+        "random_generator_is_null": true
+      },
+      "classification": "NORMAL_PARITY_PASSED",
+      "scope": "all projected workflows run to completion in both fixed engines; do not compare original dynamic metrics"
+    },
+    {
+      "passed": true,
+      "first_difference": null,
+      "event_count": {
+        "python": 182,
+        "java": 182
+      },
+      "decision_count": {
+        "python": 150,
+        "java": 150
+      },
+      "tolerance": {
+        "abs_tol": 1e-09,
+        "rel_tol": 1e-12
+      },
+      "representation_mappings": [
+        "unregistered Java workflow completion_time==0.0 -> Python None; nonzero values are not hidden",
+        "Python pending_start -> zero/one item list; Java pending starts are observed event references only",
+        "Java accepted Process plans/completed ProcessFinishEvent history -> task-keyed execution observations"
+      ],
+      "comparison_order": "input, config, loaded model; each event header, before, chronological actions, emitted, after, error; final records",
+      "java_observations": {
+        "suppressed_generation_calls": 14,
+        "anomalies": [],
+        "pending_is_observed_only": true,
+        "reservation_checks": [
+          {
+            "event_sequence": 2,
+            "time": 47.857771864487155,
+            "task": [
+              0,
+              "root"
+            ],
+            "resource_id": "E0",
+            "available_time": 0.0,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "JobArrivalEvent",
+              "time": 201.98988467906236,
+              "owner": "M0",
+              "workflow_id": 2,
+              "task_id": null,
+              "resource_id": null
+            }
+          },
+          {
+            "event_sequence": 5,
+            "time": 111.3556581390275,
+            "task": [
+              0,
+              "left"
+            ],
+            "resource_id": "E0",
+            "available_time": 101.20705375974072,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "TaskVisitEvent",
+              "time": 118.11134194618946,
+              "owner": "M0",
+              "workflow_id": 0,
+              "task_id": "right",
+              "resource_id": "E0"
+            }
+          },
+          {
+            "event_sequence": 11,
+            "time": 200.690814339036,
+            "task": [
+              0,
+              "join"
+            ],
+            "resource_id": "E0",
+            "available_time": 194.2766508063713,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": {
+              "type": "JobArrivalEvent",
+              "time": 201.98988467906236,
+              "owner": "M0",
+              "workflow_id": 2,
+              "task_id": null,
+              "resource_id": null
+            }
+          },
+          {
+            "event_sequence": 180,
+            "time": 2452.631592658148,
+            "task": [
+              13,
+              "join"
+            ],
+            "resource_id": "E0",
+            "available_time": 2435.6700360407144,
+            "original_allowed": true,
+            "observed_pending_starts": [],
+            "global_root": null
+          }
+        ],
+        "random_generator_is_null": true
+      },
+      "classification": "NORMAL_PARITY_PASSED",
+      "scope": "all projected workflows run to completion in both fixed engines; do not compare original dynamic metrics"
+    }
+  ]
+}

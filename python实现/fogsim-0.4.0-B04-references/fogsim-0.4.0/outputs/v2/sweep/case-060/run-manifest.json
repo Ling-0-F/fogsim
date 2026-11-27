@@ -1,0 +1,94 @@
+{
+  "instance_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/outputs/v2/sweep/case-060/input.json",
+  "instance_sha256": "18f5638f1af9ceee89caf1ada542115863cd900364dd9b49b80811fecb86f479",
+  "config_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/outputs/v2/sweep/case-060/config.json",
+  "config_file_sha256": "2b241d4415f9fb0b66da0faa793fef1a8e2ff1e0398d05a4d64665463bb0dc3e",
+  "effective_config": {
+    "routing_kind": "fixed_resource",
+    "fixed_resource_id": "E0",
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "java_build_fingerprint": "a69f3c65cce9eae3111d7c15f95c3aeac49946d2308df8c02d594ec8b189b921",
+  "resource_ids": [
+    [
+      "C0",
+      "CLOUD",
+      1
+    ],
+    [
+      "E0",
+      "EDGE",
+      0
+    ],
+    [
+      "M0",
+      "MOBILE",
+      0
+    ]
+  ],
+  "devices": [
+    "M0"
+  ],
+  "task_ids": [
+    {
+      "workflow_id": 21,
+      "string_id": "T0",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 21,
+      "string_id": "T1",
+      "java_numeric_id": 1,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": -20,
+      "string_id": "T0",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": -20,
+      "string_id": "T1",
+      "java_numeric_id": 1,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    }
+  ],
+  "initial_stage_order": [
+    [
+      21,
+      "M0",
+      0.0
+    ],
+    [
+      -20,
+      "M0",
+      0.0
+    ]
+  ],
+  "raw_trace_sha256": {
+    "python-raw.json": "bd933ba8081cd190d499dff06feb6d4a91094101d7381325724cb2ae5e3c189f",
+    "java-raw.json": "91c00db80734d74ab83318214c056a105356908e0bbd85583f01cb4bee67dc02"
+  }
+}

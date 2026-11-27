@@ -1,0 +1,1979 @@
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,8 @@
+ # 雾计算工作流调度复现：0.2.1 固定实例验收版
+ 
+-> 当前为 **step4 开发快照**：Java 原动态输入导出与 V16 已完成。9 个案例通过观察无干扰/完整性检查，另有中断拒绝检查；新增 73 项和 Python 单元/集成共 590 项通过。详见 [第 4 步记录](docs/STEP4-PROGRESS.md)。第 5 步 Python 动态接入、第 6 步重放及完整 V01 尚未完成；下方 step1–3/0.2.1 为历史记录。
++> 当前为 **step5 开发快照**：集中接纳、动态 Arrival、Java 兼容统计、明确失败和 Context 生命周期已实现。80 项新增及 Python 共 670 项通过；50 项原 Java 探针、9 个受控业务案例通过。API、诊断保护的验证范围和参考字段勘误见 [第 5 步记录](docs/STEP5-PROGRESS.md)。生产重放/固定投影、实际清理服务、完整 CLI/批次及完整 V01 仍在后续步骤。
++
++> step4 历史快照：Java 原动态输入导出与 V16 已完成。9 个案例通过观察无干扰/完整性检查，另有中断拒绝检查；新增 73 项和 Python 单元/集成共 590 项通过。详见 [第 4 步记录](docs/STEP4-PROGRESS.md)。第 5 步 Python 动态接入、第 6 步重放及完整 V01 尚未完成；下方 step1–3/0.2.1 为历史记录。
+ 
+ > step3 历史快照：环境采样、两遍完整输入生成及 TaskOption 建图已实现；新增 74 项及 Python 单元/集成共 517 项通过，7 个原 Java 脚本输入业务案例通过。API、证据和接纳边界见 [第 3 步记录](docs/STEP3-PROGRESS.md)。完整动态事件/统计、Java 输入导出和重放仍按后续步骤推进。
+ 
+--- /dev/null
++++ b/configs/examples/step5_dynamic.json
+@@ -0,0 +1,26 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 1,
++  "mode": "dynamic",
++  "source": {
++    "seed": 7,
++    "dag_root": "../../examples/step5/dax",
++    "workflow_types": {"lower": 0, "upper": 0},
++    "environment": {
++      "num_mobile_devices": 1,
++      "num_edge_servers": 1,
++      "num_cloud_servers": 1,
++      "can_mobile_devices_process_tasks": true
++    }
++  },
++  "run": {
++    "num_jobs_recorded": 1,
++    "warmup_jobs": 1,
++    "max_events": 1000,
++    "check_invariants": true,
++    "trace_enabled": true,
++    "edge_data_policy": "retain"
++  },
++  "repeat": {"count": 1},
++  "output": {"dataset_role": "debug"}
++}
+--- a/docs/IMPLEMENTATION-NOTES.md
++++ b/docs/IMPLEMENTATION-NOTES.md
+@@ -235,3 +235,8 @@
+ ## N31：第 4 步 Java 动态输入导出（2026-11-05）
+ 
+ 独立原动态入口配合五处追加观察，不使用固定构造 overlay。先复制第二遍完成的完整候选，再记录真实接纳；输入、参考和来源哈希分开。纯原入口与审计基线、最小观察与完整记录分层核对；零间隔业务脚本显式标记。没有更改原 sampler/规则/比较器/停止算法。自包含契约、capture 中断规则、真实计数与适用边界见 [STEP4-PROGRESS](STEP4-PROGRESS.md)。生产 Python 动态服务、重放、清理与完整 CLI 仍在后续步骤。
++
++
++## N32：第 5 步动态服务和生命周期（2026-11-05）
++
++新增单一 AdmissionService、RandomWorkflowSource、独立 DynamicStatistics/DynamicRunResult 和 Context；四事件只加来源/首次完成回调，原堆归并提取但顺序不变。参数来源指纹只含物理参数和 sampler，不能因 trace/max_events 改变。Context 不自动保留旧轮运行图，旧 READY 标记 SUPERSEDED；缺完整环境的准备失败允许显式重试。完整合同、验证范围、test-only FCFS 诊断模式及第4步 producer 字段的真实 owner 映射见 [STEP5-PROGRESS](STEP5-PROGRESS.md)。生产重放、实际清理及完整 CLI 未提前实现。
+--- a/docs/ISSUES-AND-FIXES.md
++++ b/docs/ISSUES-AND-FIXES.md
+@@ -119,3 +119,8 @@
+ ## 第 4 步导出工具校验修正（2026-11-05）
+ 
+ 观察补丁生成最初用子串匹配，命中了原源码历史注释中的相同 trigger 行。已改为完整行或明确 couldAdd 分支唯一匹配；测试可移除全部追加观察调用并精确还原原源文。新增契约测试还发现设备未知字段先落到 dataclass TypeError，现先校验结构并报 InputError。两处均是新工具实现错误，未修改原 Java/Python 调度行为，也未调整测试预期。V16 原生未达标案例单独记录，不伪装为正常成功。
++
++
++## 第 5 步：诊断指纹和参考元数据（2026-11-05）
++
++首次新测试发现环境 parameter_source 使用整个实验指纹，使 trace 开关改变归档元数据；现仅对环境及 sampler 有效参数取指纹，调度/采样数值不变。第4步 Java 参考 producer_device_id 实际来自 event.getMobileDevice，即事件 owner，不能当作写堆设备。本轮明示映射，并新运行原 PF 续接探针验证 M0 staging / M1 owner；历史参考字节未改，完整说明见 [STEP5-PROGRESS](STEP5-PROGRESS.md)。既有全图 priority 只读检查和详细状态快照在大图核对中开销明显；仅调整 test-only 核对方式并作等价检查，未修改生产保护或声称生产性能验收。
+--- /dev/null
++++ b/docs/STEP5-PROGRESS.md
+@@ -0,0 +1,128 @@
++# 冻结设计实施记录：第 5 步
++
++日期：2026-11-05（America/Los_Angeles）。从当前上传的 `fogsim-0.2.1-step4.zip` 解压到独立 step5 副本；基线 SHA-256 为 `e858f1424410fef3e5180151153c86e4d04edb7238ed6ab687b5b4cd062e6b8d`。原始 ZIP、标准 DAX 和 references 内原 Java 源文件未修改。本轮实现冻结设计 §§9–13、17 的集中接纳、动态事件接入、Java 统计及生命周期，验证 V09–V15。
++
++## 实际改动
++
++| 模块 | 作用 |
++| --- | --- |
++| `instances/source.py` | 完整候选来源协议和 RandomWorkflowSource；只使用既有共享输入流及冻结目录，不持有运行登记权限 |
++| `simulation/admission.py` | 单一接纳点；完整生成后判断 release；准备规范图后发布索引、任务事实、G/B 和 Arrival；保存独立不可变候选/尝试/接纳映射 |
++| `simulation/statistics.py` | G、B、R、按设备生成/物理完成/统计完成及独立 recorded_workflows；原保护顺序和严格阈值 |
++| `simulation/dynamic.py` | 复用原四事件与 EventContext；单次归并后检查目标/耗尽/预算；事件后检查保护；明确失败及部分轨迹 |
++| `simulation/context.py` | 新建、reset、rerun、rotate_seed；一条 RNG、冻结参数、保留资源数值及 B、每轮重建对象；准备失败保留诊断 |
++| `simulation/dynamic_result.py`、`errors.py`、公共导出 | DynamicRunResult 扩展旧 RunResult；PreparationError/稳定失败码；新建及单轮便利入口 |
++| 原 state/trace/events/event_queue/engine | 新工作流登记、动态任务事实登记、Arrival/首次完成回调、merge_staging/poll_global；固定默认回调为空操作 |
++| 测试、`tools/check_step5.py`、Java Step5Probe | 80 项新增测试；9 个受控业务输入案例；原 Java 50 项运行探针；独立快速 API 示例 |
++
++未重构整个目录或替换原比较器、两层堆、路由/排序公式、Visit/Start/Finish 的调度机制。旧 RunConfig、固定加载、create_engine/simulate、旧结果字段及 repeat 路径继续保持。DynamicRunResult 是独立扩展类型，旧固定结果没有增加必需字段。
++
++## 已实现契约
++
++一次尝试完整调用类型、间隔、权重和两遍生成后才执行接纳。拒绝保存完整 CandidateRecord 和 GenerationAttempt，原因固定为 REJECTED_RELEASE_NOT_FUTURE；不占 ID，不写索引/任务事实，不变更 G/B，不发 Arrival，不重抽、不回滚 RNG。初始化继续其他设备。每个实际 Arrival 在全部入口 Visit 派发后，仅由其 owner 进行一次后续尝试；Finish 不生成，G 到达 N+W 不截断来源。
++
++成功接纳先构造完整脱离索引的图并校验，再发布规范 Workflow/Task 索引和任务事实；G 加一，所属设备生成数加一，使用增加后的 G 更新 B；最后 stage Arrival。输入归档先于事件可见，保留边数据与运行字典不共享可变存储。Task XML 字符串 ID 和 Java 顺序编号分开保存。候选只引用本轮规范共享资源，不为设备复制服务器。
++
++物理完成由原 SystemState.register_completion 首次登记，全部实际完成者保存在 completed_workflows。仅首次成功回调统计：完成时 G>W、ID>=0、release<=B 才进入独立 recorded_workflows 并增加 R。没有 ID>=W 或 ID<N+W 条件。B 是赋值而非最大值；G 严格小于 N+W 时才更新，因此可以下降，达到门槛后冻结。早期工作流可入选；未入选完成者不补录。
++
++动态循环每次先按设备顺序排空暂存堆，然后检查统计目标、事件耗尽、额外预算，再 poll 一条。最后一个达标事件完整执行，并在下一次循环归并后停止，不继续处理剩余同刻事件或排空系统。事件后按原顺序检查全局累计非统计事件计数>400000、允许本地的设备队列>400、服务器队列>400、G>500*(N+W)。主原因按这个顺序确定，同时保留全部命中。全局非统计事件计数不是连续停滞长度，不因某次完成而重设。
++
++首次命中保护即 FAILED；保留实际时钟和诊断队列，正式 makespan/mean_flow_time 为空。同一事件同时达标和触发保护仍失败，遵循冻结设计明确采用的 Python 差异。正常指标只按统计集合计算，flow time 按登记顺序逐项加；指标累计溢出同样明确失败并保留物理完成事实。事件耗尽、额外预算和数值/状态失败分别命名；未知程序异常原样传播。
++
++trace 关闭时 events/decisions 为空，但任务 dispatch/arrival/plan/actual Start/finish 事实仍登记。未实际发生的 Start/finish 保持空值，计划时刻不冒充实际时刻。规则视图不含 Context、来源、归档或未到达工作流；规范 Workflow/Task 无这些对象的回引用。
++
++## 生命周期与 API
++
++```python
++from fogsim import load_experiment_config, create_dynamic_context, simulate_dynamic
++
++config = load_experiment_config("configs/examples/step5_dynamic.json")
++context = create_dynamic_context(config)  # 首个 READY Engine，不自动 run
++first = context.run()                    # 当前 Engine 只运行一次
++archive = context.input_archive          # 独立不可变输入；不依赖运行边映射
++rng_state = context.snapshot_rng()       # 带 Python/原生状态版本的真实状态
++
++ready = context.reset(-1)                # 保留环境数值和 B，重设 seed 起点，不 run
++second = context.run()
++third = context.rerun()                  # 继续当前随机流；重新准备并 run
++ready = context.rotate_seed()            # signed64 回绕加10000，重设起点，不 run
++fresh = simulate_dynamic(config)         # 全新上下文的一次便利运行
++```
++
++快速示例使用 `examples/step5/dax/` 的两任务调试图，不替换标准 dax/。该示例实际运行成功，首轮 7 条事件、2 个接纳工作流、1 个统计完成者；reset/rerun API 也已执行。
++
++| 操作 | 环境数值 | RNG 起点 | B | 自动运行 |
++| --- | --- | --- | --- | --- |
++| create_dynamic_context | 新采样 | 编码 seed，先消费资源前缀 | 0 | 否 |
++| reset(seed)/reset() | 保留 | 指定/当前公开 seed 的编码起点，不重采资源 | 保留 | 否 |
++| rerun() | 保留 | 当前状态继续 | 保留 | 是 |
++| rotate_seed() | 保留 | 公开 signed64 回绕加10000后的起点 | 保留 | 否 |
++
++每轮重新建立 Resource、Task、Workflow、TaskOption、SystemState、Engine、统计、队列、执行索引和 trace。只有数值快照、冻结 sampler/模板和上下文唯一 RNG 被复用。新建首轮与 reset 首轮的输入前缀不同；不能把 reset 当作从头重复。Context 的 config、inputs、environment、public_seed、engine 属性只读，当前 seed 由 public_seed 表示；config 保存初始请求。更改参数应新建 Context。
++
++RUNNING 时禁止生命周期操作。准备新一轮会把旧 READY Engine 标记 SUPERSEDED，防止旧入口稍后推进同一 RNG；已结束的 Engine 仍只能执行一次。Context 只持有当前运行图，不自动积累所有旧 Engine；调用方保存的旧结果保持独立。当前 Engine 的 rng_start/rng_ready/rng_final 保留真实 RngStateSnapshot；结果中另给指纹用于核对，指纹不代替状态。
++
++创建/reset 准备期的领域失败抛 PreparationError，携带 context、engine、FAILED result；simulate_dynamic 与 rerun 将其归一化为失败结果。已保存的完整环境继续保留；若资源采样在完整环境快照建立前失败，则没有完整数值可复用，显式下一轮会重新尝试建立快照。这仅是 Python 准备失败恢复，不声称对应原 Java 异常尾部行为。配置、文件或调用错误保留 InputError/EngineUsageError；程序异常不包装成 PreparationError。
++
++release_after_materialization 已能作为配置契约出现，但本轮执行入口在采样前明确拒绝该策略；使用 retain。实际清理服务及策略编排依原顺序在第 7 步交付，没有悄悄忽略开关或标为完成。
++
++## V09–V15 验证范围
++
++| 验收 | 已执行验证 |
++| --- | --- |
++| V09 | 同模板多工作流无 Task/边字典共享；同轮规范服务器共享；跨轮资源/任务/选项隔离；owner/staging 分离；Java 原 PF 续接组件探针 |
++| V10 | 多入口全部派发后一次生成；Finish 不生成；G 超过 N+W 仍生成；单一共享输入 RNG，无设备选择抽样 |
++| V11 | 初始化首设备拒绝不阻止他设备；全部拒绝、Arrival 内拒绝、零间隔和正间隔被时钟舍掉；完整消耗、无重试、正式 ID 连续 |
++| V12 | G=W 与 G>W，B 下降及 G=N+W，早期/大 ID，release=B/超过B，不补录；物理/统计集合和指标范围分离 |
++| V13 | 达标事件完整执行，最后归并，同刻事件保留，预算与目标优先级；trace 开关事实一致，失败正式指标为空 |
++| V14 | 400/401，400000/400001，生成阈值等号/超一，多保护主次序，禁本地跳过设备保护，同事件达标+保护；真实402入口图触发设备/服务器401队列；指标累计溢出 |
++| V15 | fresh/reset/rerun/rotate 的资源参数、对象隔离、B、RNG 起点、signed64 两端与回绕；无资源重采样/无 DAX 重读；失败后继续、单次使用及 RUNNING 禁止操作 |
++
++本轮实际新编译并运行原 Java：28 个生命周期操作（4 个 seed×7 次操作）、6 次接纳边界、5 个完成筛选边界、10 个保护边界和1个 owner/staging 续接探针，共 **50 项通过**。源码无 overlay。为隔离具体条件，组件探针明确注入 G/B、计数、队列及最小工作流状态；不是声称这些状态都自然可达。生命周期探针为了直接观察 B 延续，明确设置 B 并使用 N=1/W=0，避免 setup 重写 B；不把注入初始状态称为正常 fresh 实验。RNG 以 Java 自己的种子起点及前后状态核对，不与 Python 同 seed 逐值配对。
++
++`tools/check_step5.py` 还把第 4 步 input 中的环境和候选值展开成**测试专用业务 sampler 脚本**，通过本轮真实 Python 随机来源、两遍生成、集中接纳及四事件执行，再读独立 Java reference 作比较。source 不读取参考决策/停止时间/完成结果。不是生产重放加载器，也不自动补采样；脚本耗尽或顺序不符会报错。9 个案例的完整生成输入、尝试/消费顺序、事件、各次评分/选择、交错 DECISION/EMIT、最终资源缓存/队列及 G/B/R、成功指标均无首差。两项未达标案例按 Python 明确失败对照，报告 EXPECTED_DIFFERENCE_CONFIRMED。
++
++大型 trace 的重复全图快照及既有规则只读全图指纹扫描开销明显。核对工具使用专用 recorder，仅不保留它不比较的 before/after 重复图；保留所有实际事件、决策、动作及最终状态。两个标准大型案例在工具内只执行已知的原 FCFS priority，省略重复的全图变更指纹计算，**生产保护和生产 trace 未改**，状态/队列不变量继续检查。小图测试已比较完整生产方式与该工具方式的全部规范化轨迹和事实；`native_multiple_types` 还额外完成了生产完整 priority guard 方式，结果与工具方式逐项一致，证据在 `outputs/step5/full-guard-native/`。这些是限定 FCFS 的业务对照，不是任意自定义规则/GP 的保护等价或性能验收。
++
++## 第 4 步参考字段勘误
++
++原 `DynamicCapture.event` 的字段 `producer_device_id` 取 `event.getMobileDevice()`。在原 Java 服务器续接路径，ProcessStart 的此值是**任务所属设备，即事件 owner**；写入堆的设备来自调用 addEvent 的当前设备，二者可能不同。字段名称容易误导。
++
++本轮保留历史参考字节，在比较中明确将该旧字段映射为 Python owner，不把它当作 staging device。50 项 Java 探针中的原 ProcessFinishEvent.trigger 实际证明：M0 调用 addEvent 写入自身暂存堆，产生 owner=M1 的 ProcessStart；Python 动态续接测试也核对同一关系。后续第 6 步的参考归一化必须沿用这个明确映射；若扩展导出元数据，应显式另存 owner/staging，不能根据旧字段名猜测。输入格式、ID 和冻结调度语义无需更改。
++
++## 真实执行结果与复跑
++
++本次使用 CPython 3.12.14、pytest 9.2.0、Ubuntu OpenJDK 17.0.20+8；编译器使用现有 jdk.compiler 模块。Java/source/JAR/编译器指纹和完整命令在构建报告中，不要求特定更新号/厂商。
++
++实际最终测试命令（在项目根；临时 test-deps 位于交付工程外）：
++
++```bash
++PYTHONPATH=../../test-deps:src python -m pytest -q tests/unit/test_dynamic_context.py tests/unit/test_dynamic_admission.py tests/unit/test_dynamic_statistics.py tests/integration/test_dynamic_business_oracle.py --junitxml=outputs/step5/contracts.xml
++PYTHONPATH=../../test-deps:src python -m pytest -q tests/unit tests/integration --junitxml=outputs/step5/python-regression.xml
++LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib:/usr/lib/jvm/java-17-openjdk-amd64/lib/server python tools/check_step5.py --output outputs/step5-final
++```
++
++常规环境安装 `.[test]` 后可省略 PYTHONPATH；正常 JDK 17 用 --java 或 FOGSIM_JAVA，不需要此环境专用库路径。输出到新目录可复跑：
++
++```bash
++python tools/check_step5.py --java /path/to/jdk17/bin/java --output outputs/step5-rerun
++```
++
++| 检查 | 结果 |
++| --- | --- |
++| 新增契约/集成 | **80 passed，0 failed/errors/skipped** |
++| Python 单元及集成回归 | **670 passed，0 failed/errors/skipped**；包括旧 CLI/repeat、14 个固定配置完整结果/轨迹及原精度负例 |
++| 新运行的 Java 探针 | **50 项通过**，无源 overlay；生命周期与人工组件状态分开记录 |
++| 受控业务对照 | **9 个案例通过**：7 个正常结果、2 个预期失败；共 96 次尝试、1,128 条事件、1,008 次决策，全部首差为空 |
++| recorder/FCFS 工具方式 | 小图完整保护/trace 等价；大型 native_multiple_types 完整 priority guard 与工具方式等价 |
++| 快速 API 示例 | 实际成功运行；新建、reset、rerun 均可使用 |
++
++初次新增 Admission 测试有 3 个失败：其中环境来源指纹错误地包含 trace 等运行诊断配置，已改为只由环境及 sampler 有效参数计算；另外两个是新测试假设错误（把 resources 中的子串 source 当成反向引用、在随机不同上传量下预设某台设备先到）。现改为检查真实可达对象及生产设备关系；未调整旧测试预期、调度或 Java 结果。大型完整诊断验证曾手动中止，不能算通过；最终完整性以 step5-final 的 checks 和正式 XML 为准。保留了已完成的大型完整 priority guard 证据。
++
++当前运行证据：`outputs/step5/` 的测试 XML、额外完整保护对照和当前汇总；`outputs/step5-final/` 的 Java 编译/运行/原始探针及9案例两侧比较。当前文件指纹为 `STEP5-FILES.json`、`outputs/step5/current-files.json`，汇总为 `outputs/step5/current-validation.json`，相对 step4 的改动为 `CHANGES-STEP5.patch`。旧 RELEASE/STEP1–4 清单只描述历史阶段。
++
++## 未执行与下一步
++
++没有发现必须更改冻结设计的调度语义。第 4 步参考元数据命名问题及本轮诊断指纹修正均已明确记录，没有静默改变原输入或预期行为。
++
++生产重放来源/加载器、参考模式限制、覆盖不足诊断、固定投影及完整动态跨语言 V17–V19 仍未实现或未执行。这里的受控 sampler 对照不能替代它们。第 6 步可直接接入 WorkflowSource 和 AdmissionService，在同一真实调用位置逐条提供完整输入，并消费第 4 步独立 input/reference。完成后再按第 7 步交付实际边清理服务、完整 CLI/重复实验/完整 V01；GP 和论文训练实验仍在范围外。
+--- a/docs/VALIDATION.md
++++ b/docs/VALIDATION.md
+@@ -1,4 +1,6 @@
+ # 0.2 固定实例完整验收记录
++
++> step5 真实证据见 [STEP5-PROGRESS](STEP5-PROGRESS.md)、`outputs/step5/` 和 `outputs/step5-final/`。80 项新增及 Python 共 670 项通过；50 项新运行原 Java 探针、9 案例受控 sampler 业务对照通过。大型 FCFS 对照使用经等价检查的诊断模式，未声称完整生产重放/任意规则保护或完整 V01 通过。
+ 
+ > step4 真实证据见 [STEP4-PROGRESS](STEP4-PROGRESS.md)、`outputs/step4/`：73 项新增及 590 项 Python 测试通过，9 个 Java V16 案例和一次故意中断检查通过。比较是 Java 观察无干扰；Python 动态重放、固定投影及完整 V01 未执行。
+ 
+--- a/docs/roadmap.md
++++ b/docs/roadmap.md
+@@ -1,4 +1,6 @@
+ # 进度与后续工作
++
++2026-11-05（step5）：动态集中接纳、Arrival、物理/Java 统计集合分离、停止/保护、Context 生命周期已实现。80 项新增及 Python 共 670 项通过；50 项原 Java 组件/生命周期、9 案例受控业务对照通过。具体诊断模式和参考字段映射见 [STEP5-PROGRESS](STEP5-PROGRESS.md)。下一步第 6 步为生产重放、覆盖不足和固定投影；实际清理/CLI/批次/完整 V01 留到第 7 步。
+ 
+ 2026-11-05（step4）：Java 动态输入完整导出、分离参考/清单、9 案例 V16 无干扰及中断检查完成；Python 共 590 项通过。当前待第 5 步集中接纳/Arrival/统计/生命周期；不是 Python 动态重放已完成。详见 [STEP4-PROGRESS](STEP4-PROGRESS.md)。
+ 
+--- a/docs/semantics.md
++++ b/docs/semantics.md
+@@ -1,4 +1,6 @@
+ # 当前语义基线
++
++第 5 步动态语义已接入：集中接纳、每 Arrival 一次后续尝试、物理 completed 与 Java recorded 集合分离、B 赋值可下降、事件后保护与最后一次归并、保留环境/B 的 reset/rerun/rotate_seed。固定路径仍保留旧语义。API、失败合同、实际验证边界及旧参考 producer 字段勘误见 [STEP5-PROGRESS](STEP5-PROGRESS.md)。
+ 
+ 第 4 步只增加 Java 导出开发工具；Python 生产语义未变。输入捕获与原生参考分离，拒绝/未到达/未完成候选均保存。capture.complete 不等于统计达标或输入无限覆盖；第 6 步才能验证 Python 动态重放。具体格式和观察边界见 [STEP4-PROGRESS](STEP4-PROGRESS.md)。
+ 
+--- /dev/null
++++ b/examples/step5/dax/CyberShake_30.xml
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!-- Debug type-0 fixture: intentionally two tasks; standard dax/ is unchanged. -->
++<adag name="fogsim-step5-tiny-chain" jobCount="2" childCount="1">
++  <job id="Z"/>
++  <job id="a"/>
++  <child ref="a"><parent ref="Z"/></child>
++</adag>
+--- a/src/fogsim/__init__.py
++++ b/src/fogsim/__init__.py
+@@ -9,9 +9,14 @@
+ from .instances.generation import generate_workflow_input, release_rejection_reason
+ from .instances.materialize import materialize_workflow
+ 
++from .simulation.context import SimulationContext, create_dynamic_context, simulate_dynamic
++from .simulation.dynamic_result import DynamicRunResult
++from .errors import PreparationError
++
+ __version__ = "0.2.1"
+ __all__ = ["RunConfig", "InstanceSpec", "load_fixed_instance", "parse_instance", "create_engine", "simulate",
+            "ExperimentConfig", "load_experiment_config", "parse_experiment_config",
+            "parse_dax", "DagCatalog", "load_dax_catalog", "prepare_random_input",
+            "sample_environment", "build_environment", "generate_workflow_input",
+-           "release_rejection_reason", "materialize_workflow"]
++           "release_rejection_reason", "materialize_workflow", "SimulationContext",
++           "create_dynamic_context", "simulate_dynamic", "DynamicRunResult", "PreparationError"]
+--- a/src/fogsim/errors.py
++++ b/src/fogsim/errors.py
+@@ -25,3 +25,18 @@
+ def require(condition: bool, message: str) -> None:
+     if not condition:
+         raise StateError(message)
++
++
++class SimulationFailure(StateError):
++    def __init__(self, reason_code, message):
++        self.reason_code = reason_code
++        super().__init__(message)
++
++
++class PreparationError(RuntimeError):
++    """Expected preparation failure; the failed round and its input state survive."""
++    def __init__(self, context, result):
++        self.context, self.result = context, result
++        self.engine = context.engine
++        self.reason_code = result.reason_code
++        super().__init__(result.reason)
+--- /dev/null
++++ b/src/fogsim/instances/source.py
+@@ -0,0 +1,17 @@
++"""A source returns complete inputs and has no registration/scheduling authority."""
++from typing import Protocol
++from .generated import WorkflowInput, GenerationCause
++from .generation import generate_workflow_input
++
++
++class WorkflowSource(Protocol):
++    def generate(self, cause: GenerationCause, *, candidate_id: int) -> WorkflowInput: ...
++
++
++class RandomWorkflowSource:
++    def __init__(self, inputs, environment):
++        self.inputs = inputs
++        self.environment = environment
++
++    def generate(self, cause, *, candidate_id):
++        return generate_workflow_input(self.inputs, self.environment, cause, candidate_id=candidate_id)
+--- /dev/null
++++ b/src/fogsim/simulation/admission.py
+@@ -0,0 +1,69 @@
++"""The single commit point for dynamic identity, facts, G/B and Arrival."""
++from fogsim.errors import require
++from fogsim.instances.generated import (WorkflowInput, CandidateRecord, GenerationAttempt,
++                                        AdmissionMapping, InputArchive)
++from fogsim.instances.generation import release_rejection_reason
++from fogsim.instances.materialize import materialize_workflow
++from .events import JobArrivalEvent
++
++
++class AdmissionService:
++    def __init__(self, engine, source, environment, templates):
++        self.engine, self.source, self.environment = engine, source, environment
++        self.templates = tuple(templates)
++        self._by_ref = {t.ref: t for t in templates}
++        self._candidates, self._attempts, self._admissions = [], [], []
++        self.generation_call_count = 0
++        self.incomplete_attempt = False
++        self.partial_candidate = None
++
++    @property
++    def archive(self):
++        return InputArchive(self.templates, self.environment, tuple(self._candidates),
++                            tuple(self._attempts), tuple(self._admissions))
++
++    def summary(self):
++        return dict(kind="random" if hasattr(self.source, "inputs") else "external_source",
++                    generation_call_count=self.generation_call_count, attempt_count=len(self._attempts),
++                    rejected_count=sum(not a.observed_acceptance for a in self._attempts),
++                    consumed_attempt_count=len(self._attempts), incomplete_attempt=self.incomplete_attempt,
++                    capture_complete=not self.incomplete_attempt and self.engine.initialization_complete,
++                    coverage="observed_generation_calls_only")
++
++    def attempt(self, cause, ctx):
++        engine, state, stats = self.engine, self.engine.state, self.engine.statistics
++        require(cause.clock_time == state.clock_time and cause.owner_device_id == ctx.current_device.id,
++                "generation cause/current state mismatch")
++        require(engine.run_status in ("READY", "RUNNING"), "generation outside live round")
++        self.generation_call_count += 1
++        self.incomplete_attempt = True
++        self.partial_candidate = None
++        candidate = self.source.generate(cause, candidate_id=stats.generated_total)
++        require(type(candidate) is WorkflowInput and candidate.candidate_id == stats.generated_total,
++                "source returned wrong candidate identity")
++        record_id = str(len(self._attempts) + 1)
++        record = CandidateRecord(record_id, candidate)
++        self.partial_candidate = record
++        reason = release_rejection_reason(candidate, cause)
++        attempt = GenerationAttempt(len(self._attempts) + 1, cause, record_id, reason is None, reason)
++        if reason is None:
++            stats.check_acceptance_capacity(candidate.owner_device_id)
++            template = self._by_ref.get(candidate.template_ref)
++            require(template is not None, "source returned an unknown template")
++            workflow = materialize_workflow(candidate, template, state, input_record_id=record_id)
++            # Finish construction and all normal precondition checks before commit.
++            state.validate_new_workflow(workflow)
++            engine.trace.validate_new_workflow(workflow)
++            state.register_workflow(workflow)
++            engine.trace.register_workflow(workflow)
++            stats.accepted(workflow)
++            self._admissions.append(AdmissionMapping(record_id, workflow.id))
++        self._candidates.append(record)
++        self._attempts.append(attempt)
++        self.incomplete_attempt = False
++        self.partial_candidate = None
++        if reason is None:
++            # Archive is complete before an event can make the workflow visible.
++            ctx.emit(JobArrivalEvent(workflow))
++            return workflow
++        return None
+--- /dev/null
++++ b/src/fogsim/simulation/context.py
+@@ -0,0 +1,142 @@
++"""One shared input stream, frozen parameters, and isolated runtime rounds."""
++from dataclasses import replace, asdict
++import hashlib
++import json
++from fogsim.errors import InputError, StateError, EngineUsageError, PreparationError
++from fogsim.experiment_config import ExperimentConfig
++from fogsim.randomness.state import prepare_random_input
++from fogsim.environment.build import sample_environment, build_environment
++from fogsim.instances.source import RandomWorkflowSource
++from fogsim.seed import encode_seed, rotated_seed
++from .state import SystemState
++from .dynamic import DynamicEngine
++
++
++class SimulationContext:
++    def __init__(self, config):
++        if type(config) is not ExperimentConfig or config.mode != "dynamic":
++            raise InputError("create_dynamic_context requires dynamic ExperimentConfig")
++        if config.repeat.count != 1 or config.source.seed is None:
++            raise InputError("context requires expanded single-run config; call single_run(index)")
++        if config.run.edge_data_policy != "retain":
++            raise InputError("release_after_materialization runtime policy is deferred to step7; use retain")
++        self._config = config
++        payload = dict(environment=asdict(config.source.environment), samplers=config.source.samplers.effective_parameters())
++        self._parameter_fingerprint = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
++        # All file/config checks finish before the sole RNG is constructed.
++        self._inputs = prepare_random_input(config)
++        self._public_seed = config.source.seed
++        self._environment = None
++        self._engine = None
++        self._next_run_index = 0
++        self._prepare("fresh")
++
++    @property
++    def config(self):
++        return self._config
++
++    @property
++    def inputs(self):
++        return self._inputs
++
++    @property
++    def public_seed(self):
++        return self._public_seed
++
++    @property
++    def environment(self):
++        return self._environment
++
++    @property
++    def engine(self):
++        return self._engine
++
++    @property
++    def cutoff_release_time(self):
++        return self.engine.statistics.cutoff_release_time if self.engine is not None else 0.0
++
++    @property
++    def input_archive(self):
++        return self.engine.admission.archive if self.engine.admission is not None else None
++
++    def _boundary(self):
++        if self.engine is not None and self.engine.run_status == "RUNNING":
++            raise EngineUsageError("lifecycle operation requires a round boundary")
++
++    def snapshot_rng(self):
++        self._boundary()
++        return self.inputs.snapshot()
++
++    def _prepare(self, operation, seed=None):
++        self._boundary()
++        initial_cutoff = self.cutoff_release_time
++        if self.engine is not None and self.engine.run_status == "READY":
++            self.engine.run_status = "SUPERSEDED"
++        if seed is not None:
++            encoded = encode_seed(seed)
++            self._public_seed = seed
++            self.inputs.rng.seed(encoded)
++            self._inputs = replace(self.inputs, public_seed=seed)
++        start = self.inputs.snapshot()
++        run_index = self._next_run_index
++        engine = None
++        try:
++            # Only a missing complete snapshot is sampled. Ordinary reset/rerun
++            # never consumes the resource prefix or rereads DAX.
++            if self.environment is None:
++                self._environment = sample_environment(self.config.source.environment, self.inputs,
++                                                       parameter_source=self._parameter_fingerprint)
++            source = RandomWorkflowSource(self.inputs, self.environment)
++            engine = DynamicEngine(build_environment(self.environment), self.config.run, self.environment,
++                self.inputs.catalog.templates, source, initial_cutoff=initial_cutoff,
++                public_seed=self.public_seed, run_index=run_index, operation=operation, rng_start=start)
++            self._engine = engine
++            self._next_run_index += 1
++            engine.initialize()
++            engine.rng_ready = self.inputs.snapshot()
++            return engine
++        except StateError as exc:
++            if engine is None:
++                engine = DynamicEngine(SystemState(), self.config.run, self.environment,
++                    self.inputs.catalog.templates, None, initial_cutoff=initial_cutoff,
++                    public_seed=self.public_seed, run_index=run_index, operation=operation, rng_start=start)
++                self._engine = engine
++                self._next_run_index += 1
++            engine._fail(exc)
++            engine.rng_final = self.inputs.snapshot()
++            raise PreparationError(self, engine.result()) from exc
++        except Exception:
++            if engine is not None:
++                engine.run_status, engine.stop_reason = "FAILED", "unexpected programming exception (propagated)"
++                engine.rng_final = self.inputs.snapshot()
++            raise
++
++    def run(self):
++        return self.engine.run()
++
++    def reset(self, seed=None):
++        # Validate a supplied value before invalidating the prior READY engine.
++        selected = self.public_seed if seed is None else seed
++        encode_seed(selected)
++        return self._prepare("reset", selected)
++
++    def rerun(self):
++        try:
++            self._prepare("rerun")
++        except PreparationError as exc:
++            return exc.result
++        return self.run()
++
++    def rotate_seed(self):
++        return self._prepare("rotate_seed", rotated_seed(self.public_seed))
++
++
++def create_dynamic_context(config):
++    return SimulationContext(config)
++
++
++def simulate_dynamic(config):
++    try:
++        return create_dynamic_context(config).run()
++    except PreparationError as exc:
++        return exc.result
+--- /dev/null
++++ b/src/fogsim/simulation/dynamic.py
+@@ -0,0 +1,136 @@
++"""Dynamic control around the existing four event handlers and canonical state."""
++from copy import deepcopy
++import math
++from fogsim.config import RunConfig
++from fogsim.errors import EngineUsageError, StateError, SimulationFailure, require
++from fogsim.instances.generated import GenerationCause
++from .engine import Engine, EventContext
++from .statistics import DynamicStatistics
++from .admission import AdmissionService
++from .dynamic_result import collect_dynamic_result
++from .trace import state_snapshot, event_snapshot
++
++
++class DynamicEngine(Engine):
++    def __init__(self, state, config, environment, templates, source, *, initial_cutoff=0.0,
++                 public_seed=0, run_index=0, operation="fresh", rng_start=None):
++        # Reuse rule construction and the entire EventContext implementation.
++        fixed_config = RunConfig(routing_kind=config.routing_rule.kind,
++            fixed_resource_id=config.routing_rule.resource_id, trace_enabled=config.trace_enabled,
++            check_invariants=config.check_invariants)
++        super().__init__(state, fixed_config)
++        self.config = config
++        self.environment = environment
++        self.initial_cutoff, self.public_seed = initial_cutoff, public_seed
++        self.run_index, self.operation = run_index, operation
++        self.rng_start, self.rng_ready, self.rng_final = rng_start, None, None
++        self.statistics = DynamicStatistics.create(config, state.mobile_devices, initial_cutoff)
++        self.admission = AdmissionService(self, source, environment, templates) if source is not None else None
++        self.initialization_complete = False
++        self.initialization_actions = []
++        self.reason_code = None
++        self.failure_hits = []
++
++    def initialize(self):
++        if self.run_status != "READY" or self.initialization_complete or self.admission is None:
++            raise EngineUsageError("dynamic initialization requires a new empty READY round")
++        for device in self.state.mobile_devices:
++            cause = GenerationCause("initialize", device.id, self.state.clock_time)
++            self.admission.attempt(cause, EventContext(self, device))
++        self.initialization_complete = True
++        self.initialization_actions = deepcopy(self.trace.actions)
++        self._check_invariants()
++
++    def after_arrival(self, workflow, ctx):
++        cause = GenerationCause("after_arrival", workflow.owner_device.id, self.state.clock_time,
++                                workflow.id, self.processed_event_count)
++        self.admission.attempt(cause, ctx)
++
++    def workflow_completed(self, workflow):
++        self.statistics.completed(workflow)
++
++    def _snapshot(self):
++        value = state_snapshot(self.state)
++        value["dynamic_statistics"] = dict(generated_total=self.statistics.generated_total,
++            cutoff_release_time=self.statistics.cutoff_release_time, recorded_total=self.statistics.recorded_total,
++            recorded_workflow_ids=list(self.statistics.recorded_workflows))
++        return value
++
++    def _check_invariants(self):
++        if self.config.check_invariants:
++            self.state.check_invariants()
++            self.statistics.check_invariants(self.state)
++            self.event_queue.check_reservations(self.state.resources_by_id.values())
++
++    def _fail(self, exc):
++        self.run_status, self.stop_reason = "FAILED", str(exc)
++        self.reason_code = getattr(exc, "reason_code", "STATE_INVARIANT_VIOLATION")
++
++    def _check_guards(self):
++        self.failure_hits = self.statistics.guard_hits(self.state)
++        if self.failure_hits:
++            first = self.failure_hits[0]
++            raise SimulationFailure(first["reason_code"],
++                f"{first['reason_code']}: {first['resource_id'] or 'global'} "
++                f"{first['actual']} > {first['limit']}")
++
++    def run(self):
++        if self.run_status != "READY" or not self.initialization_complete:
++            raise EngineUsageError("dynamic Engine.run requires the current READY initialized round, once")
++        self.run_status = "RUNNING"
++        try:
++            while True:
++                # Exactly one merge, including the final boundary after R reaches N.
++                self.event_queue.merge_staging()
++                if self.statistics.recorded_total >= self.config.num_jobs_recorded:
++                    break
++                if not self.event_queue.global_heap:
++                    raise SimulationFailure("EVENTS_EXHAUSTED_BEFORE_TARGET", "events exhausted before statistical target")
++                if self.config.max_events is not None and self.processed_event_count >= self.config.max_events:
++                    raise SimulationFailure("MAX_EVENTS_EXCEEDED", "dynamic event budget exhausted before next poll")
++                event = self.event_queue.poll_global()
++                producer = self.event_queue.consume_producer(event)
++                require(math.isfinite(event.time) and event.time >= self.state.clock_time, "invalid/backward event time")
++                self.state.clock_time = event.time
++                self.processed_event_count += 1
++                self.trace.begin_event(self.processed_event_count)
++                ctx = EventContext(self, event.owner)
++                before = self._snapshot() if self.trace.enabled else None
++                previous_recorded = self.statistics.recorded_total
++                error = None
++                try:
++                    event.trigger(ctx)
++                    self.statistics.after_event(previous_recorded)
++                    # Failure wins over simultaneous target achievement, by design.
++                    self._check_guards()
++                    self._check_invariants()
++                except Exception as exc:
++                    error = str(exc) if isinstance(exc, StateError) else f"{type(exc).__name__}: {exc}"
++                    raise
++                finally:
++                    if self.trace.enabled:
++                        self.trace.append(dict(event_snapshot(event), sequence=self.processed_event_count,
++                            staging_device=producer.id, before=before, after=self._snapshot(),
++                            emitted=ctx.emitted, actions=self.trace.actions, error=error))
++            self._check_invariants()
++            self.run_status = "SUCCEEDED"
++        except StateError as exc:
++            self._fail(exc)
++        except Exception:
++            self.run_status, self.stop_reason = "FAILED", "unexpected programming exception (propagated)"
++            raise
++        finally:
++            source = self.admission.source if self.admission is not None else None
++            if hasattr(source, "inputs"):
++                self.rng_final = source.inputs.snapshot()
++        try:
++            return self.result()
++        except StateError as exc:
++            self._fail(exc)
++            return self.result()
++        except Exception:
++            self.run_status, self.stop_reason = "FAILED", "unexpected result exception (propagated)"
++            raise
++
++    def result(self):
++        return collect_dynamic_result(self)
+--- /dev/null
++++ b/src/fogsim/simulation/dynamic_result.py
+@@ -0,0 +1,62 @@
++"""Dynamic results extend RunResult without changing fixed-mode serialization."""
++from copy import deepcopy
++from dataclasses import dataclass, asdict
++from .metrics import RunResult
++from fogsim.numerics import checked_number
++
++
++@dataclass(frozen=True)
++class DynamicRunResult(RunResult):
++    reason_code: str | None
++    generated_workflow_count: int
++    arrived_workflow_count: int
++    recorded_workflow_count: int
++    mean_flow_time: float | None
++    device_statistics: list
++    source_summary: dict
++    diagnostics: dict
++
++
++def collect_dynamic_result(engine):
++    state, stats = engine.state, engine.statistics
++    makespan = mean = None
++    if engine.run_status == "SUCCEEDED":
++        recorded = tuple(stats.recorded_workflows.values())
++        makespan = checked_number(max(w.completion_time for w in recorded) - min(w.release_time for w in recorded),
++                                  "statistical makespan")
++        total = 0.0
++        for w in recorded:
++            total = checked_number(total + w.flow_time, "statistical flow-time sum")
++        mean = checked_number(total / len(recorded), "mean flow time")
++    workflows = [{"workflow_id": w.id, "owner_device_id": w.owner_device.id, "release_time": w.release_time,
++                  "completion_time": w.completion_time, "flow_time": w.flow_time,
++                  "recorded": w.id in stats.recorded_workflows, "weight": w.weight,
++                  "dag_type_id": w.dag_type_id, "template_hash": w.template_hash, "input_record_id": w.input_record_id}
++                 for w in state.workflows_by_id.values()]
++    tasks = deepcopy(list(engine.trace.tasks.values()))
++    for row in tasks:
++        task = state.tasks_by_key[row["workflow_id"], row["task_id"]]
++        row["java_index"] = task.java_index
++    devices = [dict(device_id=d.id, generated_workflow_count=stats.generated_by_device[d.id],
++                    completed_workflow_count=stats.completed_by_device[d.id],
++                    recorded_workflow_count=stats.recorded_by_device[d.id]) for d in state.mobile_devices]
++    source = engine.admission.summary() if engine.admission is not None else dict(
++        kind="random", generation_call_count=0, attempt_count=0, rejected_count=0, consumed_attempt_count=0,
++        incomplete_attempt=False, capture_complete=False, coverage="environment_preparation_failed")
++    diagnostics = dict(run_index=engine.run_index, operation=engine.operation, public_seed=engine.public_seed,
++                       initial_cutoff_release_time=engine.initial_cutoff,
++                       cutoff_release_time=stats.cutoff_release_time,
++                       legacy_nonrecording_events=stats.legacy_nonrecording_events,
++                       guard_hits=deepcopy(engine.failure_hits), initialization_complete=engine.initialization_complete,
++                       initialization_actions=deepcopy(engine.initialization_actions),
++                       environment_fingerprint=engine.environment.fingerprint if engine.environment is not None else None)
++    # Full native state, version and Python provenance are retained on Engine;
++    # result diagnostics contain their stable identifiers, not a second RNG.
++    for name in ("rng_start", "rng_ready", "rng_final"):
++        value = getattr(engine, name, None)
++        diagnostics[name + "_fingerprint"] = value.fingerprint if value is not None else None
++    return DynamicRunResult(engine.run_status, engine.stop_reason, state.clock_time,
++        len(state.completed_workflows), engine.processed_event_count, makespan, workflows, tasks,
++        deepcopy(engine.trace.events), deepcopy(engine.trace.decisions), engine.reason_code,
++        stats.generated_total, state.arrived_workflow_count, stats.recorded_total, mean,
++        devices, source, diagnostics)
+--- a/src/fogsim/simulation/engine.py
++++ b/src/fogsim/simulation/engine.py
+@@ -37,6 +37,12 @@
+     def choose_next(self, resource):
+         return choose_next(SequencingContext(resource, tuple(resource.waiting_queue), self.view()),
+                            self.engine.sequencing_rule, self.engine.trace)
++
++    def after_arrival(self, workflow):
++        self.engine.after_arrival(workflow, self)
++
++    def workflow_completed(self, workflow):
++        self.engine.workflow_completed(workflow)
+ 
+     def dispatch(self, option):
+         self.state.validate_option(option)
+@@ -120,6 +126,12 @@
+         self.run_status = "READY"
+         self.stop_reason = None
+ 
++    def after_arrival(self, workflow, ctx):
++        """Fixed input has no follow-up source."""
++
++    def workflow_completed(self, workflow):
++        """Fixed metrics use the existing physical completion set."""
++
+     def run(self):
+         if self.run_status != "READY":
+             raise EngineUsageError("Engine.run is single-use; call simulate/create_engine for a fresh run")
+--- a/src/fogsim/simulation/event_queue.py
++++ b/src/fogsim/simulation/event_queue.py
+@@ -100,12 +100,18 @@
+         self._producer[event] = staging_device
+         self.staging_heaps[staging_device].offer(event)
+ 
+-    def pop_next(self):
++    def merge_staging(self):
+         for device in self.devices:
+             heap = self.staging_heaps[device]
+             while heap:
+                 self.global_heap.offer(heap.poll())
++
++    def poll_global(self):
+         return self.global_heap.poll()
++
++    def pop_next(self):
++        self.merge_staging()
++        return self.poll_global()
+ 
+     def consume_producer(self, event):
+         return self._producer.pop(event)
+--- a/src/fogsim/simulation/events.py
++++ b/src/fogsim/simulation/events.py
+@@ -21,6 +21,7 @@
+             for option in task.options:
+                 option.ready_time = self.workflow.release_time
+             ctx.dispatch(ctx.choose_route(task))
++        ctx.after_arrival(self.workflow)
+ 
+ 
+ @dataclass(eq=False, frozen=True)
+@@ -80,4 +81,5 @@
+             for option in selected:
+                 ctx.dispatch(option)
+         elif workflow.is_done:
+-            ctx.state.register_completion(workflow)
++            if ctx.state.register_completion(workflow):
++                ctx.workflow_completed(workflow)
+--- a/src/fogsim/simulation/state.py
++++ b/src/fogsim/simulation/state.py
+@@ -30,6 +30,26 @@
+         require(self.workflows_by_id.get(task.workflow.id) is task.workflow, "foreign workflow")
+         require(self.resources_by_id.get(option.resource.id) is option.resource, "foreign resource")
+         require(any(o is option for o in task.options), "foreign option")
++
++    def validate_new_workflow(self, workflow):
++        require(workflow.id not in self.workflows_by_id, "duplicate workflow ID")
++        require(self.resources_by_id.get(workflow.owner_device.id) is workflow.owner_device,
++                "foreign workflow owner")
++        require(bool(workflow.tasks) and len({t.id for t in workflow.tasks}) == len(workflow.tasks),
++                "empty/duplicate workflow tasks")
++        for task in workflow.tasks:
++            require(task.workflow is workflow and task.key not in self.tasks_by_key,
++                    "new task identity/index conflict")
++            require(not task.dispatched and not task.completed, "new task already executed")
++            for option in task.options:
++                require(option.task is task and self.resources_by_id.get(option.resource.id) is option.resource,
++                        "new option identity conflict")
++
++    def register_workflow(self, workflow):
++        self.validate_new_workflow(workflow)
++        self.workflows_by_id[workflow.id] = workflow
++        self.tasks_by_key.update((t.key, t) for t in workflow.tasks)
++        self.pending_arrivals[workflow.id] = workflow
+ 
+     def activate_workflow(self, workflow):
+         require(self.pending_arrivals.get(workflow.id) is workflow, "duplicate/foreign arrival")
+--- /dev/null
++++ b/src/fogsim/simulation/statistics.py
+@@ -0,0 +1,85 @@
++"""Java jobsCompleted compatibility, separate from physical completion facts."""
++from dataclasses import dataclass, field
++from fogsim.errors import require, NumericDerivationError
++from fogsim.input_validation import INT32_MAX
++
++
++@dataclass(eq=False)
++class DynamicStatistics:
++    num_jobs_recorded: int
++    warmup_jobs: int
++    cutoff_release_time: float
++    generated_by_device: dict
++    completed_by_device: dict
++    recorded_by_device: dict
++    generated_total: int = 0
++    recorded_workflows: dict = field(default_factory=dict)
++    legacy_nonrecording_events: int = 0
++
++    @classmethod
++    def create(cls, config, devices, initial_cutoff):
++        ids = [d.id for d in devices]
++        return cls(config.num_jobs_recorded, config.warmup_jobs, initial_cutoff,
++                   dict.fromkeys(ids, 0), dict.fromkeys(ids, 0), dict.fromkeys(ids, 0))
++
++    @property
++    def recorded_total(self):
++        return len(self.recorded_workflows)
++
++    def check_acceptance_capacity(self, owner_id):
++        for label, value in (("generated_total", self.generated_total),
++                             ("generated_by_device", self.generated_by_device[owner_id])):
++            if value >= INT32_MAX:
++                raise NumericDerivationError(label + " + 1 exceeds int32", value + 1)
++
++    def accepted(self, workflow):
++        self.generated_total += 1
++        self.generated_by_device[workflow.owner_device.id] += 1
++        if self.generated_total < self.num_jobs_recorded + self.warmup_jobs:
++            # Assignment, not max: a later device may lower this boundary.
++            self.cutoff_release_time = workflow.release_time
++
++    def completed(self, workflow):
++        # Only the caller receiving True from register_completion may call this.
++        owner = workflow.owner_device.id
++        self.completed_by_device[owner] += 1
++        if (self.generated_total > self.warmup_jobs and workflow.id >= 0
++                and workflow.release_time <= self.cutoff_release_time):
++            require(workflow.id not in self.recorded_workflows, "duplicate statistical completion")
++            self.recorded_workflows[workflow.id] = workflow
++            self.recorded_by_device[owner] += 1
++
++    def after_event(self, previous_recorded):
++        if self.recorded_total > self.warmup_jobs and self.recorded_total == previous_recorded:
++            # Original global count is cumulative, not a consecutive streak.
++            self.legacy_nonrecording_events += 1
++
++    def guard_hits(self, state):
++        hits = []
++        def hit(code, actual, limit, resource_id=None):
++            if actual > limit:
++                hits.append(dict(reason_code=code, actual=actual, limit=limit, resource_id=resource_id))
++        hit("JAVA_NONRECORDING_EVENT_LIMIT", self.legacy_nonrecording_events, 400000)
++        for device in state.mobile_devices:
++            if device.can_process_tasks:
++                hit("JAVA_DEVICE_QUEUE_LIMIT", len(device.waiting_queue), 400, device.id)
++        for server in state.servers:
++            hit("JAVA_SERVER_QUEUE_LIMIT", len(server.waiting_queue), 400, server.id)
++        hit("JAVA_GENERATED_JOB_LIMIT", self.generated_total,
++            500 * (self.num_jobs_recorded + self.warmup_jobs))
++        return hits
++
++    def check_invariants(self, state):
++        require(self.generated_total == len(state.workflows_by_id), "dynamic G/index mismatch")
++        require(self.generated_total == sum(self.generated_by_device.values()), "dynamic device G mismatch")
++        require(self.recorded_total == sum(self.recorded_by_device.values()), "dynamic device R mismatch")
++        require(sum(self.completed_by_device.values()) == len(state.completed_workflows), "dynamic physical count mismatch")
++        for wid, workflow in self.recorded_workflows.items():
++            require(state.completed_workflows.get(wid) is workflow, "statistical workflow is not physically complete")
++        for owner in self.generated_by_device:
++            require(self.generated_by_device[owner] == sum(w.owner_device.id == owner for w in state.workflows_by_id.values()),
++                    "generated owner mismatch")
++            require(self.completed_by_device[owner] == sum(w.owner_device.id == owner for w in state.completed_workflows.values()),
++                    "completed owner mismatch")
++            require(self.recorded_by_device[owner] == sum(w.owner_device.id == owner for w in self.recorded_workflows.values()),
++                    "recorded owner mismatch")
+--- a/src/fogsim/simulation/trace.py
++++ b/src/fogsim/simulation/trace.py
+@@ -52,6 +52,17 @@
+                              "start_time": None, "compute_finish_time": None, "finish_time": None,
+                              "plan": None} for t in state.tasks_by_key.values()}
+ 
++    def validate_new_workflow(self, workflow):
++        from fogsim.errors import require
++        require(all(t.key not in self.tasks for t in workflow.tasks), "duplicate task facts")
++
++    def register_workflow(self, workflow):
++        self.validate_new_workflow(workflow)
++        for t in workflow.tasks:
++            self.tasks[t.key] = {"workflow_id": workflow.id, "task_id": t.id,
++                "resource_id": None, "dispatch_time": None, "arrival_time": None,
++                "start_time": None, "compute_finish_time": None, "finish_time": None, "plan": None}
++
+     def append(self, record):
+         if self.enabled:
+             self.events.append(deepcopy(record))
+--- /dev/null
++++ b/tests/integration/test_dynamic_business_oracle.py
+@@ -0,0 +1,18 @@
++"""Validate the test-only recorder against the complete production trace."""
++from pathlib import Path
++import sys
++from conftest import ROOT
++sys.path.insert(0,str(ROOT/'tools'))
++from check_step5 import controlled_case
++from dynamic_export_contract import read_json
++
++
++def test_compact_oracle_keeps_every_compared_event_decision_and_action(tmp_path):
++    case=ROOT/'outputs/step4/cases/multi_device_diamond'
++    a=controlled_case(case,tmp_path/'full',compact=False)
++    b=controlled_case(case,tmp_path/'compact',compact=True,trusted_fcfs=True)
++    assert a['passed'] and b['passed']
++    assert read_json(tmp_path/'full/python-normalized.json')==read_json(tmp_path/'compact/python-normalized.json')
++    left=read_json(tmp_path/'full/python-result.json');right=read_json(tmp_path/'compact/python-result.json')
++    assert left['workflow_records']==right['workflow_records'] and left['task_records']==right['task_records']
++    assert left['diagnostics']==right['diagnostics'] and left['source_summary']==right['source_summary']
+--- /dev/null
++++ b/tests/unit/dynamic_helpers.py
+@@ -0,0 +1,37 @@
++from dataclasses import replace
++from itertools import repeat
++from fogsim import load_experiment_config
++from fogsim.experiment_config import (WorkflowTypeRange, EnvironmentConfig, DynamicRunConfig,
++    RealRange, RuleConfig)
++from fogsim.randomness.samplers import ExponentialSampler
++
++SINGLE = '<adag><job id="T"/></adag>'
++CHAIN = '<adag><job id="Z"/><job id="a"/><child ref="a"><parent ref="Z"/></child></adag>'
++DIAMOND = '<adag><job id="root"/><job id="left"/><job id="right"/><job id="join"/>' + \
++    '<child ref="join"><parent ref="right"/><parent ref="left"/></child>' + \
++    '<child ref="right"><parent ref="root"/></child><child ref="left"><parent ref="root"/></child></adag>'
++
++
++def config(tmp_path, *, xml=SINGLE, seed=7, devices=1, edges=0, clouds=0, local=True,
++           N=1, W=1, max_events=1000, trace=True, invariants=True, target=None):
++    from conftest import ROOT
++    dax = tmp_path/'dax'; dax.mkdir(exist_ok=True)
++    (dax/'CyberShake_30.xml').write_text(xml)
++    cfg = load_experiment_config(ROOT/'configs/examples/step1_dynamic.json')
++    params = replace(cfg.source.samplers, workload=RealRange(1,2),data_size=RealRange(0,1),edge_data=RealRange(0,1),
++        processing_rate_device=RealRange(10,20),processing_rate_edge=RealRange(20,30),processing_rate_cloud=RealRange(30,40))
++    return replace(cfg, source=replace(cfg.source,seed=seed,dag_root=dax,workflow_types=WorkflowTypeRange(0,0),
++        environment=EnvironmentConfig(devices,edges,clouds,local),samplers=params),
++        run=DynamicRunConfig(N,W,max_events=max_events,trace_enabled=trace,check_invariants=invariants,
++                             routing_rule=RuleConfig('fixed_resource',target) if target else RuleConfig()))
++
++
++def intervals(monkeypatch, values):
++    iterator = iter(values)
++    original = ExponentialSampler.sample
++    calls = []
++    def sample(self,rng):
++        original(self,rng)  # retain a real draw, then control only the business interval
++        value = float(next(iterator)); calls.append((rng,value)); return value
++    monkeypatch.setattr(ExponentialSampler,'sample',sample)
++    return calls
+--- /dev/null
++++ b/tests/unit/test_dynamic_admission.py
+@@ -0,0 +1,193 @@
++from dataclasses import replace
++from itertools import repeat
++import math
++import pytest
++from fogsim import create_dynamic_context
++from fogsim.errors import StateError, NumericDerivationError
++from fogsim.input_validation import INT32_MAX
++from fogsim.instances.generated import GenerationCause
++from fogsim.simulation.engine import EventContext
++from fogsim.simulation.events import JobArrivalEvent
++from fogsim.rules.contexts import StateView, graph_fingerprint
++from dynamic_helpers import config, intervals, DIAMOND, CHAIN
++
++
++def test_two_workflows_share_servers_but_no_tasks_or_edge_storage(tmp_path,monkeypatch):
++    intervals(monkeypatch,repeat(10))
++    ctx=create_dynamic_context(config(tmp_path,devices=2,edges=1,clouds=1,xml=DIAMOND))
++    state=ctx.engine.state;w0,w1=state.workflows_by_id.values()
++    assert w0.id==0 and w1.id==1 and w0.owner_device is state.mobile_devices[0]
++    assert [t.id for t in w0.tasks]==[t.id for t in w1.tasks]
++    assert all(a is not b for a,b in zip(w0.tasks,w1.tasks))
++    for a,b in zip(w0.tasks,w1.tasks):
++        assert a.options[1].resource is b.options[1].resource is state.servers[0]
++        assert a.options[0].resource is w0.owner_device and b.options[0].resource is w1.owner_device
++        assert a.output_data_by_child is not b.output_data_by_child
++    immutable=ctx.input_archive
++    w0.tasks[0].output_data_by_child.clear()
++    assert immutable.candidates[0].workflow_input.edges
++    assert ctx.input_archive==immutable
++    assert all(w.input_record_id is not None for w in (w0,w1))
++
++
++def test_all_entry_dispatches_precede_one_generation_and_finish_never_generates(tmp_path,monkeypatch):
++    xml='<adag><job id="x"/><job id="y"/></adag>'
++    intervals(monkeypatch,[1,100])
++    ctx=create_dynamic_context(config(tmp_path,xml=xml))
++    result=ctx.run()
++    arrival=result.events[0]
++    assert arrival['type']=='JobArrivalEvent'
++    assert [a['kind'] for a in arrival['actions']]==['DECISION','EMIT','DECISION','EMIT','EMIT']
++    assert [e['type'] for e in arrival['emitted']]==['TaskVisitEvent','TaskVisitEvent','JobArrivalEvent']
++    assert len(ctx.input_archive.generation_attempts)==2
++    after=ctx.input_archive.generation_attempts[1].cause
++    assert (after.phase,after.causing_workflow_id,after.event_sequence)==('after_arrival',0,1)
++    assert all(not any(e['type']=='JobArrivalEvent' for e in row['emitted'])
++               for row in result.events if row['type']=='ProcessFinishEvent')
++
++
++@pytest.mark.parametrize('values,accepted,rejected', [([0,0],0,2),([0,10,100],2,1),([10,0,100],2,1)])
++def test_rejection_does_not_take_id_or_interrupt_other_device(tmp_path,monkeypatch,values,accepted,rejected):
++    calls=intervals(monkeypatch,values)
++    ctx=create_dynamic_context(config(tmp_path,devices=2,edges=1))
++    before=ctx.inputs.snapshot()
++    result=ctx.run()
++    archive=ctx.input_archive
++    assert result.generated_workflow_count==accepted
++    assert result.source_summary['rejected_count']==rejected
++    assert [a.workflow_id for a in archive.admissions]==list(range(accepted))
++    assert [c.workflow_input.candidate_id for c in archive.candidates][:2]==([0,0] if values[0]==0 else [0,1])
++    assert len(calls)==len(archive.generation_attempts)
++    if not accepted:
++        assert result.reason_code=='EVENTS_EXHAUSTED_BEFORE_TARGET' and result.processed_event_count==0
++        assert before==ctx.inputs.snapshot()
++    else:
++        assert result.status=='SUCCEEDED' and before!=ctx.inputs.snapshot()
++    assert result.makespan is None if not accepted else result.makespan is not None
++
++
++def test_zero_interval_still_consumes_full_generation_and_leaves_B_unchanged(tmp_path,monkeypatch):
++    intervals(monkeypatch,[0,10])
++    from fogsim.randomness.samplers import UniformRealSampler
++    calls=[];original=UniformRealSampler.sample
++    def sample(self,rng):calls.append((self,rng));return original(self,rng)
++    monkeypatch.setattr(UniformRealSampler,'sample',sample)
++    ctx=create_dynamic_context(config(tmp_path,xml=CHAIN,devices=2))
++    # two rates, then two tasks' workload/data and one edge for each device.
++    assert len(calls)==2+2*(2*2+1)
++    assert all(rng is ctx.inputs.rng for _,rng in calls)
++    stats=ctx.engine.statistics
++    assert stats.generated_total==1 and stats.cutoff_release_time==10
++    assert len(ctx.input_archive.candidates)==2 and len(ctx.input_archive.candidates[0].workflow_input.edges)==1
++    assert len(ctx.engine.event_queue.pending_events())==1
++
++
++def test_positive_interval_rounds_to_current_clock_without_redraw(tmp_path,monkeypatch):
++    intervals(monkeypatch,[float(1<<53),1])
++    cfg=config(tmp_path,max_events=1)
++    ctx=create_dynamic_context(cfg)
++    r=ctx.run()
++    assert r.reason_code=='MAX_EVENTS_EXCEEDED'
++    assert r.generated_workflow_count==1 and r.source_summary['rejected_count']==1
++    candidate=ctx.input_archive.candidates[1].workflow_input
++    assert candidate.inter_release_time==1 and candidate.release_time==float(1<<53)
++    assert len(ctx.engine.event_queue.pending_events())==1 # Visit, no new Arrival
++
++
++def test_normal_stop_merges_once_but_does_not_poll_same_time_events(tmp_path,monkeypatch):
++    # Simultaneous workflows complete on separate local devices. The first Finish
++    # reaches N; the other same-time Finish remains in the global heap.
++    intervals(monkeypatch,[1,1,100,100])
++    from fogsim.randomness.samplers import UniformRealSampler
++    monkeypatch.setattr(UniformRealSampler,'sample',lambda self,rng: (self.lower+self.upper)*0.5)
++    ctx=create_dynamic_context(config(tmp_path,devices=2))
++    r=ctx.run()
++    assert r.status=='SUCCEEDED' and r.completed_workflow_count==1
++    pending=ctx.engine.event_queue.pending_events()
++    assert any(type(e).__name__=='ProcessFinishEvent' and e.time==r.final_clock_time for e in pending)
++    assert all(not h for h in ctx.engine.event_queue.staging_heaps.values())
++    assert ctx.engine.event_queue.global_heap
++    assert r.generated_workflow_count==4 and r.recorded_workflow_count==1
++
++
++def test_generation_continues_beyond_N_plus_W(tmp_path,monkeypatch):
++    intervals(monkeypatch,repeat(0.001))
++    ctx=create_dynamic_context(config(tmp_path,N=1,W=1,max_events=10000,trace=False,invariants=False))
++    result=ctx.run()
++    assert result.status=='SUCCEEDED'
++    assert result.generated_workflow_count>2
++    assert result.source_summary['attempt_count']==result.arrived_workflow_count+1
++
++
++def test_trace_disabled_preserves_facts_and_same_schedule(tmp_path,monkeypatch):
++    cfg=config(tmp_path,devices=2,edges=1,xml=DIAMOND,N=2,W=2)
++    enabled=create_dynamic_context(cfg);a=enabled.run()
++    disabled=create_dynamic_context(replace(cfg,run=replace(cfg.run,trace_enabled=False)));b=disabled.run()
++    assert not b.events and not b.decisions
++    assert b.task_records==a.task_records and b.workflow_records==a.workflow_records
++    assert (a.status,a.final_clock_time,a.makespan,a.mean_flow_time)==(b.status,b.final_clock_time,b.makespan,b.mean_flow_time)
++    assert enabled.input_archive==disabled.input_archive
++    assert enabled.engine.rng_final==disabled.engine.rng_final
++
++
++def test_rule_view_has_no_future_or_archive_backreferences(tmp_path,monkeypatch):
++    intervals(monkeypatch,[10])
++    ctx=create_dynamic_context(config(tmp_path,xml=CHAIN))
++    view=StateView.from_state(ctx.engine.state)
++    assert not view.active_workflows and not view.completed_workflows
++    assert not hasattr(view,'context') and not hasattr(view,'input_archive')
++    from dataclasses import is_dataclass, fields
++    from fogsim.simulation.context import SimulationContext
++    from fogsim.simulation.engine import Engine
++    from fogsim.instances.generated import InputArchive
++    seen=set()
++    def visit(obj):
++        if obj is None or isinstance(obj,(int,float,str,bool)) or id(obj) in seen:return
++        seen.add(id(obj))
++        assert not isinstance(obj,(SimulationContext,Engine,InputArchive))
++        if is_dataclass(obj):
++            for f in fields(obj):visit(getattr(obj,f.name))
++        elif isinstance(obj,dict):
++            for k,v in obj.items():visit(k);visit(v)
++        elif isinstance(obj,(tuple,list)):
++            for x in obj:visit(x)
++    visit(view)
++    assert id(ctx.engine.state.workflows_by_id[0]) not in seen
++    w=ctx.engine.state.workflows_by_id[0]
++    assert not hasattr(w,'context') and not hasattr(w,'archive')
++    assert not hasattr(w.tasks[0],'context')
++
++
++def test_capacity_error_before_any_graph_commit(tmp_path,monkeypatch):
++    intervals(monkeypatch,[0,1])
++    ctx=create_dynamic_context(config(tmp_path))
++    stats=ctx.engine.statistics;stats.generated_total=INT32_MAX
++    ctx.engine.admission.source.generate # source accepts the proposed MAX; commit must not wrap.
++    with pytest.raises(NumericDerivationError):
++        ctx.engine.admission.attempt(GenerationCause('initialize','M0',0),EventContext(ctx.engine,ctx.engine.state.mobile_devices[0]))
++    assert not ctx.engine.state.workflows_by_id and stats.generated_total==INT32_MAX
++    assert len(ctx.engine.admission._attempts)==1
++
++
++def test_runtime_source_unknown_identity_is_explicit_failure(tmp_path,monkeypatch):
++    intervals(monkeypatch,[1,1])
++    ctx=create_dynamic_context(config(tmp_path))
++    source=ctx.engine.admission.source;original=source.generate
++    def wrong(cause,*,candidate_id):return replace(original(cause,candidate_id=candidate_id),candidate_id=99)
++    monkeypatch.setattr(source,'generate',wrong)
++    r=ctx.run()
++    assert r.status=='FAILED' and r.reason_code=='STATE_INVARIANT_VIOLATION'
++    assert r.source_summary['incomplete_attempt'] and r.generated_workflow_count==1
++
++
++def test_cross_owner_server_queue_continuation_uses_current_producer(tmp_path,monkeypatch):
++    intervals(monkeypatch,[1,1,100,100])
++    ctx=create_dynamic_context(config(tmp_path,devices=2,edges=1,local=False,target='E0',N=2,W=2))
++    r=ctx.run()
++    transitions=[e for row in r.events for e in row['emitted'] if e['type']=='ProcessStartEvent' and e['owner']!=e['staging_device']]
++    assert transitions
++    assert {transitions[0]['owner'],transitions[0]['staging_device']}=={'M0','M1'}
++    for row in r.events:
++        for emitted in row['emitted']:
++            if emitted in transitions:
++                assert row['type']=='ProcessFinishEvent' and emitted['staging_device']==row['owner']
+--- /dev/null
++++ b/tests/unit/test_dynamic_context.py
+@@ -0,0 +1,213 @@
++from dataclasses import replace
++from copy import deepcopy
++from itertools import repeat
++import random
++import pytest
++from fogsim import create_dynamic_context, simulate_dynamic, PreparationError, DynamicRunResult
++from fogsim.errors import EngineUsageError, InputError, NumericDerivationError
++from fogsim.randomness.samplers import ExponentialSampler, UniformRealSampler
++from fogsim.seed import encode_seed, rotated_seed
++from fogsim.instances.generation import generate_workflow_input
++from fogsim.instances.generated import GenerationCause
++from dynamic_helpers import config, intervals, CHAIN
++
++
++def test_real_dynamic_success_result_facts_and_rng(tmp_path,monkeypatch):
++    intervals(monkeypatch,repeat(10))
++    ctx = create_dynamic_context(config(tmp_path))
++    assert ctx.engine.run_status=='READY' and ctx.engine.state.clock_time==0
++    result = ctx.run()
++    assert isinstance(result,DynamicRunResult) and result.status=='SUCCEEDED'
++    assert (result.generated_workflow_count,result.arrived_workflow_count,result.completed_workflow_count,result.recorded_workflow_count)==(2,1,1,1)
++    assert result.makespan==result.mean_flow_time
++    assert result.diagnostics['rng_final_fingerprint']==ctx.inputs.snapshot().fingerprint
++    assert result.workflow_records[0]['recorded'] and not result.workflow_records[1]['recorded']
++    assert result.task_records[1]['start_time'] is None
++    assert result.task_records[1]['plan'] is None
++    with pytest.raises(EngineUsageError): ctx.run()
++    with pytest.raises(EngineUsageError): ctx.engine.run()
++
++
++@pytest.mark.parametrize('seed',[-(1<<63),(1<<63)-1,-1,0,7])
++def test_reset_uses_seed_origin_without_resource_prefix_and_isolates_graph(tmp_path,seed):
++    ctx=create_dynamic_context(config(tmp_path,seed=seed,devices=2,edges=1,clouds=1))
++    old=ctx.engine; env=ctx.environment; samplers=ctx.inputs.samplers; catalog=ctx.inputs.catalog
++    snapshot=ctx.inputs.snapshot()
++    ready=ctx.reset(seed)
++    assert ctx.environment is env and ctx.inputs.samplers is samplers and ctx.inputs.catalog is catalog
++    assert ready is not old and old.run_status=='SUPERSEDED' and ready.run_status=='READY'
++    with pytest.raises(EngineUsageError):old.run()
++    assert all(a is not b for a,b in zip(old.state.resources_by_id.values(),ready.state.resources_by_id.values()))
++    assert all(a is not b for a,b in zip(old.state.tasks_by_key.values(),ready.state.tasks_by_key.values()))
++    assert all(a is not b for a,b in zip(old.state.workflows_by_id.values(),ready.state.workflows_by_id.values()))
++    rng=random.Random(encode_seed(seed))
++    # Use an independent test RNG and the frozen existing source; no resource sampling.
++    inputs=replace(ctx.inputs,rng=rng)
++    expected=[generate_workflow_input(inputs,env,GenerationCause('initialize',d.id,0),candidate_id=i)
++              for i,d in enumerate(env.devices)]
++    assert [r.workflow_input for r in ctx.input_archive.candidates]==expected
++    assert ctx.inputs.snapshot().native_state==rng.getstate()
++    assert old.rng_start.native_state==random.Random(encode_seed(seed)).getstate()
++    # Ready-state snapshots are immutable even after another round reseeds the shared stream.
++    assert snapshot==old.rng_ready
++
++
++@pytest.mark.parametrize('seed',[-(1<<63),(1<<63)-1,0,7])
++def test_rotate_signed64_and_current_seed_reset(tmp_path,seed):
++    ctx=create_dynamic_context(config(tmp_path,seed=seed))
++    old=ctx.engine
++    ctx.rotate_seed()
++    assert ctx.public_seed==rotated_seed(seed) and ctx.inputs.public_seed==ctx.public_seed
++    assert ctx.engine.operation=='rotate_seed' and ctx.engine.run_status=='READY'
++    assert ctx.engine.rng_start.native_state==random.Random(encode_seed(ctx.public_seed)).getstate()
++    first=ctx.input_archive
++    ctx.reset()
++    assert ctx.public_seed==rotated_seed(seed) and ctx.input_archive==first
++    assert old.run_status=='SUPERSEDED'
++
++
++def test_rerun_continues_stream_B_and_preserves_previous_result(tmp_path,monkeypatch):
++    intervals(monkeypatch,repeat(10))
++    ctx=create_dynamic_context(config(tmp_path,xml=CHAIN))
++    first=ctx.run(); frozen=deepcopy(first.to_dict()); old=ctx.engine; end=old.rng_final
++    cutoff=ctx.cutoff_release_time; env=ctx.environment
++    result=ctx.rerun()
++    assert result.status=='SUCCEEDED'
++    assert ctx.engine.rng_start==end and ctx.engine.initial_cutoff==cutoff
++    assert ctx.environment is env and ctx.engine is not old
++    assert first.to_dict()==frozen
++    assert ctx.engine.processed_event_count==7 and ctx.engine.run_index==1
++    assert all(old.state.resources_by_id[x] is not ctx.engine.state.resources_by_id[x] for x in old.state.resources_by_id)
++    assert ctx.inputs.rng is old.admission.source.inputs.rng
++
++
++def test_no_DAX_reread_or_environment_resampling_on_reset(tmp_path,monkeypatch):
++    ctx=create_dynamic_context(config(tmp_path)); ctx.config.source.dag_root.joinpath('CyberShake_30.xml').unlink()
++    import fogsim.simulation.context as module
++    def wrong(*args,**kwargs): raise AssertionError('must reuse frozen environment')
++    monkeypatch.setattr(module,'sample_environment',wrong)
++    ctx.reset()
++    assert ctx.engine.run_status=='READY'
++
++
++@pytest.mark.parametrize('operation',['reset','rerun','rotate_seed','snapshot_rng'])
++def test_lifecycle_forbidden_while_RUNNING(tmp_path,operation):
++    ctx=create_dynamic_context(config(tmp_path));ctx.engine.run_status='RUNNING'
++    with pytest.raises(EngineUsageError):getattr(ctx,operation)()
++
++
++@pytest.mark.parametrize('seed',[True,1.5,'7',1<<63,-(1<<63)-1])
++def test_bad_reset_seed_has_no_side_effect(tmp_path,seed):
++    ctx=create_dynamic_context(config(tmp_path)); before=ctx.snapshot_rng(); old=ctx.engine
++    with pytest.raises(InputError):ctx.reset(seed)
++    assert ctx.engine is old and old.run_status=='READY' and ctx.snapshot_rng()==before
++
++
++def test_preparation_domain_failure_partial_archive_and_recovery(tmp_path,monkeypatch):
++    calls=intervals(monkeypatch,[1,2,3,4,5,6])
++    import fogsim.instances.source as source_module
++    original=source_module.generate_workflow_input
++    n=0
++    def fail_second(*args,**kwargs):
++        nonlocal n
++        n+=1
++        if n==2: raise NumericDerivationError('forced generator failure',float('inf'))
++        return original(*args,**kwargs)
++    monkeypatch.setattr(source_module,'generate_workflow_input',fail_second)
++    with pytest.raises(PreparationError) as caught:
++        create_dynamic_context(config(tmp_path,devices=2))
++    exc=caught.value;ctx=exc.context;r=exc.result
++    assert r.status=='FAILED' and r.reason_code=='NUMERIC_DERIVATION_ERROR'
++    assert r.generated_workflow_count==1 and r.final_clock_time==0
++    assert r.source_summary['incomplete_attempt'] and r.source_summary['attempt_count']==1
++    assert r.makespan is None and ctx.engine.rng_final is not None
++    assert len(ctx.input_archive.candidates)==1
++    assert ctx.reset().run_status=='READY'
++
++
++def test_simulate_and_rerun_normalize_preparation_failure(tmp_path,monkeypatch):
++    cfg=config(tmp_path)
++    ctx=create_dynamic_context(cfg)
++    import fogsim.instances.source as source_module
++    def fail(*args,**kwargs):raise NumericDerivationError('forced',float('inf'))
++    monkeypatch.setattr(source_module,'generate_workflow_input',fail)
++    for result in (simulate_dynamic(cfg),ctx.rerun()):
++        assert result.status=='FAILED' and result.reason_code=='NUMERIC_DERIVATION_ERROR'
++        assert result.processed_event_count==0 and result.makespan is None
++    with pytest.raises(EngineUsageError):ctx.run()
++
++
++@pytest.mark.parametrize('stage',['generation','environment','runtime'])
++def test_unknown_programming_exception_propagates(tmp_path,monkeypatch,stage):
++    cfg=config(tmp_path)
++    def wrong(*args,**kwargs):raise RuntimeError('original bug')
++    if stage=='generation':
++        import fogsim.instances.source as module
++        monkeypatch.setattr(module,'generate_workflow_input',wrong)
++        with pytest.raises(RuntimeError,match='original bug'):simulate_dynamic(cfg)
++    elif stage=='environment':
++        import fogsim.simulation.context as module
++        monkeypatch.setattr(module,'sample_environment',wrong)
++        with pytest.raises(RuntimeError,match='original bug'):simulate_dynamic(cfg)
++    else:
++        ctx=create_dynamic_context(cfg)
++        monkeypatch.setattr(ctx.engine,'after_arrival',wrong)
++        with pytest.raises(RuntimeError,match='original bug'):ctx.run()
++        assert ctx.engine.run_status=='FAILED' and ctx.engine.rng_final is not None
++
++
++def test_release_policy_and_unexpanded_repeat_rejected_before_rng(tmp_path,monkeypatch):
++    cfg=config(tmp_path)
++    import fogsim.simulation.context as module
++    def wrong(*args):raise AssertionError('must validate before RNG')
++    monkeypatch.setattr(module,'prepare_random_input',wrong)
++    with pytest.raises(InputError):create_dynamic_context(replace(cfg,run=replace(cfg.run,edge_data_policy='release_after_materialization')))
++    from fogsim.experiment_config import RepeatConfig
++    with pytest.raises(InputError):create_dynamic_context(replace(cfg,repeat=RepeatConfig(2,'fresh_same_seed')))
++
++
++def test_environment_failure_exposes_failed_round_and_can_retry(tmp_path,monkeypatch):
++    import fogsim.simulation.context as module
++    original=module.sample_environment
++    def fail(*args,**kwargs):raise NumericDerivationError('forced environment failure',float('inf'))
++    monkeypatch.setattr(module,'sample_environment',fail)
++    with pytest.raises(PreparationError) as caught:create_dynamic_context(config(tmp_path))
++    exc=caught.value;ctx=exc.context
++    assert ctx.environment is None and exc.result.generated_workflow_count==0
++    assert exc.result.reason_code=='NUMERIC_DERIVATION_ERROR' and ctx.engine.rng_final is not None
++    with pytest.raises(EngineUsageError):ctx.run()
++    monkeypatch.setattr(module,'sample_environment',original)
++    assert ctx.reset().run_status=='READY' and ctx.environment is not None
++    assert ctx.engine.run_index==1
++
++
++def test_context_does_not_retain_prior_runtime_graphs(tmp_path):
++    import weakref,gc
++    ctx=create_dynamic_context(config(tmp_path))
++    old=weakref.ref(ctx.engine)
++    ctx.reset();gc.collect()
++    assert old() is None and ctx.engine.run_index==1
++
++
++def test_failed_runtime_can_rerun_from_its_actual_input_state(tmp_path,monkeypatch):
++    intervals(monkeypatch,repeat(1))
++    ctx=create_dynamic_context(config(tmp_path,max_events=1))
++    first=ctx.run();old=ctx.engine
++    assert first.status=='FAILED' and first.reason_code=='MAX_EVENTS_EXCEEDED'
++    before=ctx.snapshot_rng();cutoff=ctx.cutoff_release_time
++    second=ctx.rerun()
++    assert second.status=='FAILED' and ctx.engine.rng_start==before
++    assert ctx.engine.initial_cutoff==cutoff and ctx.engine is not old
++
++
++def test_environment_provenance_ignores_run_only_diagnostics(tmp_path):
++    cfg=config(tmp_path)
++    first=create_dynamic_context(cfg)
++    second=create_dynamic_context(replace(cfg,run=replace(cfg.run,trace_enabled=False,max_events=2,check_invariants=False)))
++    assert first.environment==second.environment and first.input_archive==second.input_archive
++
++
++@pytest.mark.parametrize('name',['config','inputs','public_seed','environment','engine'])
++def test_context_effective_parameters_cannot_be_reassigned(tmp_path,name):
++    ctx=create_dynamic_context(config(tmp_path))
++    with pytest.raises(AttributeError):setattr(ctx,name,None)
+--- /dev/null
++++ b/tests/unit/test_dynamic_statistics.py
+@@ -0,0 +1,175 @@
++from types import SimpleNamespace as NS
++import pytest
++from fogsim import create_dynamic_context
++from fogsim.simulation.statistics import DynamicStatistics
++from fogsim.experiment_config import DynamicRunConfig
++from dynamic_helpers import config, intervals
++
++
++def statistics(N=3,W=2,B=0):
++    return DynamicStatistics.create(DynamicRunConfig(N,W),[NS(id='M0'),NS(id='M1')],B)
++
++
++def workflow(wid,release,owner='M0'):
++    return NS(id=wid,release_time=release,owner_device=NS(id=owner))
++
++
++def test_B_is_assignment_and_freezes_at_G_equal_N_plus_W():
++    s=statistics(N=2,W=2)
++    for wid,release in enumerate([20,10,30,5,1]):
++        s.accepted(workflow(wid,release))
++        assert s.cutoff_release_time==[20,10,30,30,30][wid]
++    assert s.generated_total==5
++
++
++@pytest.mark.parametrize('G,W,wid,release,B,qualifies',[(2,2,0,1,10,False),(3,2,0,1,10,True),
++    (3,2,-1,1,10,False),(3,2,10,10,10,True),(3,2,1,11,10,False),(5,2,0,10,10,True)])
++def test_qualification_uses_current_G_B_not_an_ID_window(G,W,wid,release,B,qualifies):
++    s=statistics(W=W,B=B);s.generated_total=G
++    s.completed(workflow(wid,release))
++    assert s.recorded_total==int(qualifies) and s.completed_by_device['M0']==1
++
++
++def test_completed_workflows_are_not_retroactively_recorded():
++    s=statistics(B=0);s.generated_total=4
++    s.completed(workflow(0,10));s.cutoff_release_time=100;s.accepted(workflow(4,100,'M1'))
++    assert s.recorded_total==0 and s.completed_by_device['M0']==1
++
++
++def test_global_nonrecording_counter_is_not_reset_by_completion():
++    s=statistics(W=0);s.recorded_workflows[0]=workflow(0,1);s.after_event(1)
++    assert s.legacy_nonrecording_events==1
++    s.recorded_workflows[1]=workflow(1,1);s.after_event(1)
++    assert s.legacy_nonrecording_events==1
++    s.after_event(2)
++    assert s.legacy_nonrecording_events==2
++    s.warmup_jobs=2;s.after_event(2)
++    assert s.legacy_nonrecording_events==2
++
++
++@pytest.mark.parametrize('boundary,over',[(400,False),(401,True)])
++@pytest.mark.parametrize('kind',['device','server'])
++def test_queue_guard_strict_boundary(kind,boundary,over):
++    s=statistics();d=NS(id='M0',can_process_tasks=True,waiting_queue=[None]*boundary)
++    r=NS(id='E0',waiting_queue=[None]*boundary)
++    state=NS(mobile_devices=[d] if kind=='device' else [],servers=[r] if kind=='server' else [])
++    assert bool(s.guard_hits(state)) is over
++
++
++@pytest.mark.parametrize('count,hit',[(400000,False),(400001,True)])
++def test_nonrecording_guard_strict_boundary(count,hit):
++    s=statistics();s.legacy_nonrecording_events=count
++    assert bool(s.guard_hits(NS(mobile_devices=[],servers=[]))) is hit
++
++
++@pytest.mark.parametrize('extra,hit',[(0,False),(1,True)])
++def test_generated_guard_boundary(extra,hit):
++    s=statistics();s.generated_total=500*(s.num_jobs_recorded+s.warmup_jobs)+extra
++    assert bool(s.guard_hits(NS(mobile_devices=[],servers=[]))) is hit
++
++
++def test_guard_order_and_disabled_local_exclusion():
++    s=statistics(N=1,W=0);s.legacy_nonrecording_events=400001;s.generated_total=501
++    devices=[NS(id='M0',can_process_tasks=False,waiting_queue=[None]*401),
++             NS(id='M1',can_process_tasks=True,waiting_queue=[None]*401)]
++    hits=s.guard_hits(NS(mobile_devices=devices,servers=[NS(id='E0',waiting_queue=[None]*401)]))
++    assert [h['reason_code'] for h in hits]==['JAVA_NONRECORDING_EVENT_LIMIT','JAVA_DEVICE_QUEUE_LIMIT',
++        'JAVA_SERVER_QUEUE_LIMIT','JAVA_GENERATED_JOB_LIMIT']
++    assert hits[1]['resource_id']=='M1'
++
++
++@pytest.mark.parametrize('maximum,success',[(3,False),(4,True)])
++def test_budget_before_next_poll_and_target_has_precedence(tmp_path,monkeypatch,maximum,success):
++    intervals(monkeypatch,[1,100]);ctx=create_dynamic_context(config(tmp_path,max_events=maximum));r=ctx.run()
++    assert (r.status=='SUCCEEDED') is success and r.processed_event_count==maximum
++    if not success:
++        assert r.reason_code=='MAX_EVENTS_EXCEEDED' and r.makespan is None and r.final_clock_time==1
++    else:assert r.recorded_workflow_count==1 and r.makespan is not None
++
++
++def test_N1_W0_unreachable_target_is_not_silently_repaired(tmp_path,monkeypatch):
++    intervals(monkeypatch,[1,0]);ctx=create_dynamic_context(config(tmp_path,N=1,W=0));r=ctx.run()
++    assert r.status=='FAILED' and r.reason_code=='EVENTS_EXHAUSTED_BEFORE_TARGET'
++    assert r.completed_workflow_count==1 and r.recorded_workflow_count==0
++    assert r.workflow_records[0]['completion_time'] is not None
++    assert r.makespan is None and r.mean_flow_time is None
++
++
++def test_runtime_domain_failure_preserves_partial_trace_and_original_clock(tmp_path,monkeypatch):
++    intervals(monkeypatch,[float(1<<53),0]);ctx=create_dynamic_context(config(tmp_path));r=ctx.run()
++    assert r.status=='FAILED' and r.reason_code=='STATE_INVARIANT_VIOLATION'
++    assert r.final_clock_time==float(1<<53) and r.events[-1]['error'] and 'precision' in r.reason
++    assert r.task_records[0]['plan'] is None and not ctx.engine.state.executions_by_task
++
++
++@pytest.mark.parametrize('kind',['device','server'])
++def test_actual_queue_limit_does_not_clear_queues_or_write_max_clock(tmp_path,monkeypatch,kind):
++    intervals(monkeypatch,[1,1000])
++    xml='<adag>'+''.join(f'<job id="t{i}"/>' for i in range(402))+'</adag>'
++    ctx=create_dynamic_context(config(tmp_path,xml=xml,edges=int(kind=='server'),local=kind=='device',
++        target='E0' if kind=='server' else None,trace=False,invariants=False,max_events=2000));r=ctx.run()
++    assert r.status=='FAILED'
++    assert r.reason_code==('JAVA_DEVICE_QUEUE_LIMIT' if kind=='device' else 'JAVA_SERVER_QUEUE_LIMIT')
++    resource=ctx.engine.state.mobile_devices[0] if kind=='device' else ctx.engine.state.servers[0]
++    assert len(resource.waiting_queue)==401
++    assert r.final_clock_time<2 and ctx.engine.event_queue.has_pending()
++    assert r.makespan is None and r.mean_flow_time is None
++
++
++def test_guard_failure_wins_if_target_reached_on_same_event(tmp_path,monkeypatch):
++    intervals(monkeypatch,[1,100]);ctx=create_dynamic_context(config(tmp_path,edges=1,trace=False,invariants=False))
++    original=ctx.engine.workflow_completed
++    def inject(w):
++        original(w)
++        # Deliberate component probe, not a naturally reachable queue state.
++        ctx.engine.state.servers[0].waiting_queue.extend([None]*401)
++    monkeypatch.setattr(ctx.engine,'workflow_completed',inject);r=ctx.run()
++    assert r.recorded_workflow_count==1 and r.status=='FAILED' and r.reason_code=='JAVA_SERVER_QUEUE_LIMIT'
++    assert r.makespan is None and r.diagnostics['guard_hits'][0]['actual']==401
++
++
++def test_B_survives_reset_before_first_new_admission(tmp_path,monkeypatch):
++    intervals(monkeypatch,[20,10,40,30]);ctx=create_dynamic_context(config(tmp_path,devices=2,N=2,W=2))
++    assert ctx.cutoff_release_time==10
++    old=ctx.engine;ctx.reset()
++    assert ctx.engine.initial_cutoff==10 and ctx.cutoff_release_time==30 and old.statistics.cutoff_release_time==10
++
++
++def test_statistical_metrics_use_recorded_subset_not_all_completions():
++    from fogsim.simulation.dynamic_result import collect_dynamic_result
++    s=statistics(N=1,W=1,B=10)
++    def w(wid,release,finish):
++        return NS(id=wid,owner_device=NS(id='M0'),release_time=release,completion_time=finish,flow_time=finish-release,
++            weight=4,dag_type_id=0,template_hash='a'*64,input_record_id=str(wid+1))
++    early=w(0,1,20);selected=w(1,10,30);s.recorded_workflows={1:selected};s.generated_total=2
++    state=NS(clock_time=30,completed_workflows={0:early,1:selected},workflows_by_id={0:early,1:selected},
++        arrived_workflow_count=2,mobile_devices=[],tasks_by_key={})
++    engine=NS(state=state,statistics=s,run_status='SUCCEEDED',stop_reason=None,reason_code=None,admission=None,
++        trace=NS(tasks={},events=[],decisions=[]),run_index=0,operation='test',public_seed=7,initial_cutoff=0,
++        failure_hits=[],initialization_complete=True,initialization_actions=[],environment=None,processed_event_count=0)
++    r=collect_dynamic_result(engine)
++    assert r.makespan==20 and r.mean_flow_time==20 and r.completed_workflow_count==2 and r.recorded_workflow_count==1
++
++
++def test_metric_overflow_becomes_FAILED_with_complete_physical_facts(tmp_path,monkeypatch):
++    from dataclasses import replace
++    from fogsim.experiment_config import RealRange
++    from fogsim.randomness.samplers import UniformRealSampler
++    intervals(monkeypatch,[1,1,0,0])
++    cfg=config(tmp_path,devices=2,N=2,W=1)
++    cfg=replace(cfg,source=replace(cfg.source,samplers=replace(cfg.source.samplers,
++        workload=RealRange(1e308,1.1e308),processing_rate_device=RealRange(1,1.1))))
++    monkeypatch.setattr(UniformRealSampler,'sample',lambda self,rng:0.5*self.lower+0.5*self.upper)
++    ctx=create_dynamic_context(cfg);r=ctx.run()
++    assert r.status=='FAILED' and r.reason_code=='NUMERIC_DERIVATION_ERROR'
++    assert r.recorded_workflow_count==2 and r.completed_workflow_count==2
++    assert r.makespan is None and r.mean_flow_time is None and r.final_clock_time==1e308
++    assert all(row['finish_time']==1e308 for row in r.task_records if row['finish_time'] is not None)
++
++
++def test_physical_completion_idempotent_callback_not_reapplied(tmp_path,monkeypatch):
++    intervals(monkeypatch,[1,100]);ctx=create_dynamic_context(config(tmp_path));r=ctx.run()
++    w=ctx.engine.state.completed_workflows[0]
++    assert ctx.engine.state.register_completion(w) is False
++    ctx.engine.statistics.check_invariants(ctx.engine.state)
++    assert ctx.engine.statistics.completed_by_device['M0']==1 and r.recorded_workflow_count==1
+--- /dev/null
++++ b/tools/check_step5.py
+@@ -0,0 +1,223 @@
++"""V09-V15: fresh Python business-sampler probes plus original Java components.
++
++This is not a production replay engine. Test-only samplers reconstruct their
++script solely from V16 input values; archived references are only compared after
++execution. Python and Java RNG algorithms/individual samples are not paired.
++"""
++from pathlib import Path
++import argparse
++from contextlib import ExitStack
++from dataclasses import asdict, fields, replace
++import hashlib
++import json
++import os
++import shutil
++import subprocess
++import sys
++from unittest.mock import patch
++
++ROOT=Path(__file__).resolve().parents[1]
++sys.path.insert(0,str(ROOT/'src'))
++from fogsim import load_experiment_config, create_dynamic_context
++from fogsim.experiment_config import EnvironmentConfig, WorkflowTypeRange, DynamicRunConfig
++from fogsim.simulation.trace import event_snapshot
++from java_support import ORIGINAL, sha, reference_jdk
++from check_step3 import first_difference
++from dynamic_export_contract import read_json, audit_input, write_json
++
++
++class ScriptFeed:
++    def __init__(self,archive):
++        self.values=[];self.calls=[];self.position=0;self.inputs=None;self.roles={}
++        def add(role,value):self.values.append(dict(role=role,value=value))
++        for d in archive.environment.devices:add('processing_rate_device',d.processing_rate)
++        for s in archive.environment.servers:
++            suffix='edge' if s.type=='EDGE' else 'cloud'
++            add('upload_bandwidth_'+suffix,s.upload_bandwidth);add('download_bandwidth_'+suffix,s.download_bandwidth)
++            add('processing_rate_'+suffix,s.processing_rate)
++        templates={t.ref:t for t in archive.templates}
++        for c in archive.candidates:
++            w=c.workflow_input;_,children=templates[w.template_ref].adjacency()
++            edges={(e.parent_id,e.child_id):e.data_size for e in w.edges}
++            add('workflow_type',w.template_ref.dag_type_id);add('inter_release_time',w.inter_release_time);add('weight',w.weight)
++            for task in w.tasks:
++                add('workload',task.workload);add('data_size',task.data_size)
++                for child in children[task.id]:add('edge_data',edges[task.id,child])
++
++    def attach(self,inputs):
++        self.inputs=inputs
++        self.roles={id(getattr(inputs.samplers,f.name)):f.name for f in fields(inputs.samplers)}
++
++    def sample(self,sampler,rng):
++        if self.position>=len(self.values):raise RuntimeError('scripted business input exhausted; no automatic samples')
++        value=self.values[self.position];role=self.roles[id(sampler)]
++        if value['role']!=role or rng is not self.inputs.rng:
++            raise RuntimeError(f'script order/RNG mismatch at {self.position}: {role}')
++        self.calls.append(value);self.position+=1
++        return value['value']
++
++
++def normalize_python(engine,result):
++    state=engine.state
++    def opt(key,ready,priority):
++        t=state.tasks_by_key[key[0],key[1]]
++        return dict(workflow_id=key[0],task_java_index=t.java_index,resource_id=key[2],ready_time=ready,priority=priority)
++    events=[]
++    def event(row):
++        wid,tid=row['workflow_id'],row['task_id'];task=state.tasks_by_key[wid,tid] if tid is not None else None
++        ex=state.executions_by_task.get((wid,tid)) if task is not None and row['type'] in ('ProcessStartEvent','ProcessFinishEvent') else None
++        return dict(kind=row['type'],time=row['time'],producer_device_id=row['owner'],workflow_id=wid,
++            task_java_index=task.java_index if task is not None else None,resource_id=row['resource_id'],
++            start_time=ex.start_time if ex else None,finish_time=ex.finish_time if ex else None)
++    decisions=[];decision_by_sequence={}
++    for d in result.decisions:
++        options=[opt(score['option'],observation['ready_time'],score['priority'])
++                 for score,observation in zip(d['candidates'],d['candidate_state'])]
++        selected=next(o for o in options if [o['workflow_id'],state.workflows_by_id[o['workflow_id']].tasks[o['task_java_index']].id,o['resource_id']]==d['selected'])
++        converted=dict(event_sequence=d['event_sequence'],clock_time=d['time'],kind=d['kind'].lower(),options=options,selected=selected)
++        decisions.append(converted);decision_by_sequence[d['decision_sequence']]=converted
++    actions=[]
++    for action in engine.initialization_actions:
++        if action['kind']=='EMIT':actions.append(dict(event_sequence=None,kind='EMIT',event=event(action['event'])))
++    for row in result.events:
++        events.append(dict(event(row),event_sequence=row['sequence']))
++        for action in row['actions']:
++            if action['kind']=='EMIT':actions.append(dict(event_sequence=row['sequence'],kind='EMIT',event=event(action['event'])))
++            else:actions.append(dict(event_sequence=row['sequence'],kind='DECISION',decision=decision_by_sequence[action['decision']['decision_sequence']]))
++    final_resources=[]
++    for r in state.resources_by_id.values():
++        queue=[opt(o.key,o.ready_time,o.priority) for o in r.waiting_queue]
++        item=dict(id=r.id,available_time=r.available_time,queue=queue,total_processing=r.queued_processing_time,
++                  total_occupancy=r.queued_total_time,tasks_completed=r.completed_task_count)
++        if r in state.mobile_devices:item['staged_events']=len(engine.event_queue.staging_heaps[r])
++        final_resources.append(item)
++    return dict(events=events,decisions=decisions,actions=actions,
++        final=dict(clock_time=result.final_clock_time,G=result.generated_workflow_count,B=engine.statistics.cutoff_release_time,
++            R=result.recorded_workflow_count,statistical_workflow_ids=list(engine.statistics.recorded_workflows),
++            completed_workflow_ids=sorted(state.completed_workflows),not_arrived_workflow_ids=list(state.pending_arrivals),
++            unfinished_workflow_ids=[wid for wid in state.workflows_by_id if wid not in state.completed_workflows],
++            pending_global_events=len(engine.event_queue.global_heap),resources=final_resources))
++
++
++def controlled_case(directory,output,*,compact=True,trusted_fcfs=False):
++    value=read_json(directory/'input.json');archive=audit_input(value)
++    # Origin and capture/reference fields cannot affect the actual source.
++    cfg=load_experiment_config(ROOT/'configs/examples/step1_dynamic.json')
++    env=archive.environment
++    cfg=replace(cfg,source=replace(cfg.source,dag_root=(directory/'sources/dax').resolve(),
++        seed=value['initial_state']['public_seed'],workflow_types=WorkflowTypeRange(archive.templates[0].dag_type_id,archive.templates[-1].dag_type_id),
++        environment=EnvironmentConfig(len(env.devices),sum(s.type=='EDGE' for s in env.servers),sum(s.type=='CLOUD' for s in env.servers),env.devices[0].can_process_tasks)),
++        run=DynamicRunConfig(value['effective_config']['num_jobs_recorded'],value['effective_config']['warmup_jobs']))
++    feed=ScriptFeed(archive)
++    import fogsim.simulation.context as module
++    prepare=module.prepare_random_input
++    def prep(config):
++        inputs=prepare(config);feed.attach(inputs);return inputs
++    # Distinct immutable sampler roles are identified by object identity.
++    from fogsim.randomness.samplers import make_samplers
++    bundle=make_samplers(cfg.source.samplers,cfg.source.workflow_types)
++    classes={type(getattr(bundle,f.name)) for f in fields(bundle)}
++    def sample(sampler,rng):return feed.sample(sampler,rng)
++    from fogsim.simulation.trace import TraceRecorder
++    import fogsim.simulation.engine as engine_module
++    class OracleRecorder(TraceRecorder):
++        def append(self,record):
++            # The business oracle compares all actual events/actions and the final
++            # state, not duplicate before/after graph snapshots. Production trace
++            # stays unchanged; this test recorder retains every compared field.
++            super().append({k:v for k,v in record.items() if k not in ('before','after')})
++    with ExitStack() as stack:
++        if compact:stack.enter_context(patch.object(engine_module,'TraceRecorder',OracleRecorder))
++        if trusted_fcfs:
++            # This lane evaluates only the existing FCFS body. Repeated complete
++            # graph mutation scans are a diagnostic guard, not rule evaluation.
++            # Keep production full graph guards and state/queue invariants intact;
++            # full-guard equivalence is tested separately on the small fixture.
++            import fogsim.rules.selection as selection
++            stack.enter_context(patch.object(selection,'graph_fingerprint',lambda context: None))
++        stack.enter_context(patch.object(module,'prepare_random_input',prep))
++        for cls in classes:stack.enter_context(patch.object(cls,'sample',sample))
++        ctx=create_dynamic_context(cfg);result=ctx.run()
++    actual=normalize_python(ctx.engine,result)
++    # Reference is read only after the production random-source path has finished.
++    reference=read_json(directory/'reference.json');native=reference['native_result'];last=reference['final_state']
++    expected=dict(events=reference['events'],decisions=reference['decisions'],actions=reference['actions'],
++        final={k:native[k] for k in ('clock_time','G','B','R','statistical_workflow_ids','completed_workflow_ids',
++                                   'not_arrived_workflow_ids','unfinished_workflow_ids','pending_global_events')} | {'resources':last['resources']})
++    # pending array order in Java is accepted ID order, just as input admission order.
++    actual['final']['not_arrived_workflow_ids']=sorted(actual['final']['not_arrived_workflow_ids'])
++    comparisons={'generated_inputs':first_difference([asdict(c) for c in archive.candidates],[asdict(c) for c in ctx.input_archive.candidates]),
++        'attempts':first_difference([asdict(a) for a in archive.generation_attempts],[asdict(a) for a in ctx.input_archive.generation_attempts]),
++        'script_calls':None if feed.position==len(feed.values) else {'consumed':feed.position,'available':len(feed.values)},
++        'trace_and_final':first_difference(expected,actual)}
++    if native['target_reached']:
++        comparisons['metrics']=first_difference({'makespan':native['makespan']['value'],'mean_flowtime':native['mean_flowtime']['value']},
++            {'makespan':result.makespan,'mean_flowtime':result.mean_flow_time})
++    else:
++        comparisons['explicit_failure']=None if result.status=='FAILED' and result.makespan is None and result.mean_flow_time is None else {'status':result.status}
++    passed=all(v is None for v in comparisons.values())
++    report=dict(case=directory.name,passed=passed,priority_guard='trusted_existing_fcfs_body' if trusted_fcfs else 'production_full',trace_recorder='oracle_without_duplicate_state_snapshots' if compact else 'production_full',scope='scripted business samplers through production generation/admission/events; archived Java facts',
++        classification=('NORMAL_PARITY_PASSED' if native['target_reached'] else 'EXPECTED_DIFFERENCE_CONFIRMED') if passed else 'FAILED',
++        comparisons=comparisons,counts=dict(events=len(actual['events']),decisions=len(actual['decisions']),attempts=len(ctx.input_archive.generation_attempts)),
++        python_status=result.status,python_reason_code=result.reason_code)
++    output.mkdir(parents=True,exist_ok=True)
++    write_json(output/'python-normalized.json',actual);write_json(output/'comparison.json',report)
++    write_json(output/'python-result.json',result.to_dict())
++    return report
++
++
++def java_probes(output,explicit):
++    java=Path(explicit or os.environ.get('FOGSIM_JAVA') or shutil.which('java') or '').resolve()
++    version=reference_jdk(java)
++    integrity=read_json(ROOT/'outputs/source-integrity-v2.json')['files']
++    for relative,expected in integrity.items():
++        if sha(ORIGINAL/relative)!=expected:raise RuntimeError(f'original source changed: {relative}')
++    main=ROOT/'tools/java/step5/fogsim/adapter/Step5Probe.java';codec=ROOT/'tools/java/src/fogsim/adapter/Json.java'
++    jars=sorted(p for p in (ORIGINAL/'libraries').glob('*.jar') if 'javadoc' not in p.name)
++    hashes={str(p.relative_to(ROOT)):sha(p) for p in [*sorted((ORIGINAL/'src').rglob('*.java')),*jars,main,codec,Path(__file__)]}
++    fingerprint=hashlib.sha256(json.dumps(hashes,sort_keys=True).encode()).hexdigest()
++    classes=output/'classes'/fingerprint[:16];classes.mkdir(parents=True,exist_ok=True)
++    javac=java.with_name('javac.exe' if java.suffix=='.exe' else 'javac')
++    compiler=[str(javac)] if javac.is_file() else [str(java),'-m','jdk.compiler/com.sun.tools.javac.Main']
++    cp=os.pathsep.join(map(str,jars))
++    command=[*compiler,'-encoding','UTF-8','-cp',cp,'-sourcepath',str(ORIGINAL/'src'),'-d',str(classes),str(main),str(codec)]
++    compiled=subprocess.run(command,capture_output=True,text=True,timeout=60)
++    (output/'javac-stdout.txt').write_text(compiled.stdout);(output/'javac-stderr.txt').write_text(compiled.stderr)
++    write_json(output/'java-build.json',dict(reference_jdk=version,inputs=hashes,fingerprint=fingerprint,source_overlays=[],command=command,exit_code=compiled.returncode,
++        compiler_executable_sha256=sha(javac if javac.is_file() else java),
++        compiler_modules_sha256=sha(java.parent.parent/'lib/modules') if not javac.is_file() else None))
++    if compiled.returncode:raise RuntimeError('Java probe compile failed; see javac-stderr.txt')
++    dax=output/'dax';dax.mkdir(exist_ok=True)
++    (dax/'CyberShake_30.xml').write_text('<adag><job id="Z"/><job id="a"/><child ref="a"><parent ref="Z"/></child></adag>')
++    raw=output/'java-probes.json'
++    command=[str(java),'-cp',os.pathsep.join([str(classes),cp]),'fogsim.adapter.Step5Probe',str(raw)]
++    run=subprocess.run(command,cwd=output,capture_output=True,text=True,timeout=60)
++    (output/'java-stdout.txt').write_text(run.stdout);(output/'java-stderr.txt').write_text(run.stderr)
++    write_json(output/'java-run.json',dict(command=command,cwd=str(output),exit_code=run.returncode))
++    if run.returncode:raise RuntimeError('Java probes failed; see java-stderr.txt')
++    data=read_json(raw)
++    items=[op for group in data['lifecycle'] for op in group['operations']]+data['completion']+data['admission']+data['guards']+[data['owner_producer']]
++    return dict(passed=all(x['passed'] for x in items),checks=len(items),scope=data['scope'])
++
++
++def main(argv=None):
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--java');p.add_argument('--output',type=Path,default=ROOT/'outputs/step5')
++    p.add_argument('--cases',nargs='*')
++    args=p.parse_args(argv);output=args.output.resolve();output.mkdir(parents=True,exist_ok=True)
++    report=dict(passed=False,scope='V09-V15 components and scripted dynamic business input; production replay/V17-V19 NOT_EXECUTED',cases=[])
++    try:
++        report['java_probes']=java_probes(output,args.java)
++        names=args.cases or [p.name for p in sorted((ROOT/'outputs/step4/cases').iterdir())]
++        for name in names:
++            case=controlled_case(ROOT/'outputs/step4/cases'/name,output/'cases'/name,
++                                 trusted_fcfs=name in ('native_multiple_types','native_standard_dax'))
++            report['cases'].append(case);print(name,case['classification'],case['comparisons'],flush=True)
++        report['passed']=report['java_probes']['passed'] and all(c['passed'] for c in report['cases'])
++        report['classification']='NORMAL_PARITY_PASSED' if report['passed'] else 'FAILED'
++    except (OSError,ValueError,RuntimeError,subprocess.SubprocessError) as exc:
++        report.update(classification='INFRASTRUCTURE_ERROR',error=f'{type(exc).__name__}: {exc}')
++    write_json(output/'checks.json',report);print(json.dumps({k:v for k,v in report.items() if k!='cases'},indent=2))
++    return 0 if report['passed'] else 1
++
++
++if __name__=='__main__':raise SystemExit(main())
+--- /dev/null
++++ b/tools/java/step5/fogsim/adapter/Step5Probe.java
+@@ -0,0 +1,184 @@
++package fogsim.adapter;
++
++import java.io.*;
++import java.lang.reflect.Field;
++import java.nio.file.*;
++import java.security.MessageDigest;
++import java.util.*;
++import mengxu.algorithm.FCFS;
++import mengxu.rule.RuleType;
++import mengxu.simulation.*;
++import mengxu.simulation.state.SystemState;
++import mengxu.simulation.event.AbstractEvent;
++import mengxu.taskscheduling.*;
++import mengxu.util.random.*;
++import org.apache.commons.math3.random.RandomDataGenerator;
++
++/** Original lifecycle, completion/admission and run-guard component probes.
++ * No source overlay. All injected states below are explicitly component probes,
++ * not claimed to be naturally reachable full scheduling experiments.
++ */
++public final class Step5Probe {
++    static Map<String,Object> row(Object... v) {
++        Map<String,Object> out=new LinkedHashMap<>();for(int i=0;i<v.length;i+=2)out.put((String)v[i],v[i+1]);return out;
++    }
++    static void set(Object obj,String name,Object value) {
++        try {Field f=obj.getClass().getDeclaredField(name);f.setAccessible(true);f.set(obj,value);}
++        catch(Exception ex){throw new IllegalStateException(ex);}
++    }
++    static Object get(Object obj,String name) {
++        try {Field f=obj.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(obj);}
++        catch(Exception ex){throw new IllegalStateException(ex);}
++    }
++    static String rngHash(RandomDataGenerator rng) {
++        try {
++            ByteArrayOutputStream b=new ByteArrayOutputStream();new ObjectOutputStream(b).writeObject(rng.getRandomGenerator());
++            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(b.toByteArray()));
++        }catch(Exception ex){throw new IllegalStateException(ex);}
++    }
++    static final List<Object> calls=new ArrayList<>();
++    static final class Real extends AbstractRealSampler {
++        final String role;final AbstractRealSampler delegate;final boolean zero;
++        Real(String role,AbstractRealSampler delegate,boolean zero){this.role=role;this.delegate=delegate;this.zero=zero;}
++        public double next(RandomDataGenerator rng){
++            calls.add(row("role",role,"rng_before",rngHash(rng)));
++            double value=delegate.next(rng);return zero&&role.equals("delta")?0:value;
++        }
++        public void setLower(double v){delegate.setLower(v);}public void setUpper(double v){delegate.setUpper(v);}
++        public void setMean(double v){delegate.setMean(v);}public double getMean(){return delegate.getMean();}
++        public AbstractRealSampler clone(){return new Real(role,delegate.clone(),zero);}
++    }
++    static final class TypeSampler extends AbstractIntegerSampler {
++        final UniformIntegerSampler delegate=new UniformIntegerSampler(0,0);
++        public int next(RandomDataGenerator rng){calls.add(row("role","type","rng_before",rngHash(rng)));return delegate.next(rng);}
++        public void setLower(int v){}public void setUpper(int v){}public void setMean(double v){}
++        public double getMean(){return 0;}public AbstractIntegerSampler clone(){return new TypeSampler();}
++    }
++    static AbstractRealSampler real(String role,AbstractRealSampler s,boolean zero){return new Real(role,s,zero);}
++    static DynamicSimulation sim(long seed,int N,int W,boolean zero){
++        return new DynamicSimulation(seed,new FCFS(RuleType.SEQUENCING),new FCFS(RuleType.ROUTING),N,W,2,1,1,
++            real("workload",new UniformSampler(1,2),zero),real("data",new UniformSampler(0,1),zero),
++            real("edge",new UniformSampler(0,1),zero),real("delta",new ExponentialSampler(),zero),
++            real("weight",new TwoSixTwoSampler(),zero),real("upload_cloud",new BandwidthCloudSampler(),zero),
++            real("download_cloud",new BandwidthCloudSampler(),zero),real("upload_edge",new BandwidthEdgeSampler(),zero),
++            real("download_edge",new BandwidthEdgeSampler(),zero),real("rate_cloud",new UniformSampler(30,40),zero),
++            real("rate_edge",new UniformSampler(20,30),zero),real("rate_device",new UniformSampler(10,20),zero),new TypeSampler(),true);
++    }
++    static List<Object> environment(DynamicSimulation sim){
++        List<Object> out=new ArrayList<>();
++        for(MobileDevice d:sim.getSystemState().getMobileDevices())out.add(row("id","M"+d.getId(),"rate",d.getProcessingRate()));
++        for(Server s:sim.getSystemState().getServers())out.add(row("id","S"+s.getId(),"rate",s.getProcessingRate(),"up",s.getUploadBandwidth(),"down",s.getDownloadBandwidth()));
++        return out;
++    }
++    static String seedOrigin(long seed){RandomDataGenerator r=new RandomDataGenerator();r.reSeed(seed);return rngHash(r);}
++    static List<Object> lifecycle(long seed){
++        calls.clear();DynamicSimulation sim=sim(seed,1,0,false);
++        // Deliberate B continuation probe: N+W=1 prevents setup from overwriting B.
++        set(sim.getSystemState(),"firstArriveJobRecordedTime",1000000.0);
++        List<Object> env=environment(sim);List<Object> result=new ArrayList<>();
++        for(String operation:List.of("run","reset","run","reset_explicit","run","rerun","rotateSeed")){
++            String before=rngHash(sim.getRandomDataGenerator());calls.clear();
++            double beforeB=sim.getSystemState().getFirstArriveJobRecordedTime();
++            long effectiveSeed=(Long)get(sim,"seed");
++            if(operation.equals("run"))sim.run();
++            else if(operation.equals("reset"))sim.reset();
++            else if(operation.equals("reset_explicit"))sim.reset(seed);
++            else if(operation.equals("rerun"))sim.rerun();
++            else {sim.rotateSeed();effectiveSeed+=10000;}
++            boolean shared=true;
++            for(MobileDevice d:sim.getSystemState().getMobileDevices())shared &= get(d,"randomDataGenerator")==sim.getRandomDataGenerator();
++            List<Object> sampleCalls=new ArrayList<>(calls);
++            boolean reset=operation.startsWith("reset")||operation.equals("rotateSeed");
++            boolean consumed=!sampleCalls.isEmpty();
++            String first=consumed?(String)((Map<?,?>)sampleCalls.get(0)).get("rng_before"):null;
++            boolean passed=environment(sim).equals(env)&&shared&&beforeB==sim.getSystemState().getFirstArriveJobRecordedTime();
++            if(reset)passed &= consumed&&first.equals(seedOrigin(effectiveSeed))&&sim.getCurrentCompletedJobsNum()==0;
++            if(operation.equals("rerun"))passed &= consumed&&first.equals(before)&&sim.getCurrentCompletedJobsNum()>=1;
++            for(Object x:sampleCalls){String role=(String)((Map<?,?>)x).get("role");passed &= !role.startsWith("rate_")&&!role.startsWith("upload_")&&!role.startsWith("download_");}
++            passed &= (Long)get(sim,"seed")==effectiveSeed;
++            result.add(row("operation",operation,"public_seed",effectiveSeed,"B_before",beforeB,"B_after",sim.getSystemState().getFirstArriveJobRecordedTime(),
++                "rng_before",before,"rng_after",rngHash(sim.getRandomDataGenerator()),"samples",sampleCalls,"passed",passed,
++                "R",sim.getCurrentCompletedJobsNum(),"environment",env,"shared_rng",shared));
++        }
++        return result;
++    }
++    static List<Object> completion(){
++        List<Object> out=new ArrayList<>();
++        for(int[] v:new int[][]{{2,2,0,1,10,0},{3,2,0,1,10,1},{3,2,-1,1,10,0},{3,2,10,10,10,1},{3,2,1,11,10,0}}){
++            DynamicSimulation sim=sim(7,3,v[1],true);SystemState state=sim.getSystemState();
++            set(state,"allNumJobsReleased",v[0]);set(state,"firstArriveJobRecordedTime",(double)v[4]);
++            MobileDevice d=state.getMobileDevices().get(0);
++            Job job=new Job(v[2],v[3],1,d,new ArrayList<>(),JobType.DAG);state.getJobsInSystem().add(job);
++            d.completeJob(job);
++            int before=state.getJobsCompleted().size();set(state,"firstArriveJobRecordedTime",100.0);
++            int after=state.getJobsCompleted().size();
++            out.add(row("G",v[0],"W",v[1],"id",v[2],"release",v[3],"B",v[4],"recorded",before,
++                "no_retroactive_record",before==after,"passed",before==v[5]&&before==after&&((Number)get(d,"numJobsCompleted")).intValue()==1));
++        }
++        return out;
++    }
++    static List<Object> admission(){
++        DynamicSimulation sim=sim(7,2,2,true);SystemState state=sim.getSystemState();List<Object> out=new ArrayList<>();
++        double[] releases={20,10,30,5,1,0};double[] cutoffs={20,10,30,30,30,30};
++        for(int i=0;i<releases.length;i++){
++            int G=state.getAllNumJobsReleased();Job j=new Job(G,releases[i],1,state.getMobileDevices().get(0),new ArrayList<>(),JobType.DAG);
++            boolean accepted=state.addJobToSystem(j);
++            out.add(row("G_before",G,"release",releases[i],"accepted",accepted,"G_after",state.getAllNumJobsReleased(),
++                "B",state.getFirstArriveJobRecordedTime(),"passed",accepted==(i<5)&&state.getFirstArriveJobRecordedTime()==cutoffs[i]&&state.getAllNumJobsReleased()==(i<5?i+1:5)));
++        }
++        return out;
++    }
++    static final class GuardEvent extends AbstractEvent{
++        final DynamicSimulation sim;final String kind;final int value;
++        GuardEvent(DynamicSimulation sim,String kind,int value){super(1,sim.getSystemState().getMobileDevices().get(0));this.sim=sim;this.kind=kind;this.value=value;}
++        public void trigger(MobileDevice d){
++            if(kind.equals("count"))set(sim,"count",value-1); // original increment will produce value
++            if(kind.equals("device"))for(int i=0;i<value;i++)d.getQueue().add(null);
++            if(kind.equals("server")||kind.equals("target_server"))for(int i=0;i<value;i++)sim.getSystemState().getServers().get(0).getQueue().add(null);
++            if(kind.equals("generated"))set(sim.getSystemState(),"allNumJobsReleased",value);
++            if(kind.equals("target_server"))set(d,"throughput",2);
++        }
++        public void addSequencingDecisionSituation(MobileDevice d,List<SequencingDecisionSituation>x,int n){trigger(d);}
++        public void addRoutingDecisionSituation(MobileDevice d,List<RoutingDecisionSituation>x,int n){trigger(d);}
++    }
++    static List<Object> guards(){
++        List<Object> out=new ArrayList<>();
++        for(String kind:List.of("count","device","server","generated","target_server")){
++            int limit=kind.equals("count")?400000:kind.equals("generated")?1000:400;
++            for(int extra=0;extra<=1;extra++){
++                DynamicSimulation sim=sim(7,2,0,true);set(sim.getSystemState().getMobileDevices().get(0),"throughput",1);
++                sim.getEventQueue().add(new GuardEvent(sim,kind,limit+extra));sim.run();
++                boolean hit=sim.getSystemState().getClockTime()==Double.MAX_VALUE;
++                out.add(row("kind",kind,"actual",limit+extra,"hit",hit,"clock_time",sim.getSystemState().getClockTime(),
++                    "R",sim.getCurrentCompletedJobsNum(),"passed",hit==(extra==1)));
++            }
++        }
++        return out;
++    }
++    static Map<String,Object> ownerProducer(){
++        DynamicSimulation sim=sim(7,2,0,true);SystemState state=sim.getSystemState();
++        MobileDevice producer=state.getMobileDevices().get(0),owner=state.getMobileDevices().get(1);
++        Server server=state.getServers().get(0);server.setReadyTime(1);
++        Task first=new Task(0,1,0),queued=new Task(0,1,0);
++        Job a=new Job(0,0,1,producer,new ArrayList<>(List.of(first)),JobType.DAG);
++        Job b=new Job(1,0,1,owner,new ArrayList<>(List.of(queued)),JobType.DAG);
++        first.setJob(a);queued.setJob(b);first.setDispatch(true);queued.setDispatch(true);
++        TaskOption o0=new TaskOption(first,server,1,0,0),o1=new TaskOption(queued,server,1,0,0);
++        first.addTaskOption(o0);queued.addTaskOption(o1);server.addToQueue(o1);
++        state.getJobsInSystem().add(a);state.getJobsInSystem().add(b);
++        set(state,"allNumJobsReleased",2);set(state,"firstArriveJobRecordedTime",100.0);state.setClockTime(1);
++        mengxu.taskscheduling.Process running=new mengxu.taskscheduling.Process(server,o0,0);
++        new mengxu.simulation.event.ProcessFinishEvent(1,running,producer).trigger(producer);
++        AbstractEvent next=producer.eventQueue.peek();
++        boolean passed=next instanceof mengxu.simulation.event.ProcessStartEvent&&next.getMobileDevice()==owner&&owner.eventQueue.isEmpty();
++        return row("scope","manual valid server-queue continuation component probe","staging_device_id","M0",
++            "event_owner_device_id",next==null?null:"M"+next.getMobileDevice().getId(),"passed",passed);
++    }
++    public static void main(String[] args)throws Exception{
++        List<Object> life=new ArrayList<>();
++        for(long seed:new long[]{0,-1,Long.MIN_VALUE,Long.MAX_VALUE})life.add(row("initial_seed",seed,"operations",lifecycle(seed)));
++        Map<String,Object> result=row("scope","original Java lifecycle and manually injected component probes; no Python RNG value parity",
++            "lifecycle",life,"completion",completion(),"admission",admission(),"guards",guards(),"owner_producer",ownerProducer());
++        Files.writeString(Path.of(args[0]),Json.write(result)+"\n");
++    }
++}

@@ -1,0 +1,375 @@
+{
+  "schema_version": 1,
+  "input": {
+    "time_unit": "s",
+    "resources": [
+      {
+        "id": "C0",
+        "type": "CLOUD"
+      },
+      {
+        "id": "E0",
+        "type": "EDGE"
+      },
+      {
+        "id": "M0",
+        "type": "MOBILE",
+        "can_process_tasks": false
+      }
+    ],
+    "workflows": [
+      {
+        "id": -6,
+        "owner_device_id": "M0",
+        "release_time": 0.0,
+        "tasks": [
+          {
+            "id": "T0",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.3,
+                "processing_time": 0.1,
+                "download_time": 0.1
+              },
+              "C0": {
+                "upload_time": 0.2,
+                "processing_time": 0.2,
+                "download_time": 0.1
+              }
+            }
+          },
+          {
+            "id": "T1",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.1,
+                "processing_time": 1.0,
+                "download_time": 0.0
+              },
+              "C0": {
+                "upload_time": 0.2,
+                "processing_time": 0.3,
+                "download_time": 0.2
+              }
+            }
+          },
+          {
+            "id": "T2",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.0,
+                "processing_time": 0.2,
+                "download_time": 0.0
+              },
+              "C0": {
+                "upload_time": 0.2,
+                "processing_time": 0.3,
+                "download_time": 0.0
+              }
+            }
+          },
+          {
+            "id": "T3",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.3,
+                "processing_time": 0.5,
+                "download_time": 0.0
+              },
+              "C0": {
+                "upload_time": 0.1,
+                "processing_time": 1.0,
+                "download_time": 0.2
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "T0",
+            "T1"
+          ],
+          [
+            "T0",
+            "T2"
+          ],
+          [
+            "T0",
+            "T3"
+          ],
+          [
+            "T1",
+            "T2"
+          ],
+          [
+            "T2",
+            "T3"
+          ]
+        ]
+      },
+      {
+        "id": 20,
+        "owner_device_id": "M0",
+        "release_time": 0.1,
+        "tasks": [
+          {
+            "id": "T0",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.3,
+                "processing_time": 1.0,
+                "download_time": 0.1
+              },
+              "C0": {
+                "upload_time": 0.3,
+                "processing_time": 0.5,
+                "download_time": 0.1
+              }
+            }
+          },
+          {
+            "id": "T1",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.0,
+                "processing_time": 0.5,
+                "download_time": 0.2
+              },
+              "C0": {
+                "upload_time": 0.0,
+                "processing_time": 1.0,
+                "download_time": 0.2
+              }
+            }
+          },
+          {
+            "id": "T2",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.2,
+                "processing_time": 0.5,
+                "download_time": 0.1
+              },
+              "C0": {
+                "upload_time": 0.2,
+                "processing_time": 0.2,
+                "download_time": 0.1
+              }
+            }
+          },
+          {
+            "id": "T3",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.3,
+                "processing_time": 0.3,
+                "download_time": 0.2
+              },
+              "C0": {
+                "upload_time": 0.1,
+                "processing_time": 0.3,
+                "download_time": 0.2
+              }
+            }
+          },
+          {
+            "id": "T4",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.0,
+                "processing_time": 0.3,
+                "download_time": 0.1
+              },
+              "C0": {
+                "upload_time": 0.2,
+                "processing_time": 0.5,
+                "download_time": 0.1
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "T0",
+            "T3"
+          ],
+          [
+            "T1",
+            "T3"
+          ],
+          [
+            "T1",
+            "T4"
+          ],
+          [
+            "T2",
+            "T4"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "owner_device_id": "M0",
+        "release_time": 3.0,
+        "tasks": [
+          {
+            "id": "T0",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.1,
+                "processing_time": 0.3,
+                "download_time": 0.2
+              },
+              "C0": {
+                "upload_time": 0.3,
+                "processing_time": 0.2,
+                "download_time": 0.2
+              }
+            }
+          },
+          {
+            "id": "T1",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.3,
+                "processing_time": 1.0,
+                "download_time": 0.2
+              },
+              "C0": {
+                "upload_time": 0.1,
+                "processing_time": 0.2,
+                "download_time": 0.1
+              }
+            }
+          },
+          {
+            "id": "T2",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.2,
+                "processing_time": 0.1,
+                "download_time": 0.2
+              },
+              "C0": {
+                "upload_time": 0.3,
+                "processing_time": 0.3,
+                "download_time": 0.2
+              }
+            }
+          }
+        ],
+        "dependencies": []
+      },
+      {
+        "id": 9,
+        "owner_device_id": "M0",
+        "release_time": 1.0,
+        "tasks": [
+          {
+            "id": "T0",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.0,
+                "processing_time": 0.2,
+                "download_time": 0.0
+              },
+              "C0": {
+                "upload_time": 0.0,
+                "processing_time": 0.1,
+                "download_time": 0.1
+              }
+            }
+          }
+        ],
+        "dependencies": []
+      },
+      {
+        "id": -2,
+        "owner_device_id": "M0",
+        "release_time": 3.0,
+        "tasks": [
+          {
+            "id": "T0",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.0,
+                "processing_time": 0.3,
+                "download_time": 0.0
+              },
+              "C0": {
+                "upload_time": 0.1,
+                "processing_time": 0.5,
+                "download_time": 0.1
+              }
+            }
+          },
+          {
+            "id": "T1",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.2,
+                "processing_time": 0.1,
+                "download_time": 0.2
+              },
+              "C0": {
+                "upload_time": 0.2,
+                "processing_time": 0.1,
+                "download_time": 0.2
+              }
+            }
+          },
+          {
+            "id": "T2",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.0,
+                "processing_time": 0.5,
+                "download_time": 0.0
+              },
+              "C0": {
+                "upload_time": 0.1,
+                "processing_time": 1.0,
+                "download_time": 0.2
+              }
+            }
+          },
+          {
+            "id": "T3",
+            "execution_times": {
+              "E0": {
+                "upload_time": 0.0,
+                "processing_time": 0.1,
+                "download_time": 0.1
+              },
+              "C0": {
+                "upload_time": 0.2,
+                "processing_time": 0.2,
+                "download_time": 0.0
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "T1",
+            "T2"
+          ],
+          [
+            "T1",
+            "T3"
+          ]
+        ]
+      }
+    ]
+  },
+  "config": {
+    "routing_kind": "fixed_resource",
+    "fixed_resource_id": "E0",
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "record_trace": true
+}

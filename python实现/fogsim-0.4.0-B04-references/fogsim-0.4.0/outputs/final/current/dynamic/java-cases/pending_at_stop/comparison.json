@@ -1,0 +1,61 @@
+{
+  "case": "pending_at_stop",
+  "scope": "V16 Java observation noninterference and complete input; no Python dynamic replay",
+  "passed": true,
+  "first_differences": {
+    "baseline_vs_minimal": null,
+    "baseline_vs_full": null,
+    "minimal_vs_full_capture": null
+  },
+  "reference_checks": {
+    "emitted_events_accounted_for": true,
+    "decisions_accounted_for": true,
+    "event_sequences_contiguous": true,
+    "java_maps_cleared_but_export_edges_retained": true,
+    "attempts_link_to_actual_arrivals": true
+  },
+  "counts": {
+    "attempts": 3,
+    "accepted": 3,
+    "rejected": 0,
+    "events": 7,
+    "decisions": 3,
+    "samples": 32,
+    "templates": 1
+  },
+  "java_native_result": {
+    "target_reached": true,
+    "clock_time": 159.53145063565964,
+    "G": 3,
+    "B": 1.0,
+    "R": 1,
+    "completed_workflow_ids": [
+      0
+    ],
+    "statistical_workflow_ids": [
+      0
+    ],
+    "not_arrived_workflow_ids": [
+      1,
+      2
+    ],
+    "unfinished_workflow_ids": [
+      1,
+      2
+    ],
+    "pending_global_events": 2,
+    "makespan": {
+      "kind": "FINITE",
+      "value": 158.53145063565964,
+      "java_text": "158.53145063565964"
+    },
+    "mean_flowtime": {
+      "kind": "FINITE",
+      "value": 158.53145063565964,
+      "java_text": "158.53145063565964"
+    }
+  },
+  "python_dynamic_parity": "NOT_EXECUTED",
+  "classification": "NORMAL_PARITY_PASSED",
+  "observation_noninterference_passed": true
+}

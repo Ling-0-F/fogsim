@@ -1,0 +1,209 @@
+{
+  "passed": true,
+  "version": "0.2.1",
+  "cases": [
+    {
+      "case": "single_local",
+      "passed": true,
+      "events": {
+        "python": 4,
+        "java": 4
+      },
+      "decisions": {
+        "python": 1,
+        "java": 1
+      },
+      "first_difference": null,
+      "report": "single_local/comparison.json"
+    },
+    {
+      "case": "single_local_release5",
+      "passed": true,
+      "events": {
+        "python": 4,
+        "java": 4
+      },
+      "decisions": {
+        "python": 1,
+        "java": 1
+      },
+      "first_difference": null,
+      "report": "single_local_release5/comparison.json"
+    },
+    {
+      "case": "chain_remote",
+      "passed": true,
+      "events": {
+        "python": 7,
+        "java": 7
+      },
+      "decisions": {
+        "python": 3,
+        "java": 3
+      },
+      "first_difference": null,
+      "report": "chain_remote/comparison.json"
+    },
+    {
+      "case": "chain_fcfs",
+      "passed": true,
+      "events": {
+        "python": 7,
+        "java": 7
+      },
+      "decisions": {
+        "python": 3,
+        "java": 3
+      },
+      "first_difference": null,
+      "report": "chain_fcfs/comparison.json"
+    },
+    {
+      "case": "v2_diamond",
+      "passed": true,
+      "events": {
+        "python": 13,
+        "java": 13
+      },
+      "decisions": {
+        "python": 8,
+        "java": 8
+      },
+      "first_difference": null,
+      "report": "v2_diamond/comparison.json"
+    },
+    {
+      "case": "v2_contention",
+      "passed": true,
+      "events": {
+        "python": 12,
+        "java": 12
+      },
+      "decisions": {
+        "python": 5,
+        "java": 5
+      },
+      "first_difference": null,
+      "report": "v2_contention/comparison.json"
+    },
+    {
+      "case": "v2_candidates",
+      "passed": true,
+      "events": {
+        "python": 27,
+        "java": 27
+      },
+      "decisions": {
+        "python": 10,
+        "java": 10
+      },
+      "first_difference": null,
+      "report": "v2_candidates/comparison.json"
+    },
+    {
+      "case": "v2_collision_m0",
+      "passed": true,
+      "events": {
+        "python": 20,
+        "java": 20
+      },
+      "decisions": {
+        "python": 8,
+        "java": 8
+      },
+      "first_difference": null,
+      "report": "v2_collision_m0/comparison.json"
+    },
+    {
+      "case": "v2_collision_e0",
+      "passed": true,
+      "events": {
+        "python": 20,
+        "java": 20
+      },
+      "decisions": {
+        "python": 8,
+        "java": 8
+      },
+      "first_difference": null,
+      "report": "v2_collision_e0/comparison.json"
+    },
+    {
+      "case": "v2_equal_heap",
+      "passed": true,
+      "events": {
+        "python": 39,
+        "java": 39
+      },
+      "decisions": {
+        "python": 29,
+        "java": 29
+      },
+      "first_difference": null,
+      "report": "v2_equal_heap/comparison.json"
+    },
+    {
+      "case": "v2_float_local",
+      "passed": true,
+      "events": {
+        "python": 16,
+        "java": 16
+      },
+      "decisions": {
+        "python": 7,
+        "java": 7
+      },
+      "first_difference": null,
+      "report": "v2_float_local/comparison.json"
+    },
+    {
+      "case": "v2_float_remote",
+      "passed": true,
+      "events": {
+        "python": 16,
+        "java": 16
+      },
+      "decisions": {
+        "python": 7,
+        "java": 7
+      },
+      "first_difference": null,
+      "report": "v2_float_remote/comparison.json"
+    },
+    {
+      "case": "v2_shared_server",
+      "passed": true,
+      "events": {
+        "python": 15,
+        "java": 15
+      },
+      "decisions": {
+        "python": 8,
+        "java": 8
+      },
+      "first_difference": null,
+      "report": "v2_shared_server/comparison.json"
+    },
+    {
+      "case": "v2_order",
+      "passed": true,
+      "events": {
+        "python": 12,
+        "java": 12
+      },
+      "decisions": {
+        "python": 4,
+        "java": 4
+      },
+      "first_difference": null,
+      "report": "v2_order/comparison.json"
+    }
+  ],
+  "imported_module": "/workspace/scratch/f39adb5078d7/work/package-check-tvqpwen5/fogsim-0.2.1/src/fogsim/__init__.py",
+  "original_java": "/workspace/scratch/f39adb5078d7/work/package-check-tvqpwen5/fogsim-0.2.1/references/java/Fog-Computing-multiDeviceDebug",
+  "all_runtime_classpath_inside_package": true,
+  "java_build_fingerprint": "882e7d444886ef121635ab01620c30c6df74ee9e01bb422086848f7f29dbe536",
+  "archive_sha256": "96d5aaf7a53785a0309f42f90bb5da6a8b1593e7a2c9e72d50cb2a2daf98ad8d",
+  "checked_file_count": 2661,
+  "isolation": "Python -I, fresh extraction, fresh Java compilation"
+}

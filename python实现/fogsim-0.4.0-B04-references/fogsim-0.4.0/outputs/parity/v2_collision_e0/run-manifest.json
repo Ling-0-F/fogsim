@@ -1,0 +1,119 @@
+{
+  "instance_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/data/cases/v2_collision_e0.json",
+  "instance_sha256": "4b0494a3b8bfb6fc4e474ec24ded47d355f83865671bcdaa61cbdcffd0b4a685",
+  "config_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/configs/v2_collision_e0.json",
+  "config_file_sha256": "50da216a3ca05ad83c4b60c7251b2252f90905c7c0e667fc9779e75077922093",
+  "effective_config": {
+    "routing_kind": "fixed_resource",
+    "fixed_resource_id": "E0",
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "java_build_fingerprint": "a69f3c65cce9eae3111d7c15f95c3aeac49946d2308df8c02d594ec8b189b921",
+  "resource_ids": [
+    [
+      "M0",
+      "MOBILE",
+      0
+    ],
+    [
+      "E0",
+      "EDGE",
+      0
+    ],
+    [
+      "C0",
+      "CLOUD",
+      1
+    ]
+  ],
+  "devices": [
+    "M0"
+  ],
+  "task_ids": [
+    {
+      "workflow_id": 0,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 1,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 2,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 3,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 4,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    }
+  ],
+  "initial_stage_order": [
+    [
+      0,
+      "M0",
+      0.0
+    ],
+    [
+      1,
+      "M0",
+      1.0
+    ],
+    [
+      2,
+      "M0",
+      2.0
+    ],
+    [
+      3,
+      "M0",
+      4.0
+    ],
+    [
+      4,
+      "M0",
+      5.0
+    ]
+  ],
+  "raw_trace_sha256": {
+    "python-raw.json": "98947e84f349920c12180d8b510b07f6fc8b1d29a3d93a7ddbd1b646b250df8d",
+    "java-raw.json": "2e71f8a2e442edc3beb41f5121a7a854d015a0f06646477839d2fc5eb9df4a1d"
+  }
+}

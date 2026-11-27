@@ -1,0 +1,333 @@
+{
+  "format": "fogsim.step7-validation",
+  "schema_version": 1,
+  "planned_checks_passed": true,
+  "baseline": {
+    "file": "fogsim-0.2.1-step6.zip",
+    "sha256": "0c419cc5623a6166be4c2b104322ccc6c573448de96e1990b0fd633fa47909ab"
+  },
+  "V01": {
+    "passed": true,
+    "tests": {
+      "tests": 972,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "pytest_exit_code": 0,
+    "manifest": "outputs/validation-manifest.json",
+    "junit": "outputs/pytest-results.xml",
+    "named_fixed_cases": 14,
+    "fixed_parity_passed": true,
+    "v2_summary": "outputs/v2/summary.json",
+    "v2_passed": true,
+    "component_oracle": {
+      "passed": true,
+      "operations": 4764,
+      "output_lines": 3797
+    },
+    "precision_boundary": {
+      "parity_passed": false,
+      "python_status": "FAILED",
+      "python_reason": "execution duration lost to floating-point precision for (3, 'A', 'M0'): start=9007199254740992.0, PT=1.0, DT=0.0; reduce the time origin or use higher-precision time arithmetic",
+      "java_status": "SUCCEEDED",
+      "java_overlaps": [
+        {
+          "resource_id": "M0",
+          "first": [
+            2,
+            "A"
+          ],
+          "second": [
+            5,
+            "A"
+          ],
+          "first_finish": 9007199254741000.0,
+          "second_start": 9007199254740996.0
+        }
+      ],
+      "first_difference": {
+        "path": "$.result.events[11].actions[0]",
+        "python_value": 0,
+        "java_value": 1,
+        "reason": "list length differs after common prefix",
+        "phase": "actions",
+        "event_sequence": 12,
+        "event_type": "TaskVisitEvent",
+        "time": 9007199254740992.0
+      },
+      "expected_boundary_detected": true
+    },
+    "first_run_failure_report": "outputs/step7/v01-first/"
+  },
+  "V20": {
+    "passed": true,
+    "checks": {
+      "retain_release_identical": true,
+      "archive_identical": true,
+      "rng_identical": true,
+      "input_alone_replays": true,
+      "all_maps_released": true,
+      "java_reference_retain": true,
+      "java_reference_release_after_materialization": true
+    },
+    "memory_measurement": {
+      "scope": "300-task chain, context/environment/generation/materialization/initialization only; no events executed; full-run performance NOT_MEASURED",
+      "measurements": [
+        {
+          "policy": "retain",
+          "elapsed_seconds": 0.07789780400025847,
+          "current_bytes": 908825,
+          "peak_bytes": 1021561,
+          "tasks": 300,
+          "remaining_runtime_mapping_entries": 598,
+          "cleanup": {
+            "workflows_released": 0,
+            "released_task_count": 0,
+            "removed_mapping_entry_count": 0
+          }
+        },
+        {
+          "policy": "release_after_materialization",
+          "elapsed_seconds": 0.11953403500001514,
+          "current_bytes": 798527,
+          "peak_bytes": 1147259,
+          "tasks": 300,
+          "remaining_runtime_mapping_entries": 0,
+          "cleanup": {
+            "workflows_released": 1,
+            "released_task_count": 300,
+            "removed_mapping_entry_count": 598
+          }
+        }
+      ],
+      "conclusion": "Measured current/peak/time only; release success does not imply full-run speedup or lower peak"
+    },
+    "scope": "workflow cleanup; same input/trace/statistics/RNG; independent existing Java diamond reference with both policies"
+  },
+  "V21": {
+    "passed": true,
+    "batches": {
+      "fresh_same_seed": {
+        "status": "SUCCEEDED",
+        "completed_runs": 3,
+        "failed_runs": 0,
+        "rng_boundaries": [
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+            "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 87.416080723558,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          },
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+            "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 87.416080723558,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          },
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+            "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 87.416080723558,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          }
+        ]
+      },
+      "fresh_seed_list": {
+        "status": "SUCCEEDED",
+        "completed_runs": 3,
+        "failed_runs": 0,
+        "rng_boundaries": [
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+            "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 87.416080723558,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          },
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "6f00506fd8b42aa7abde214b8bc475a7777c9e8e3c21af16b101ef7f551e40fe",
+            "rng_final_fingerprint": "08d1c784090dd75ff88816d65c6ddb5d2c46d81fcd6691c1f8d91597451732ec",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 146.09866483832758,
+            "environment_fingerprint": "0084d7dc4a164f1aba494770c9aeafd660adf50257c90ab4adc944a31c0d7eb8"
+          },
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "f2d566a185da16eecc610737227f840a0a9cf6b01d794362d4f1bcd6cb51a6f8",
+            "rng_final_fingerprint": "bc69ce3f2271dd9bd382a4cbc65d048bf4f2e50391597f1dc91e0da3be9e09b5",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 89.28000912384447,
+            "environment_fingerprint": "90da1a8c24e2a0a0e224ec763bfe77a6fbf2d08acec241a26a7050c76cea5251"
+          }
+        ]
+      },
+      "java_rerun": {
+        "status": "SUCCEEDED",
+        "completed_runs": 3,
+        "failed_runs": 0,
+        "rng_boundaries": [
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+            "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 87.416080723558,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          },
+          {
+            "run_index": 1,
+            "rng_start_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "rng_final_fingerprint": "0ce56a8a97d0ddc8ad2d8843330301bf7983d3570441762516be829565bfb859",
+            "initial_cutoff_release_time": 87.416080723558,
+            "cutoff_release_time": 4.770257046258186,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          },
+          {
+            "run_index": 2,
+            "rng_start_fingerprint": "0ce56a8a97d0ddc8ad2d8843330301bf7983d3570441762516be829565bfb859",
+            "rng_final_fingerprint": "aedd4a7250dc197f8a32d886067b9ff91effa8c95716f32dc66b416954d58205",
+            "initial_cutoff_release_time": 4.770257046258186,
+            "cutoff_release_time": 199.49862063723833,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          }
+        ]
+      }
+    },
+    "cli_checks": [
+      {
+        "case": "dynamic",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+          "-m",
+          "fogsim",
+          "dynamic",
+          "--config",
+          "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/configs/examples/step5_dynamic.json",
+          "--repeat",
+          "2",
+          "--repeat-mode",
+          "java_rerun",
+          "--no-trace",
+          "--edge-data-policy",
+          "release_after_materialization",
+          "--output",
+          "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/outputs/step7/checks/dynamic.json"
+        ],
+        "exit_code": 0,
+        "expected_exit_code": 0,
+        "passed": true,
+        "output_exists": true
+      },
+      {
+        "case": "replay",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+          "-m",
+          "fogsim",
+          "replay",
+          "--config",
+          "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/configs/examples/step6_verify.json",
+          "--repeat",
+          "2",
+          "--output",
+          "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/outputs/step7/checks/replay.json"
+        ],
+        "exit_code": 0,
+        "expected_exit_code": 0,
+        "passed": true,
+        "output_exists": true
+      },
+      {
+        "case": "coverage",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+          "-m",
+          "fogsim",
+          "replay",
+          "--config",
+          "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/configs/examples/step6_reuse.json",
+          "--output",
+          "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/outputs/step7/checks/coverage.json"
+        ],
+        "exit_code": 1,
+        "expected_exit_code": 1,
+        "passed": true,
+        "output_exists": true
+      },
+      {
+        "case": "invalid",
+        "command": [
+          "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+          "-m",
+          "fogsim",
+          "dynamic",
+          "--config",
+          "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/configs/examples/step5_dynamic.json",
+          "--repeat",
+          "2",
+          "--output",
+          "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/outputs/step7/checks/invalid.json"
+        ],
+        "exit_code": 2,
+        "expected_exit_code": 2,
+        "passed": true,
+        "output_exists": false
+      }
+    ],
+    "new_test_cases": 37,
+    "additional_unit_contracts": [
+      "atomic cleanup failure/idempotence",
+      "exact signed64 seed lists",
+      "no extra lifecycle operation",
+      "domain failure continues; unknown exception propagates",
+      "whole-batch vs successes-only means and denominators",
+      "scene changes disable aggregation",
+      "source output protection",
+      "stale success removal/incomplete checkpoints",
+      "reference verification failures remain separate from runtime result"
+    ]
+  },
+  "targeted_regression": {
+    "tests": 229,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "report": "outputs/step7/targeted-regression.xml"
+  },
+  "source_integrity": {
+    "preserved_files": 719,
+    "all_matched": true,
+    "report": "outputs/step7/source-audit.json"
+  },
+  "patch_smoke": {
+    "passed": true,
+    "report": "outputs/step7/patch-smoke.json"
+  },
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.39",
+    "pytest": "9.2.0",
+    "java_build": "outputs/parity/build/build-manifest.json"
+  },
+  "commands": [
+    "PYTHONPATH=../../test-deps:src python -m pytest -q tests/unit/test_dynamic_statistics.py tests/unit/test_step7.py tests/unit/test_dynamic_context.py tests/unit/test_replay.py --junitxml=outputs/step7/targeted-regression.xml",
+    "LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib:/usr/lib/jvm/java-17-openjdk-amd64/lib/server PYTHONPATH=src python tools/check_step7.py",
+    "LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib:/usr/lib/jvm/java-17-openjdk-amd64/lib/server PYTHONPATH=../../test-deps:src python tools/validate.py"
+  ],
+  "design_changes_required": false,
+  "not_executed": [
+    "two native large fixed V19 projections carried from step6",
+    "fresh full Java dynamic export/sampler distribution campaigns",
+    "complete-run memory/time performance",
+    "GP/training/paper-scale experiments"
+  ]
+}

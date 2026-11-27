@@ -1,0 +1,59 @@
+{
+  "format": "fogsim.b08-source-audit",
+  "schema_version": 1,
+  "batch": "B08",
+  "baseline": "B07-r1-20261107",
+  "active_baseline_files": 1262,
+  "active_baseline_files_checked": 1262,
+  "baseline_mismatches": [
+    {
+      "path": "tests/gp/b06/conftest.py",
+      "expected": "7540bd738f746a29f2afcea9fb6f0a290bf5b3295534724448342e0a39e2a8ac",
+      "actual": "dc71965d4f8453925aabc5205f473e040047a71743a45f362e088ca8623678ef"
+    },
+    {
+      "path": "tests/stage_d/b07/conftest.py",
+      "expected": "ac74a86438b4ed55e4ed76d21f48ca8cee904ec5b862fa7d1a510770a63d498b",
+      "actual": "19bafedae0de8f125c0740c2f8f3433f6ede7fd8e8fb2921370d1da54ea79a6e"
+    },
+    {
+      "path": "tools/build_release.py",
+      "expected": "278803d912391a1aa3bb00865eb9949c8c877cf1814097c953ee1bc254b37269",
+      "actual": "bfd492679e3f44211145f50387c9cb6234b2eb291c0e79a2ad1842a1eb84f5bd"
+    }
+  ],
+  "allowed_test_compatibility_changes": [
+    {
+      "path": "tests/gp/b06/conftest.py",
+      "expected": "7540bd738f746a29f2afcea9fb6f0a290bf5b3295534724448342e0a39e2a8ac",
+      "actual": "dc71965d4f8453925aabc5205f473e040047a71743a45f362e088ca8623678ef"
+    },
+    {
+      "path": "tests/stage_d/b07/conftest.py",
+      "expected": "ac74a86438b4ed55e4ed76d21f48ca8cee904ec5b862fa7d1a510770a63d498b",
+      "actual": "19bafedae0de8f125c0740c2f8f3433f6ede7fd8e8fb2921370d1da54ea79a6e"
+    },
+    {
+      "path": "tools/build_release.py",
+      "expected": "278803d912391a1aa3bb00865eb9949c8c877cf1814097c953ee1bc254b37269",
+      "actual": "bfd492679e3f44211145f50387c9cb6234b2eb291c0e79a2ad1842a1eb84f5bd"
+    }
+  ],
+  "unexpected_mismatches": [],
+  "production_simulator_source_changed": false,
+  "production_source_files_checked": 85,
+  "tests": {
+    "tests": 5797,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "regression_passed": true,
+  "dynamic_gate_passed": true,
+  "performance_gate_passed": true,
+  "contract_audit_passed": true,
+  "validation_snapshot_passed": true,
+  "all_matched": true,
+  "passed": true,
+  "scope": "B08 regression, contract audit, source retention, final dynamic/performance gates; B07 evidence remains immutable except test compatibility imports"
+}

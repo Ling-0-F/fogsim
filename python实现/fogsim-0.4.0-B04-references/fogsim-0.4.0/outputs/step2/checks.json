@@ -1,0 +1,25 @@
+{
+  "scope": "V02 topology and V04 independent distribution checks; no scheduling parity",
+  "python": "3.12.14",
+  "seeds": [
+    0,
+    1,
+    20261104
+  ],
+  "samples_per_role_seed": 100000,
+  "thresholds": {
+    "discrete_absolute_frequency_error": 0.01,
+    "uniform_mean_width_fraction": 0.01,
+    "exponential_mean_relative_error": 0.02,
+    "exponential_variance_relative_error": 0.05,
+    "exponential_cdf_absolute_error": 0.01
+  },
+  "python_distributions_passed": true,
+  "java_status": "PASSED",
+  "topology_status": "NORMAL_PARITY_PASSED",
+  "passed": true,
+  "topology_cases": 20,
+  "topology_tasks": 5855,
+  "topology_edges": 9365,
+  "java_distributions_passed": true
+}

@@ -1,0 +1,94 @@
+{
+  "passed": true,
+  "source_bytes_match": true,
+  "checks": [
+    {
+      "command": [
+        "git",
+        "apply",
+        "--check",
+        "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/CHANGES-STEP7.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "apply",
+        "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/CHANGES-STEP7.patch"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "fogsim",
+        "dynamic",
+        "--config",
+        "configs/examples/step7_dynamic_rerun.json",
+        "--no-trace",
+        "--output",
+        "outputs/smoke-batch.json",
+        "--archive-dir",
+        "outputs/smoke-inputs"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"output\": \"outputs/smoke-batch.json\", \"status\": \"SUCCEEDED\", \"runs\": 3, \"succeeded_runs\": 3, \"failed_runs\": 0, \"not_run\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "fogsim",
+        "replay",
+        "--input",
+        "outputs/smoke-inputs/run-000000.input.json",
+        "--repeat",
+        "2",
+        "--output",
+        "outputs/smoke-replay.json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"output\": \"outputs/smoke-replay.json\", \"status\": \"SUCCEEDED\", \"runs\": 2, \"succeeded_runs\": 2, \"failed_runs\": 0, \"not_run\": 0}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "fogsim",
+        "export-fixed",
+        "--input",
+        "outputs/smoke-inputs/run-000000.input.json",
+        "--output",
+        "outputs/smoke-fixed.json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"status\": \"SUCCEEDED\", \"kind\": \"fixed_projection\", \"output\": \"outputs/smoke-fixed.json\", \"manifest\": \"outputs/smoke-fixed.projection.json\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "fogsim",
+        "--instance",
+        "outputs/smoke-fixed.json",
+        "--repeat",
+        "2",
+        "--output",
+        "outputs/smoke-old.json"
+      ],
+      "exit_code": 0,
+      "stdout": "{\"output\": \"outputs/smoke-old.json\", \"status\": \"SUCCEEDED\", \"makespan\": 337.0986099266222, \"runs\": 2}\n",
+      "stderr": ""
+    }
+  ],
+  "scope": "apply exact step7 patch to uploaded step6 source; independent import; dynamic/archive/replay/projection/old repeat"
+}

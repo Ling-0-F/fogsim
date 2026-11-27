@@ -1,0 +1,2204 @@
+--- a/README.md
++++ b/README.md
+@@ -1,18 +1,11 @@
+-# fogsim 0.4.0 — S9-B01 评估层
++# fogsim 0.4.0 — S9-B02 单树闭环
+ 
+-以 `fogsim-0.3.0-b08.zip` 为唯一实现基线，累计保留固定、动态、重放、GP 固定规则、身份和数值合同。本批新增严格训练配置、计划冻结、防泄漏检查、真实 B08 固定规则评估、D03 适应度和失败分类、fresh/RNG 隔离、spawn 墙钟监督及独立证据协议。
++累计基线为已验收的 B01-source-dedup；本批新增 DEAP 单树 routing 演化、显式 FCFS sequencing、固定验证选优、规则冻结与独立加载测试。双树仍未实现，不自动进入 B03。
+ 
+-**当前为 B01 来源去重开发分发版。** 当前源码、测试、配置和 B01 自身证据完整随包；来源已有的 Java 参考、历史输出和原 B08 回滚 ZIP 按 `SOURCE-INDEX.json` 恢复。开始 B02 前请先读 [分发与恢复说明](docs/SOURCE-DISTRIBUTION.md)，并完成所需来源恢复。它仍然只有 B01 能力。
+-
+-先读 [运行说明](docs/RUNNING-S9-B01.md)、[批次报告](development/S9-B01/REPORT.md) 和 [协议细化](docs/TRAINING-PROTOCOL-B01.md)。正式设计在 [S9-frozen-1](references/design/fogsim-0.4.0-design.md)；阶段 D 冻结合同在同目录。实际门禁状态以 `outputs/step9/B01/acceptance.json` 为准。
++先读 [B02运行说明](docs/RUNNING-S9-B02.md)、[协议](docs/TRAINING-PROTOCOL-B02.md)、[本批报告](development/S9-B02/REPORT.md)。正式状态为 outputs/step9/B02/acceptance.json；独立交付复核另附报告。B01和B08证据保持原字节，不以旧顶层状态文字覆盖正式验收。
+ 
+ ```bash
+-PYTHONPATH=src python -m fogsim.training.cli validate --config configs/training/B01.json --output outputs/my-preflight
+-PYTHONPATH=src python -m fogsim.training.cli evaluate --rules configs/training/rules.json --plan outputs/my-preflight/plans/train-0000.json --output outputs/my-evaluation
++PYTHONPATH=src python -m fogsim.training.cli train --config configs/training/smoke-single.json --output outputs/my-single
+ ```
+ 
+-运行依赖仅 Python 3.11+ 标准库；本批无须 DEAP。安装后也可用 `fogsim-train`，旧命令 `fogsim` 保留。API、完整回归和 JDK17 实跑说明见运行手册。
+-
+-本包只实现 S9-B01，没有单树/双树演化闭环，没有执行 848 次闭环预算，也不启动论文规模训练。后续批次仍须分别验收。
+-
+-原 B08 ZIP 由来源 `fogsim-0.3.0-b08.zip` 提供，摘要绑定在 `SOURCE-INDEX.json`；需要包内回滚路径时用恢复工具还原至 `rollback/`。旧 README 原文保存在 `references/design/B08-README.md`。已索引的旧验收与参考恢复后保持原字节；B01 新增验收与缺失 B07 夹具重建证据继续随本包保留。原完整 B01 包未改写，其旧清单仍作为历史记录，新分发清单为 `SOURCE-DISTRIBUTION-FILES.json`。
++旧固定/动态/重放及B01固定规则评估保持可用且不需要DEAP；训练依赖使用development/S9-B02的精确锁定及轮子。Java/历史/回滚按SOURCE-INDEX.json从已提供来源恢复，详见[来源说明](docs/SOURCE-DISTRIBUTION.md)。本批当前完整文件校验使用 tools/build_s9_b02.py verify；旧分发工具与清单保留用于原B01，不代表本批源码。原README副本在development/S9-B02/original-docs/README.md。
+--- /dev/null
++++ b/configs/training/B02-test-b.json
+@@ -0,0 +1,60 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 2,
++  "mode": "dynamic",
++  "source": {
++    "seed": 21002,
++    "dag_root": "../../examples/step5/dax",
++    "workflow_types": {
++      "lower": 0,
++      "upper": 0
++    },
++    "environment": {
++      "num_mobile_devices": 1,
++      "num_edge_servers": 1,
++      "num_cloud_servers": 0,
++      "can_mobile_devices_process_tasks": true
++    },
++    "samplers": {
++      "workload": {
++        "lower": 2000,
++        "upper": 4000
++      },
++      "data_size": {
++        "lower": 0,
++        "upper": 1
++      },
++      "edge_data": {
++        "lower": 0,
++        "upper": 1
++      },
++      "processing_rate_device": {
++        "lower": 10,
++        "upper": 20
++      },
++      "processing_rate_edge": {
++        "lower": 20,
++        "upper": 30
++      },
++      "processing_rate_cloud": {
++        "lower": 30,
++        "upper": 40
++      }
++    }
++  },
++  "run": {
++    "num_jobs_recorded": 2,
++    "warmup_jobs": 1,
++    "max_events": 2000,
++    "trace_enabled": true,
++    "edge_data_policy": "release_after_materialization",
++    "routing_rule": {
++      "kind": "gp",
++      "expression": "(+ MRT (+ TTIQ (+ PT (+ UT DT))))"
++    },
++    "sequencing_rule": {
++      "kind": "gp",
++      "expression": "(- 0 TIS)"
++    }
++  }
++}
+--- /dev/null
++++ b/configs/training/B02-test-sources.json
+@@ -0,0 +1,14 @@
++{
++  "format": "fogsim.training-source-plan",
++  "schema_version": 1,
++  "entries": [
++    {
++      "run_id": "test-a",
++      "config": "test.json"
++    },
++    {
++      "run_id": "test-b",
++      "config": "B02-test-b.json"
++    }
++  ]
++}
+--- /dev/null
++++ b/configs/training/B02-validation-b.json
+@@ -0,0 +1,60 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 2,
++  "mode": "dynamic",
++  "source": {
++    "seed": 11002,
++    "dag_root": "../../examples/step5/dax",
++    "workflow_types": {
++      "lower": 0,
++      "upper": 0
++    },
++    "environment": {
++      "num_mobile_devices": 1,
++      "num_edge_servers": 1,
++      "num_cloud_servers": 0,
++      "can_mobile_devices_process_tasks": true
++    },
++    "samplers": {
++      "workload": {
++        "lower": 2000,
++        "upper": 4000
++      },
++      "data_size": {
++        "lower": 0,
++        "upper": 1
++      },
++      "edge_data": {
++        "lower": 0,
++        "upper": 1
++      },
++      "processing_rate_device": {
++        "lower": 10,
++        "upper": 20
++      },
++      "processing_rate_edge": {
++        "lower": 20,
++        "upper": 30
++      },
++      "processing_rate_cloud": {
++        "lower": 30,
++        "upper": 40
++      }
++    }
++  },
++  "run": {
++    "num_jobs_recorded": 2,
++    "warmup_jobs": 1,
++    "max_events": 2000,
++    "trace_enabled": true,
++    "edge_data_policy": "release_after_materialization",
++    "routing_rule": {
++      "kind": "gp",
++      "expression": "(+ MRT (+ TTIQ (+ PT (+ UT DT))))"
++    },
++    "sequencing_rule": {
++      "kind": "gp",
++      "expression": "(- 0 TIS)"
++    }
++  }
++}
+--- /dev/null
++++ b/configs/training/B02-validation-sources.json
+@@ -0,0 +1,14 @@
++{
++  "format": "fogsim.training-source-plan",
++  "schema_version": 1,
++  "entries": [
++    {
++      "run_id": "validation-a",
++      "config": "validation.json"
++    },
++    {
++      "run_id": "validation-b",
++      "config": "B02-validation-b.json"
++    }
++  ]
++}
+--- /dev/null
++++ b/configs/training/smoke-single.json
+@@ -0,0 +1,15 @@
++{
++  "format": "fogsim.training-config",
++  "schema_version": 1,
++  "mode": "single_routing",
++  "plans": {
++    "training": "train-sources.json",
++    "validation": "B02-validation-sources.json",
++    "test": "B02-test-sources.json"
++  },
++  "output": {
++    "trace": "all",
++    "save_run_results": true,
++    "save_input_archives": true
++  }
++}
+--- /dev/null
++++ b/docs/RUNNING-S9-B02.md
+@@ -0,0 +1,23 @@
++# S9-B02 运行
++
++Python >=3.11；当前锁定离线轮子适用于 CPython3.12/Linux x86_64。实际验收运行时见 development/S9-B02/dependency-lock.json。其他平台需取得同精确版本兼容包并重新记录摘要/受影响门禁。旧固定/动态/重放不需要 DEAP。
++
++```bash
++python -m pip install --no-index --find-links development/S9-B02/wheels --require-hashes -r development/S9-B02/requirements-train.lock
++PYTHONPATH=src python -m fogsim.training.cli validate --config configs/training/smoke-single.json --output outputs/my-preflight
++PYTHONPATH=src python -m fogsim.training.cli train --config configs/training/smoke-single.json --output outputs/my-single
++PYTHONPATH=src python -m fogsim.training.cli evaluate --rules outputs/my-single/trial-0001/selected_rule.json --plan outputs/my-single/plans/test.json --output outputs/my-independent-test
++```
++
++默认两 evolution seed，每 trial训练96、验证最多8、测试2，总上界212；同配置首跑+复跑上界424。实际候选去重减少验证次数。每运行2 recorded/1 warmup、max_events=2000，资源为1本地设备+1edge。验证和测试各两条不同seed，三组在训练前冻结。两个trial共享计划是预先声明的安排。
++
++S9-B02只交付小规模单树；不自动进行双树或论文规模。变更规模时先validate检查预算和seed溢出，使用新输出目录。源码及依赖改变须重验；历史证据不能被新命令覆盖。完整旧回归在独立恢复副本执行。
++
++```bash
++python tools/restore_sources.py restore --source-dir /your/current-source-zips
++python tools/restore_sources.py verify
++PYTHONPATH=src:tools python tools/check_s9_b02_java.py --java /your/jdk17/bin/java --output outputs/my-java-b02
++PYTHONPATH=src:tools PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 FOGSIM_JAVA=/your/jdk17/bin/java python -m pytest tests -q
++```
++
++Java来源不被修改。对照独立保存原始源码快照/overlay、适配器、共同输入、实际Java与Python输出、编译运行命令及环境。J01/J02/J03、单树交叉和变异、J06算子接纳数/精英/末代检查在B02；J04双树专项留B03。Java原生RNG序列不作同seed一致承诺。
+--- a/docs/SOURCE-DISTRIBUTION.md
++++ b/docs/SOURCE-DISTRIBUTION.md
+@@ -1,78 +1,20 @@
+-# B01 来源去重开发分发说明
++# S9-B02 当前来源去重分发
+ 
+-当前分发标识：`B01-source-dedup`。仍然只有 S9-B01 评估层能力，未纳入任何 S9-B02 实现。
++当前累计包为 fogsim-0.4.0-B02.zip，顶层 fogsim-0.4.0/。B02 新增源码、测试、配置、精确依赖轮子、算子/闭环/复跑/故障/Java证据随包。当前文件清单为 S9-B02-FILES.json，校验使用 `python tools/build_s9_b02.py verify`。
+ 
+-本分发依据用户已确认的“约 39 MiB：来源去重＋临时清理”方案制作。它是累计源码工程，不是增量补丁；基本 Python 使用独立可用，完整历史/Java 复核需要下列指定来源。为与原完整验收包区分，文件名使用 `fogsim-0.4.0-B01-source-dedup.zip`，ZIP 顶层仍为 `fogsim-0.4.0/`。此为中间批次的包装调整，不修改 S9-frozen-1 算法合同、门禁或 B01 验收结果。到 B04 再核对本地完整交付所需材料。
++SOURCE-INDEX.json 与 restore_sources.py 保持原字节。Java/history/rollback三组继续从下列已提供来源按摘要恢复，只恢复索引成员，不覆盖当前 src。
+ 
+-## 保留、索引与清理
+-
+-| 内容 | 当前处理 | 恢复/使用条件 |
+-| --- | --- | --- |
+-| 全部当前源码、原有测试/工具、配置、schema、DAX、必要数据、依赖轮子 | 完整保留 | 可直接开始代码阅读及基本评估 |
+-| 0.4.0 定稿、阶段 D 合同、B08 development/b08 记录 | 保留原字节 | 文档编制时的“未实施”不覆盖已保存验收 |
+-| B01 全部 outputs/step9/B01 过程与最终证据、development/b07 夹具和新实跑证据 | 完整保留 | 没有采用进一步移出早期过程记录的约 21 MiB 方案 |
+-| B08 历史 outputs（2,419 文件） | 从原 B08 ZIP 按成员索引恢复 | 旧测试、完整回归及历史审计前恢复 history |
+-| 原 Java 参考（952 文件，含源码/JAR） | 从原 Java ZIP 按成员索引恢复 | Java/ECJ 阅读、编译及对照前恢复 java |
+-| 内嵌 B08 ZIP＋1 个旧审计绑定成员（共 2 文件） | 原包不重复携带 | 字节保留审计/旧打包工具/回滚时恢复 rollback |
+-| pytest-of-agent/、根级 fogsim-run-*（2,801 文件） | 清除混入的测试临时产物 | 无须恢复 |
+-| 非 step9 输出下 966 个 .class | 清除可重建或废弃产物 | Java 工具重新编译 |
+-
+-旧审计绑定的成员虽然是历史编辑器临时文件，但 B08 审计要求逐字节保留；因此将其从 B08 ZIP 列入 rollback 组按需恢复，不随主包复制。其精确成员路径见 SOURCE-INDEX.json。
+-
+-机器可读信息：`SOURCE-INDEX.json` 为来源精确摘要与逐文件成员/目标映射；`development/source-dedup/removed-generated-files.json` 为清理记录。原完整 B01 ZIP 及所有来源附件没有修改。原 `S9-B01-FILES.json` 与旧验收报告保留原字节，描述原完整包；不能用它们代替本分发的新清单 `SOURCE-DISTRIBUTION-FILES.json`。
+-
+-## 必需来源与路径
+-
+-来源原件放到任意本地目录，例如 `../sources/`。不依赖本轮临时工作区路径、聊天链接或固定上传前缀。下列两个来源是完整恢复的必需材料，当前项目来源中均已提供。
+-
+-| 来源文件 | 字节数 | SHA-256 | 适用组 |
+-| --- | ---: | --- | --- |
+-| fogsim-0.3.0-b08.zip | 38390156 | 61c4b14bf2305a9bbc2821ebbe85949e27ba45c8472005d8e5bfe7cbba967ecc | history、rollback |
+-| Fog-Computing-multiDeviceDebug.zip | 55532796 | 17a273961e66f409c4cfc8305ee31433bf7022232da3a2cbd0cc8e70e4c32c9a | java |
+-
+-恢复工具只读取指定目录顶层的 ZIP，按字节数和 SHA-256 匹配，允许文件带上传前缀或改名。ZIP 成员和工程目标路径逐项绑定；只恢复索引中的文件，不解压来源中其余无关文件。目标均相对 `fogsim-0.4.0/` 根目录。已有相同文件跳过；摘要不符、路径越界、符号链接或已有目标冲突明确失败，不覆盖修改文件。写入前先验证全部选中来源与成员；中途磁盘/操作系统故障不提供事务回滚，修复后可重复执行。
+-
+-从工程根目录执行（仅 Python 标准库）：
++| 来源 | 字节数 | SHA-256 |
++| --- | ---: | --- |
++| fogsim-0.3.0-b08.zip | 38390156 | 61c4b14bf2305a9bbc2821ebbe85949e27ba45c8472005d8e5bfe7cbba967ecc |
++| Fog-Computing-multiDeviceDebug.zip | 55532796 | 17a273961e66f409c4cfc8305ee31433bf7022232da3a2cbd0cc8e70e4c32c9a |
+ 
+ ```bash
+-# 校验精简包随附文件，不要求恢复来源
+-python tools/build_source_distribution.py verify
+-
+-# 未恢复时 verify 返回 1 并列出缺失数量，这是预期状态
+-python tools/restore_sources.py verify
+-
+-# 先完整只读预检，再恢复；目录必须换成你持有两个来源 ZIP 的位置
+-python tools/restore_sources.py restore --source-dir ../sources --dry-run
+-python tools/restore_sources.py restore --source-dir ../sources
++python tools/restore_sources.py restore --source-dir /your/current-source-zips --dry-run
++python tools/restore_sources.py restore --source-dir /your/current-source-zips
+ python tools/restore_sources.py verify
+ ```
+ 
+-多目录可重复传 `--source-dir`。只需 Java 可加 `--group java`；历史输出用 `--group history`，回滚用 `--group rollback`。默认三组全部处理。恢复后相同命令可重复执行，新增恢复数应为 0。退出码：完成/成功预检 0，verify 缺文件 1，来源/冲突/格式等错误 2。工具无网络访问。
++旧 SOURCE-DISTRIBUTION-FILES.json 与 build_source_distribution.py 仅描述原 B01；它们不校验本批修改后源码。旧说明原文在 development/S9-B02/original-docs/。历史证据原字节保留，完整旧回归在独立恢复副本运行，新增结果另存。编译class、缓存、虚拟依赖安装目录可重建，不入包；B02-EXCLUDED-GENERATED.json逐项记录。B02所有新源码、补丁、配置、原始输出、失败和中断记录仍随包。
+ 
+-## 使用与复核顺序
+-
+-1. 在新目录独立解压本分发，不覆盖原完整 B01 或其他批次目录。
+-2. 校验新分发清单。阅读定稿、阶段 D 合同、B01 批次报告与协议细化。
+-3. 基本评估、旧固定 API、B01 训练层专项和恢复工具测试可以直接运行，无须 DEAP。
+-4. 开始 B02 前恢复三组，复核 Java 源码、旧默认测试路径及 B08 字节审计；不要改写历史参考来消除差异。
+-5. Java 对照需要完整 JDK17，包含 java 和 javac。JDK 不随包。精确已实跑版本与下载摘要在 development/S9-B01/dependency-lock.json；系统 Java21 不替代正式 JDK17 对照。
+-6. 完整 pytest 会写旧 outputs，必须在另一个已恢复的解压副本中执行，将新日志写入新目录。原分发/历史记录保持只读。重新打包去重版应从未恢复、未被回归修改的干净工程构建。
+-
+-```bash
+-# 无需恢复的基本检查
+-PYTHONPATH=src python -m fogsim --version
+-PYTHONPATH=src python -m fogsim.training.cli validate --config configs/training/B01.json --output outputs/my-preflight
+-PYTHONPATH=src python -m fogsim.training.cli evaluate --rules configs/training/rules.json --plan outputs/my-preflight/plans/train-0000.json --output outputs/my-evaluation
+-
+-# 精确测试依赖可离线安装，普通运行无第三方依赖
+-python -m pip install --no-index --find-links development/S9-B01/test-wheels pytest==9.2.0
+-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src:tools python -m pytest tests/packaging tests/training -q
+-
+-# 完整回归：先恢复全部来源，在独立副本中指定真正的 JDK17
+-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src:tools FOGSIM_JAVA=/path/to/jdk17/bin/java python -m pytest tests -q --junitxml=/path/to/new-evidence/regression.xml
+-PYTHONPATH=src:tools python tools/check_s9_lifecycle.py --java /path/to/jdk17/bin/java --output /path/to/new-evidence/lifecycle
+-```
+-
+-B01 的 wheel 完整保留，生产源码未改，因此无需重建 wheel。新增恢复和分发工具从工程文件使用，不包含于原 B01 wheel。原 build_s9_b01.py 针对原完整分发，仍需还原其依赖且不能用来生成此去重版；此分发的构建入口为 tools/build_source_distribution.py。原验收脚本不应在只读历史目录重新运行并覆盖原结论；只调用其 audit() 可进行 B08 字节检查。
+-
+-新对话复制 `S9-B02-new-conversation-prompt.txt`。新会话以这个已交付 B01 为累计代码基线；历史聊天中提到的 B02 开发副本不在本包，不作为已完成实现或验收证据。
++JDK17不内嵌；实际下载版本及摘要在development/S9-B02/dependency-lock.json，正式环境与编译命令在outputs/step9/B02/java-final/。可使用完整JDK17并重新运行局部对照。当前无双树或论文规模结果；B04再整理最终本地完整交付。
+--- /dev/null
++++ b/docs/TRAINING-PROTOCOL-B02.md
+@@ -0,0 +1,34 @@
++# S9-B02 单树协议与工程细化
++
++遵守 S9-frozen-1 与 D-frozen-1；不改变 B01 身份、计划、D03、fresh 或旧执行合同。B02 仅执行 single_routing。dual_tree 可预检但明确拒绝启动，特殊交叉留到 B03。
++
++DEAP 1.4.4 的 PrimitiveTree/Primitive/Terminal 与 Fitness 用于训练存储；适配层显式映射 ADD/SUB/MUL/DIV/MAX/MIN 至既有六 token。真实评分不调用 gp.compile/eval。所有树及节点显式深克隆；DEAP 默认 PrimitiveTree 深复制会共享节点，本实现不采用。常量使用 f64:位串保留，导出用可往返严格十进制（无穷为上下溢 token）；演化生成仅十特征，无 ERC。训练资源错误与结构错误分开，只有前者按算子合同回退。
++
++初始化有限重试沿用 B01 默认100。full/grow 各独立抽样，Java grow 为6函数+1终端入口，再抽十特征；目标高度并非实际高度下限。变异新子树固定生成目标上限 mutation_max_height，默认3，实际允许0—3。锦标赛有放回，平分先抽到者保留。节点先抽类别，根包含在该类别；重复叶按位置。各方向独立检查；单侧输出只检查方向1。多次尝试固定父树、最后一次各方向结果整体提交，单树失败克隆各自受体。
++
++每个 trial 在单个 serial spawn 进程内执行，DEAP及定制算子使用该进程模块 random；模拟只消费 B08 Random。每次评估前后校验进化状态未动。父进程不消费模块 random，不在评估间创建新演化进程。run_started → 回调 → START 后计时；完整结果提交后 run_completed 终止计时。未知异常保留链并中止。超时/退出/取消/回调异常结束当前 trial，不继续下一 trial；当前评估 INCOMPLETE，不用于选择。无任意断点恢复。原子 JSON 和 LF 提交 JSONL 沿用 B01。
++
++新协议均 schema_version=1，命名空间独立：
++
++| format/文件 | 权威内容 |
++| --- | --- |
++| fogsim.evolution-result | trial/seed、训练/验证/测试各状态、代数、真实完成/尝试运行数、候选和选中规则引用、最终进化状态摘要 |
++| fogsim.training-result | 全配置多 trial 状态、预算、每 trial 结果、源码摘要 |
++| fogsim.candidate-archive | 按每代最优可行者首次出现顺序，按 rule_pair_id 去重；首次及全部出处、原规则与完整 B08 manifest |
++| fogsim.selected-rule | 完整 rules/manifest/pair、候选序号/归档身份、验证计划/评估/fitness、trial、树约束、selected_rule_id |
++| individuals.jsonl | 每次出生规则/身份/树尺寸/来源；全部待评估，精英与复制不保留成绩 |
++| evaluated-individuals.jsonl | 每代每出生身份与完整评估绑定 |
++| operations.jsonl | 操作ID/抽样/节点候选位置/尝试/方向合法性/回退及最终父树来源 |
++| generations.jsonl | 同代计划、稳定种群顺序、全部fitness、可行数、候选、实际选择/接纳/回退/精英计数、耗时、RNG摘要 |
++
++individual_id 为 trial/g出生代/i连续出生序号；即使结构相同也不同。普通子代在前，实际可行精英在末尾。按当前代同计划分数选择，不跨代比较训练均值。最后一代无繁殖和下一计划切换。无可行代停止并保留已评估种群；不进入验证。
++
++归档先写 candidates/archive.json 并冻结，再统一验证；全验证不可行不运行测试。验证胜者先写 selected_rule.json，再经独立读回、校验身份与 B08 manifest 后测试；测试失败保留该文件且不换候选。单独 evaluate_selected_rule 和 CLI evaluate 不导入 DEAP。
++
++新摘要沿用 B01 canonical 与域前缀：candidate-archive 输入为归档全文（不含archive_id），selected-rule为全文（不含selected_rule_id），evolution-rng 输入为 repr(random.getstate())；semantic-file/trial-semantics 用于复跑比较。所有普通指标有限或null，合法特殊分数仍由B08位串表示。
++
++复现工具逐 trial 比较全部文件，JSON/JSONL按内容规范化；只排除 generations.jsonl 的 duration_seconds。规则、计划、源码、谱系、算子、结果、输入和实际次数不排除。平台/输出位置只出现在顶层观测记录；同配置复跑另检查顶层有效配置与计划一致。
++
++CLI：成功0；领域训练/验证/测试失败1；配置输入错误2；返回式监督中断130；远端未知异常保留 traceback，非捕获退出1。默认拒绝非空目录。train API 返回不可变JSON快照。单独规则评估沿用 B01 原评估API。
++
++监督终止若发生在工作进程提交 trial 快照之前，evolution-result 只含已知 trial/seed、三阶段状态、INCOMPLETE 与 interruption。该分支的 schema 不要求尚未收到的谱系计数、RNG 指纹或实现细节；不捏造完整快照。正常完成与领域失败仍要求完整字段。schema 的此条件细化未改变生产源码或任何模拟/选优输出。
+--- /dev/null
++++ b/schemas/training/candidate-archive.schema.json
+@@ -0,0 +1,25 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "format",
++    "schema_version",
++    "candidates",
++    "archive_id"
++  ],
++  "properties": {
++    "format": {
++      "const": "fogsim.candidate-archive"
++    },
++    "schema_version": {
++      "const": 1
++    },
++    "candidates": {
++      "type": "array"
++    },
++    "archive_id": {
++      "type": "string"
++    }
++  }
++}
+--- /dev/null
++++ b/schemas/training/evolution-result.schema.json
+@@ -0,0 +1,113 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "format",
++    "schema_version",
++    "trial_id",
++    "evolution_seed",
++    "training_status",
++    "validation_status",
++    "test_status",
++    "status"
++  ],
++  "properties": {
++    "format": {
++      "const": "fogsim.evolution-result"
++    },
++    "schema_version": {
++      "const": 1
++    },
++    "implementation": {
++      "type": "string"
++    },
++    "trial_id": {
++      "type": "string"
++    },
++    "mode": {
++      "type": "string"
++    },
++    "training_status": {
++      "type": "string"
++    },
++    "validation_status": {
++      "type": "string"
++    },
++    "test_status": {
++      "type": "string"
++    },
++    "status": {
++      "type": "string"
++    },
++    "evolution_rng_id": {
++      "type": "string"
++    },
++    "evolution_seed": {
++      "type": "integer"
++    },
++    "generations_evaluated": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "completed_simulations": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "attempted_simulations": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "candidate_archive_ref": {
++      "type": [
++        "string",
++        "null"
++      ]
++    },
++    "selected_rule_ref": {
++      "type": [
++        "string",
++        "null"
++      ]
++    },
++    "interruption": {
++      "type": "object"
++    }
++  },
++  "allOf": [
++    {
++      "if": {
++        "properties": {
++          "status": {
++            "const": "INCOMPLETE"
++          }
++        }
++      },
++      "then": {
++        "required": [
++          "interruption"
++        ]
++      },
++      "else": {
++        "required": [
++          "format",
++          "schema_version",
++          "implementation",
++          "trial_id",
++          "mode",
++          "training_status",
++          "validation_status",
++          "test_status",
++          "status",
++          "evolution_rng_id",
++          "evolution_seed",
++          "generations_evaluated",
++          "completed_simulations",
++          "attempted_simulations",
++          "candidate_archive_ref",
++          "selected_rule_ref"
++        ]
++      }
++    }
++  ]
++}
+--- /dev/null
++++ b/schemas/training/selected-rule.schema.json
+@@ -0,0 +1,67 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "format",
++    "schema_version",
++    "trial_id",
++    "candidate_archive_id",
++    "selection_policy",
++    "validation_plan_id",
++    "validation_evaluation_id",
++    "rule_pair_id",
++    "selected_rule_id",
++    "candidate_index",
++    "validation_fitness",
++    "rules",
++    "rule_manifest",
++    "trees"
++  ],
++  "properties": {
++    "format": {
++      "const": "fogsim.selected-rule"
++    },
++    "schema_version": {
++      "const": 1
++    },
++    "trial_id": {
++      "type": "string"
++    },
++    "candidate_archive_id": {
++      "type": "string"
++    },
++    "selection_policy": {
++      "type": "string"
++    },
++    "validation_plan_id": {
++      "type": "string"
++    },
++    "validation_evaluation_id": {
++      "type": "string"
++    },
++    "rule_pair_id": {
++      "type": "string"
++    },
++    "selected_rule_id": {
++      "type": "string"
++    },
++    "candidate_index": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "validation_fitness": {
++      "type": "number",
++      "minimum": 0
++    },
++    "rules": {
++      "type": "object"
++    },
++    "rule_manifest": {
++      "type": "object"
++    },
++    "trees": {
++      "type": "object"
++    }
++  }
++}
+--- /dev/null
++++ b/schemas/training/training-result.schema.json
+@@ -0,0 +1,40 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "type": "object",
++  "additionalProperties": false,
++  "required": [
++    "format",
++    "schema_version",
++    "implementation",
++    "status",
++    "budget",
++    "trials",
++    "source_id"
++  ],
++  "properties": {
++    "format": {
++      "const": "fogsim.training-result"
++    },
++    "schema_version": {
++      "const": 1
++    },
++    "implementation": {
++      "type": "string"
++    },
++    "status": {
++      "type": "string"
++    },
++    "budget": {
++      "type": "object"
++    },
++    "trials": {
++      "type": "array"
++    },
++    "source_id": {
++      "type": "string"
++    },
++    "interruption": {
++      "type": "object"
++    }
++  }
++}
+--- a/src/fogsim/training/__init__.py
++++ b/src/fogsim/training/__init__.py
+@@ -5,3 +5,15 @@
+ 
+ __all__ = ["parse_training_config", "load_training_config", "build_training_plans",
+     "parse_training_plan", "TrainingPlan", "TrainingPlans", "evaluate_rule_pair", "RemoteEvaluationError"]
++
++
++def train(config, output_dir, on_progress=None):
++    from .trainer import train as run
++    return run(config, output_dir, on_progress)
++
++
++def evaluate_selected_rule(rule_file, plan, output_dir, **kwargs):
++    from .selection import evaluate_selected_rule as run
++    return run(rule_file, plan, output_dir, **kwargs)
++
++__all__ += ["train", "evaluate_selected_rule"]
+--- a/src/fogsim/training/cli.py
++++ b/src/fogsim/training/cli.py
+@@ -1,4 +1,4 @@
+-"""Independent fogsim-train entry point. B01 implements validate/evaluate only."""
++"""Independent fogsim-train entry point. B02 adds the single routing closed loop."""
+ import argparse
+ import json
+ from pathlib import Path
+@@ -21,8 +21,16 @@
+     evaluate.add_argument("--rules", required=True)
+     evaluate.add_argument("--plan", required=True)
+     evaluate.add_argument("--output", required=True)
++    training = sub.add_parser("train", help="single routing evolution, validation and frozen-rule test")
++    training.add_argument("--config", required=True)
++    training.add_argument("--output", required=True)
+     args = parser.parse_args(argv)
+     try:
++        if args.command == "train":
++            from .trainer import train
++            result = train(args.config, args.output).to_dict()
++            print(json.dumps(result))
++            return 0 if result["status"] == "COMPLETED" else 130 if result["status"] == "INCOMPLETE" else 1
+         if args.command == "validate":
+             cfg = load_training_config(args.config)
+             plans = build_training_plans(cfg)
+@@ -35,14 +43,20 @@
+             resolved = cfg.to_dict()
+             count = sum(len(p.to_dict()["entries"]) for p in plans.training)
+             estimate = count * resolved["evolution"]["population_size"] * len(resolved["trials"]["evolution_seeds"])
+-            summary = dict(status="PREFLIGHT_ONLY", simulations_executed=0, training_simulation_upper_bound=estimate,
+-                deferred="candidate validation, final test and evolution are implemented in B02/B03",
++            from .trainer import simulation_budget
++            summary = dict(closed_loop_budget=simulation_budget(resolved, plans), status="PREFLIGHT_ONLY", simulations_executed=0, training_simulation_upper_bound=estimate,
++                deferred="validate performs no simulation; dual_tree execution remains B03",
+                 event_budgets=[e["effective_config"].get("run", {}).get("max_events") for p in plans.all_plans() for e in p.to_dict()["entries"]],
+                 plan_ids=[p.plan_id for p in plans.all_plans()])
+             write_json(output / "preflight.json", summary)
+             print(json.dumps(summary))
+             return 0
+         rules = read_json(args.rules)
++        if isinstance(rules, dict) and rules.get("format") == "fogsim.selected-rule":
++            from .selection import evaluate_selected_rule
++            result = evaluate_selected_rule(args.rules, parse_training_plan(read_json(args.plan)), args.output).to_dict()
++            print(json.dumps({k: result[k] for k in ("evaluation_id", "status", "fitness", "completed_runs")}))
++            return 0 if result["status"] == "FEASIBLE" else 130 if result["status"] == "INCOMPLETE" else 1
+         from fogsim.instances.fixed import object_fields
+         object_fields(rules, ("routing", "sequencing"), where="fixed-rule-pair")
+         prepared = prepare_rules(RuleSpec.from_mapping("routing", rules["routing"]),
+--- /dev/null
++++ b/src/fogsim/training/deap_adapter.py
+@@ -0,0 +1,107 @@
++"""DEAP storage only; execution always goes through the strict B08 front end."""
++import copy
++import math
++import struct
++from importlib.metadata import version, PackageNotFoundError
++from fogsim.errors import InputError
++from fogsim.gp.parser import parse_expression
++from fogsim.gp.ast import structural_key
++from fogsim.rules.specs import RuleSpec
++from fogsim.rules.factory import prepare_rules
++
++try:
++    from deap import gp, base
++except ImportError as exc:
++    raise InputError('training requires DEAP 1.4.4; install the locked train dependencies') from exc
++if version('deap') != '1.4.4':
++    raise InputError('training requires the verified DEAP version 1.4.4')
++
++class TreeLimitError(InputError):pass
++
++
++FEATURES = ('NIQ','WIQ','MRT','UT','DT','PT','TTIQ','TIS','TWT','NTR')
++FUNCTIONS = {'ADD': '+', 'SUB': '-', 'MUL': '*', 'DIV': '/', 'MAX': 'Max', 'MIN': 'Min'}
++PRIMITIVES = {key: gp.Primitive(key, [object, object], object) for key in FUNCTIONS}
++REVERSE = {v:k for k,v in FUNCTIONS.items()}
++
++
++def clone_tree(tree):
++    # PrimitiveTree.__deepcopy__ shares its nodes. These nodes are mutable.
++    return gp.PrimitiveTree([copy.deepcopy(n) for n in tree])
++
++
++def leaf(name):
++    return gp.Terminal(name, True, object)
++
++
++def from_expression(text):
++    nodes=[]
++    for row in structural_key(parse_expression(text).root):
++        nodes.append(copy.deepcopy(PRIMITIVES[REVERSE[row[1]]]) if row[0]=='binary' else
++                     leaf(row[1] if row[0]=='feature' else 'f64:'+row[1]))
++    return gp.PrimitiveTree(nodes)
++
++
++def to_expression(tree):
++    stack=[]
++    for node in reversed(tree):
++        if node.arity == 2 and node.name in FUNCTIONS:
++            if len(stack)<2:raise InputError('malformed DEAP tree')
++            left,right=stack.pop(),stack.pop()
++            stack.append(f'({FUNCTIONS[node.name]} {left} {right})')
++        elif node.arity == 0 and node.value in FEATURES:
++            stack.append(node.value)
++        elif node.arity == 0 and isinstance(node.value,str) and node.value.startswith('f64:'):
++            try:
++                bits=node.value[4:]
++                if len(bits)!=16 or bits.lower()!=bits:raise ValueError()
++                value=struct.unpack('>d',bytes.fromhex(bits))[0]
++                if math.isnan(value):raise ValueError('NaN constant has no strict source token')
++                stack.append(('1e309' if value>0 else '-1e309') if math.isinf(value) else repr(value))
++            except (ValueError,struct.error) as exc:raise InputError('invalid constant terminal') from exc
++        else:raise InputError('invalid DEAP node')
++    if len(stack)!=1:raise InputError('malformed DEAP tree')
++    return stack[0]
++
++
++def check_tree(tree, limits, *, allow_constants=False):
++    # Parse before height so a malformed prefix can never enter a simulator.
++    expr=to_expression(tree)
++    if not allow_constants and any(n.arity==0 and n.value not in FEATURES for n in tree):
++        raise InputError('numeric ERC evolution is disabled')
++    if tree.height>limits['max_height']:raise TreeLimitError('height exceeds training limit')
++    if len(tree)>limits['max_nodes']:raise TreeLimitError('nodes exceed training limit')
++    parse_expression(expr,role='routing')
++    return expr
++
++
++def prepare_single(tree):
++    return prepare_rules(RuleSpec('routing','gp',expression=to_expression(tree)), RuleSpec('sequencing','fcfs'))
++
++
++class TrainingFitness(base.Fitness):
++    weights=(-1.0,)
++
++
++class Individual:
++    def __init__(self, tree, individual_id, birth_sequence, lineage):
++        self.tree=clone_tree(tree)
++        self.individual_id=individual_id
++        self.birth_sequence=birth_sequence
++        self.lineage=copy.deepcopy(lineage)
++        self.fitness=TrainingFitness()
++        self.evaluation=None
++
++    def set_evaluation(self,value):
++        self.evaluation=copy.deepcopy(value)
++        # Domain feasibility remains authoritative, not DEAP fitness.valid.
++        if value['status']=='FEASIBLE':self.fitness.values=(value['fitness'],)
++        else:del self.fitness.values
++
++    def record(self):
++        prepared=prepare_single(self.tree)
++        return dict(individual_id=self.individual_id,birth_sequence=self.birth_sequence,
++            roles={'0':'routing'},trees={'routing':dict(expression=to_expression(self.tree),height=self.tree.height,nodes=len(self.tree))},
++            rules=dict(routing=prepared.routing_spec.to_dict(),sequencing=prepared.sequencing_spec.to_dict()),
++            rule_manifest=prepared.rule_manifest,rule_pair_id=prepared.rule_pair_id,lineage=copy.deepcopy(self.lineage),
++            evaluated=False,fitness_valid=self.fitness.valid)
+--- /dev/null
++++ b/src/fogsim/training/evolution.py
+@@ -0,0 +1,198 @@
++"""One complete serial trial; runs only inside the supervised spawn worker."""
++import random
++import sys
++import platform
++import time
++import traceback
++from pathlib import Path
++from .deap_adapter import Individual, prepare_single, check_tree
++from .operators import initialize, tournament, crossover, mutate, reproduce, choose_operator, stable_feasible
++from .selection import CandidateArchive, prepared_candidate, choose_validation, freeze_selected, load_selected_rule
++from .protocols import write_json, canonical, identity, source_provenance, append_jsonl, POLICY
++from .runtime import preflight, run_entry
++from .fitness import classify, summarize
++
++IMPLEMENTATION='fogsim-training-single-B02-v1'
++
++
++class TrialInterrupted(RuntimeError):pass
++
++
++class TrialEvaluator:
++    def __init__(self,conn,root,trial_id,trees):
++        self.conn,self.root,self.trial_id,self.trees=conn,Path(root),trial_id,trees
++        self.sequence=0
++        self.source=source_provenance()
++        self.actual_runs=0
++        self.attempted_runs=0
++
++    def emit(self,kind,**data):self.conn.send(dict(kind=kind,trial_id=self.trial_id,**data))
++
++    def __call__(self,prepared,plan,relative):
++        p=plan.to_dict();preflight(prepared,p,self.trees)
++        output=self.root/relative
++        if output.exists():raise RuntimeError('evaluation output already exists')
++        output.mkdir(parents=True)
++        binding=dict(rule_pair_id=prepared.rule_pair_id,plan_id=plan.plan_id,implementation_source_id=self.source['source_id'],
++            implementation=IMPLEMENTATION,failure_policy=POLICY,trial_id=self.trial_id,evaluation_sequence=self.sequence,trees=self.trees)
++        self.sequence+=1
++        records=[];interruption=None;complete=False;before=repr(random.getstate())
++        def snapshot():
++            return dict(format='fogsim.individual-evaluation',schema_version=1,evaluation_id=identity('evaluation',binding),
++                **binding,rule_manifest=prepared.rule_manifest,**summarize(records,len(p['entries']),complete),runs=records,
++                interruption=interruption,evolution_rng_unchanged=repr(random.getstate())==before)
++        write_json(output/'plan.json',p)
++        write_json(output/'provenance.json',dict(python=sys.version,platform=platform.platform(),start_method='spawn',**self.source))
++        write_json(output/'evaluation.json',snapshot())
++        self.emit('evaluation_started',evaluation_ref=relative+'/evaluation.json')
++        for index,entry in enumerate(p['entries']):
++            partial={}
++            self.emit('run_started',index=index,run_id=entry['run_id'],evaluation_ref=relative+'/evaluation.json',
++                seconds=p['limits']['wallclock_seconds_per_run'])
++            if self.conn.recv()!='START':raise RuntimeError('invalid controller acknowledgement')
++            self.attempted_runs+=1
++            try:
++                raw,archive=run_entry(entry,prepared,p['dataset_role'],partial.update,
++                    on_config=lambda cfg:write_json(output/f'runs/{index:04d}/active_config.json',cfg))
++                partial.update(result=raw,input=archive)
++                classification=classify(raw)
++                result_ref=f'runs/{index:04d}/result.json';input_ref=f'runs/{index:04d}/input.json' if archive is not None else None
++                write_json(output/result_ref,raw)
++                if input_ref:write_json(output/input_ref,archive)
++                records.append(dict(index=index,run_id=entry['run_id'],classification=classification,status=raw['status'],
++                    makespan=raw['makespan'],reason_code=raw.get('reason_code'),reason=raw.get('reason'),
++                    result_ref=result_ref,input_ref=input_ref,raw_result=None,input_archive=None))
++                self.actual_runs+=1
++                write_json(output/'evaluation.json',snapshot())
++            except BaseException as exc:
++                interruption=dict(classification=getattr(exc,'classification','INPUT_OR_PLAN_ERROR' if isinstance(exc,ValueError) else 'PROGRAM_EXCEPTION'),
++                    run_index=index,error_type=type(exc).__name__,message=str(exc))
++                write_json(output/'failures/exception.json',dict(**interruption,traceback=traceback.format_exc(),partial=partial))
++                write_json(output/'evaluation.json',snapshot())
++                raise
++            self.emit('run_completed',index=index,evaluation_ref=relative+'/evaluation.json',classification=classification)
++        complete=True
++        value=snapshot()
++        if not value['evolution_rng_unchanged']:raise RuntimeError('simulation consumed evolution RNG')
++        write_json(output/'evaluation.json',value)
++        self.emit('evaluation_completed',evaluation_ref=relative+'/evaluation.json',status=value['status'])
++        return value
++
++
++def next_generation(population,cfg,trial_id,generation,birth_start):
++    e,t=cfg['evolution'],cfg['trees']
++    elites=stable_feasible(population)[:e['elite_count']]
++    capacity=e['population_size']-len(elites)
++    children=[];operations=[];birth=birth_start
++    def newborn(tree,lineage):
++        nonlocal birth
++        individual=Individual(tree,f'{trial_id}/g{generation:04d}/i{birth:06d}',birth,lineage)
++        birth+=1
++        children.append(individual)
++    while len(children)<capacity:
++        name,draw=choose_operator(e['operator_weights'])
++        a,ta=tournament(population,e['tournament_size'])
++        parents=[a];tournaments=[ta]
++        if name=='crossover':
++            b,tb=tournament(population,e['tournament_size']);parents.append(b);tournaments.append(tb)
++            trees,operation=crossover(a.tree,b.tree,t,e['crossover_attempts'],min(2,capacity-len(children)))
++        elif name=='mutation':trees,operation=mutate(a.tree,t,e['mutation_attempts'])
++        else:trees,operation=reproduce(a.tree)
++        opid=f'{trial_id}/g{generation:04d}/op{len(operations):04d}'
++        operation.update(operation_id=opid,parents=[p.individual_id for p in parents],tournaments=tournaments,operator_draw=draw)
++        # Record stable source IDs as well as local direction numbers.
++        for source in operation['sources']:
++            for key in ('recipient','donor','fallback_parent','parent'):
++                if type(source.get(key)) is int:source[key+'_id']=parents[source[key]].individual_id
++        for direction,tree in enumerate(trees):
++            newborn(tree,dict(operator=name,operation_id=opid,direction=direction+1,parents=operation['parents'],source=operation['sources'][direction]))
++        operation['children']=[p.individual_id for p in children[-len(trees):]]
++        operations.append(operation)
++    for parent in elites:
++        newborn(parent.tree,dict(operator='elite',parents=[parent.individual_id],source=dict(role='routing',parent_id=parent.individual_id)))
++    if len(children)!=e['population_size'] or any(p.evaluation is not None or p.fitness.valid for p in children):
++        raise RuntimeError('invalid next-generation size or stale fitness')
++    summary=dict(operator_selections={n:sum(o['operator']==n for o in operations) for n in ('crossover','mutation','reproduction')},
++        accepted_children=sum(o['accepted_children'] for o in operations),fallback_children=sum(o['fallback_children'] for o in operations),
++        elite_count=len(elites),elite_sources=[p.individual_id for p in elites],next_population_size=len(children),scores_cleared=True)
++    return children,operations,summary,birth
++
++
++def run_trial(conn,cfg,plans,root,trial_id,seed):
++    from .plans import parse_training_plan
++    root=Path(root);root.mkdir()
++    random.seed(seed)
++    evaluator=TrialEvaluator(conn,root,trial_id,cfg['trees'])
++    result=dict(format='fogsim.evolution-result',schema_version=1,implementation=IMPLEMENTATION,trial_id=trial_id,
++        evolution_seed=seed,mode='single_routing',training_status='INCOMPLETE',validation_status='NOT_STARTED',test_status='NOT_STARTED',
++        candidate_archive_ref=None,selected_rule_ref=None,generations_evaluated=0,completed_simulations=0,attempted_simulations=0)
++    archive=CandidateArchive()
++    try:
++        birth=0;population=[]
++        for _ in range(cfg['evolution']['population_size']):
++            tree,history=initialize(cfg['trees'])
++            population.append(Individual(tree,f'{trial_id}/g0000/i{birth:06d}',birth,history));birth+=1
++        for g,p in enumerate(plans['training']):
++            generation_start=time.monotonic()
++            plan=parse_training_plan(p)
++            for ind in population:
++                check_tree(ind.tree,cfg['trees'])
++                append_jsonl(root/'individuals.jsonl',ind.record())
++                ref=f'evaluations/{ind.birth_sequence:06d}'
++                ind.set_evaluation(evaluator(prepare_single(ind.tree),plan,ref))
++                append_jsonl(root/'evaluated-individuals.jsonl',dict(individual_id=ind.individual_id,generation=g,
++                    plan_id=plan.plan_id,evaluation_ref=ref+'/evaluation.json',status=ind.evaluation['status'],fitness=ind.evaluation['fitness']))
++            feasible=stable_feasible(population)
++            row=dict(generation=g,plan_id=plan.plan_id,population_size=len(population),feasible_count=len(feasible),
++                fitnesses=[i.evaluation['fitness'] for i in population],duration_seconds=time.monotonic()-generation_start,individual_ids=[i.individual_id for i in population],
++                evolution_rng_id=identity('evolution-rng',repr(random.getstate())),reproduction=None)
++            result['generations_evaluated']=g+1
++            if not feasible:
++                append_jsonl(root/'generations.jsonl',row)
++                result['training_status']='NO_FEASIBLE_INDIVIDUAL';break
++            winner=feasible[0]
++            archive.add(winner,g,f'evaluations/{winner.birth_sequence:06d}/evaluation.json')
++            row['generation_winner']=winner.individual_id
++            if g==cfg['evolution']['generations']-1:
++                append_jsonl(root/'generations.jsonl',row)
++                result['training_status']='COMPLETED';break
++            population,operations,summary,birth=next_generation(population,cfg,trial_id,g+1,birth)
++            for op in operations:append_jsonl(root/'operations.jsonl',op)
++            row['reproduction']=summary
++            append_jsonl(root/'generations.jsonl',row)
++        frozen=archive.freeze(root/'candidates/archive.json').to_dict()
++        result['candidate_archive_ref']='candidates/archive.json'
++        if result['training_status']=='COMPLETED':
++            evaluator.emit('candidates_frozen',archive_id=frozen['archive_id'],candidate_count=len(frozen['candidates']))
++            validation_plan=parse_training_plan(plans['validation'])
++            validations=[evaluator(prepared_candidate(c),validation_plan,f'validation/{i:04d}') for i,c in enumerate(frozen['candidates'])]
++            selected=choose_validation(frozen['candidates'],validations)
++            if selected is None:result['validation_status']='NO_VALIDATION_WINNER'
++            else:
++                result['validation_status']='SELECTED'
++                frozen_selected=freeze_selected(frozen['candidates'][selected],validations[selected],frozen,trial_id,cfg['trees'],root/'selected_rule.json').to_dict()
++                result['selected_rule_ref']='selected_rule.json'
++                evaluator.emit('selected_rule_frozen',selected_rule_id=frozen_selected['selected_rule_id'])
++                # Reload the written artifact through the independent, DEAP-free reader.
++                prepared,_=load_selected_rule(root/'selected_rule.json')
++                test=evaluator(prepared,parse_training_plan(plans['test']),'test')
++                result['test_status']='COMPLETED' if test['status']=='FEASIBLE' else 'TEST_FAILED'
++        result['status']='COMPLETED' if result['test_status']=='COMPLETED' else 'DOMAIN_FAILED'
++    except BaseException as exc:
++        result['status']='INCOMPLETE'
++        result['interruption']=dict(error_type=type(exc).__name__,message=str(exc),traceback=traceback.format_exc())
++        write_json(root/'failures/exception.json',result['interruption'])
++        raise
++    finally:
++        result['completed_simulations']=evaluator.actual_runs
++        result['attempted_simulations']=evaluator.attempted_runs
++        result['evolution_rng_id']=identity('evolution-rng',repr(random.getstate()))
++        write_json(root/'evolution-result.json',result)
++    return result
++
++
++def trial_worker(conn,*args):
++    try:conn.send(dict(kind='trial_done',result=run_trial(conn,*args)))
++    except BaseException as exc:
++        conn.send(dict(kind='error',error_type=type(exc).__name__,message=str(exc),traceback=traceback.format_exc()))
++    finally:conn.close()
+--- /dev/null
++++ b/src/fogsim/training/operators.py
+@@ -0,0 +1,112 @@
++"""S9-frozen-1 single routing operators. All random draws use the trial stream."""
++import copy
++import random
++from .deap_adapter import TreeLimitError, gp, FEATURES, PRIMITIVES, leaf, clone_tree, check_tree, to_expression
++from .fitness import compare
++from fogsim.errors import InputError
++
++
++def generate(target, method, rng=random):
++    nodes=[]
++    def visit(depth):
++        entry=rng.randrange(6 if method=='full' else 7) if depth<target else 6
++        if entry==6:nodes.append(leaf(FEATURES[rng.randrange(10)]))
++        else:
++            nodes.append(copy.deepcopy(tuple(PRIMITIVES.values())[entry]))
++            visit(depth+1);visit(depth+1)
++    if method not in ('full','grow') or not 0<=target<=7:raise InputError('invalid generation request')
++    visit(0)
++    return gp.PrimitiveTree(nodes)
++
++
++def initialize(limits,rng=random):
++    attempts=[]
++    for i in range(limits['initialization_attempts']):
++        method='full' if rng.random()<limits['init_full_probability'] else 'grow'
++        target=rng.randrange(limits['init_min_height'],limits['init_max_height']+1)
++        tree=generate(target,method,rng)
++        try:check_tree(tree,limits);reason=None
++        except TreeLimitError as exc:reason=str(exc)
++        attempts.append(dict(attempt=i+1,method=method,target_height=target,actual_height=tree.height,nodes=len(tree),reason=reason))
++        if reason is None:return tree,dict(operator='initialization',attempts=attempts)
++    raise InputError('initialization attempts exhausted')
++
++
++def tournament(population,size,rng=random):
++    indices=[rng.randrange(len(population)) for _ in range(size)]
++    winner=population[indices[0]]
++    for index in indices[1:]:
++        candidate=population[index]
++        if compare(candidate.evaluation,winner.evaluation)<0:winner=candidate
++    return winner,dict(sampled=[population[i].individual_id for i in indices],winner=winner.individual_id)
++
++
++def select_node(tree,probability=.9,rng=random):
++    category='function' if rng.random()<=probability else 'feature'
++    positions=[i for i,n in enumerate(tree) if (n.arity==2)==(category=='function')]
++    if not positions:positions=[0]  # the only feature root
++    index=positions[rng.randrange(len(positions))]
++    return index,dict(category=category,eligible_positions=positions,index=index,root=index==0)
++
++
++def replace(tree,index,subtree):
++    child=clone_tree(tree)
++    child[child.searchSubtree(index)]=list(clone_tree(subtree))
++    return child
++
++
++def crossover(a,b,limits,attempts=1,outputs=2,rng=random):
++    if outputs not in (1,2):raise InputError('crossover must output one or two children')
++    history=[]
++    for attempt in range(1,attempts+1):
++        i,ni=select_node(a,limits['node_nonterminal_probability'],rng)
++        j,nj=select_node(b,limits['node_nonterminal_probability'],rng)
++        proposals=[replace(a,i,b[b.searchSubtree(j)])]
++        if outputs==2:proposals.append(replace(b,j,a[a.searchSubtree(i)]))
++        legal=[];reasons=[]
++        for tree in proposals:
++            try:check_tree(tree,limits);legal.append(True);reasons.append(None)
++            except TreeLimitError as exc:legal.append(False);reasons.append(str(exc))
++        history.append(dict(attempt=attempt,nodes=[ni,nj],legal=legal,reasons=reasons))
++        if all(legal):break
++    children=[clone_tree(tree if ok else parent) for tree,ok,parent in zip(proposals,legal,(a,b))]
++    sources=[dict(role='routing',recipient=k,donor=1-k,recipient_position=(i,j)[k],donor_position=(j,i)[k],
++                  fallback_parent=None if legal[k] else k,root_replacement=(i,j)[k]==0 and legal[k]) for k in range(outputs)]
++    return children,dict(operator='crossover',role='routing',attempts=history,tail_single_output=outputs==1,
++                         accepted_children=outputs,fallback_children=sum(not x for x in legal),sources=sources)
++
++
++def mutate(a,limits,attempts=1,rng=random):
++    history=[]
++    for attempt in range(1,attempts+1):
++        i,node=select_node(a,limits['node_nonterminal_probability'],rng)
++        subtree=generate(limits['mutation_max_height'],'grow',rng)
++        proposal=replace(a,i,subtree)
++        try:check_tree(proposal,limits);legal=True;reason=None
++        except TreeLimitError as exc:legal=False;reason=str(exc)
++        history.append(dict(attempt=attempt,node=node,subtree=to_expression(subtree),subtree_height=subtree.height,
++                            subtree_nodes=len(subtree),legal=legal,reason=reason))
++        if legal:break
++    return [clone_tree(proposal if legal else a)],dict(operator='mutation',role='routing',attempts=history,
++        accepted_children=1,fallback_children=int(not legal),sources=[dict(role='routing',recipient=0,
++        donor='new_subtree' if legal else None,recipient_position=i,fallback_parent=None if legal else 0,
++        root_replacement=legal and i==0)])
++
++
++def reproduce(a):
++    return [clone_tree(a)],dict(operator='reproduction',role='routing',attempts=[],accepted_children=1,
++                               fallback_children=0,sources=[dict(role='routing',parent=0)])
++
++
++def choose_operator(weights,rng=random):
++    draw=rng.random();boundary=0
++    for name in ('crossover','mutation','reproduction'):
++        boundary+=weights[name]
++        if draw<boundary:return name,draw
++    return 'reproduction',draw
++
++
++def stable_feasible(population):
++    plans={p.evaluation['plan_id'] for p in population}
++    if len(plans)!=1:raise RuntimeError('cross-plan population ranking')
++    return sorted((p for p in population if p.evaluation['status']=='FEASIBLE'),key=lambda p:(p.evaluation['fitness'],p.birth_sequence))
+--- /dev/null
++++ b/src/fogsim/training/selection.py
+@@ -0,0 +1,95 @@
++"""Immutable candidate archive, fixed validation selection and portable rules."""
++from pathlib import Path
++from fogsim.errors import InputError
++from fogsim.instances.fixed import object_fields
++from fogsim.rules.factory import prepare_rules
++from fogsim.rules.specs import RuleSpec
++from fogsim.gp.identity import validate_rule_manifest
++from .protocols import canonical, identity, Snapshot, write_json, read_json
++from .fitness import compare
++
++
++class CandidateArchive:
++    def __init__(self):
++        self._rows=[]
++        self._frozen=False
++
++    def add(self,individual,generation,evaluation_ref):
++        if self._frozen:raise RuntimeError('candidate archive is frozen')
++        row=individual.record()
++        occurrence=dict(generation=generation,individual_id=individual.individual_id,
++            birth_sequence=individual.birth_sequence,plan_id=individual.evaluation['plan_id'],evaluation_ref=evaluation_ref,
++            training_fitness=individual.evaluation['fitness'])
++        existing=next((r for r in self._rows if r['rule_pair_id']==row['rule_pair_id']),None)
++        if existing is None:
++            self._rows.append(dict(candidate_index=len(self._rows),rule_pair_id=row['rule_pair_id'],
++                rules=row['rules'],rule_manifest=row['rule_manifest'],first_occurrence=occurrence,occurrences=[occurrence]))
++        else:existing['occurrences'].append(occurrence)
++
++    def freeze(self,output):
++        self._frozen=True
++        snap=Snapshot(canonical(dict(format='fogsim.candidate-archive',schema_version=1,candidates=self._rows)))
++        doc=snap.to_dict();doc['archive_id']=identity('candidate-archive',doc)
++        write_json(output,doc)
++        return Snapshot(canonical(doc))
++
++
++def prepared_candidate(candidate):
++    rules=candidate['rules']
++    object_fields(rules,('routing','sequencing'),where='candidate.rules')
++    prepared=prepare_rules(RuleSpec.from_mapping('routing',rules['routing']),RuleSpec.from_mapping('sequencing',rules['sequencing']))
++    validate_rule_manifest(candidate['rule_manifest'],prepared_rules=prepared)
++    if candidate['rule_pair_id']!=prepared.rule_pair_id:raise InputError('candidate identity mismatch')
++    return prepared
++
++
++def choose_validation(candidates,evaluations):
++    if len(candidates)!=len(evaluations):raise InputError('missing validation evaluation')
++    winner=None
++    for i,value in enumerate(evaluations):
++        if value['status']=='INCOMPLETE':raise RuntimeError('incomplete validation')
++        if value['status']=='FEASIBLE' and (winner is None or compare(value,evaluations[winner])<0):winner=i
++    return winner
++
++
++def freeze_selected(candidate,validation,archive,trial_id,trees,path):
++    payload=dict(format='fogsim.selected-rule',schema_version=1,trial_id=trial_id,
++        candidate_index=candidate['candidate_index'],candidate_archive_id=archive['archive_id'],
++        selection_policy='fixed_validation_first_occurrence_v1',validation_plan_id=validation['plan_id'],
++        validation_evaluation_id=validation['evaluation_id'],validation_fitness=validation['fitness'],
++        rules=candidate['rules'],rule_manifest=candidate['rule_manifest'],rule_pair_id=candidate['rule_pair_id'],trees=trees)
++    doc=payload|dict(selected_rule_id=identity('selected-rule',payload))
++    prepared_candidate(doc)
++    write_json(path,doc)
++    return Snapshot(canonical(doc))
++
++
++def load_selected_rule(path):
++    doc=read_json(path)
++    object_fields(doc,('format','schema_version','trial_id','candidate_index','candidate_archive_id','selection_policy',
++        'validation_plan_id','validation_evaluation_id','validation_fitness','rules','rule_manifest','rule_pair_id','trees',
++        'selected_rule_id'),where='selected-rule')
++    if doc['format']!='fogsim.selected-rule' or type(doc['schema_version']) is not int or doc['schema_version']!=1:
++        raise InputError('unsupported selected-rule protocol')
++    from fogsim.input_validation import integer,finite,text
++    integer(doc['candidate_index'],'candidate_index',0)
++    finite(doc['validation_fitness'],'validation_fitness')
++    text(doc['trial_id'],'trial_id')
++    import re
++    for key in ('candidate_archive_id','validation_plan_id','validation_evaluation_id','selected_rule_id','rule_pair_id'):
++        if type(doc[key]) is not str or re.fullmatch(r'sha256:[0-9a-f]{64}',doc[key]) is None:
++            raise InputError(f'invalid {key}')
++    if doc['selection_policy']!='fixed_validation_first_occurrence_v1':raise InputError('unsupported selection policy')
++    if identity('selected-rule',{k:v for k,v in doc.items() if k!='selected_rule_id'})!=doc['selected_rule_id']:
++        raise InputError('selected-rule identity mismatch')
++    from .config import parse_training_config
++    checked=parse_training_config(dict(format='fogsim.training-config',schema_version=1,mode='single_routing',
++        plans=dict(training='x',validation='y',test='z'),trees=doc['trees']),Path.cwd()).to_dict()['trees']
++    if checked!=doc['trees']:raise InputError('selected-rule limits must be resolved')
++    return prepared_candidate(doc),Snapshot(canonical(doc))
++
++
++def evaluate_selected_rule(rule_file,plan,output_dir,**kwargs):
++    from .evaluation import evaluate_rule_pair
++    prepared,selected=load_selected_rule(rule_file)
++    return evaluate_rule_pair(prepared,plan,output_dir,trees=selected.to_dict()['trees'],**kwargs)
+--- /dev/null
++++ b/src/fogsim/training/trainer.py
+@@ -0,0 +1,125 @@
++"""Parent controller: serial spawn trials, per-run supervision and durable facts."""
++import multiprocessing
++import platform
++import sys
++import time
++import traceback
++from pathlib import Path
++from importlib.metadata import version
++from fogsim.errors import InputError
++from fogsim.rules.factory import prepare_rules
++from fogsim.rules.specs import RuleSpec
++from .config import load_training_config, parse_training_config
++from .plans import build_training_plans
++from .protocols import Snapshot, canonical, identity, write_json, read_json, empty_output, source_provenance, append_jsonl
++
++
++class RemoteTrainingError(RuntimeError):
++    def __init__(self,error,result):
++        self.error,self.result=error,result
++        super().__init__(f"{error['error_type']}: {error['message']}\nRemote exception chain:\n{error['traceback']}")
++
++
++def simulation_budget(cfg,plans):
++    n=len(cfg['trials']['evolution_seeds']);e=cfg['evolution']
++    training=e['population_size']*sum(len(p.to_dict()['entries']) for p in plans.training)
++    validation=e['generations']*len(plans.validation.to_dict()['entries'])
++    test=len(plans.test.to_dict()['entries'])
++    return dict(trials=n,training_per_trial=training,validation_upper_bound_per_trial=validation,
++        test_per_trial=test,total_upper_bound=n*(training+validation+test))
++
++
++def train(config,output_dir,on_progress=None):
++    # Import only on the training route, with a helpful dependency error.
++    from . import deap_adapter
++    from .evolution import trial_worker, IMPLEMENTATION
++    from .runtime import preflight
++    if isinstance(config,(str,Path)):config=load_training_config(config)
++    raw=config.to_dict();raw.pop('resolution_root',None)
++    config=parse_training_config(raw,Path.cwd());cfg=config.to_dict()
++    if cfg['mode']!='single_routing':raise InputError('dual_tree execution is deferred to S9-B03')
++    plans=build_training_plans(config)
++    placeholder=prepare_rules(RuleSpec('routing','gp',expression='PT'),RuleSpec('sequencing','fcfs'))
++    for plan in plans.all_plans():preflight(placeholder,plan.to_dict(),cfg['trees'])
++    output=empty_output(output_dir)
++    write_json(output/'resolved_config.json',cfg)
++    pmap=dict(training=[p.to_dict() for p in plans.training],validation=plans.validation.to_dict(),test=plans.test.to_dict())
++    for g,plan in enumerate(pmap['training']):write_json(output/f'plans/train-{g:04d}.json',plan)
++    for key in ('validation','test'):write_json(output/f'plans/{key}.json',pmap[key])
++    dependencies={p:version(p) for p in ('deap','numpy','moocore','cffi','platformdirs','pycparser')}
++    provenance=dict(python=sys.version,platform=platform.platform(),dependencies=dependencies,start_method='spawn',
++        implementation=IMPLEMENTATION,**source_provenance(),shared_plans_across_trials=True,
++        wallclock_scope='acknowledged run_started through run_completed',semantic_exclusions=['output location','platform observations'])
++    write_json(output/'provenance.json',provenance)
++    result=dict(format='fogsim.training-result',schema_version=1,implementation=IMPLEMENTATION,status='INCOMPLETE',
++        budget=simulation_budget(cfg,plans),trials=[],source_id=provenance['source_id'])
++    write_json(output/'training-result.json',result)
++    for index,seed in enumerate(cfg['trials']['evolution_seeds'],1):
++        trial_id=f'trial-{index:04d}';trial_root=output/trial_id
++        ctx=multiprocessing.get_context('spawn');parent,child=ctx.Pipe()
++        process=ctx.Process(target=trial_worker,args=(child,cfg,pmap,str(trial_root),trial_id,seed))
++        active=None;started=None;seconds=None;done=False;interruption=None;error=None
++        def interrupt_evaluation():
++            if active and (trial_root/active['evaluation_ref']).exists():
++                path=trial_root/active['evaluation_ref'];value=read_json(path)
++                value.update(status='INCOMPLETE',fitness=None,interruption=interruption)
++                write_json(path,value)
++                write_json(path.parent/'failures/interruption.json',interruption)
++        try:
++            process.start();child.close()
++            while not done:
++                remaining=seconds-(time.monotonic()-started) if started is not None and seconds is not None else None
++                if remaining is not None and remaining<=0:
++                    interruption=dict(classification='WALLCLOCK_INTERRUPTED',capture_complete=False,
++                        coverage='committed evaluation records only',active_run=active,seconds=seconds);break
++                if parent.poll(min(.05,max(0,remaining)) if remaining is not None else .05):
++                    try:message=parent.recv()
++                    except EOFError:
++                        interruption=dict(classification='WORKER_EXIT',exitcode=process.exitcode,capture_complete=False);break
++                    append_jsonl(output/'progress.jsonl',message)
++                    kind=message['kind']
++                    if kind=='error':error=message;break
++                    if kind=='trial_done':
++                        result['trials'].append(message['result']);done=True;continue
++                    # Stop the timer before a completed-run callback.
++                    if kind=='run_completed':started=None
++                    if on_progress:on_progress(Snapshot(canonical(message)).to_dict())
++                    if kind=='run_started':
++                        active=message;seconds=message['seconds'];started=time.monotonic()
++                        write_json(trial_root/'active_run.json',dict(message,capture_complete=False))
++                        parent.send('START')
++                    elif kind in ('evaluation_completed','candidates_frozen','selected_rule_frozen','evaluation_started'):pass
++                    elif kind!='run_completed':raise RuntimeError('unknown training worker message')
++                elif not process.is_alive():
++                    if parent.poll():continue
++                    interruption=dict(classification='WORKER_EXIT',exitcode=process.exitcode,capture_complete=False);break
++        except BaseException as exc:
++            interruption=dict(classification='CANCELLED' if isinstance(exc,KeyboardInterrupt) else 'CONTROLLER_EXCEPTION',
++                error_type=type(exc).__name__,message=str(exc),traceback=traceback.format_exc(),capture_complete=False)
++            write_json(output/'failures/controller-exception.json',interruption)
++            raise
++        finally:
++            if process.pid is not None:
++                if not done and process.is_alive():process.terminate()
++                process.join(timeout=2)
++                if process.is_alive():process.kill();process.join()
++            parent.close();child.close()
++            if interruption:
++                if interruption['classification']=='WORKER_EXIT':
++                    interruption['exitcode']=process.exitcode
++                interrupt_evaluation()
++                write_json(trial_root/'failures/interruption.json',interruption)
++                path=trial_root/'evolution-result.json'
++                value=read_json(path) if path.exists() else dict(format='fogsim.evolution-result',schema_version=1,trial_id=trial_id,
++                    evolution_seed=seed,training_status='INCOMPLETE',validation_status='NOT_STARTED',test_status='NOT_STARTED')
++                value.update(status='INCOMPLETE',interruption=interruption)
++                write_json(path,value)
++                result['interruption']=interruption
++            write_json(output/'training-result.json',result)
++        if error:
++            write_json(output/'failures/worker-exception.json',error)
++            raise RemoteTrainingError(error,Snapshot(canonical(result)))
++        if interruption:break
++    else:result['status']='COMPLETED' if all(t['status']=='COMPLETED' for t in result['trials']) else 'DOMAIN_FAILED'
++    write_json(output/'training-result.json',result)
++    return Snapshot(canonical(result))
+--- /dev/null
++++ b/tests/training/test_b02.py
+@@ -0,0 +1,338 @@
++"""Controlled S02/S08/S09/S12/S14/S15 cases; no probabilistic branch coverage."""
++from copy import deepcopy
++from pathlib import Path
++import json,random,struct,subprocess,sys,os
++import pytest
++from fogsim.errors import InputError
++from fogsim.training.config import TREES,load_training_config,parse_training_config
++from fogsim.training.plans import build_training_plans,parse_training_plan,_plan
++from fogsim.training.protocols import write_json,read_json,canonical,read_jsonl
++from fogsim.training.deap_adapter import from_expression,to_expression,clone_tree,prepare_single,Individual,check_tree
++from fogsim.training.operators import generate,initialize,tournament,select_node,crossover,mutate,reproduce,choose_operator
++from fogsim.training.evolution import next_generation,TrialEvaluator,run_trial
++from fogsim.training.selection import CandidateArchive,choose_validation,load_selected_rule
++from fogsim.training.runtime import run_entry
++from fogsim.training.trainer import train
++
++ROOT=Path(__file__).resolve().parents[2]
++
++class Draws:
++    def __init__(self,ints=(),reals=()):self.ints=list(ints);self.reals=list(reals);self.bounds=[]
++    def randrange(self,start,stop=None):
++        if stop is None:start,stop=0,start
++        self.bounds.append([start,stop]);x=self.ints.pop(0)
++        assert start<=x<stop,(start,stop,x)
++        return x
++    def random(self):return self.reals.pop(0)
++
++
++def individual(expr,birth=0,fitness=1,status='FEASIBLE',plan='same'):
++    i=Individual(from_expression(expr),f'i{birth}',birth,{})
++    i.set_evaluation(dict(plan_id=plan,status=status,fitness=fitness if status=='FEASIBLE' else None))
++    return i
++
++
++def chain(h,feature='PT'):
++    for _ in range(h):feature=f'(+ {feature} UT)'
++    return feature
++
++
++@pytest.mark.parametrize('expr',['(- PT UT)','(+ PT PT)','(Min -0.0 0.0)','(/ 1e309 -1e-9999)','(+ .5 (Max 1e-320 -1e309))'])
++def test_adapter_identity_order_bits(expr,tmp_path):
++    tree=from_expression(expr);prepared=prepare_single(tree)
++    from fogsim.rules.factory import prepare_rules
++    from fogsim.rules.specs import RuleSpec
++    original=prepare_rules(RuleSpec('routing','gp',expression=expr),RuleSpec('sequencing','fcfs'))
++    assert prepared.rule_pair_id==original.rule_pair_id
++    assert prepared.rule_manifest['expressions']==original.rule_manifest['expressions']
++    assert prepared.sequencing_spec.to_dict()=={'kind':'fcfs'}
++    cloned=clone_tree(tree);assert cloned is not tree
++    assert all(a is not b for a,b in zip(cloned,tree))
++    write_json(tmp_path/'roundtrip.json',dict(original=original.rule_manifest,adapted=prepared.rule_manifest))
++
++
++def test_java_grow_entry_and_full_controlled(tmp_path):
++    # Every possible root entry, independently controlling the terminal draw.
++    rows=[]
++    for entry in range(7):
++        rng=Draws([entry,2,4] if entry<6 else [6,9])
++        tree=generate(1,'grow',rng)
++        assert tree.height==(1 if entry<6 else 0)
++        assert rng.bounds[0]==[0,7]
++        rows.append(dict(entry=entry,expression=to_expression(tree),bounds=rng.bounds))
++    for feature in range(10):assert to_expression(generate(0,'grow',Draws([feature])))==('NIQ','WIQ','MRT','UT','DT','PT','TTIQ','TIS','TWT','NTR')[feature]
++    full=generate(2,'full',Draws([0,1,2,3,4,5,6]));assert full.height==2 and len(full)==7
++    tree,meta=initialize(TREES,Draws([1,6,5],[.9]));assert to_expression(tree)=='PT' and meta['attempts'][0]['target_height']==1
++    write_json(tmp_path/'generation.json',rows)
++
++
++def test_tournament_replacement_first_tie_and_plan_rejection(tmp_path):
++    pop=[individual('PT',0),individual('UT',1),individual('DT',2,2)]
++    winner,record=tournament(pop,3,Draws([1,1,0]));assert winner is pop[1]
++    assert record['sampled']==['i1','i1','i0']
++    winner2,_=tournament([individual('PT',0,status='INFEASIBLE'),pop[2]],2,Draws([0,1]));assert winner2 is pop[2]
++    with pytest.raises(RuntimeError):tournament([pop[0],individual('UT',1,plan='different')],2,Draws([0,1]))
++    write_json(tmp_path/'tournament.json',record)
++
++
++@pytest.mark.parametrize('draw,position,eligible',[(.1,0,[0,1]),(.1,1,[0,1]),(.99,0,[2,3,4]),(.99,2,[2,3,4])])
++def test_node_categories_root_occurrences(draw,position,eligible,tmp_path):
++    t=from_expression('(+ (- PT PT) PT)');i,record=select_node(t,rng=Draws([position],[draw]))
++    assert record['eligible_positions']==eligible and i==eligible[position]
++    assert select_node(from_expression('PT'),rng=Draws([0],[draw]))[0]==0
++    write_json(tmp_path/'node.json',record)
++
++
++@pytest.mark.parametrize('pair,positions,reals,expected',[
++    (('(+ PT UT)','(- DT MRT)'),(0,0),(.1,.1),(True,True)),
++    ((chain(7),'(+ PT UT)'),(0,0),(.99,.1),(False,True)),
++    (('(+ PT UT)',chain(7)),(0,0),(.1,.99),(True,False)),
++    # Node budget independently rejects each direction when neither larger whole tree fits.
++])
++def test_cross_directional_own_parent_fallback(pair,positions,reals,expected,tmp_path):
++    a,b=map(from_expression,pair);before=list(map(to_expression,(a,b)))
++    result,meta=crossover(a,b,TREES,rng=Draws(positions,reals))
++    assert tuple(meta['attempts'][-1]['legal'])==expected
++    for k,ok in enumerate(expected):
++        if not ok:assert to_expression(result[k])==before[k]
++    assert list(map(to_expression,(a,b)))==before
++    for child in result:
++        assert all(n is not q for n in child for parent in (a,b) for q in parent)
++    write_json(tmp_path/'operation.json',dict(meta=meta,parents=before,children=list(map(to_expression,result))))
++
++
++def test_tail_checks_only_first_and_multiple_attempts_last(tmp_path):
++    a=from_expression('(+ PT UT)');b=from_expression(chain(7))
++    children,meta=crossover(a,b,TREES,outputs=1,rng=Draws([0,0],[.1,.99]))
++    assert len(children)==1 and meta['attempts'][0]['legal']==[True] and meta['tail_single_output']
++    # First attempt fails direction 1; second root/root succeeds. Fixed parents.
++    _,multiple=crossover(b,a,TREES,attempts=2,rng=Draws([0,0,0,0],[.99,.1,.1,.1]))
++    assert len(multiple['attempts'])==2 and multiple['attempts'][-1]['legal']==[True,True]
++    write_json(tmp_path/'tail.json',dict(tail=meta,multiple=multiple))
++
++
++@pytest.mark.parametrize('height',[0,1,2,3])
++def test_mutation_actual_height_0_to_3(height,tmp_path):
++    # target remains 3; produce an actual left chain of precisely height.
++    def draws(h,depth=0):
++        if h==0:return ([6] if depth<3 else [])+[5]
++        return [0]+draws(h-1,depth+1)+draws(0,depth+1)
++    children,meta=mutate(from_expression('PT'),TREES,rng=Draws([0]+draws(height),[.1]))
++    assert meta['attempts'][0]['subtree_height']==height and children[0].height==height
++    write_json(tmp_path/'mutation.json',meta)
++
++
++def test_mutation_failure_clone_and_copy_clear(tmp_path):
++    tree=from_expression(chain(7));children,meta=mutate(tree,TREES,rng=Draws([0,0,6,5,6,5],[.99]))
++    assert meta['fallback_children']==1 and to_expression(children[0])==to_expression(tree)
++    copied,_=reproduce(tree);copied[0][1].name='SUB'
++    assert to_expression(tree)==chain(7)
++    check_tree(from_expression(chain(7)),TREES)
++    with pytest.raises(InputError):check_tree(from_expression(chain(8)),TREES)
++    with pytest.raises(InputError):check_tree(from_expression('(+ PT UT)'),dict(TREES,max_nodes=2))
++    write_json(tmp_path/'fallback.json',meta)
++
++
++def test_elite_shortage_order_reproduction_and_no_shared_nodes(monkeypatch,tmp_path):
++    cfg=load_training_config(ROOT/'configs/training/smoke-single.json').to_dict()
++    cfg['evolution'].update(population_size=3,elite_count=2,operator_weights=dict(crossover=0,mutation=0,reproduction=1))
++    pop=[individual('PT',0,2),individual('UT',1,status='INFEASIBLE'),individual('DT',2,status='INFEASIBLE')]
++    from fogsim.training import evolution
++    monkeypatch.setattr(evolution,'tournament',lambda pop,size:(pop[0],dict(sampled=['i0']*size,winner='i0')))
++    children,ops,summary,_=next_generation(pop,cfg,'trial',1,3)
++    assert [i.lineage['operator'] for i in children]==['reproduction','reproduction','elite']
++    assert summary['elite_count']==1 and summary['accepted_children']==2 and len(ops)==2
++    assert all(i.evaluation is None and not i.fitness.valid for i in children)
++    assert all(x.tree is not y.tree and all(a is not b for a in x.tree for b in y.tree) for k,x in enumerate(children) for y in children[k+1:])
++    write_json(tmp_path/'breeding.json',dict(summary=summary,operations=ops,individuals=[i.record() for i in children]))
++
++
++def test_archive_dedup_validation_first_occurrence_and_freeze(tmp_path):
++    archive=CandidateArchive();a=individual('PT',0,99,plan='p0');b=individual('UT',1,1,plan='p1')
++    archive.add(a,0,'a');archive.add(b,1,'b');a.evaluation['plan_id']='p2';a.evaluation['fitness']=.1;archive.add(a,2,'c')
++    doc=archive.freeze(tmp_path/'archive.json').to_dict();a.tree[0].value='DT'
++    assert len(doc['candidates'])==2 and len(doc['candidates'][0]['occurrences'])==2
++    assert doc['candidates'][0]['rules']['routing']['expression']=='PT'
++    with pytest.raises(RuntimeError):archive.add(a,3,'d')
++    equal=[dict(plan_id='validation',status='FEASIBLE',fitness=10)]*2
++    assert choose_validation(doc['candidates'],equal)==0
++    assert choose_validation(doc['candidates'],[dict(plan_id='v',status='INFEASIBLE',fitness=None)]*2) is None
++
++
++class LocalPipe:
++    def __init__(self):self.messages=[]
++    def send(self,msg):self.messages.append(deepcopy(msg))
++    def recv(self):return 'START'
++
++
++def small_config():
++    raw=load_training_config(ROOT/'configs/training/smoke-single.json').to_dict();raw.pop('resolution_root')
++    raw['evolution'].update(population_size=2,generations=2,elite_count=1,operator_weights=dict(crossover=0,mutation=0,reproduction=1))
++    raw['trials']['evolution_seeds']=[123]
++    return parse_training_config(raw,ROOT).to_dict()
++
++
++def map_plans(cfg):
++    from fogsim.training.protocols import Snapshot
++    p=build_training_plans(Snapshot(canonical(cfg)))
++    return dict(training=[x.to_dict() for x in p.training],validation=p.validation.to_dict(),test=p.test.to_dict())
++
++
++def test_real_decisions_fcfs_and_different_routing(tmp_path):
++    cfg=small_config();p=map_plans(cfg);rows=[]
++    ev=TrialEvaluator(LocalPipe(),tmp_path,'decision',TREES)
++    before=random.getstate()
++    for i,text in enumerate(('PT','(- 0 PT)')):
++        value=ev(prepare_single(from_expression(text)),parse_training_plan(p['training'][0]),f'rule-{i}')
++        assert value['status']=='FEASIBLE' and value['evolution_rng_unchanged']
++        rows.append(value)
++    assert random.getstate()==before
++    results=[read_json(tmp_path/f'rule-{i}/runs/0000/result.json') for i in range(2)]
++    assert results[0]['makespan']!=results[1]['makespan']
++    # Assert actual multi-candidate ROUTING decisions and installed FCFS sequencing.
++    for result in results:
++        assert result['rule_manifest']['bindings']['sequencing']['kind']=='fcfs'
++        decisions=result['decisions']
++        assert any(d['kind']=='ROUTING' and len(d['candidates'])>1 for d in decisions)
++    write_json(tmp_path/'decision-evidence.json',dict(makespans=[r['makespan'] for r in results]))
++
++
++def test_real_trial_reevaluation_last_generation_and_no_test_switch(tmp_path):
++    cfg=small_config();plans=map_plans(cfg);pipe=LocalPipe()
++    result=run_trial(pipe,cfg,plans,tmp_path/'trial','t',123)
++    assert result['status']=='COMPLETED' and result['generations_evaluated']==2
++    gens=read_jsonl(tmp_path/'trial/generations.jsonl')['rows']
++    assert gens[-1]['reproduction'] is None
++    inds=read_jsonl(tmp_path/'trial/individuals.jsonl')['rows'];assert len(inds)==4
++    assert [x['lineage']['operator'] for x in inds[-2:]]==['reproduction','elite']
++    evals=read_jsonl(tmp_path/'trial/evaluated-individuals.jsonl')['rows']
++    assert [x['plan_id'] for x in evals[:2]]!=[x['plan_id'] for x in evals[2:]]
++    assert all(read_json(tmp_path/'trial'/x['evaluation_ref'])['completed_runs']==2 for x in evals)
++    frozen=read_json(tmp_path/'trial/selected_rule.json');load_selected_rule(tmp_path/'trial/selected_rule.json')
++    assert [m['kind'] for m in pipe.messages].index('selected_rule_frozen')<[i for i,m in enumerate(pipe.messages) if m.get('evaluation_ref')=='test/evaluation.json'][0]
++    frozen['rules']['routing']['expression']='PT'
++    write_json(tmp_path/'tampered.json',frozen)
++    with pytest.raises(InputError):load_selected_rule(tmp_path/'tampered.json')
++
++
++@pytest.mark.parametrize('phase',['training','validation','test'])
++def test_domain_failure_boundaries_real_b08(phase,tmp_path):
++    cfg=small_config();plans=map_plans(cfg)
++    keys=plans['training'] if phase=='training' else [plans[phase]]
++    for original in keys:
++        entries=deepcopy(original['entries'])
++        for entry in entries:
++            entry['effective_config']['run']['max_events']=1
++            from fogsim.training.plans import _identities
++            from fogsim.training.protocols import content_sha
++            entry['scene_id'],entry['input_family_id'],entry['input_content_id']=_identities(entry)
++            entry['effective_config_sha256']=content_sha(canonical(entry['effective_config']).encode())
++        changed=_plan(original['split'],entries,original['limits']).to_dict()
++        original.clear();original.update(changed)
++    result=run_trial(LocalPipe(),cfg,plans,tmp_path/'trial','t',123)
++    assert result['status']=='DOMAIN_FAILED'
++    assert result[dict(training='training_status',validation='validation_status',test='test_status')[phase]]==dict(training='NO_FEASIBLE_INDIVIDUAL',validation='NO_VALIDATION_WINNER',test='TEST_FAILED')[phase]
++    assert (tmp_path/'trial/selected_rule.json').exists()==(phase=='test')
++    assert (tmp_path/'trial/test').exists()==(phase=='test')
++    if phase=='test':
++        test=read_json(tmp_path/'trial/test/evaluation.json');assert test['failed_runs']==2 and test['fitness'] is None
++        assert len(list((tmp_path/'trial').glob('selected_rule*')))==1
++
++
++def test_spawn_rng_isolation_and_callback_interruption(tmp_path):
++    raw=small_config();raw.pop('resolution_root');cfg=parse_training_config(raw,ROOT)
++    before=random.getstate()
++    result=train(cfg,tmp_path/'normal').to_dict();assert result['status']=='COMPLETED' and random.getstate()==before
++    def fault(msg):
++        if msg['kind']=='run_started':raise RuntimeError('controlled callback failure')
++    with pytest.raises(RuntimeError,match='controlled callback'):train(cfg,tmp_path/'callback',fault)
++    assert random.getstate()==before
++    doc=read_json(tmp_path/'callback/trial-0001/failures/interruption.json')
++    assert doc['classification']=='CONTROLLER_EXCEPTION'
++    raw['limits']['wallclock_seconds_per_run']=1e-9
++    result=train(parse_training_config(raw,ROOT),tmp_path/'wallclock').to_dict()
++    assert result['status']=='INCOMPLETE' and result['interruption']['classification']=='WALLCLOCK_INTERRUPTED'
++    assert read_json(tmp_path/'wallclock/trial-0001/evaluations/000000/evaluation.json')['status']=='INCOMPLETE'
++
++
++def test_unknown_program_exception_aborts_with_chain(monkeypatch,tmp_path):
++    from fogsim.training import evolution
++    def broken(*args,**kwargs):raise TypeError('B02 controlled scoring defect')
++    monkeypatch.setattr(evolution,'run_entry',broken)
++    cfg=small_config()
++    with pytest.raises(TypeError,match='scoring defect'):run_trial(LocalPipe(),cfg,map_plans(cfg),tmp_path/'trial','t',123)
++    doc=read_json(tmp_path/'trial/evaluations/000000/evaluation.json')
++    assert doc['status']=='INCOMPLETE' and doc['interruption']['classification']=='PROGRAM_EXCEPTION'
++    assert 'TypeError' in read_json(tmp_path/'trial/failures/exception.json')['traceback']
++
++
++def test_cross_both_fail_independent_limits_and_exhaustion(tmp_path):
++    def full(h):return 'PT' if h==0 else f'(+ {full(h-1)} {full(h-1)})'
++    a=from_expression(chain(4,full(3)));b=from_expression(f'(+ (+ {chain(4)} UT) {full(3)})')
++    children,meta=crossover(a,b,dict(TREES,max_nodes=31),rng=Draws([4,2],[.1,.1]))
++    assert meta['attempts'][0]['legal']==[False,False]
++    assert meta['fallback_children']==2
++    assert [to_expression(t) for t in children]==[to_expression(a),to_expression(b)]
++    _,exhausted=crossover(from_expression(chain(7)),from_expression('(+ PT UT)'),TREES,attempts=2,
++        rng=Draws([0,0,0,0],[.99,.1,.99,.1]))
++    assert len(exhausted['attempts'])==2 and exhausted['fallback_children']==1
++    write_json(tmp_path/'both-fail.json',dict(both=meta,exhausted=exhausted))
++
++
++def test_operator_exclusive_thresholds_and_structural_defect_propagates(monkeypatch):
++    assert [choose_operator(dict(crossover=.8,mutation=.15,reproduction=.05),Draws(reals=[d]))[0]
++            for d in (0,.799,.8,.949,.9501,.999)]==['crossover','crossover','mutation','mutation','reproduction','reproduction']
++    from fogsim.training import operators
++    def defect(*args):raise InputError('controlled invalid tree implementation')
++    monkeypatch.setattr(operators,'check_tree',defect)
++    with pytest.raises(InputError,match='implementation'):
++        crossover(from_expression('PT'),from_expression('UT'),TREES,rng=Draws([0,0],[.1,.1]))
++
++
++def _early_exit_worker(conn,*args):
++    os._exit(42)
++
++
++def _child_program_defect(*args,**kwargs):
++    raise TypeError('spawned controlled program defect')
++
++
++def _program_error_worker(conn,*args):
++    from fogsim.training import evolution
++    evolution.run_entry=_child_program_defect
++    evolution.trial_worker(conn,*args)
++
++
++def test_training_controller_worker_exit_and_remote_exception(monkeypatch,tmp_path):
++    from fogsim.training import evolution
++    from fogsim.training.trainer import RemoteTrainingError
++    raw=small_config();raw.pop('resolution_root');cfg=parse_training_config(raw,ROOT)
++    monkeypatch.setattr(evolution,'trial_worker',_early_exit_worker)
++    result=train(cfg,tmp_path/'exit').to_dict()
++    assert result['status']=='INCOMPLETE' and result['interruption']['classification']=='WORKER_EXIT'
++    assert result['interruption']['exitcode']==42
++    monkeypatch.setattr(evolution,'trial_worker',_program_error_worker)
++    with pytest.raises(RemoteTrainingError,match='spawned controlled program defect'):
++        train(cfg,tmp_path/'program')
++    assert read_json(tmp_path/'program/trial-0001/evaluations/000000/evaluation.json')['status']=='INCOMPLETE'
++
++
++def test_initialization_finite_exhaustion_and_node_boundary(monkeypatch):
++    from fogsim.training import operators
++    calls=[]
++    def too_large(*args):calls.append(1);return from_expression(chain(8))
++    monkeypatch.setattr(operators,'generate',too_large)
++    with pytest.raises(InputError,match='exhausted'):
++        initialize(dict(TREES,initialization_attempts=2),Draws([1,1],[.1,.1]))
++    assert len(calls)==2
++    assert select_node(from_expression('(+ PT UT)'),rng=Draws([0],[.9]))[1]['category']=='function'
++
++
++@pytest.mark.parametrize('value',[None,[],1,True,'PT'])
++def test_cli_non_object_rules_are_input_errors(value,tmp_path):
++    from fogsim.training.cli import main
++    rules=tmp_path/'rules.json';write_json(rules,value)
++    output=tmp_path/'must-not-exist'
++    with pytest.raises(SystemExit) as exc:
++        main(['evaluate','--rules',str(rules),'--plan',str(tmp_path/'not-read-plan.json'),'--output',str(output)])
++    assert exc.value.code==2 and not output.exists()
+--- /dev/null
++++ b/tools/accept_s9_b02.py
+@@ -0,0 +1,92 @@
++"""Assemble only the executed B02 gates, leaving B01/B08 records read-only."""
++from pathlib import Path
++import argparse,json,xml.etree.ElementTree as ET,hashlib,subprocess
++from collections import Counter
++from fogsim.training.protocols import write_json,read_json,read_jsonl,source_provenance
++from compare_s9_b02 import compare_roots
++ROOT=Path(__file__).resolve().parents[1]
++
++def junit(path):
++    suites=list(ET.parse(path).getroot().iter('testsuite'))
++    return {key:sum(int(s.get(key,0)) for s in suites) for key in ('tests','failures','errors','skipped')}
++
++def audit_trial(root):
++    result=read_json(root/'evolution-result.json');generations=read_jsonl(root/'generations.jsonl')['rows']
++    inds=read_jsonl(root/'individuals.jsonl')['rows'];evals=read_jsonl(root/'evaluated-individuals.jsonl')['rows']
++    ops=read_jsonl(root/'operations.jsonl')['rows'];archive=read_json(root/'candidates/archive.json');selected=read_json(root/'selected_rule.json')
++    assert result['status']=='COMPLETED' and len(generations)==4 and len(inds)==len(evals)==48
++    assert len({i['individual_id'] for i in inds})==48
++    assert all(i['rules']['sequencing']==dict(kind='fcfs') and not i['evaluated'] and not i['fitness_valid'] for i in inds)
++    assert generations[-1]['reproduction'] is None
++    assert len({g['plan_id'] for g in generations})==4
++    assert len({c['rule_pair_id'] for c in archive['candidates']})==len(archive['candidates'])<=4
++    assert sum(len(c['occurrences']) for c in archive['candidates'])==4
++    for g in generations[:-1]:
++        summary=g['reproduction'];relevant=[o for o in ops if f'/g{g["generation"]+1:04d}/' in o['operation_id']]
++        assert summary['accepted_children']+summary['elite_count']==12==summary['next_population_size']
++        assert summary['accepted_children']==sum(o['accepted_children'] for o in relevant)
++        assert summary['fallback_children']==sum(o['fallback_children'] for o in relevant)
++        assert summary['operator_selections']=={k:sum(o['operator']==k for o in relevant) for k in ('crossover','mutation','reproduction')}
++    calls=0;multi=0;identities=set();completed=0
++    for p in root.rglob('evaluation.json'):
++        e=read_json(p);assert e['status']=='FEASIBLE' and e['completed_runs']==e['planned_runs']==2
++        assert e['evolution_rng_unchanged'];assert e['evaluation_id'] not in identities;identities.add(e['evaluation_id']);calls+=1;completed+=e['completed_runs']
++        for run in e['runs']:
++            raw=read_json(p.parent/run['result_ref'])
++            assert raw['rule_manifest']['rule_pair_id']==e['rule_pair_id']
++            multi+=sum(d['kind']=='ROUTING' and len(d['candidates'])>1 for d in raw['decisions'])
++    assert calls==48+len(archive['candidates'])+1 and completed==result['completed_simulations']
++    test=read_json(root/'test/evaluation.json');assert selected['rule_pair_id']==test['rule_pair_id']
++    validation=[read_json(p/'evaluation.json') for p in sorted((root/'validation').iterdir())]
++    assert selected['candidate_index']==min(range(len(validation)),key=lambda i:(validation[i]['fitness'],i))
++    assert multi>0
++    return dict(trial_id=result['trial_id'],seed=result['evolution_seed'],candidates=len(archive['candidates']),
++        training_simulations=96,validation_simulations=2*len(archive['candidates']),test_simulations=2,
++        completed_simulations=completed,evaluations=calls,multi_candidate_routing_decisions=multi,
++        operator_selections=dict(Counter(o['operator'] for o in ops)),accepted_offspring=sum(o['accepted_children'] for o in ops),
++        fallback_offspring=sum(o['fallback_children'] for o in ops),selected_rule_id=selected['selected_rule_id'])
++
++def main():
++    p=argparse.ArgumentParser();p.add_argument('--output',type=Path,default=ROOT/'outputs/step9/B02');a=p.parse_args();out=a.output
++    unit=junit(out/'unit-final.xml');regression=junit(out/'regression.xml')
++    assert unit['tests']>0 and regression['tests']>=5858
++    assert all(x[k]==0 for x in (unit,regression) for k in ('failures','errors','skipped'))
++    java=read_json(out/'java-final/checks.json');assert java['passed']
++    repeat=compare_roots(out/'single-first',out/'single-repeat');assert repeat['passed'];write_json(out/'reproducibility.json',repeat)
++    assert read_json(out/'single-first/resolved_config.json')==read_json(out/'single-repeat/resolved_config.json')
++    closure=[]
++    for label in ('single-first','single-repeat'):
++        for trial in sorted((out/label).glob('trial-*')):closure.append(dict(execution=label,**audit_trial(trial)))
++    assert sum(r['completed_simulations'] for r in closure)<=424
++    from accept_s9_b01 import audit
++    retention=audit();assert retention['passed'];write_json(out/'b08-source-retention.json',retention)
++    no_deap=read_json(out/'no-deap.json');assert no_deap['passed']
++    frozen=read_json(out/'source-freeze.json')
++    from freeze_s9_b02 import files
++    assert files()==frozen['files']
++    independent=read_json(out/'independent-selected-check.json');assert independent['passed']
++    result=dict(format='fogsim.training-acceptance',schema_version=1,batch='S9-B02',design='S9-frozen-1',acceptance_passed=True,
++        source=source_provenance(),source_freeze_id=frozen['source_freeze_id'],unit_tests=unit,combined_regression=regression,
++        java_local=dict(executed=java['executed'],passed=True,evidence='java-final/checks.json'),closure=closure,
++        closure_simulations=sum(r['completed_simulations'] for r in closure),closure_upper_bound=424,reproducibility=repeat,
++        gates={k:dict(status='B02_SCOPE_PASSED',scope=scope) for k,scope in {
++            'S02':'DEAP adapter ordering/constants/identity, Java grow/full/terminal entry, independent cloning',
++            'S08':'same-generation plans, elite/copy re-evaluation, final-generation stop, counts and stable layout',
++            'S09':'single routing real multi-candidate decisions, explicit FCFS, controlled tournament/nodes/crossover/mutation',
++            'S11':'J01/J02/J03, ordinary single-tree crossover/mutation and J06 actual ECJ local execution; B01 J05 retained',
++            'S12':'dedup+all occurrences, frozen candidates, fixed validation, selected-rule freeze before test, failure no-switch',
++            'S13':'single mode two evolution seeds, same configuration repeated, every trial semantic artifact compared',
++            'S14':'height/node limits, mutation 0..3, finite init retry, real event failures, wallclock and worker exit',
++            'S15':'train/API/CLI, lineage and artifacts, independent selected-rule loading, exceptions and output protection',
++            'S16':'full current regression in independent restored copy; DEAP-free legacy+selected rule loading'
++        }.items()},
++        deferred=[dict(gate='S10 / J04',status='NOT_EXECUTED',reason='dual-tree special crossover belongs B03'),
++            dict(gate='S13 dual mode',status='NOT_EXECUTED',reason='B03'),
++            dict(gate='S01-S17 final joint audit / S17',status='NOT_EXECUTED',reason='B04 final delivery and large-scale template')],
++        limitations=['No paper-scale training or dual-tree acceptance.','Java/Python native RNG streams are not compared.',
++            'Legacy regression test counts are not simulation counts; no instrumented total is claimed for that lane.',
++            'Earlier development failures remain separate from final passed checks.'],
++        independent_selected_rule=independent,b08_retention_passed=True,no_deap_passed=True)
++    write_json(out/'acceptance.json',result)
++    print(json.dumps(dict(acceptance_passed=True,closure_simulations=result['closure_simulations'],unit=unit,regression=regression)))
++if __name__=='__main__':main()
+--- /dev/null
++++ b/tools/build_s9_b02.py
+@@ -0,0 +1,47 @@
++"""Build the cumulative B02 source-indexed package without rewriting B01."""
++import argparse,hashlib,json,zipfile
++from pathlib import Path
++ROOT=Path(__file__).resolve().parents[1]
++MANIFEST='S9-B02-FILES.json'
++def sha(data):return hashlib.sha256(data).hexdigest()
++def write(path,value):path.write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
++def verify(root):
++    doc=json.loads((root/MANIFEST).read_text());errors=[]
++    for rel,row in doc['files'].items():
++        p=root/rel
++        if not p.is_file() or p.is_symlink() or p.stat().st_size!=row['bytes'] or sha(p.read_bytes())!=row['sha256']:errors.append(rel)
++    return dict(passed=not errors,files=len(doc['files']),mismatches=errors)
++def build(root,output):
++    if output.exists() or root in output.parents:raise ValueError('output must be new and outside project root')
++    accepted=json.loads((root/'outputs/step9/B02/acceptance.json').read_text())
++    if not accepted['acceptance_passed']:raise ValueError('B02 gates have not passed')
++    index=json.loads((root/'SOURCE-INDEX.json').read_text());indexed={e['path']:e for e in index['entries']}
++    paths=[];excluded=[]
++    for p in sorted(root.rglob('*')):
++        if p.is_dir():continue
++        rel=p.relative_to(root).as_posix();parts=p.relative_to(root).parts
++        if any(s in ('.b02-deps','__pycache__','.pytest_cache','.git') for s in parts):continue
++        if p.is_symlink():continue
++        if rel in indexed:
++            if sha(p.read_bytes())!=indexed[rel]['sha256']:raise ValueError('restored source modified: '+rel)
++            continue
++        if p.suffix in ('.pyc','.class'):
++            excluded.append(dict(path=rel,bytes=p.stat().st_size,sha256=sha(p.read_bytes()),reason='rebuildable generated artifact'));continue
++        if rel not in (MANIFEST,'B02-EXCLUDED-GENERATED.json'):paths.append(p)
++    write(root/'B02-EXCLUDED-GENERATED.json',dict(format='fogsim.excluded-generated',schema_version=1,files=excluded))
++    paths.append(root/'B02-EXCLUDED-GENERATED.json')
++    files={p.relative_to(root).as_posix():dict(bytes=p.stat().st_size,sha256=sha(p.read_bytes())) for p in paths}
++    write(root/MANIFEST,dict(format='fogsim.batch-files',schema_version=1,batch='S9-B02',files=files,
++        source_index_sha256=sha((root/'SOURCE-INDEX.json').read_bytes())))
++    paths.append(root/MANIFEST);output.parent.mkdir(parents=True,exist_ok=True)
++    with zipfile.ZipFile(output,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as z:
++        z.writestr('fogsim-0.4.0/','')
++        for p in paths:z.write(p,'fogsim-0.4.0/'+p.relative_to(root).as_posix())
++    with zipfile.ZipFile(output) as z:
++        if z.testzip():raise ValueError('CRC failure')
++    return dict(file=output.name,bytes=output.stat().st_size,sha256=sha(output.read_bytes()),top_directory='fogsim-0.4.0/',files=len(paths),excluded_indexed=len(indexed),excluded_generated=len(excluded))
++def main():
++    p=argparse.ArgumentParser();p.add_argument('action',choices=['build','verify']);p.add_argument('--root',type=Path,default=ROOT);p.add_argument('--output',type=Path);a=p.parse_args()
++    result=verify(a.root.resolve()) if a.action=='verify' else build(a.root.resolve(),a.output.resolve())
++    print(json.dumps(result,indent=2));return 0 if result.get('passed',True) else 1
++if __name__=='__main__':raise SystemExit(main())
+--- /dev/null
++++ b/tools/check_s9_b02_java.py
+@@ -0,0 +1,151 @@
++"""Independent ECJ local execution; common inputs contain no expected outputs."""
++import argparse,json,os,subprocess,time,shutil
++from pathlib import Path
++from copy import deepcopy
++from java_stage_d_support import compile_stage_d,environment
++from java_support import ROOT,ORIGINAL,sha
++from fogsim.training.protocols import write_json,read_json
++from fogsim.training.deap_adapter import from_expression,to_expression,Individual
++from fogsim.training.operators import generate,tournament,select_node,crossover,replace,check_tree
++from fogsim.training.config import TREES
++
++class Draws:
++    def __init__(self,ints=(),reals=()):self.ints=list(ints);self.reals=list(reals)
++    def randrange(self,start,stop=None):
++        if stop is None:start,stop=0,start
++        x=self.ints.pop(0)
++        if not start<=x<stop:raise ValueError((start,stop,x))
++        return x
++    def random(self):return self.reals.pop(0)
++
++def chain(h,text='PT'):
++    for _ in range(h):text=f'(+ {text} UT)'
++    return text
++
++def full(h):return 'PT' if h==0 else f'(+ {full(h-1)} {full(h-1)})'
++
++def cases():
++    rows=[]
++    def add(kind,**kw):rows.append(dict(case_id=f'{kind}-{sum(c["kind"]==kind for c in rows):02d}',kind=kind,**kw))
++    for e in range(7):add('generate',height=1,method='grow',ints=[e,2,4] if e<6 else [6,9],reals=[.1])
++    for f in range(10):add('generate',height=0,method='grow',ints=[f],reals=[.1])
++    for h in (1,2,3):
++        def draws(d):return [5] if d==h else [0]+draws(d+1)+draws(d+1)
++        add('generate',height=h,method='full',ints=draws(0),reals=[.9])
++    add('tournament',fitnesses=[1,1,2],size=7,ints=[1,1,0,2,1,0,1])
++    add('tournament',fitnesses=[2,1,3],size=3,ints=[0,2,1])
++    for expr,ints,reals in [('(+ (- PT PT) PT)',[0],[.1]),('(+ (- PT PT) PT)',[1],[.1]),('(+ (- PT PT) PT)',[2],[.99]),('PT',[],[.1]),('PT',[0],[.99])]:
++        # Java bypasses nextInt when the single tree has no functions.
++        add('node',a=expr,ints=ints,reals=reals)
++    for a,b,pa,pb,n,tries in [
++        ('(+ PT UT)','(- DT MRT)',[0],[0],2,1),
++        (chain(7),'(+ PT UT)',[7],[0],2,1),
++        ('(+ PT UT)',chain(7),[0],[7],2,1),
++        ('(+ PT UT)',chain(7),[0],[7],1,1),
++        (chain(7),'(+ PT UT)',[7,0],[0,0],2,2),
++        (chain(7),'(+ PT UT)',[7,7],[0,0],2,2)]:
++        add('cross',a=a,b=b,positions_a=pa,positions_b=pb,outputs=n,attempts=tries)
++    # Both directions fail: one exceeds height, the other the independent node budget.
++    add('cross',a=chain(4,full(3)),b=f'(+ (+ {chain(4)} UT) {full(3)})',positions_a=[4],positions_b=[2],outputs=2,attempts=1,max_nodes=31)
++    for a,pos,sub in [('(+ PT UT)',0,'DT'),(chain(7),7,'(+ DT MRT)'),(chain(7),6,'(+ DT MRT)')]:add('mutation',a=a,position=pos,subtree=sub)
++    add('elite');add('last_generation')
++    for d in (.1,.85,.99):
++        for n in (1,2):add('multi',capacity=n,reals=[d])
++    return rows
++
++def python_case(c,out):
++    kind=c['kind'];rng=Draws(c.get('ints',[]),c.get('reals',[]))
++    if kind=='generate':
++        tree=generate(c['height'],c['method'],rng)
++        return dict(expression=to_expression(tree),height=tree.height,nodes=len(tree))
++    if kind=='tournament':
++        pop=[]
++        for i,f in enumerate(c['fitnesses']):
++            ind=Individual(from_expression('PT'),str(i),i,{})
++            ind.set_evaluation(dict(plan_id='same',status='FEASIBLE',fitness=f));pop.append(ind)
++        winner,meta=tournament(pop,c['size'],rng);return dict(winner=int(winner.individual_id))
++    if kind=='node':
++        # Original ECJ avoids the int call when there are no functions.
++        if c['a']=='PT' and not rng.ints:rng.ints=[0]
++        return dict(index=select_node(from_expression(c['a']),rng=rng)[0])
++    if kind=='cross':
++        # Translate common preorder positions to category-local controlled draws.
++        a,b=from_expression(c['a']),from_expression(c['b']);ints=[];reals=[]
++        for i,j in zip(c['positions_a'],c['positions_b']):
++            for tree,pos in ((a,i),(b,j)):
++                fn=tree[pos].arity==2;eligible=[k for k,n in enumerate(tree) if (n.arity==2)==fn]
++                ints.append(eligible.index(pos));reals.append(.1 if fn else .99)
++        children,meta=crossover(a,b,dict(TREES,max_nodes=c.get('max_nodes',255)),c['attempts'],c['outputs'],Draws(ints,reals))
++        return dict(children=list(map(to_expression,children)),parents=[to_expression(a),to_expression(b)],outputs=len(children))
++    if kind=='mutation':
++        from fogsim.training import operators
++        a=from_expression(c['a']);pos=c['position'];fn=a[pos].arity==2
++        eligible=[i for i,n in enumerate(a) if (n.arity==2)==fn]
++        original=operators.generate
++        try:
++            operators.generate=lambda target,method,rng:from_expression(c['subtree'])
++            children,_=operators.mutate(a,TREES,rng=Draws([eligible.index(pos)],[.1 if fn else .99]))
++        finally:operators.generate=original
++        return dict(children=list(map(to_expression,children)),parents=[to_expression(a)])
++    if kind=='elite':
++        from fogsim.training.config import load_training_config
++        from fogsim.training.evolution import next_generation
++        import random
++        cfg=load_training_config(ROOT/'configs/training/smoke-single.json').to_dict()
++        cfg['evolution'].update(population_size=3,elite_count=1,operator_weights=dict(crossover=0,mutation=0,reproduction=1))
++        pop=[]
++        for i,(expr,f) in enumerate([('PT',2),('UT',1),('DT',3)]):
++            ind=Individual(from_expression(expr),str(i),i,{});ind.set_evaluation(dict(plan_id='same',status='FEASIBLE',fitness=f));pop.append(ind)
++        state=random.getstate()
++        try:random.seed(50);children,_,_,_=next_generation(pop,cfg,'java-component',1,3)
++        finally:random.setstate(state)
++        elite=children[-1]
++        return dict(expression=to_expression(elite.tree),position=2,evaluated=elite.evaluation is not None,independent=all(elite.tree is not i.tree for i in pop))
++    if kind=='last_generation':
++        from fogsim.training.config import load_training_config,parse_training_config
++        from fogsim.training.plans import build_training_plans
++        from fogsim.training.evolution import run_trial
++        from fogsim.training.protocols import read_jsonl
++        import random
++        class Pipe:
++            def send(self,message):pass
++            def recv(self):return 'START'
++        raw=load_training_config(ROOT/'configs/training/smoke-single.json').to_dict();raw.pop('resolution_root')
++        raw['evolution'].update(population_size=1,elite_count=0,operator_weights=dict(crossover=0,mutation=0,reproduction=1))
++        cfg=parse_training_config(raw,ROOT);plans=build_training_plans(cfg)
++        pmap=dict(training=[p.to_dict() for p in plans.training],validation=plans.validation.to_dict(),test=plans.test.to_dict())
++        state=random.getstate()
++        try:result=run_trial(Pipe(),cfg.to_dict(),pmap,out/'last-generation-python','java-component',123)
++        finally:random.setstate(state)
++        gens=read_jsonl(out/'last-generation-python/generations.jsonl')['rows']
++        return dict(evaluated_last_population=gens[-1]['generation']==3 and gens[-1]['population_size']==1,
++            evaluated_generations=result['generations_evaluated'],no_breeding_or_rotation=gens[-1]['reproduction'] is None)
++    if kind=='multi':
++        from fogsim.training.operators import choose_operator
++        name,_=choose_operator(dict(crossover=.8,mutation=.15,reproduction=.05),rng)
++        return dict(outputs=min(c['capacity'],2 if name=='crossover' else 1))
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('--java',required=True);ap.add_argument('--output',required=True);a=ap.parse_args()
++    out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=False)
++    write_json(out/'inputs.json',dict(cases=cases()))
++    build=compile_stage_d(out/'build',a.java)
++    source=ROOT/'tools/java/s9/fogsim/adapter/S9Operators.java';snapshot=out/'source/fogsim/adapter/S9Operators.java';snapshot.parent.mkdir(parents=True);shutil.copyfile(source,snapshot)
++    classes=out/'classes';classes.mkdir();classpath=build['manifest']['builds']['target']['runtime_classpath']
++    argv=[str(Path(a.java).with_name('javac')),'-encoding','UTF-8','-cp',classpath,'-sourcepath',str(ORIGINAL/'src'),'-d',str(classes),str(snapshot)]
++    p=subprocess.run(argv,capture_output=True,text=True,env=environment(a.java));write_json(out/'compile.json',dict(argv=argv,exit_code=p.returncode,stdout=p.stdout,stderr=p.stderr,source_sha256=sha(source)))
++    if p.returncode:raise RuntimeError(p.stderr)
++    argv=[a.java,'-cp',os.pathsep.join((str(classes),classpath)),'fogsim.adapter.S9Operators',str(out/'inputs.json'),str(out/'java.json')]
++    p=subprocess.run(argv,capture_output=True,text=True,env=environment(a.java));write_json(out/'process.json',dict(argv=argv,exit_code=p.returncode,stdout=p.stdout,stderr=p.stderr))
++    if p.returncode:raise RuntimeError(p.stderr)
++    python=[dict(case_id=c['case_id'],result=python_case(c,out)) for c in cases()];write_json(out/'python.json',dict(cases=python))
++    java=read_json(out/'java.json')['cases'];checks=[]
++    for j,p in zip(java,python):
++        actual={k:v for k,v in j['result'].items() if k!='random_calls'}
++        checks.append(dict(case_id=p['case_id'],passed=j['case_id']==p['case_id'] and actual==p['result'],java=actual,python=p['result']))
++    summary=dict(passed=all(c['passed'] for c in checks),checks=checks,executed=len(checks),
++        scope='J01/J02/J03 single-tree crossover+mutation and J06 exclusive call cardinality; elite/re-evaluation/generation lifecycle verified in Python; J04 dual-tree deferred')
++    write_json(out/'checks.json',summary)
++    if not summary['passed']:raise RuntimeError('Java/Python local difference')
++    print(json.dumps(dict(passed=True,checks=len(checks))))
++if __name__=='__main__':main()
+--- /dev/null
++++ b/tools/compare_s9_b02.py
+@@ -0,0 +1,34 @@
++"""Exact comparison of all trial artifacts, except declared duration observations."""
++import argparse,json,hashlib
++from pathlib import Path
++from fogsim.training.protocols import read_json,read_jsonl,write_json,canonical,identity
++
++def semantic_files(root):
++    files={}
++    for path in sorted(root.rglob('*')):
++        if not path.is_file():continue
++        relative=path.relative_to(root).as_posix()
++        if path.suffix=='.json':value=read_json(path)
++        elif path.suffix=='.jsonl':
++            parsed=read_jsonl(path)
++            if parsed['interrupted_tail']:raise RuntimeError('uncommitted JSONL tail: '+relative)
++            value=parsed['rows']
++            if path.name=='generations.jsonl':value=[{k:v for k,v in row.items() if k!='duration_seconds'} for row in value]
++        else:value={'bytes_sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
++        files[relative]=identity('semantic-file',value)
++    return files
++
++def compare_roots(left,right):
++    rows=[]
++    for trial in sorted(p.name for p in left.glob('trial-*') if p.is_dir()):
++        a,b=semantic_files(left/trial),semantic_files(right/trial)
++        differences=[k for k in sorted(a.keys()|b.keys()) if a.get(k)!=b.get(k)]
++        rows.append(dict(trial_id=trial,files_left=len(a),files_right=len(b),differences=differences,
++            semantic_id=identity('trial-semantics',a),passed=not differences))
++    return dict(format='fogsim.training-reproducibility',schema_version=1,passed=bool(rows) and all(r['passed'] for r in rows),
++        exclusions=[dict(file='trial-*/generations.jsonl',field='duration_seconds',reason='monotonic elapsed observation')],trials=rows)
++
++def main():
++    p=argparse.ArgumentParser();p.add_argument('left');p.add_argument('right');p.add_argument('--output',required=True);a=p.parse_args()
++    result=compare_roots(Path(a.left),Path(a.right));write_json(a.output,result);print(json.dumps(result));return 0 if result['passed'] else 1
++if __name__=='__main__':raise SystemExit(main())
+--- /dev/null
++++ b/tools/freeze_s9_b02.py
+@@ -0,0 +1,26 @@
++"""Content binding for implementation, tests, configs, adapters, protocols and lock."""
++from pathlib import Path
++import argparse,hashlib,json
++from fogsim.training.protocols import write_json,identity
++ROOT=Path(__file__).resolve().parents[1]
++
++def files():
++    paths=[]
++    for name in ('src','tests','tools','configs','schemas'):
++        paths.extend(p for p in (ROOT/name).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix not in ('.pyc','.class'))
++    paths.extend(ROOT/p for p in ('pyproject.toml','docs/TRAINING-PROTOCOL-B02.md','docs/RUNNING-S9-B02.md',
++        'development/S9-B02/dependency-lock.json','development/S9-B02/requirements-train.lock'))
++    return {p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
++
++def main():
++    ap=argparse.ArgumentParser();ap.add_argument('action',choices=['freeze','verify']);ap.add_argument('--output',required=True);a=ap.parse_args();path=Path(a.output)
++    current=files()
++    if a.action=='freeze':
++        if path.exists():raise RuntimeError('refuse to overwrite a frozen source checkpoint')
++        value=dict(format='fogsim.source-freeze',schema_version=1,files=current,source_freeze_id=identity('source-freeze',current))
++        write_json(path,value);print(value['source_freeze_id'])
++    else:
++        frozen=json.loads(path.read_text())['files'];differences=[p for p in sorted(frozen.keys()|current.keys()) if frozen.get(p)!=current.get(p)]
++        print(json.dumps(dict(passed=not differences,files=len(current),differences=differences)))
++        if differences:raise SystemExit(1)
++if __name__=='__main__':main()
+--- /dev/null
++++ b/tools/java/s9/fogsim/adapter/S9Operators.java
+@@ -0,0 +1,142 @@
++package fogsim.adapter;
++
++import ec.*;
++import ec.gp.*;
++import ec.gp.koza.*;
++import ec.select.TournamentSelection;
++import ec.breed.MultiBreedingPipeline;
++import ec.simple.SimpleFitness;
++import ec.util.*;
++import mengxu.gp.GPRuleEvolutionState;
++import mengxu.gp.terminal.*;
++import java.nio.file.*;
++import java.util.*;
++
++/** Controlled inputs only. Original ECJ builders, selectors and pipelines execute. */
++public class S9Operators {
++    static final String[] FEATURES={"NIQ","WIQ","MRT","UT","DT","PT","TTIQ","TIS","TWT","NTR"};
++    static final String[] OPS={"+","-","*","/","Max","Min"};
++    static Map m(Object o){return (Map)o;}
++    static int num(Object o){return ((Number)o).intValue();}
++    static Map<String,Object> map(Object... kv){Map<String,Object> out=new LinkedHashMap<>();for(int i=0;i<kv.length;i+=2)out.put((String)kv[i],kv[i+1]);return out;}
++    static class Controlled extends MersenneTwisterFast {
++        ArrayDeque<Integer> ints=new ArrayDeque<>();ArrayDeque<Double> reals=new ArrayDeque<>();List<Object> calls=new ArrayList<>();
++        Controlled(List<?> a,List<?> b){super(19);for(Object v:a)ints.add(num(v));for(Object v:b)reals.add(((Number)v).doubleValue());}
++        public int nextInt(int n){int x=n==1?0:ints.remove();if(x<0||x>=n)throw new IllegalArgumentException("draw out of bounds "+n+":"+x);calls.add(map("bound",n,"value",x));return x;}
++        public double nextDouble(){double x=reals.remove();calls.add(map("double",x));return x;}
++        public boolean nextBoolean(double p){if(p==1)return true;if(p==0)return false;return nextDouble()<p;}
++    }
++    static void field(Object o,Class<?> cls,String key,Object value){try{var f=cls.getDeclaredField(key);f.setAccessible(true);f.set(o,value);}catch(Exception e){throw new RuntimeException(e);}}
++    static class EliteBreeder extends ec.simple.SimpleBreeder {
++        void load(EvolutionState s,Population p){elite=new int[]{1};eliteFrac=new double[]{0};reevaluateElites=new boolean[]{true};loadElites(s,p);}
++    }
++    static class ObservedEvaluator extends Evaluator {
++        int calls;
++        public void evaluatePopulation(EvolutionState s){calls++;}
++        public boolean runComplete(EvolutionState s){return false;}
++        public void evaluatePopulation(EvolutionState s,Population p){calls++;}
++    }
++    static GPRuleEvolutionState state(Controlled rng){
++        GPRuleEvolutionState s=new GPRuleEvolutionState();s.random=new MersenneTwisterFast[]{rng};
++        s.output=new Output(true);GPInitializer init=new GPInitializer();s.initializer=init;
++        GPAtomicType t=new GPAtomicType();t.type=0;init.types=new GPType[]{t};init.numAtomicTypes=1;
++        GPNodeConstraints bin=new GPNodeConstraints();bin.returntype=t;bin.childtypes=new GPType[]{t,t};
++        GPNodeConstraints term=new GPNodeConstraints();term.returntype=t;term.childtypes=new GPType[0];
++        init.nodeConstraints=new GPNodeConstraints[]{bin,term};
++        GPTreeConstraints tc=new GPTreeConstraints();tc.treetype=t;init.treeConstraints=new GPTreeConstraints[]{tc};
++        GPNode[] features=new GPNode[10];for(int i=0;i<10;i++){features[i]=new AttributeGPNode(JobShopAttribute.get(FEATURES[i]));features[i].children=new GPNode[0];features[i].constraints=1;}
++        s.setTerminals(new GPNode[][]{features});
++        GPFunctionSet fs=new GPFunctionSet();fs.name="controlled0";
++        GPNode[] fns=new GPNode[6];for(int i=0;i<6;i++){fns[i]=StageDGP.op(OPS[i]);fns[i].children=new GPNode[2];fns[i].constraints=0;}
++        TerminalERCUniform terminal=new TerminalERCUniform();terminal.children=new GPNode[0];terminal.constraints=1;
++        fs.terminals=new GPNode[][]{{terminal}};fs.nonterminals=new GPNode[][]{fns};GPNode[] all=Arrays.copyOf(fns,7);all[6]=terminal;fs.nodes=new GPNode[][]{all};tc.functionset=fs;
++        return s;
++    }
++    static GPIndividual individual(String expr){
++        GPIndividual i=new GPIndividual();GPTree tree=new GPTree();tree.owner=i;tree.constraints=0;tree.child=StageDGP.parse(expr,"routing","expression");tree.child.parent=tree;tree.child.argposition=0;
++        ArrayList<GPNode> list=new ArrayList<>();walk(tree.child,list);for(GPNode n:list)n.constraints=(byte)(n.children.length==0?1:0);
++        i.trees=new GPTree[]{tree};i.fitness=new SimpleFitness();return i;
++    }
++    static void walk(GPNode n,List<GPNode> list){list.add(n);for(GPNode c:n.children)walk(c,list);}
++    static GPNode at(GPTree tree,int index){return tree.child.nodeInPosition(index,GPNode.NODESEARCH_ALL);}
++    static String expression(GPNode n){if(n.children.length==0)return n.toString();return "("+n.toString()+" "+expression(n.children[0])+" "+expression(n.children[1])+")";}
++    static class FixedSelector extends KozaNodeSelector {
++        int[] positions;int at;FixedSelector(List<?> p){positions=p.stream().mapToInt(S9Operators::num).toArray();}
++        public GPNode pickNode(EvolutionState s,int sp,int th,GPIndividual ind,GPTree tree){return S9Operators.at(tree,positions[at++]);}
++    }
++    static class FixedSource extends SelectionMethod {
++        GPIndividual[] choices;int at;
++        FixedSource(GPIndividual... c){choices=c;}
++        public Parameter defaultBase(){return new Parameter("controlled");}
++        public int produce(int sp,EvolutionState s,int t){return 0;}
++        public int produce(int min,int max,int start,int sp,Individual[] out,EvolutionState s,int t){for(int k=0;k<min;k++)out[start+k]=choices[(at++)%choices.length];return min;}
++    }
++    static class Cross extends CrossoverPipeline {void parents(){parents=new GPIndividual[2];}}
++    static class FixedBuilder extends GPNodeBuilder {
++        String expr;FixedBuilder(String e){expr=e;}
++        public Parameter defaultBase(){return new Parameter("controlled");}
++        public GPNode newRootedTree(EvolutionState s,GPType t,int th,GPNodeParent p,GPFunctionSet fs,int a,int size){GPNode n=individual(expr).trees[0].child;n.parent=p;n.argposition=(byte)a;return n;}
++    }
++    static class CountSource extends BreedingSource {
++        int count;String label;CountSource(String name,int n,double p){label=name;count=n;probability=p;}
++        public Parameter defaultBase(){return new Parameter("controlled");}
++        public int typicalIndsProduced(){return count;}
++        public boolean produces(EvolutionState s,Population p,int sp,int th){return true;}
++        public void prepareToProduce(EvolutionState s,int sp,int th){}
++        public void finishProducing(EvolutionState s,int sp,int th){}
++        public int produce(int min,int max,int start,int sp,Individual[] out,EvolutionState s,int th){return Math.min(max,Math.max(min,count));}
++        public int produceFrac(int min,int max,int start,int sp,Individual[] out,EvolutionState s,int th){return produce(min,max,start,sp,out,s,th);}
++    }
++    static Object run(Map c){
++        String kind=(String)c.get("kind");Controlled rng=new Controlled((List)c.getOrDefault("ints",List.of()),(List)c.getOrDefault("reals",List.of()));GPRuleEvolutionState s=state(rng);GPInitializer init=(GPInitializer)s.initializer;
++        if(kind.equals("generate")){
++            HalfBuilder builder=new HalfBuilder();builder.minDepth=builder.maxDepth=num(c.get("height"))+1;builder.pickGrowProbability=c.get("method").equals("grow")?1:0;
++            GPNode root=builder.newRootedTree(s,init.types[0],0,new GPTree(),init.treeConstraints[0].functionset,0,-1);
++            return map("expression",expression(root),"height",root.depth()-1,"nodes",root.numNodes(GPNode.NODESEARCH_ALL),"random_calls",rng.calls);
++        }
++        if(kind.equals("tournament")){
++            List<?> values=(List)c.get("fitnesses");Individual[] inds=new Individual[values.size()];
++            for(int i=0;i<inds.length;i++){inds[i]=individual("PT");((SimpleFitness)inds[i].fitness).setFitness(s,-((Number)values.get(i)).doubleValue(),false);}
++            s.population=new Population();s.population.subpops=new Subpopulation[]{new Subpopulation()};s.population.subpops[0].individuals=inds;
++            TournamentSelection selector=new TournamentSelection();field(selector,TournamentSelection.class,"size",num(c.get("size")));selector.probabilityOfPickingSizePlusOne=0;selector.pickWorst=false;
++            return map("winner",selector.produce(0,s,0),"random_calls",rng.calls);
++        }
++        if(kind.equals("node")){
++            GPIndividual ind=individual((String)c.get("a"));KozaNodeSelector selector=new KozaNodeSelector();selector.nonterminalProbability=.9;selector.terminalProbability=.1;selector.rootProbability=0;selector.reset();
++            GPNode selected=selector.pickNode(s,0,0,ind,ind.trees[0]);List<GPNode> nodes=new ArrayList<>();walk(ind.trees[0].child,nodes);
++            int index=0;while(nodes.get(index)!=selected)index++;return map("index",index,"random_calls",rng.calls);
++        }
++        if(kind.equals("cross")){
++            GPIndividual a=individual((String)c.get("a")),b=individual((String)c.get("b"));Cross pipe=new Cross();pipe.parents();pipe.likelihood=1;pipe.tree1=pipe.tree2=0;pipe.numTries=num(c.getOrDefault("attempts",1));pipe.maxDepth=num(c.getOrDefault("max_height",7))+1;pipe.maxSize=num(c.getOrDefault("max_nodes",255));pipe.tossSecondParent=false;
++            pipe.nodeselect1=new FixedSelector((List)c.get("positions_a"));pipe.nodeselect2=new FixedSelector((List)c.get("positions_b"));FixedSource source=new FixedSource(a,b);pipe.sources=new BreedingSource[]{source,source};Individual[] out=new Individual[2];int n=pipe.produce(1,num(c.get("outputs")),0,0,out,s,0);
++            List<String> children=new ArrayList<>();for(int i=0;i<n;i++)children.add(expression(((GPIndividual)out[i]).trees[0].child));
++            return map("children",children,"parents",List.of(expression(a.trees[0].child),expression(b.trees[0].child)),"outputs",n);
++        }
++        if(kind.equals("mutation")){
++            GPIndividual a=individual((String)c.get("a"));MutationPipeline pipe=new MutationPipeline();pipe.tree=0;pipe.likelihood=1;pipe.numTries=1;field(pipe,MutationPipeline.class,"maxDepth",num(c.getOrDefault("max_height",7))+1);pipe.maxSize=num(c.getOrDefault("max_nodes",255));pipe.nodeselect=new FixedSelector(List.of(c.get("position")));pipe.builder=new FixedBuilder((String)c.get("subtree"));pipe.sources=new BreedingSource[]{new FixedSource(a)};Individual[] out=new Individual[1];pipe.produce(1,1,0,0,out,s,0);
++            return map("children",List.of(expression(((GPIndividual)out[0]).trees[0].child)),"parents",List.of(expression(a.trees[0].child)));
++        }
++        if(kind.equals("elite")){
++            GPIndividual a=individual("PT"),b=individual("UT"),d=individual("DT");
++            ((SimpleFitness)a.fitness).setFitness(s,-2,false);((SimpleFitness)b.fitness).setFitness(s,-1,false);((SimpleFitness)d.fitness).setFitness(s,-3,false);a.evaluated=b.evaluated=d.evaluated=true;
++            s.population=new Population();s.population.subpops=new Subpopulation[]{new Subpopulation()};s.population.subpops[0].individuals=new Individual[]{a,b,d};
++            Population next=new Population();next.subpops=new Subpopulation[]{new Subpopulation()};next.subpops[0].individuals=new Individual[3];new EliteBreeder().load(s,next);
++            GPIndividual elite=(GPIndividual)next.subpops[0].individuals[2];
++            return map("expression",expression(elite.trees[0].child),"position",2,"evaluated",elite.evaluated,"independent",elite!=b&&elite.trees[0].child!=b.trees[0].child);
++        }
++        if(kind.equals("last_generation")){
++            s.generation=3;s.numGenerations=4;s.statistics=new Statistics();s.statistics.children=new Statistics[0];ObservedEvaluator eval=new ObservedEvaluator();s.evaluator=eval;
++            // breeder/exchanger/problem intentionally absent: any access would fail.
++            int code=s.evolve();return map("evaluated_last_population",eval.calls==1,"evaluated_generations",s.generation,"no_breeding_or_rotation",code==EvolutionState.R_FAILURE);
++        }
++        if(kind.equals("multi")){
++            MultiBreedingPipeline pipe=new MultiBreedingPipeline();pipe.generateMax=false;pipe.sources=new BreedingSource[]{new CountSource("crossover",2,.8),new CountSource("mutation",1,.95),new CountSource("reproduction",1,1.)};
++            return map("outputs",pipe.produce(1,num(c.get("capacity")),0,0,new Individual[2],s,0),"random_calls",rng.calls);
++        }
++        throw new IllegalArgumentException("unknown case "+kind);
++    }
++    public static void main(String[] args)throws Exception{
++        Map input=m(Json.parse(Files.readString(Path.of(args[0]))));List<Object> rows=new ArrayList<>();for(Object value:(List)input.get("cases")){Map c=m(value);rows.add(map("case_id",c.get("case_id"),"result",run(c)));}
++        Files.writeString(Path.of(args[1]),Json.write(map("cases",rows,"runtime",System.getProperty("java.runtime.version"))));
++    }
++}
+--- /dev/null
++++ b/tools/run_s9_b02_command.py
+@@ -0,0 +1,16 @@
++"""Record exact argv/environment, raw stdout/stderr, exit and elapsed time."""
++import argparse,os,subprocess,sys,time,platform,json
++from pathlib import Path
++
++def main():
++    p=argparse.ArgumentParser();p.add_argument('--record',required=True);p.add_argument('command',nargs=argparse.REMAINDER);a=p.parse_args()
++    command=a.command[1:] if a.command[:1]==['--'] else a.command
++    out=Path(a.record);out.parent.mkdir(parents=True,exist_ok=True)
++    started=time.monotonic()
++    with out.with_suffix('.stdout.txt').open('wb') as stdout,out.with_suffix('.stderr.txt').open('wb') as stderr:
++        result=subprocess.run(command,stdout=stdout,stderr=stderr)
++    row=dict(argv=command,cwd=str(Path.cwd()),exit_code=result.returncode,duration_seconds=time.monotonic()-started,
++        python=sys.version,platform=platform.platform(),environment={k:os.environ[k] for k in ('PYTHONPATH','PYTEST_DISABLE_PLUGIN_AUTOLOAD','FOGSIM_JAVA','LD_LIBRARY_PATH') if k in os.environ},
++        stdout=out.with_suffix('.stdout.txt').name,stderr=out.with_suffix('.stderr.txt').name)
++    out.write_text(json.dumps(row,indent=2)+'\n');print(json.dumps(dict(record=str(out),exit_code=result.returncode,duration_seconds=row['duration_seconds'])));return result.returncode
++if __name__=='__main__':raise SystemExit(main())

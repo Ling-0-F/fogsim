@@ -1,0 +1,3237 @@
+--- B08/README.md
++++ S9-B01/README.md
+@@ -1,90 +1,16 @@
+-> 当前累计快照：B05 重新生成版，待用户确认。最新使用与验证说明见 [development/b05/README.md](development/b05/README.md)。B01—B04 文档是历史检查点；阶段 D 未完成，GP 跨语言验收未执行。
++# fogsim 0.4.0 — S9-B01 评估层
+ 
+-> 当前累计开发快照：阶段 D / B04。请先阅读 [B04 说明](development/b04/README.md)、[验证报告](development/b04/REPORT.md) 与 [续接记录](development/b04/HANDOFF.md)。阶段 D 尚未完成。
++以 `fogsim-0.3.0-b08.zip` 为唯一实现基线，累计保留固定、动态、重放、GP 固定规则、身份和数值合同。本批新增严格训练配置、计划冻结、防泄漏检查、真实 B08 固定规则评估、D03 适应度和失败分类、fresh/RNG 隔离、spawn 墙钟监督及独立证据协议。
+ 
+-# fogsim 0.3.0
+-
+-Xu等（2023）雾计算工作流调度Java模拟器的Python复现。保留原固定内核，提供DAX拓扑、共享输入RNG、动态多设备、Java兼容统计/生命周期、完整输入归档、生产重放、固定投影、边数据清理和显式重复实验。
+-
+-本版本以本对话第7步交付包为基线完成冻结设计逐条审计。149项义务和V01～V22的源码、测试及跨语言证据对应关系见 [CONTRACT-AUDIT](docs/CONTRACT-AUDIT.md)；本轮最终结果见 `outputs/final/acceptance.json` 和 [FINAL-ACCEPTANCE](docs/FINAL-ACCEPTANCE.md)。包名、Python版本、CLI和新生成输入的实现标识均为0.3.0；输入/参考各自schema_version保持1。
+-
+-## 安装
+-
+-Python>=3.11，模拟器本身不需要Java或第三方库；测试需要pytest，跨语言验收需要JDK17。允许不同JDK17厂商/更新版本，并记录实际指纹。完整安装示例：
++先读 [运行说明](docs/RUNNING-S9-B01.md)、[批次报告](development/S9-B01/REPORT.md) 和 [协议细化](docs/TRAINING-PROTOCOL-B01.md)。正式设计在 [S9-frozen-1](references/design/fogsim-0.4.0-design.md)；阶段 D 冻结合同在同目录。实际门禁状态以 `outputs/step9/B01/acceptance.json` 为准。
+ 
+ ```bash
+-python -m venv .venv
+-python -m pip install -e '.[test]'
+-python -m fogsim --version
++PYTHONPATH=src python -m fogsim.training.cli validate --config configs/training/B01.json --output outputs/my-preflight
++PYTHONPATH=src python -m fogsim.training.cli evaluate --rules configs/training/rules.json --plan outputs/my-preflight/plans/train-0000.json --output outputs/my-evaluation
+ ```
+ 
+-请使用所建虚拟环境的Python（Windows为`.venv\Scripts\python.exe`，Linux/macOS为`.venv/bin/python`）。本次实际CPython3.12.14、pytest9.2.0、Ubuntu OpenJDK17.0.20+8，编译器为已有jdk.compiler模块。普通JDK可直接使用javac；当前受限运行环境额外需要LD_LIBRARY_PATH，详见最终验收记录。
++运行依赖仅 Python 3.11+ 标准库；本批无须 DEAP。安装后也可用 `fogsim-train`，旧命令 `fogsim` 保留。API、完整回归和 JDK17 实跑说明见运行手册。
+ 
+-## 运行
++本包只实现 S9-B01，没有单树/双树演化闭环，没有执行 848 次闭环预算，也不启动论文规模训练。后续批次仍须分别验收。
+ 
+-```bash
+-# 旧固定接口和repeat输出结构保留
+-python -m fogsim --config configs/chain_fcfs.json --repeat 2 --output outputs/fixed.json
+-
+-# 显式动态重复模式：fresh_same_seed / fresh_seed_list / java_rerun
+-python -m fogsim dynamic --config configs/examples/dynamic_rerun.json --output outputs/batch.json --archive-dir outputs/inputs
+-
+-# 单独input即可重放；输入复用不产生原参考轨迹通过结论
+-python -m fogsim replay --input outputs/inputs/run-000000.input.json --repeat 2 --output outputs/replay.json
+-
+-# 使用本轮独立Java参考进行验证（含完整前后态及实际owner/staging）
+-python -m fogsim replay --config configs/examples/replay_verify.json --output outputs/verified.json
+-
+-# 固定投影附独立.projection.json损失/哈希清单
+-python -m fogsim export-fixed --input outputs/inputs/run-000000.input.json --output outputs/projected.json
+-python -m fogsim --instance outputs/projected.json --output outputs/projected-result.json
+-```
+-
+-配置内路径相对配置文件；直接CLI路径相对cwd。`dynamic --help`、`replay --help`、`export-fixed --help`列出全部选项。仅dynamic可覆盖seed；多轮须显式模式，不自动seed+序号或rotate。退出码0成功、1运行/批次/要求的参考验证失败、2输入错误；未知程序异常传播，输出不能遗留旧成功。
+-
+-`--no-trace`关闭详细事件/决策，仍保留任务事实和完整输入。`verify_reference`需要详细轨迹才能报告完整正常一致；`reuse_inputs`只可改变已支持规则，保持原N/W、来源和环境。记录不足/调用错位有独立诊断，不补输入。
+-
+-## Python API
+-
+-```python
+-from fogsim import (load_experiment_config, create_dynamic_context, run_experiment,
+-                    load_replay_input, create_replay_engine, simulate_replay,
+-                    export_fixed_instance, release_edge_data, AdmissionResult)
+-
+-config = load_experiment_config('configs/examples/dynamic_rerun.json')
+-batch = run_experiment(config)
+-# 单轮Context需要已经展开的配置
+-context = create_dynamic_context(config.single_run(0))
+-first = context.run()
+-second = context.rerun()             # 延续RNG/B，复用环境数值，新对象图
+-context.reset(-1)                    # 重设输入流，不重采环境，保留B；只准备
+-third = context.run()
+-```
+-
+-直接`simulate_replay(input, options, reference_path=...)`可在运行完成后返回嵌套比较报告；input为对象时可显式给input_path用于清单绑定。reuse_inputs不打开参考文件。
+-
+-正式内部接纳入口`AdmissionService.admit`返回`AdmissionResult(accepted, workflow, reason_code)`；普通release拒绝是返回值，生成异常仍传播。历史`attempt`是保留Workflow/None返回的兼容便利适配。默认保留运行边映射，`release_after_materialization`显式启用；只释放运行副本两张映射，独立归档、拓扑、总量、候选时长及完成记录保留。
+-
+-## 验收复跑
+-
+-```bash
+-python tools/check_step2.py --output outputs/my-final/step2
+-python tools/check_step3.py --output outputs/my-final/step3
+-python tools/run_final_acceptance.py --phase dynamic --output outputs/my-final
+-python tools/run_final_acceptance.py --phase performance --output outputs/my-final
+-python tools/validate.py
+-```
+-
+-动态Java导出目录必须为新目录，以免混合新旧捕获。本轮固定的汇总路径为`outputs/final/step2`、`outputs/final/step3`、`outputs/final/current/dynamic`、`outputs/final/performance`。默认汇总/发包用`python tools/assemble_acceptance.py`、`python tools/build_release.py`；后者同时检查完整V01、逐条契约及当前源码快照，缺证据不会发布成功包。自定义验收输出应使用相应新记录审阅，不覆盖历史来源。
+-
+-## 一致性范围
+-
+-跨语言对照以相同实际输入为基础，Python与Java随机数算法/逐值不同是设计允许的差异。动态指标只用Java兼容统计集合；固定投影两侧执行全集，其指标独立于原动态统计。正常、预期差异、覆盖不足、未执行和基础设施错误分别报告。
+-
+-旧`producer_device_id`实际是owner，历史文件不改；新Java参考分别观察真实owner/staging，并有前后态/错误边界。旧参考仍可按已有字段比较，报告`full_contract_verified=false`；最终严格门禁仅使用本轮新完整参考。
+-
+-已知binary64边界：正PT仍可能使总执行区间归零。Python在接受计划前明确FAILED；原Java会出现重叠。这是保留的预期差异，不算正常通过。固定Java适配器仅支持FCFS/fixed_resource，并使用未被这些规则读取的物理占位；不能扩展为GP/真实物理特征一致。
+-
+-两个可选native_*大型固定投影未在本轮执行；V19六个非空投影、十条规则路径构成本轮明确验证范围。性能测量只覆盖具体初始化/小型完整运行，不宣称普遍加速。GP、十个特征、演化训练、论文规模实验、D20正式实验参数勘误解释、网络排队/抢占/重试均在本阶段之外。
+-
+-历史第1～7步报告及原始证据保留；它们描述各自版本和验证范围，不能代替本轮当前验收。原始Java源码/JAR和第4步输入/参考不改，相对第7步补丁为`CHANGES-FROM-STEP7.patch`，全包文件哈希为`RELEASE-FILES.json`。
++原 B08 ZIP 原样保存在 `rollback/fogsim-0.3.0-b08.zip`；旧 README 原文保存在 `references/design/B08-README.md`，旧验收与参考保持原字节。缺失旧 B07 夹具的重建及本轮新证据均另行标注。回滚可将原 ZIP 解压到独立目录。
+--- /dev/null
++++ S9-B01/configs/training/B01.json
+@@ -0,0 +1,10 @@
++{
++  "format": "fogsim.training-config",
++  "schema_version": 1,
++  "mode": "single_routing",
++  "plans": {
++    "training": "train-sources.json",
++    "validation": "validation-sources.json",
++    "test": "test-sources.json"
++  }
++}
+--- /dev/null
++++ S9-B01/configs/training/rules.json
+@@ -0,0 +1,9 @@
++{
++  "routing": {
++    "kind": "gp",
++    "expression": "(+ MRT (+ TTIQ (+ PT (+ UT DT))))"
++  },
++  "sequencing": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ S9-B01/configs/training/test-sources.json
+@@ -0,0 +1,10 @@
++{
++  "format": "fogsim.training-source-plan",
++  "schema_version": 1,
++  "entries": [
++    {
++      "run_id": "test",
++      "config": "test.json"
++    }
++  ]
++}
+--- /dev/null
++++ S9-B01/configs/training/test.json
+@@ -0,0 +1,60 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 2,
++  "mode": "dynamic",
++  "source": {
++    "seed": 21001,
++    "dag_root": "../../examples/step5/dax",
++    "workflow_types": {
++      "lower": 0,
++      "upper": 0
++    },
++    "environment": {
++      "num_mobile_devices": 1,
++      "num_edge_servers": 1,
++      "num_cloud_servers": 0,
++      "can_mobile_devices_process_tasks": true
++    },
++    "samplers": {
++      "workload": {
++        "lower": 2000,
++        "upper": 4000
++      },
++      "data_size": {
++        "lower": 0,
++        "upper": 1
++      },
++      "edge_data": {
++        "lower": 0,
++        "upper": 1
++      },
++      "processing_rate_device": {
++        "lower": 10,
++        "upper": 20
++      },
++      "processing_rate_edge": {
++        "lower": 20,
++        "upper": 30
++      },
++      "processing_rate_cloud": {
++        "lower": 30,
++        "upper": 40
++      }
++    }
++  },
++  "run": {
++    "num_jobs_recorded": 2,
++    "warmup_jobs": 1,
++    "max_events": 2000,
++    "trace_enabled": true,
++    "edge_data_policy": "release_after_materialization",
++    "routing_rule": {
++      "kind": "gp",
++      "expression": "(+ MRT (+ TTIQ (+ PT (+ UT DT))))"
++    },
++    "sequencing_rule": {
++      "kind": "gp",
++      "expression": "(- 0 TIS)"
++    }
++  }
++}
+--- /dev/null
++++ S9-B01/configs/training/train-a.json
+@@ -0,0 +1,60 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 2,
++  "mode": "dynamic",
++  "source": {
++    "seed": 101,
++    "dag_root": "../../examples/step5/dax",
++    "workflow_types": {
++      "lower": 0,
++      "upper": 0
++    },
++    "environment": {
++      "num_mobile_devices": 1,
++      "num_edge_servers": 1,
++      "num_cloud_servers": 0,
++      "can_mobile_devices_process_tasks": true
++    },
++    "samplers": {
++      "workload": {
++        "lower": 2000,
++        "upper": 4000
++      },
++      "data_size": {
++        "lower": 0,
++        "upper": 1
++      },
++      "edge_data": {
++        "lower": 0,
++        "upper": 1
++      },
++      "processing_rate_device": {
++        "lower": 10,
++        "upper": 20
++      },
++      "processing_rate_edge": {
++        "lower": 20,
++        "upper": 30
++      },
++      "processing_rate_cloud": {
++        "lower": 30,
++        "upper": 40
++      }
++    }
++  },
++  "run": {
++    "num_jobs_recorded": 2,
++    "warmup_jobs": 1,
++    "max_events": 2000,
++    "trace_enabled": true,
++    "edge_data_policy": "release_after_materialization",
++    "routing_rule": {
++      "kind": "gp",
++      "expression": "(+ MRT (+ TTIQ (+ PT (+ UT DT))))"
++    },
++    "sequencing_rule": {
++      "kind": "gp",
++      "expression": "(- 0 TIS)"
++    }
++  }
++}
+--- /dev/null
++++ S9-B01/configs/training/train-b.json
+@@ -0,0 +1,60 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 2,
++  "mode": "dynamic",
++  "source": {
++    "seed": 102,
++    "dag_root": "../../examples/step5/dax",
++    "workflow_types": {
++      "lower": 0,
++      "upper": 0
++    },
++    "environment": {
++      "num_mobile_devices": 1,
++      "num_edge_servers": 1,
++      "num_cloud_servers": 0,
++      "can_mobile_devices_process_tasks": true
++    },
++    "samplers": {
++      "workload": {
++        "lower": 2000,
++        "upper": 4000
++      },
++      "data_size": {
++        "lower": 0,
++        "upper": 1
++      },
++      "edge_data": {
++        "lower": 0,
++        "upper": 1
++      },
++      "processing_rate_device": {
++        "lower": 10,
++        "upper": 20
++      },
++      "processing_rate_edge": {
++        "lower": 20,
++        "upper": 30
++      },
++      "processing_rate_cloud": {
++        "lower": 30,
++        "upper": 40
++      }
++    }
++  },
++  "run": {
++    "num_jobs_recorded": 2,
++    "warmup_jobs": 1,
++    "max_events": 2000,
++    "trace_enabled": true,
++    "edge_data_policy": "release_after_materialization",
++    "routing_rule": {
++      "kind": "gp",
++      "expression": "(+ MRT (+ TTIQ (+ PT (+ UT DT))))"
++    },
++    "sequencing_rule": {
++      "kind": "gp",
++      "expression": "(- 0 TIS)"
++    }
++  }
++}
+--- /dev/null
++++ S9-B01/configs/training/train-sources.json
+@@ -0,0 +1,14 @@
++{
++  "format": "fogsim.training-source-plan",
++  "schema_version": 1,
++  "entries": [
++    {
++      "run_id": "train-a",
++      "config": "train-a.json"
++    },
++    {
++      "run_id": "train-b",
++      "config": "train-b.json"
++    }
++  ]
++}
+--- /dev/null
++++ S9-B01/configs/training/validation-sources.json
+@@ -0,0 +1,10 @@
++{
++  "format": "fogsim.training-source-plan",
++  "schema_version": 1,
++  "entries": [
++    {
++      "run_id": "validation",
++      "config": "validation.json"
++    }
++  ]
++}
+--- /dev/null
++++ S9-B01/configs/training/validation.json
+@@ -0,0 +1,60 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 2,
++  "mode": "dynamic",
++  "source": {
++    "seed": 11001,
++    "dag_root": "../../examples/step5/dax",
++    "workflow_types": {
++      "lower": 0,
++      "upper": 0
++    },
++    "environment": {
++      "num_mobile_devices": 1,
++      "num_edge_servers": 1,
++      "num_cloud_servers": 0,
++      "can_mobile_devices_process_tasks": true
++    },
++    "samplers": {
++      "workload": {
++        "lower": 2000,
++        "upper": 4000
++      },
++      "data_size": {
++        "lower": 0,
++        "upper": 1
++      },
++      "edge_data": {
++        "lower": 0,
++        "upper": 1
++      },
++      "processing_rate_device": {
++        "lower": 10,
++        "upper": 20
++      },
++      "processing_rate_edge": {
++        "lower": 20,
++        "upper": 30
++      },
++      "processing_rate_cloud": {
++        "lower": 30,
++        "upper": 40
++      }
++    }
++  },
++  "run": {
++    "num_jobs_recorded": 2,
++    "warmup_jobs": 1,
++    "max_events": 2000,
++    "trace_enabled": true,
++    "edge_data_policy": "release_after_materialization",
++    "routing_rule": {
++      "kind": "gp",
++      "expression": "(+ MRT (+ TTIQ (+ PT (+ UT DT))))"
++    },
++    "sequencing_rule": {
++      "kind": "gp",
++      "expression": "(- 0 TIS)"
++    }
++  }
++}
+--- /dev/null
++++ S9-B01/docs/RUNNING-S9-B01.md
+@@ -0,0 +1,65 @@
++# 0.4.0 S9-B01 运行说明
++
++这是累计工程。新增评估层在 `src/fogsim/training/`，B08 模拟器生产源码除公开版本号外保持原字节。设计定稿在 `references/design/fogsim-0.4.0-design.md`，阶段 D 合同同目录；原 B08 ZIP 在 `rollback/`，其历史 evidence 未重新解释。
++
++## 安装与基本使用
++
++Python 3.11+。可直接安装本包附带的 `development/S9-B01/dist/fogsim_reproduction-0.4.0-py3-none-any.whl`，无须联网获取构建依赖。本批实际 Python 3.12.14，DEAP 没有安装；评估层和旧 API/CLI 均不依赖它。普通运行没有第三方 Python 运行依赖。`train` extra 的 DEAP 1.4.4 声明预留给 B02，B01 未完成其安装、传递依赖锁定和算子验证，不需安装该 extra。
++
++```bash
++python -m pip install -e .
++fogsim --version
++fogsim-train validate --config configs/training/B01.json --output outputs/my-B01-preflight
++fogsim-train evaluate --rules configs/training/rules.json --plan outputs/my-B01-preflight/plans/train-0000.json --output outputs/my-B01-evaluation
++```
++
++不安装包时可用 `PYTHONPATH=src python -m fogsim.training.cli ...`。所有输出目录必须不存在或为空。validate 只预检、冻结、估算，模拟执行数为 0；B01 不提供 train 子命令，未知子命令明确退出 2。evaluate 读取一份冻结计划，按指定固定规则对完整执行。selected-rule 导入与演化训练入口在 B02 实现。
++
++配置 `configs/training/B01.json` 含未来的 12 个体、4 代、2 trial 参数，仅用于预检；不会自动训练。实际 B01 smoke 每次只评估 2 条 fresh 运行，seed 101/102，1 台移动设备和 1 台边缘服务器，2 个 recorded、1 个 warmup、每条事件预算 2000。DAX 是包内 `examples/step5/dax` 的两任务小链。固定验证/test 列表各 1 条，seed 11001/21001，在训练前冻结。训练计划 4 代的清单全部展开，但不等于实际执行这些代。
++
++`trace=selected_cases` 在 B01 表示保留各场景原有 trace_enabled；all/none 统一覆盖。代表、异常和小规模验收保存完整 trace。原始结果与可导出输入始终保存。
++
++Python API 的脚本使用 spawn，务必放在 `if __name__ == '__main__':` 内；交互式 stdin/notebook 直接启动 spawn 的限制沿用 Python 自身机制，推荐 CLI 或脚本文件。
++
++```python
++from fogsim.training import load_training_config, build_training_plans, evaluate_rule_pair
++from fogsim.rules.factory import prepare_rules
++from fogsim.rules.specs import RuleSpec
++
++if __name__ == '__main__':
++    cfg = load_training_config('configs/training/B01.json')
++    plans = build_training_plans(cfg)
++    pair = prepare_rules(RuleSpec('routing', 'gp', expression='PT'),
++                         RuleSpec('sequencing', 'fcfs'))
++    result = evaluate_rule_pair(pair, plans.training[0], 'outputs/my-api-evaluation',
++                                trees=cfg.to_dict()['trees'])
++    print(result.to_dict()['status'])
++```
++
++## 复核本批
++
++实际环境、完整命令和失败尝试说明在 `development/S9-B01/COMMANDS.md`、`outputs/step9/B01/`。运行正式 Java 对照需完整 JDK17（java 和 javac），不支持用 Java21 结果替代。原 Java 647 份源码及所需 JAR 已含在 references/java 中；JDK 本体不随包分发。实际使用 Temurin 17.0.21+9，二进制、JAR、源码和观察补丁摘要在 lifecycle-final/manifest.json。
++
++离线安装本次精确测试依赖：
++
++```bash
++python -m pip install --no-index --find-links development/S9-B01/test-wheels pytest==9.2.0
++```
++
++可设置 `FOGSIM_JAVA=/absolute/path/to/jdk17/bin/java`，并将 `JAVA17` 换成该路径：
++
++```bash
++PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src:tools python -m pytest tests/training -q --basetemp=outputs/my-B01-cases --junitxml=outputs/my-B01-unit.xml
++PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src:tools FOGSIM_JAVA="$JAVA17" python -m pytest tests -q --junitxml=outputs/my-B01-regression.xml
++PYTHONPATH=src:tools python tools/check_s9_lifecycle.py --java "$JAVA17" --output outputs/my-B01-lifecycle
++```
++
++旧完整回归工具会重写 `outputs/parity`、`outputs/v2` 和 `outputs/java_oracle` 的运行记录。因此重跑完整测试应在新的解压副本中进行；若需保留历史目录，先另存新结果，再按 rollback ZIP 恢复原字节。本交付已经这样保存和恢复，详见 history-restoration*.json；旧 outputs/final、development/b08、references 与旧验收原件均经过字节核对。
++
++输入 B08 中缺少旧测试所需的 development/b07；本轮用原 `stage_d_b07.plans.write_plans()` 和 `native.build_native_plan()` 重建缺失夹具，另执行 fixed 20 案例、dynamic 3 案例、native 3 案例。development/b07/evidence 中明确标注为本轮实跑副本，不冒充历史恢复件。它们让旧测试默认路径在独立解压后也可使用。复核 Java 完整场景可用原 `tools/validate_stage_d_b07.py`，指定新 output 目录。
++
++## 读取结果与范围
++
++`evaluation.json` 是训练层快照，`runs/NNNN/result.json` 是原 B08 结果；input.json 是旧读取器可加载的捕获输入或固定物理输入。正式 fitness 只对 FEASIBLE 有值。INFEASIBLE 不能拿 diagnostic_mean_over_successes 选优；INCOMPLETE 必须从头重跑，不用于继续选择。
++
++配置中增大规模只改变预检估算。本包没有单树或双树演化闭环，没有候选、冠军或论文规模结果。S9-B02 的入口是 DEAP 锁定/适配、初始化、单树代循环和通用验证选择；本轮到 B01 为止。
+--- /dev/null
++++ S9-B01/docs/TRAINING-PROTOCOL-B01.md
+@@ -0,0 +1,65 @@
++# S9-B01 协议与工程细化
++
++本文件与 `references/design/fogsim-0.4.0-design.md` 的 S9-frozen-1 配合使用。没有修改 D03、fresh、角色、统计或随机流合同。B01 仅实现固定规则评估；不实现 DEAP 个体、演化、候选归档、验证选优和测试后换规则。
++
++## 配置与冻结
++
++`fogsim.training-config` v1 严格解析器为 `training/config.py`；JSON Schema 在 `schemas/training/`。未知字段在各层拒绝。计数拒绝 bool；所有概率有限非负，权重和绝对容差为 `1e-12`，接受后除以实际和，归一化值进入 resolved config。树最大高度不超过 7，每棵节点不超过 255；初始化 full 最大目标也必须容纳。初始化有限重试默认 100。数值 ERC 为 false。语义版本逐项绑定 D-frozen-1。
++
++默认值全部写入 `resolved_config.json`，额外的 `resolution_root` 仅记录解析位置，不作为可重新输入的配置字段。配置中的三条路径相对训练配置；source-plan 中 config 路径相对各自 source-plan；B08 配置内路径相对该配置。B01 支持两种未来演化模式的配置预检，但不会启动任何演化。
++
++source-plan 为 `fogsim.training-source-plan` v1，严格字段 `format/schema_version/entries`；每条严格字段 `run_id/config`。每个 split 非空，run_id 在计划内唯一。train 必须为 dynamic；validation/test 可作固定输入或 complete reuse_inputs 的受控评估。有限重放的运行覆盖仍须在运行时核验。禁止 verify_reference 和 reference_path 进入本评估器，旧重放 API 保持原合同。
++
++冻结计划每代恰好一份，代号 `0..G-1`。训练 seed 用整数 `b+10000*(g//rotation_period)`，溢出拒绝；旧 `rotate_seed()` 的 Java long 回绕保留。相同周期的计划身份相同，但不提供成绩缓存。验证和测试计划固定，不自动用于选优。跨三类清单检查 `(input_family_id, seed)` 及完整输入内容身份；Python 原生捕获通过重放入口使用时保留同一生成家族和原 seed，不能绕过原生训练清单的隔离。允许同 split 内重复，也允许多个 trial 共享清单。
++
++所有计划保存为不可变 canonical JSON 字符串，`to_dict()` 每次返回独立对象。动态 DAX 原始字节以 Base64 嵌入，摘要按原始字节计算，保留 UTF-16、CRLF 等编码。运行时在临时目录还原，再实际调用 B08 `create_dynamic_context(config, prepared_rules=...)`。固定输入和重放输入也嵌入计划，不依赖原路径。`@frozen-templates`、`@frozen-input` 是持久记录中的位置标记，不作为真实运行路径。
++
++场景中的规则字段冻结为 FCFS 占位；活动规则每次按角色显式安装，并保存 `runs/NNNN/active_config.json` 与原样 B08 manifest。单独的 `rules.json` 严格字段为 routing/sequencing，值就是旧 RuleSpec 描述。B01 不宣称此文件为 B02 的 selected-rule 协议。
++
++## 身份规范
++
++新编码均为：`sha256:` 加 SHA-256 小写 hex；字节是 `fogsim.training.<domain>.v1` 加一个 LF，再接 canonical JSON 的 UTF-8。对象键按 Python Unicode 码点升序；数组保序；`ensure_ascii=False`；无空白和末尾 LF；不做 Unicode 规范化，拒绝未配对代理；浮点有限，采用当前 Python JSON 的十进制表示；signed seed 保留有符号整数。缺失键与 null 不同。Python 精确版本进入 provenance。B08 的规则身份字节编码完全独立，不改动。
++
++| domain | 权威 payload |
++| --- | --- |
++| `input-family`，dynamic 与 Python native replay | generator=`python-b08-native-v1`、B08 原参数内容摘要 parameter_source（环境配置及全部有效 sampler 分布）、workflow_types、按类型顺序的模板原字节摘要 |
++| `scene`，dynamic | input_family 的完整 payload、run（排除两份规则和 trace_enabled） |
++| `input-content`，fixed | 完整已验证物理 instance JSON，排除路径 |
++| `input-content`，replay | environment/templates/candidates/generation_attempts/initial_state；attempt 排除 observed_acceptance/rejection_reason |
++| `input-family`，fixed | mode、input_content_id |
++| `input-family`，其他 replay | generator=`recorded-input-v1`、environment、samplers、templates，排除统计/预算/规则；seed 来自原 initial_state.public_seed |
++| `scene`，fixed/replay | input_family 完整 payload、有效 run/overrides；排除规则和 trace |
++| `plan` | 完整计划文档，排除 plan_id；每条只排除 source_config_sha256，保留有效配置、输入内容、seed、身份、顺序、生命周期、资源和统计合同 |
++| `evaluation` | rule_pair_id、plan_id、implementation_source_id、implementation、failure_policy、trial_id、evaluation_sequence、有效 trees 配置 |
++| `implementation-source` | 按 fogsim 包相对路径排序的所有 Python 源文件 SHA-256 映射 |
++
++输入家族不含统计目标、事件预算、输出位置、规则和 split；场景不含 seed、规则、split 和输出位置。统计和预算变化不能逃过输入家族重复检查。frozen-plan 导入会校验字段、策略、内容、B08 输入格式并重算身份。测试向量在 `development/S9-B01/identity-vectors.json` 和最终 preflight 计划中。
++
++## 评估、监督与证据
++
++每次评估在一个串行 spawn 子进程中运行全部计划条目；这也是未来单 trial 工作进程的评估组件，B01 没有 trial 代循环。子进程模块级 random 用独立 evolution_seed；模拟继续使用每条 seed 的 B08 Random。父进程不 seed/抽取模块 random。额外进化抽样与模拟输入隔离已由实际子进程故障夹具验证。尚未安装或调用 DEAP。
++
++父进程收到 run_started，执行进度回调，再开始 monotonic 计时并回复 START；预算覆盖该条创建、运行、导出与结果传输，进度回调时间不计入单条预算。每条完成后清除时钟。墙钟保护默认关闭；超时终止整个评估进程，2 秒 join 后必要时 kill。退出/超时/取消/回调异常保存已接收的完整证据，不支持续训。墙钟故障夹具既覆盖极小预算，也覆盖真实 B08 priority 调用期间暂停后被终止。
++
++逐条原 `RunResult/DynamicRunResult.to_dict()` 原样保存，不加训练字段，不将 null makespan 改为罚值。固定结果继续为 B08 原输出 profile；动态实验显式 v2。成功指标必须有限非负。全 K 条成功才用 `statistics.mean` 得到正式 fitness；任一领域失败继续剩余条目并最终不可行；未知异常及覆盖/结果合同错误立即中止，保留 traceback 因果链。
++
++| classification | 评估影响 |
++| --- | --- |
++| SUCCESS | 计入成功；全部成功才有正式均值 |
++| EVENT_BUDGET_EXHAUSTED | 领域失败的独立子类；不可行，继续 |
++| DOMAIN_FAILURE | 其他 B08 明确 FAILED；不可行，继续 |
++| INPUT_OR_PLAN_ERROR | 配置/来源或 REPLAY_INPUT_EXHAUSTED/DIVERGENCE；INCOMPLETE，异常传播 |
++| RESULT_CONTRACT_ERROR | 成功却缺有效 makespan 等；INCOMPLETE，异常传播 |
++| PROGRAM_EXCEPTION | 未知程序异常；INCOMPLETE，RemoteEvaluationError 保留远端链 |
++| WALLCLOCK_INTERRUPTED / WORKER_EXIT | INCOMPLETE，不能参与选择 |
++| CANCELLED / CONTROLLER_EXCEPTION | 保存 INCOMPLETE 后重新抛出调用侧异常 |
++
++`fogsim.individual-evaluation` v1 根字段：format、schema_version、evaluation_id，以及上述 evaluation payload 全部字段；rule_manifest；status/fitness；planned_runs/completed_runs/succeeded_runs/failed_runs/not_run；diagnostic_mean_over_successes、diagnostic_sample_stddev_over_successes、diagnostic_stddev_denominator；failure_rate、failure_rate_denominator、not_run_fraction；runs；interruption；evolution_rng_unchanged。
++
++每个 runs 元素字段：index/run_id/classification/status/makespan/reason_code/reason/result_ref/input_ref/raw_result/input_archive。写盘时引用均相对本评估目录，内联字段为 null；无 output_dir 时返回独立内联快照。原结果和输入可以直接由旧读取器读取。失败/未知异常中的 partial 是诊断，capture.complete 如实标 false；墙钟被杀的当前条目未收到完整结果，不虚构原结果或完整输入。completed 只数收到并分类的成功或领域失败，not_run 包括未完成的当前条目。
++
++FEASIBLE 要求三个成功/完成/计划数相等，fitness 为有限值；INFEASIBLE/INCOMPLETE 的 fitness 为 null。失败率分母 completed；未运行比例分母 planned。成功子集均值、样本标准差仅作诊断；标准差分母为成功数减一。比较器拒绝跨计划与 INCOMPLETE，可行优先，不可行之间相等；具体锦标赛或稳定出生排序留给 B02。
++
++输出：plan.json、provenance.json、evaluation.json；runs/NNNN 下 active_config/result/input；progress.jsonl；failures/ 下 exception/controller-exception/interruption。JSON 原子替换。JSONL 只将 LF 完整行视为提交，尾行截断由 read_jsonl 明确报告。代日志、谱系、候选、选中规则和演化结果协议留给 B02/B03。关闭 trace 不关闭规则、计划、原结果或失败证据。
++
++CLI：成功退出 0，领域不可行 1，配置输入错 2，返回式监督中断 130；未知/远端异常不吞 traceback，未捕获 Python 异常退出 1。Ctrl-C 原样传播，通常退出 130。非空输出目录拒绝覆盖。
+--- B08/pyproject.toml
++++ S9-B01/pyproject.toml
+@@ -4,16 +4,18 @@
+ 
+ [project]
+ name = "fogsim-reproduction"
+-version = "0.3.0"
++version = "0.4.0"
+ description = "Fixed, dynamic and replay fog workflow simulator based on Xu et al. (2023)"
+ requires-python = ">=3.11"
+ dependencies = []
+ 
+ [project.optional-dependencies]
+ test = ["pytest>=8,<10"]
++train = ["deap==1.4.4"]
+ 
+ [project.scripts]
+ fogsim = "fogsim.cli:main"
++fogsim-train = "fogsim.training.cli:main"
+ 
+ [tool.setuptools.packages.find]
+ where = ["src"]
+--- /dev/null
++++ S9-B01/schemas/training/config.schema.json
+@@ -0,0 +1,308 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "https://fogsim.local/schema/training/config.schema.json",
++  "type": "object",
++  "properties": {
++    "format": {
++      "const": "fogsim.training-config"
++    },
++    "schema_version": {
++      "const": 1,
++      "type": "integer"
++    },
++    "mode": {
++      "enum": [
++        "single_routing",
++        "dual_tree"
++      ]
++    },
++    "plans": {
++      "type": "object",
++      "properties": {
++        "training": {
++          "type": "string",
++          "minLength": 1
++        },
++        "validation": {
++          "type": "string",
++          "minLength": 1
++        },
++        "test": {
++          "type": "string",
++          "minLength": 1
++        }
++      },
++      "required": [
++        "training",
++        "validation",
++        "test"
++      ],
++      "additionalProperties": false
++    },
++    "trials": {
++      "type": "object",
++      "properties": {
++        "evolution_seeds": {
++          "type": "array",
++          "minItems": 1,
++          "uniqueItems": true,
++          "items": {
++            "type": "integer",
++            "minimum": -9223372036854775808,
++            "maximum": 9223372036854775807
++          }
++        }
++      },
++      "required": [],
++      "additionalProperties": false
++    },
++    "evolution": {
++      "type": "object",
++      "properties": {
++        "population_size": {
++          "type": "integer",
++          "default": 12,
++          "minimum": 1
++        },
++        "generations": {
++          "type": "integer",
++          "default": 4,
++          "minimum": 1
++        },
++        "elite_count": {
++          "type": "integer",
++          "default": 1,
++          "minimum": 0
++        },
++        "tournament_size": {
++          "type": "integer",
++          "default": 3,
++          "minimum": 1
++        },
++        "variation_policy": {
++          "type": "string",
++          "default": "exclusive_choice_v1",
++          "const": "exclusive_choice_v1"
++        },
++        "operator_weights": {
++          "type": "object",
++          "properties": {
++            "crossover": {
++              "type": "number",
++              "default": 0.8,
++              "minimum": 0
++            },
++            "mutation": {
++              "type": "number",
++              "default": 0.15,
++              "minimum": 0
++            },
++            "reproduction": {
++              "type": "number",
++              "default": 0.05,
++              "minimum": 0
++            }
++          },
++          "required": [
++            "crossover",
++            "mutation",
++            "reproduction"
++          ],
++          "additionalProperties": false
++        },
++        "tournament_tie_break": {
++          "type": "string",
++          "default": "first_sampled",
++          "const": "first_sampled"
++        },
++        "crossover_attempts": {
++          "type": "integer",
++          "default": 1,
++          "minimum": 1
++        },
++        "mutation_attempts": {
++          "type": "integer",
++          "default": 1,
++          "minimum": 1
++        }
++      },
++      "required": [],
++      "additionalProperties": false
++    },
++    "trees": {
++      "type": "object",
++      "properties": {
++        "init_min_height": {
++          "type": "integer",
++          "default": 1,
++          "minimum": 0,
++          "maximum": 7
++        },
++        "init_max_height": {
++          "type": "integer",
++          "default": 3,
++          "minimum": 0,
++          "maximum": 7
++        },
++        "init_full_probability": {
++          "type": "number",
++          "default": 0.5,
++          "minimum": 0,
++          "maximum": 1
++        },
++        "grow_policy": {
++          "type": "string",
++          "default": "java_terminal_entry_v1",
++          "const": "java_terminal_entry_v1"
++        },
++        "node_nonterminal_probability": {
++          "type": "number",
++          "default": 0.9,
++          "minimum": 0,
++          "maximum": 1
++        },
++        "mutation_max_height": {
++          "type": "integer",
++          "default": 3,
++          "minimum": 0,
++          "maximum": 7
++        },
++        "max_height": {
++          "type": "integer",
++          "default": 7,
++          "minimum": 0,
++          "maximum": 7
++        },
++        "max_nodes": {
++          "type": "integer",
++          "default": 255,
++          "minimum": 1,
++          "maximum": 255
++        },
++        "numeric_erc": {
++          "type": "boolean",
++          "default": false,
++          "const": false
++        },
++        "initialization_attempts": {
++          "type": "integer",
++          "default": 100,
++          "minimum": 1
++        }
++      },
++      "required": [],
++      "additionalProperties": false
++    },
++    "evaluation": {
++      "type": "object",
++      "properties": {
++        "objective": {
++          "type": "string",
++          "default": "makespan",
++          "const": "makespan"
++        },
++        "aggregation": {
++          "type": "string",
++          "default": "run_equal_mean",
++          "const": "run_equal_mean"
++        },
++        "failure_policy": {
++          "type": "string",
++          "default": "all_success_feasible_v1",
++          "const": "all_success_feasible_v1"
++        },
++        "lifecycle": {
++          "type": "string",
++          "default": "fresh_dynamic_same_plan",
++          "const": "fresh_dynamic_same_plan"
++        },
++        "rotation_period": {
++          "type": "integer",
++          "default": 1,
++          "minimum": 1
++        },
++        "seed_rotation_step": {
++          "type": "integer",
++          "default": 10000,
++          "const": 10000
++        }
++      },
++      "required": [],
++      "additionalProperties": false
++    },
++    "limits": {
++      "type": "object",
++      "properties": {
++        "wallclock_seconds_per_run": {
++          "anyOf": [
++            {
++              "type": "null"
++            },
++            {
++              "type": "number",
++              "exclusiveMinimum": 0
++            }
++          ]
++        }
++      },
++      "required": [],
++      "additionalProperties": false
++    },
++    "output": {
++      "type": "object",
++      "properties": {
++        "trace": {
++          "type": "string",
++          "default": "selected_cases",
++          "enum": [
++            "selected_cases",
++            "all",
++            "none"
++          ]
++        },
++        "save_run_results": {
++          "type": "boolean",
++          "default": true,
++          "const": true
++        },
++        "save_input_archives": {
++          "type": "boolean",
++          "default": true,
++          "const": true
++        }
++      },
++      "required": [],
++      "additionalProperties": false
++    },
++    "semantics": {
++      "type": "object",
++      "properties": {
++        "language_version": {
++          "const": "fogsim-gp-lisp-v1"
++        },
++        "feature_semantics_version": {
++          "const": "fogsim-features-java-v1"
++        },
++        "numeric_semantics_version": {
++          "const": "fogsim-gp-f64-dual-zero-v1"
++        },
++        "selection_policy_version": {
++          "const": "fogsim-selection-java-v1"
++        },
++        "identity_encoding_version": {
++          "const": "fogsim-rule-identity-v1"
++        }
++      },
++      "required": [],
++      "additionalProperties": false
++    }
++  },
++  "required": [
++    "format",
++    "schema_version",
++    "mode",
++    "plans"
++  ],
++  "additionalProperties": false,
++  "description": "Parser additionally checks finite weights, tolerance 1e-12, height/node compatibility, signed64 seeds, and policy constraints. Resolved config adds resolution_root."
++}
+--- /dev/null
++++ S9-B01/schemas/training/evaluation.schema.json
+@@ -0,0 +1,242 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "https://fogsim.local/schema/training/evaluation.schema.json",
++  "type": "object",
++  "required": [
++    "format",
++    "schema_version",
++    "evaluation_id",
++    "plan_id",
++    "status",
++    "fitness",
++    "runs",
++    "rule_pair_id",
++    "implementation_source_id",
++    "implementation",
++    "failure_policy",
++    "trial_id",
++    "evaluation_sequence",
++    "trees",
++    "rule_manifest",
++    "planned_runs",
++    "completed_runs",
++    "succeeded_runs",
++    "failed_runs",
++    "not_run",
++    "diagnostic_mean_over_successes",
++    "diagnostic_sample_stddev_over_successes",
++    "diagnostic_stddev_denominator",
++    "failure_rate",
++    "failure_rate_denominator",
++    "not_run_fraction",
++    "interruption",
++    "evolution_rng_unchanged"
++  ],
++  "properties": {
++    "format": {
++      "const": "fogsim.individual-evaluation"
++    },
++    "schema_version": {
++      "type": "integer",
++      "const": 1
++    },
++    "evaluation_id": {
++      "type": "string",
++      "pattern": "^sha256:[0-9a-f]{64}$"
++    },
++    "plan_id": {
++      "type": "string",
++      "pattern": "^sha256:[0-9a-f]{64}$"
++    },
++    "status": {
++      "enum": [
++        "FEASIBLE",
++        "INFEASIBLE",
++        "INCOMPLETE"
++      ]
++    },
++    "fitness": {
++      "type": [
++        "number",
++        "null"
++      ]
++    },
++    "runs": {
++      "type": "array",
++      "items": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": [
++          "index",
++          "run_id",
++          "classification",
++          "status",
++          "makespan",
++          "reason_code",
++          "reason",
++          "result_ref",
++          "input_ref",
++          "raw_result",
++          "input_archive"
++        ],
++        "properties": {
++          "index": {
++            "type": "integer",
++            "minimum": 0
++          },
++          "run_id": {
++            "type": "string"
++          },
++          "classification": {
++            "enum": [
++              "SUCCESS",
++              "DOMAIN_FAILURE",
++              "EVENT_BUDGET_EXHAUSTED"
++            ]
++          },
++          "status": {
++            "enum": [
++              "SUCCEEDED",
++              "FAILED"
++            ]
++          },
++          "makespan": {
++            "type": [
++              "number",
++              "null"
++            ]
++          },
++          "reason_code": {
++            "type": [
++              "string",
++              "null"
++            ]
++          },
++          "reason": {
++            "type": [
++              "string",
++              "null"
++            ]
++          },
++          "result_ref": {
++            "type": [
++              "string",
++              "null"
++            ]
++          },
++          "input_ref": {
++            "type": [
++              "string",
++              "null"
++            ]
++          },
++          "raw_result": {
++            "type": [
++              "object",
++              "null"
++            ]
++          },
++          "input_archive": {
++            "type": [
++              "object",
++              "null"
++            ]
++          }
++        }
++      }
++    },
++    "rule_pair_id": {
++      "type": "string"
++    },
++    "implementation_source_id": {
++      "type": "string"
++    },
++    "implementation": {
++      "type": "string"
++    },
++    "failure_policy": {
++      "type": "string"
++    },
++    "trial_id": {
++      "type": "string"
++    },
++    "evaluation_sequence": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "trees": {
++      "type": "object"
++    },
++    "rule_manifest": {
++      "type": "object"
++    },
++    "planned_runs": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "completed_runs": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "succeeded_runs": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "failed_runs": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "not_run": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "diagnostic_mean_over_successes": {
++      "type": [
++        "number",
++        "null"
++      ]
++    },
++    "diagnostic_sample_stddev_over_successes": {
++      "type": [
++        "number",
++        "null"
++      ]
++    },
++    "diagnostic_stddev_denominator": {
++      "type": [
++        "number",
++        "null"
++      ]
++    },
++    "failure_rate": {
++      "type": [
++        "number",
++        "null"
++      ]
++    },
++    "failure_rate_denominator": {
++      "type": "integer",
++      "minimum": 0
++    },
++    "not_run_fraction": {
++      "type": [
++        "number",
++        "null"
++      ]
++    },
++    "interruption": {
++      "type": [
++        "object",
++        "null"
++      ]
++    },
++    "evolution_rng_unchanged": {
++      "type": [
++        "boolean",
++        "null"
++      ]
++    }
++  },
++  "description": "Full field inventory and invariants are frozen in docs/TRAINING-PROTOCOL-B01.md; no evolution/selected-rule schema is implemented in B01.",
++  "additionalProperties": false
++}
+--- /dev/null
++++ S9-B01/schemas/training/plan.schema.json
+@@ -0,0 +1,256 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "https://fogsim.local/schema/training/plan.schema.json",
++  "type": "object",
++  "properties": {
++    "format": {
++      "const": "fogsim.training-plan"
++    },
++    "schema_version": {
++      "type": "integer",
++      "const": 1
++    },
++    "split": {
++      "enum": [
++        "train",
++        "validation",
++        "test"
++      ]
++    },
++    "entries": {
++      "type": "array",
++      "minItems": 1,
++      "items": {
++        "oneOf": [
++          {
++            "type": "object",
++            "properties": {
++              "run_id": {
++                "type": "string",
++                "minLength": 1
++              },
++              "mode": {
++                "const": "dynamic"
++              },
++              "seed": {
++                "type": [
++                  "integer",
++                  "null"
++                ]
++              },
++              "effective_config": {
++                "type": "object"
++              },
++              "template_digests": {
++                "type": "object",
++                "additionalProperties": {
++                  "type": "string",
++                  "pattern": "^[0-9a-f]{64}$"
++                }
++              },
++              "lifecycle": {
++                "enum": [
++                  "fresh_dynamic_same_plan",
++                  "fresh_fixed",
++                  "fresh_replay"
++                ]
++              },
++              "input_contract": {
++                "type": "string"
++              },
++              "source_config_sha256": {
++                "type": "string",
++                "pattern": "^[0-9a-f]{64}$"
++              },
++              "scene_id": {
++                "type": "string",
++                "pattern": "^sha256:[0-9a-f]{64}$"
++              },
++              "input_family_id": {
++                "type": "string",
++                "pattern": "^sha256:[0-9a-f]{64}$"
++              },
++              "input_content_id": {
++                "anyOf": [
++                  {
++                    "type": "string",
++                    "pattern": "^sha256:[0-9a-f]{64}$"
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              },
++              "effective_config_sha256": {
++                "type": "string",
++                "pattern": "^[0-9a-f]{64}$"
++              },
++              "templates": {
++                "type": "object",
++                "additionalProperties": {
++                  "type": "string",
++                  "contentEncoding": "base64"
++                }
++              }
++            },
++            "required": [
++              "run_id",
++              "mode",
++              "seed",
++              "effective_config",
++              "template_digests",
++              "lifecycle",
++              "input_contract",
++              "source_config_sha256",
++              "scene_id",
++              "input_family_id",
++              "input_content_id",
++              "effective_config_sha256",
++              "templates"
++            ],
++            "additionalProperties": false
++          },
++          {
++            "type": "object",
++            "properties": {
++              "run_id": {
++                "type": "string",
++                "minLength": 1
++              },
++              "mode": {
++                "enum": [
++                  "fixed",
++                  "replay"
++                ]
++              },
++              "seed": {
++                "type": [
++                  "integer",
++                  "null"
++                ]
++              },
++              "effective_config": {
++                "type": "object"
++              },
++              "template_digests": {
++                "type": "object",
++                "additionalProperties": {
++                  "type": "string",
++                  "pattern": "^[0-9a-f]{64}$"
++                }
++              },
++              "lifecycle": {
++                "enum": [
++                  "fresh_dynamic_same_plan",
++                  "fresh_fixed",
++                  "fresh_replay"
++                ]
++              },
++              "input_contract": {
++                "type": "string"
++              },
++              "source_config_sha256": {
++                "type": "string",
++                "pattern": "^[0-9a-f]{64}$"
++              },
++              "scene_id": {
++                "type": "string",
++                "pattern": "^sha256:[0-9a-f]{64}$"
++              },
++              "input_family_id": {
++                "type": "string",
++                "pattern": "^sha256:[0-9a-f]{64}$"
++              },
++              "input_content_id": {
++                "anyOf": [
++                  {
++                    "type": "string",
++                    "pattern": "^sha256:[0-9a-f]{64}$"
++                  },
++                  {
++                    "type": "null"
++                  }
++                ]
++              },
++              "effective_config_sha256": {
++                "type": "string",
++                "pattern": "^[0-9a-f]{64}$"
++              },
++              "input": {
++                "type": "object"
++              }
++            },
++            "required": [
++              "run_id",
++              "mode",
++              "seed",
++              "effective_config",
++              "template_digests",
++              "lifecycle",
++              "input_contract",
++              "source_config_sha256",
++              "scene_id",
++              "input_family_id",
++              "input_content_id",
++              "effective_config_sha256",
++              "input"
++            ],
++            "additionalProperties": false
++          }
++        ]
++      }
++    },
++    "lifecycle": {
++      "const": "fresh_dynamic_same_plan"
++    },
++    "failure_policy": {
++      "const": "all_success_feasible_v1"
++    },
++    "aggregation": {
++      "const": "run_equal_mean"
++    },
++    "limits": {
++      "type": "object",
++      "properties": {
++        "wallclock_seconds_per_run": {
++          "anyOf": [
++            {
++              "type": "null"
++            },
++            {
++              "type": "number",
++              "exclusiveMinimum": 0
++            }
++          ]
++        }
++      },
++      "required": [],
++      "additionalProperties": false
++    },
++    "dataset_role": {
++      "enum": [
++        "train",
++        "debug",
++        "test"
++      ]
++    },
++    "plan_id": {
++      "type": "string",
++      "pattern": "^sha256:[0-9a-f]{64}$"
++    }
++  },
++  "required": [
++    "format",
++    "schema_version",
++    "split",
++    "entries",
++    "lifecycle",
++    "failure_policy",
++    "aggregation",
++    "limits",
++    "dataset_role",
++    "plan_id"
++  ],
++  "additionalProperties": false,
++  "description": "Importer recomputes every digest, validates B08 configs/inputs and mode/lifecycle/split mappings."
++}
+--- /dev/null
++++ S9-B01/schemas/training/source-plan.schema.json
+@@ -0,0 +1,42 @@
++{
++  "$schema": "https://json-schema.org/draft/2020-12/schema",
++  "$id": "https://fogsim.local/schema/training/source-plan.schema.json",
++  "type": "object",
++  "properties": {
++    "format": {
++      "const": "fogsim.training-source-plan"
++    },
++    "schema_version": {
++      "type": "integer",
++      "const": 1
++    },
++    "entries": {
++      "type": "array",
++      "minItems": 1,
++      "items": {
++        "type": "object",
++        "properties": {
++          "run_id": {
++            "type": "string",
++            "minLength": 1
++          },
++          "config": {
++            "type": "string",
++            "minLength": 1
++          }
++        },
++        "required": [
++          "run_id",
++          "config"
++        ],
++        "additionalProperties": false
++      }
++    }
++  },
++  "required": [
++    "format",
++    "schema_version",
++    "entries"
++  ],
++  "additionalProperties": false
++}
+--- B08/src/fogsim/__init__.py
++++ S9-B01/src/fogsim/__init__.py
+@@ -13,7 +13,7 @@
+ from .simulation.dynamic_result import DynamicRunResult
+ from .errors import PreparationError
+ 
+-__version__ = "0.3.0"
++__version__ = "0.4.0"
+ __all__ = ["RunConfig", "InstanceSpec", "load_fixed_instance", "parse_instance", "create_engine", "simulate",
+            "ExperimentConfig", "load_experiment_config", "parse_experiment_config",
+            "parse_dax", "DagCatalog", "load_dax_catalog", "prepare_random_input",
+--- /dev/null
++++ S9-B01/src/fogsim/training/__init__.py
+@@ -0,0 +1,7 @@
++"""S9-B01 evaluation layer; importing it does not require DEAP."""
++from .config import parse_training_config, load_training_config
++from .plans import build_training_plans, parse_training_plan, TrainingPlan, TrainingPlans
++from .evaluation import evaluate_rule_pair, RemoteEvaluationError
++
++__all__ = ["parse_training_config", "load_training_config", "build_training_plans",
++    "parse_training_plan", "TrainingPlan", "TrainingPlans", "evaluate_rule_pair", "RemoteEvaluationError"]
+--- /dev/null
++++ S9-B01/src/fogsim/training/cli.py
+@@ -0,0 +1,59 @@
++"""Independent fogsim-train entry point. B01 implements validate/evaluate only."""
++import argparse
++import json
++from pathlib import Path
++from fogsim.errors import InputError
++from fogsim.rules.factory import prepare_rules
++from fogsim.rules.specs import RuleSpec
++from .config import load_training_config
++from .plans import build_training_plans, parse_training_plan
++from .evaluation import evaluate_rule_pair
++from .protocols import read_json, write_json, empty_output
++
++
++def main(argv=None):
++    parser = argparse.ArgumentParser(prog="fogsim-train")
++    sub = parser.add_subparsers(dest="command", required=True)
++    validate = sub.add_parser("validate", help="preflight and freeze all plans, without simulation")
++    validate.add_argument("--config", required=True)
++    validate.add_argument("--output", required=True)
++    evaluate = sub.add_parser("evaluate", help="evaluate an explicit fixed rule pair on one frozen plan")
++    evaluate.add_argument("--rules", required=True)
++    evaluate.add_argument("--plan", required=True)
++    evaluate.add_argument("--output", required=True)
++    args = parser.parse_args(argv)
++    try:
++        if args.command == "validate":
++            cfg = load_training_config(args.config)
++            plans = build_training_plans(cfg)
++            output = empty_output(args.output)
++            write_json(output / "resolved_config.json", cfg.to_dict())
++            for g, plan in enumerate(plans.training):
++                write_json(output / f"plans/train-{g:04d}.json", plan.to_dict())
++            write_json(output / "plans/validation.json", plans.validation.to_dict())
++            write_json(output / "plans/test.json", plans.test.to_dict())
++            resolved = cfg.to_dict()
++            count = sum(len(p.to_dict()["entries"]) for p in plans.training)
++            estimate = count * resolved["evolution"]["population_size"] * len(resolved["trials"]["evolution_seeds"])
++            summary = dict(status="PREFLIGHT_ONLY", simulations_executed=0, training_simulation_upper_bound=estimate,
++                deferred="candidate validation, final test and evolution are implemented in B02/B03",
++                event_budgets=[e["effective_config"].get("run", {}).get("max_events") for p in plans.all_plans() for e in p.to_dict()["entries"]],
++                plan_ids=[p.plan_id for p in plans.all_plans()])
++            write_json(output / "preflight.json", summary)
++            print(json.dumps(summary))
++            return 0
++        rules = read_json(args.rules)
++        from fogsim.instances.fixed import object_fields
++        object_fields(rules, ("routing", "sequencing"), where="fixed-rule-pair")
++        prepared = prepare_rules(RuleSpec.from_mapping("routing", rules["routing"]),
++                                 RuleSpec.from_mapping("sequencing", rules["sequencing"]))
++        plan = parse_training_plan(read_json(args.plan))
++        result = evaluate_rule_pair(prepared, plan, args.output).to_dict()
++        print(json.dumps({k: result[k] for k in ("evaluation_id", "status", "fitness", "completed_runs")}))
++        return 0 if result["status"] == "FEASIBLE" else 1 if result["status"] == "INFEASIBLE" else 130
++    except InputError as exc:
++        parser.exit(2, f"configuration/input error: {exc}\n")
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+--- /dev/null
++++ S9-B01/src/fogsim/training/config.py
+@@ -0,0 +1,101 @@
++"""Strict training-config v1. Parsing and preflight consume no RNG."""
++from pathlib import Path
++import math
++from fogsim.errors import InputError
++from fogsim.instances.fixed import object_fields
++from fogsim.input_validation import integer, finite, boolean, choice, text
++from fogsim.seed import encode_seed
++from .protocols import Snapshot, canonical, read_json, SEMANTICS
++
++EVOLUTION = dict(population_size=12, generations=4, elite_count=1, tournament_size=3,
++    variation_policy="exclusive_choice_v1", operator_weights=dict(crossover=.8, mutation=.15, reproduction=.05),
++    tournament_tie_break="first_sampled", crossover_attempts=1, mutation_attempts=1)
++TREES = dict(init_min_height=1, init_max_height=3, init_full_probability=.5,
++    grow_policy="java_terminal_entry_v1", node_nonterminal_probability=.9,
++    mutation_max_height=3, max_height=7, max_nodes=255, numeric_erc=False, initialization_attempts=100)
++EVALUATION = dict(objective="makespan", aggregation="run_equal_mean", failure_policy="all_success_feasible_v1",
++    lifecycle="fresh_dynamic_same_plan", rotation_period=1, seed_rotation_step=10000)
++OUTPUT = dict(trace="selected_cases", save_run_results=True, save_input_archives=True)
++
++
++def _section(data, name, defaults):
++    raw = data.get(name, {})
++    object_fields(raw, (), tuple(defaults), name)
++    return dict(defaults, **raw)
++
++
++def parse_training_config(data, base_dir):
++    object_fields(data, ("format", "schema_version", "mode", "plans"),
++                  ("trials", "evolution", "trees", "evaluation", "limits", "output", "semantics"), "training")
++    choice(data["format"], ("fogsim.training-config",), "format")
++    integer(data["schema_version"], "schema_version", 1, 1)
++    choice(data["mode"], ("single_routing", "dual_tree"), "mode")
++    trials = _section(data, "trials", dict(evolution_seeds=[50001, 50002]))
++    seeds = trials["evolution_seeds"]
++    if type(seeds) is not list or not seeds:
++        raise InputError("evolution_seeds must be a nonempty array")
++    for seed in seeds:
++        encode_seed(seed)
++    if len(set(seeds)) != len(seeds):
++        raise InputError("independent trials require distinct evolution seeds")
++    e = _section(data, "evolution", EVOLUTION)
++    for key in ("population_size", "generations", "tournament_size", "crossover_attempts", "mutation_attempts"):
++        integer(e[key], key, 1)
++    integer(e["elite_count"], "elite_count", 0, e["population_size"])
++    choice(e["variation_policy"], ("exclusive_choice_v1",), "variation_policy")
++    choice(e["tournament_tie_break"], ("first_sampled",), "tournament_tie_break")
++    weights = e["operator_weights"]
++    object_fields(weights, ("crossover", "mutation", "reproduction"), where="operator_weights")
++    weights = {k: finite(v, k) for k, v in weights.items()}
++    total = math.fsum(weights.values())
++    if abs(total - 1.0) > 1e-12:
++        raise InputError("operator_weights must sum to 1 (absolute tolerance 1e-12)")
++    e["operator_weights"] = {k: v / total for k, v in weights.items()}
++    t = _section(data, "trees", TREES)
++    for key in ("init_min_height", "init_max_height", "mutation_max_height", "max_height"):
++        integer(t[key], key, 0, 7)
++    for key in ("max_nodes", "initialization_attempts"):
++        integer(t[key], key, 1, 255 if key == "max_nodes" else None)
++    if not t["init_min_height"] <= t["init_max_height"] <= t["max_height"] or t["mutation_max_height"] > t["max_height"]:
++        raise InputError("incompatible tree heights")
++    if 2 ** (t["init_max_height"] + 1) - 1 > t["max_nodes"]:
++        raise InputError("full initialization at maximum target height cannot fit max_nodes")
++    for key in ("init_full_probability", "node_nonterminal_probability"):
++        t[key] = finite(t[key], key)
++        if t[key] > 1:
++            raise InputError(f"{key}: probability > 1")
++    boolean(t["numeric_erc"], "numeric_erc")
++    if t["numeric_erc"]:
++        raise InputError("numeric ERC search is not supported")
++    choice(t["grow_policy"], ("java_terminal_entry_v1",), "grow_policy")
++    ev = _section(data, "evaluation", EVALUATION)
++    for key, expected in EVALUATION.items():
++        if key == "rotation_period":
++            integer(ev[key], key, 1)
++        elif key == "seed_rotation_step":
++            integer(ev[key], key, 10000, 10000)
++        else:
++            choice(ev[key], (expected,), key)
++    limits = _section(data, "limits", dict(wallclock_seconds_per_run=None))
++    if limits["wallclock_seconds_per_run"] is not None:
++        limits["wallclock_seconds_per_run"] = finite(limits["wallclock_seconds_per_run"], "wallclock", True)
++    out = _section(data, "output", OUTPUT)
++    choice(out["trace"], ("selected_cases", "all", "none"), "trace")
++    for key in ("save_run_results", "save_input_archives"):
++        boolean(out[key], key)
++        if not out[key]:
++            raise InputError("B01 requires original results and available input archives")
++    semantic = _section(data, "semantics", SEMANTICS)
++    if semantic != SEMANTICS:
++        raise InputError("unsupported semantic version binding")
++    paths = data["plans"]
++    object_fields(paths, ("training", "validation", "test"), where="plans")
++    base = Path(base_dir).resolve()
++    paths = {k: str((base / text(v, k)).resolve()) for k, v in paths.items()}
++    return Snapshot(canonical(dict(format=data["format"], schema_version=1, mode=data["mode"], trials=trials,
++        evolution=e, trees=t, evaluation=ev, limits=limits, output=out, plans=paths,
++        semantics=semantic, resolution_root=str(base))))
++
++
++def load_training_config(path):
++    return parse_training_config(read_json(path), Path(path).resolve().parent)
+--- /dev/null
++++ S9-B01/src/fogsim/training/evaluation.py
+@@ -0,0 +1,159 @@
++"""Fixed-rule API, parent-owned persistence, progress and wall-clock supervision."""
++import multiprocessing
++import platform
++import sys
++import time
++import traceback
++from pathlib import Path
++from fogsim.errors import InputError
++from fogsim.rules.factory import PreparedRules
++from .protocols import Snapshot, canonical, identity, write_json, empty_output, IMPLEMENTATION, POLICY, source_provenance, append_jsonl
++from .plans import parse_training_plan
++from .fitness import summarize
++from .worker import evaluation_worker
++
++
++class RemoteEvaluationError(RuntimeError):
++    def __init__(self, error, evaluation):
++        self.error, self.evaluation = error, evaluation
++        super().__init__(f"{error['error_type']}: {error['message']}\nRemote exception chain:\n{error['traceback']}")
++
++
++def evaluate_rule_pair(prepared_rules, plan, output_dir=None, *, evaluation_sequence=0, trial_id="trial-0001",
++                       evolution_seed=50001, trees=None, on_progress=None):
++    from fogsim.input_validation import integer, text
++    from fogsim.seed import encode_seed
++    from .config import TREES
++    from .runtime import preflight
++    if type(prepared_rules) is not PreparedRules:
++        raise InputError("expected PreparedRules")
++    plan = parse_training_plan(plan.to_dict())
++    p = plan.to_dict()
++    integer(evaluation_sequence, "evaluation_sequence")
++    text(trial_id, "trial_id")
++    encode_seed(evolution_seed)
++    if trees is None:
++        trees = dict(TREES)
++    else:
++        from .config import parse_training_config
++        trees = parse_training_config(dict(format="fogsim.training-config", schema_version=1, mode="single_routing",
++            plans=dict(training="x", validation="y", test="z"), trees=trees), Path.cwd()).to_dict()["trees"]
++    preflight(prepared_rules, p, trees)
++    output = empty_output(output_dir) if output_dir is not None else None
++    source = source_provenance()
++    binding = dict(rule_pair_id=prepared_rules.rule_pair_id, plan_id=plan.plan_id, implementation_source_id=source["source_id"],
++        implementation=IMPLEMENTATION, failure_policy=POLICY, trial_id=trial_id,
++        evaluation_sequence=evaluation_sequence, trees=trees)
++    records, interrupted = [], None
++    def snapshot(complete=False, rng=None):
++        return Snapshot(canonical(dict(format="fogsim.individual-evaluation", schema_version=1,
++            evaluation_id=identity("evaluation", binding), **binding, rule_manifest=prepared_rules.rule_manifest,
++            **summarize(records, len(p["entries"]), complete), runs=records, interruption=interrupted,
++            evolution_rng_unchanged=rng)))
++    if output:
++        write_json(output / "plan.json", p)
++        write_json(output / "provenance.json", dict(python=sys.version, platform=platform.platform(),
++            start_method="spawn", evolution_seed=evolution_seed, implementation=IMPLEMENTATION,
++            tree_limits=trees, wallclock_start="acknowledged run_started before construction", **source))
++        write_json(output / "evaluation.json", snapshot().to_dict())
++    ctx = multiprocessing.get_context("spawn")
++    parent, child = ctx.Pipe()
++    process = ctx.Process(target=evaluation_worker, args=(child,
++        dict(routing=prepared_rules.routing_spec.to_dict(), sequencing=prepared_rules.sequencing_spec.to_dict()),
++        p, evolution_seed))
++    started, active = None, None
++    error = None
++    done, rng = False, None
++    def save():
++        if output:
++            write_json(output / "evaluation.json", snapshot(done, rng).to_dict())
++    try:
++        process.start()
++        child.close()
++        while not done:
++            seconds = p["limits"]["wallclock_seconds_per_run"]
++            remaining = seconds - (time.monotonic()-started) if seconds is not None and started is not None else None
++            if remaining is not None and remaining <= 0:
++                interrupted = dict(classification="WALLCLOCK_INTERRUPTED", run_index=active,
++                    capture_complete=False, coverage="received completed runs only", seconds=seconds)
++                break
++            if parent.poll(min(.05, max(0, remaining)) if remaining is not None else .05):
++                try:
++                    message = parent.recv()
++                except EOFError:
++                    interrupted = dict(classification="WORKER_EXIT", exitcode=process.exitcode)
++                    break
++                kind = message["kind"]
++                if output:
++                    append_jsonl(output / "progress.jsonl", {k: v for k, v in message.items() if k not in ("raw", "archive", "partial")})
++                if kind == "run_started":
++                    active = message["index"]
++                    # callback time is outside the run budget, and callback receives a detached fact.
++                    if on_progress:
++                        on_progress(dict(message))
++                    started = time.monotonic()
++                    if output:
++                        write_json(output / "active_run.json", dict(message, capture_complete=False))
++                    parent.send("START")
++                elif kind == "active_config":
++                    if output:
++                        write_json(output / f"runs/{message['index']:04d}/active_config.json", message["config"])
++                elif kind == "run_completed":
++                    started = None
++                    index = message["index"]
++                    raw, archive = message["raw"], message["archive"]
++                    result_ref, input_ref = f"runs/{index:04d}/result.json", f"runs/{index:04d}/input.json"
++                    if output:
++                        write_json(output / result_ref, raw)
++                        if archive is not None:
++                            write_json(output / input_ref, archive)
++                    records.append(dict(index=index, run_id=p["entries"][index]["run_id"],
++                        classification=message["classification"], status=raw["status"], makespan=raw["makespan"],
++                        reason_code=raw.get("reason_code"), reason=raw.get("reason"),
++                        result_ref=result_ref if output else None, input_ref=input_ref if output and archive is not None else None,
++                        raw_result=raw if not output else None, input_archive=archive if not output else None))
++                    save()
++                    if on_progress:
++                        on_progress(dict(kind=kind, index=index, evaluation=snapshot().to_dict()))
++                elif kind == "error":
++                    error = message
++                    interrupted = dict(classification=message["classification"], run_index=message.get("index"),
++                        error_type=message["error_type"], message=message["message"])
++                    if output:
++                        write_json(output / "failures/exception.json", message)
++                    break
++                elif kind == "done":
++                    started = None
++                    done, rng = True, message["evolution_rng_unchanged"]
++                else:
++                    raise RuntimeError("unknown worker protocol message")
++            elif not process.is_alive():
++                # One final poll drains already-sent messages before classifying an exit.
++                if parent.poll():
++                    continue
++                interrupted = dict(classification="WORKER_EXIT", exitcode=process.exitcode)
++                break
++    except BaseException as exc:
++        interrupted = dict(classification="CANCELLED" if isinstance(exc, KeyboardInterrupt) else "CONTROLLER_EXCEPTION",
++                           error_type=type(exc).__name__, message=str(exc), run_index=active)
++        if output:
++            write_json(output / "failures/controller-exception.json", dict(interrupted, traceback=traceback.format_exc()))
++        save()
++        raise
++    finally:
++        if process.pid is not None:
++            if not done and process.is_alive():
++                process.terminate()
++            process.join(timeout=2)
++            if process.is_alive():
++                process.kill()
++                process.join()
++        parent.close()
++        child.close()
++        if output and interrupted:
++            write_json(output / "failures/interruption.json", interrupted)
++        save()
++    result = snapshot(done, rng)
++    if error is not None:
++        raise RemoteEvaluationError(error, result)
++    return result
+--- /dev/null
++++ S9-B01/src/fogsim/training/fitness.py
+@@ -0,0 +1,56 @@
++"""D03: feasible first; no failure ranking or successful-subset selection."""
++import math
++import statistics
++from fogsim.errors import InputError
++
++
++class EvaluationContractError(RuntimeError):
++    classification = "RESULT_CONTRACT_ERROR"
++
++
++class PlanCoverageError(EvaluationContractError, InputError):
++    classification = "INPUT_OR_PLAN_ERROR"
++
++
++def classify(result):
++    if result["status"] == "SUCCEEDED":
++        value = result.get("makespan")
++        if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
++            raise EvaluationContractError("successful B08 result lacks finite nonnegative makespan")
++        return "SUCCESS"
++    if result["status"] != "FAILED":
++        raise EvaluationContractError("unexpected B08 result status")
++    code = result.get("reason_code")
++    if code in ("REPLAY_INPUT_EXHAUSTED", "REPLAY_INPUT_DIVERGENCE"):
++        raise PlanCoverageError(f"plan input coverage error: {code}")
++    if code is None and result.get("reason") != "event limit exceeded":
++        raise EvaluationContractError("unclassified B08 failure")
++    return "EVENT_BUDGET_EXHAUSTED" if code == "MAX_EVENTS_EXCEEDED" or result.get("reason") == "event limit exceeded" else "DOMAIN_FAILURE"
++
++
++def summarize(records, planned, complete):
++    success = [r["makespan"] for r in records if r["classification"] == "SUCCESS"]
++    failed = sum(r["classification"] in ("DOMAIN_FAILURE", "EVENT_BUDGET_EXHAUSTED") for r in records)
++    completed = len(success) + failed
++    feasible = complete and completed == planned == len(success)
++    return dict(status=("FEASIBLE" if feasible else "INFEASIBLE") if complete else "INCOMPLETE",
++        fitness=statistics.mean(success) if feasible else None, planned_runs=planned,
++        completed_runs=completed, succeeded_runs=len(success), failed_runs=failed, not_run=planned-completed,
++        diagnostic_mean_over_successes=statistics.mean(success) if success else None,
++        diagnostic_sample_stddev_over_successes=statistics.stdev(success) if len(success) >= 2 else None,
++        diagnostic_stddev_denominator=len(success)-1 if len(success) >= 2 else None,
++        failure_rate=failed/completed if completed else None, failure_rate_denominator=completed,
++        not_run_fraction=(planned-completed)/planned)
++
++
++def compare(left, right):
++    a, b = left.to_dict() if hasattr(left, "to_dict") else left, right.to_dict() if hasattr(right, "to_dict") else right
++    if "INCOMPLETE" in (a["status"], b["status"]):
++        raise EvaluationContractError("incomplete evaluations cannot participate in selection")
++    if a["plan_id"] != b["plan_id"]:
++        raise EvaluationContractError("cannot compare scores from different plans")
++    if a["status"] != b["status"]:
++        return -1 if a["status"] == "FEASIBLE" else 1
++    if a["status"] == "INFEASIBLE":
++        return 0
++    return (a["fitness"] > b["fitness"]) - (a["fitness"] < b["fitness"])
+--- /dev/null
++++ S9-B01/src/fogsim/training/plans.py
+@@ -0,0 +1,261 @@
++"""Content-frozen plans, including input bytes. Paths are provenance, not identity."""
++from dataclasses import dataclass, asdict
++from pathlib import Path
++import json
++import base64
++from fogsim.errors import InputError
++from fogsim.instances.fixed import object_fields, parse_instance
++from fogsim.instances.catalog import load_dax_catalog, STANDARD_DAX_FILES
++from fogsim.experiment_config import parse_experiment_config
++from fogsim.config import load_config, RunConfig
++from fogsim.replay.loader import parse_replay_input
++from fogsim.seed import encode_seed
++from .protocols import Snapshot, canonical, identity, content_sha, read_json, POLICY
++
++SPLITS = {"train": "train", "validation": "debug", "test": "test"}
++
++
++@dataclass(frozen=True)
++class TrainingPlan(Snapshot):
++    @property
++    def plan_id(self):
++        return self.to_dict()["plan_id"]
++
++
++@dataclass(frozen=True)
++class TrainingPlans:
++    training: tuple[TrainingPlan, ...]
++    validation: TrainingPlan
++    test: TrainingPlan
++
++    def all_plans(self):
++        return (*self.training, self.validation, self.test)
++
++
++def _without_rules(run):
++    return {k: v for k, v in run.items() if k not in ("routing_rule", "sequencing_rule", "trace_enabled",
++        "routing_kind", "sequencing_kind", "routing_expression", "sequencing_expression", "fixed_resource_id")}
++
++
++def _identities(entry):
++    mode, cfg = entry["mode"], entry["effective_config"]
++    if mode == "dynamic":
++        source = parse_experiment_config(cfg, base_dir=Path.cwd()).source
++        # Use B08's exact parameter-content digest, so a native capture cannot
++        # evade split checks by being consumed through the replay entry point.
++        parameters = dict(environment=asdict(source.environment), samplers=source.samplers.effective_parameters())
++        parameter_source = content_sha(json.dumps(parameters, sort_keys=True, separators=(",", ":")).encode())
++        family = dict(generator="python-b08-native-v1", parameter_source=parameter_source,
++            workflow_types=asdict(source.workflow_types),
++            templates=[dict(dag_type_id=i, source_sha256=entry["template_digests"][STANDARD_DAX_FILES[i]])
++                       for i in range(source.workflow_types.lower, source.workflow_types.upper+1)])
++        scene = dict(input_family=family, run=_without_rules(cfg["run"]))
++        input_id = None
++    else:
++        inp = entry["input"]
++        if mode == "fixed":
++            full = inp
++            run = _without_rules(cfg)
++        else:
++            # Input content excludes recorded rules, capture observations and statistics.
++            full = {k: inp[k] for k in ("environment", "templates", "candidates", "generation_attempts", "initial_state")}
++            full["generation_attempts"] = [{k: v for k, v in a.items() if k not in ("observed_acceptance", "rejection_reason")}
++                                                for a in full["generation_attempts"]]
++            run = dict(_without_rules(inp["effective_config"]), overrides=_without_rules(cfg["run"]))
++            for k in ("sequencing_rule", "routing_rule"):
++                run.pop(k, None)
++        input_id = identity("input-content", full)
++        if mode == "fixed":
++            family = dict(mode=mode, input_content_id=input_id)
++        elif inp["origin"].get("language") == "Python" and inp["origin"].get("fixture_kind") == "native_random":
++            lower, upper = inp["effective_config"]["samplers"]["workflow_type"]
++            family = dict(generator="python-b08-native-v1", parameter_source=inp["environment"]["parameter_source"],
++                workflow_types=dict(lower=lower, upper=upper),
++                templates=[dict(dag_type_id=t["dag_type_id"], source_sha256=t["source_sha256"]) for t in inp["templates"]])
++        else:
++            family = dict(generator="recorded-input-v1", environment=inp["environment"],
++                samplers=inp["effective_config"]["samplers"], templates=inp["templates"])
++        scene = dict(input_family=family, run=run)
++    return identity("scene", scene), identity("input-family", family), input_id
++
++
++def _entry(path, run_id, split, offset, output):
++    raw = read_json(path)
++    if type(raw) is not dict:
++        raise InputError("scene config must be an object")
++    if raw.get("format") == "fogsim.experiment":
++        cfg = parse_experiment_config(raw, base_dir=path.parent)
++        if cfg.schema_version != 2 or cfg.repeat.count != 1:
++            raise InputError("training source scenes require B08 v2 and repeat.count=1")
++        cfg = cfg.single_run()
++        value = cfg.to_dict()
++        # Scene rules are placeholders; the evaluated pair is installed explicitly.
++        for role in ("routing", "sequencing"):
++            value["run"][role + "_rule"] = dict(kind="fcfs")
++        value["output"] = dict(dataset_role=SPLITS[split])
++        if output["trace"] != "selected_cases":
++            value["run"]["trace_enabled"] = output["trace"] == "all"
++        if cfg.mode == "dynamic":
++            if cfg.run.max_events is None:
++                raise InputError("each dynamic entry requires an explicit event budget")
++            seed = cfg.source.seed + offset
++            encode_seed(seed)  # Arithmetic overflow is rejected, never long-wrapped.
++            value["source"]["seed"] = seed
++            catalog = load_dax_catalog(cfg)
++            templates = {STANDARD_DAX_FILES[t.dag_type_id]: base64.b64encode((cfg.source.dag_root / STANDARD_DAX_FILES[t.dag_type_id]).read_bytes()).decode("ascii")
++                         for t in catalog.templates}
++            digests = {k: content_sha(base64.b64decode(v, validate=True)) for k, v in templates.items()}
++            value["source"]["dag_root"] = "@frozen-templates"
++            entry = dict(mode="dynamic", seed=seed, templates=templates, template_digests=digests,
++                effective_config=value, input_contract="same_input_generation_mechanism",
++                lifecycle="fresh_dynamic_same_plan")
++        else:
++            if cfg.source.purpose != "reuse_inputs" or cfg.source.reference_path is not None:
++                raise InputError("controlled replay evaluation requires reuse_inputs without a reference")
++            inp = read_json(cfg.source.input_path)
++            parse_replay_input(inp)  # incomplete captures are not eligible
++            if cfg.run.max_events is None:
++                raise InputError("controlled replay requires an explicit event budget")
++            value["source"]["input_path"] = "@frozen-input"
++            entry = dict(mode="replay", seed=inp["initial_state"]["public_seed"], effective_config=value, input=inp, template_digests={},
++                lifecycle="fresh_replay", input_contract="explicit_complete_recorded_input_coverage_checked_at_runtime")
++    else:
++        instance_path, cfg = load_config(path)
++        inp = read_json(instance_path)
++        parse_instance(inp)
++        cfg = cfg.to_dict()
++        cfg.update(routing_kind="fcfs", sequencing_kind="fcfs", fixed_resource_id=None)
++        cfg.pop("routing_expression", None)
++        cfg.pop("sequencing_expression", None)
++        if output["trace"] != "selected_cases":
++            cfg["trace_enabled"] = output["trace"] == "all"
++        entry = dict(mode="fixed", seed=None, effective_config=cfg, input=inp, template_digests={},
++            lifecycle="fresh_fixed", input_contract="explicit_fixed_input")
++    entry.update(run_id=run_id, source_config_sha256=content_sha(path.read_bytes()))
++    entry["scene_id"], entry["input_family_id"], entry["input_content_id"] = _identities(entry)
++    entry["effective_config_sha256"] = content_sha(canonical(entry["effective_config"]).encode())
++    return entry
++
++
++def _plan(split, entries, limits):
++    payload = dict(format="fogsim.training-plan", schema_version=1, split=split, entries=entries,
++        lifecycle="fresh_dynamic_same_plan", failure_policy=POLICY, aggregation="run_equal_mean",
++        limits=limits, dataset_role=SPLITS[split])
++    # Exclude original file encoding/provenance; retain all effective content.
++    semantic = dict(payload, entries=[{k: v for k, v in e.items() if k != "source_config_sha256"} for e in entries])
++    return TrainingPlan(canonical(payload | dict(plan_id=identity("plan", semantic))))
++
++
++def build_training_plans(config):
++    cfg = config.to_dict()
++    manifests = {}
++    for split, key in (("train", "training"), ("validation", "validation"), ("test", "test")):
++        path = Path(cfg["plans"][key])
++        raw = read_json(path)
++        object_fields(raw, ("format", "schema_version", "entries"), where="source-plan")
++        if raw["format"] != "fogsim.training-source-plan" or type(raw["schema_version"]) is not int or raw["schema_version"] != 1:
++            raise InputError("unsupported source-plan protocol")
++        if type(raw["entries"]) is not list or not raw["entries"]:
++            raise InputError("source-plan requires at least one entry")
++        rows, ids = [], set()
++        for e in raw["entries"]:
++            object_fields(e, ("run_id", "config"), where="source-plan.entry")
++            if type(e["run_id"]) is not str or not e["run_id"].strip() or e["run_id"] in ids:
++                raise InputError("run_id must be nonempty and unique within a plan")
++            if type(e["config"]) is not str or not e["config"].strip():
++                raise InputError("entry config must be a path")
++            ids.add(e["run_id"])
++            rows.append(((path.parent / e["config"]).resolve(), e["run_id"]))
++        manifests[split] = rows
++    groups = {}
++    for split in SPLITS:
++        count = cfg["evolution"]["generations"] if split == "train" else 1
++        groups[split] = []
++        for g in range(count):
++            offset = 10000 * (g // cfg["evaluation"]["rotation_period"]) if split == "train" else 0
++            entries = [_entry(p, i, split, offset, cfg["output"]) for p, i in manifests[split]]
++            if split == "train" and any(e["mode"] != "dynamic" for e in entries):
++                raise InputError("main training plans require fresh dynamic input")
++            groups[split].append(_plan(split, entries, cfg["limits"]))
++    seen_seed, seen_content = {}, {}
++    for split, plans in groups.items():
++        for plan in plans:
++            for e in plan.to_dict()["entries"]:
++                keys = [(seen_seed, (e["input_family_id"], e["seed"]))] if e["seed"] is not None else []
++                if e["input_content_id"] is not None:
++                    keys.append((seen_content, e["input_content_id"]))
++                for seen, key in keys:
++                    if key in seen and seen[key] != split:
++                        raise InputError(f"cross-split input leakage: {seen[key]} / {split}")
++                    seen[key] = split
++    return TrainingPlans(tuple(groups["train"]), groups["validation"][0], groups["test"][0])
++
++
++def parse_training_plan(raw):
++    object_fields(raw, ("format", "schema_version", "split", "entries", "lifecycle", "failure_policy", "aggregation",
++                        "limits", "dataset_role", "plan_id"), where="training-plan")
++    if raw["split"] not in SPLITS or raw["format"] != "fogsim.training-plan" or type(raw["schema_version"]) is not int or raw["schema_version"] != 1:
++        raise InputError("unsupported frozen plan")
++    if type(raw["entries"]) is not list or not raw["entries"]:
++        raise InputError("empty frozen plan")
++    from .config import parse_training_config
++    # Reuse strict resource validation without I/O.
++    parse_training_config(dict(format="fogsim.training-config", schema_version=1, mode="single_routing",
++        plans=dict(training="x", validation="y", test="z"), limits=raw["limits"]), Path.cwd())
++    ids = set()
++    for e in raw["entries"]:
++        common = ("run_id", "mode", "seed", "effective_config", "template_digests", "lifecycle", "input_contract",
++                  "source_config_sha256", "scene_id", "input_family_id", "input_content_id", "effective_config_sha256")
++        object_fields(e, common + (("templates",) if e.get("mode") == "dynamic" else ("input",)), where="plan.entry")
++        if type(e["run_id"]) is not str or not e["run_id"].strip() or e["run_id"] in ids:
++            raise InputError("invalid frozen run_id")
++        ids.add(e["run_id"])
++        if e["mode"] == "dynamic":
++            cfg = parse_experiment_config(e["effective_config"], base_dir=Path.cwd())
++            if cfg.mode != "dynamic" or cfg.schema_version != 2 or cfg.repeat.count != 1 or cfg.source.seed is None or cfg.run.max_events is None:
++                raise InputError("invalid frozen dynamic config")
++            if e["effective_config"]["source"]["dag_root"] != "@frozen-templates" or cfg.output.dataset_role != SPLITS[raw["split"]]:
++                raise InputError("invalid frozen dynamic source/output binding")
++            expected_names = {STANDARD_DAX_FILES[i] for i in range(cfg.source.workflow_types.lower, cfg.source.workflow_types.upper+1)}
++            if set(e["templates"]) != expected_names:
++                raise InputError("invalid frozen template names")
++            if e["template_digests"] != {k: content_sha(base64.b64decode(v, validate=True)) for k, v in e["templates"].items()}:
++                raise InputError("frozen template digest mismatch")
++            if e["seed"] != e["effective_config"]["source"]["seed"]:
++                raise InputError("frozen seed mismatch")
++            encode_seed(e["seed"])
++        elif e["mode"] == "fixed":
++            parse_instance(e["input"])
++            try:
++                RunConfig(**e["effective_config"])
++            except TypeError as exc:
++                raise InputError("invalid frozen fixed config") from exc
++        elif e["mode"] == "replay":
++            parse_replay_input(e["input"])
++            if e["seed"] != e["input"]["initial_state"]["public_seed"]:
++                raise InputError("frozen replay origin seed mismatch")
++            cfg = parse_experiment_config(e["effective_config"], base_dir=Path.cwd())
++            if cfg.mode != "replay" or cfg.schema_version != 2 or cfg.repeat.count != 1 or cfg.run.max_events is None or cfg.source.purpose != "reuse_inputs" or cfg.source.reference_path is not None:
++                raise InputError("invalid controlled replay config")
++            if e["effective_config"]["source"]["input_path"] != "@frozen-input" or cfg.output.dataset_role != SPLITS[raw["split"]]:
++                raise InputError("invalid frozen replay source/output binding")
++        else:
++            raise InputError("unknown frozen mode")
++        policies = dict(dynamic=("fresh_dynamic_same_plan", "same_input_generation_mechanism"),
++            fixed=("fresh_fixed", "explicit_fixed_input"),
++            replay=("fresh_replay", "explicit_complete_recorded_input_coverage_checked_at_runtime"))
++        if (e["lifecycle"], e["input_contract"]) != policies[e["mode"]]:
++            raise InputError("unsupported frozen lifecycle/input contract")
++        if e["mode"] == "fixed" and e["seed"] is not None:
++            raise InputError("fixed input seed must be null")
++        if e["mode"] != "dynamic" and e["template_digests"] != {}:
++            raise InputError("invalid explicit input metadata")
++        expected = _identities(e)
++        if expected != (e["scene_id"], e["input_family_id"], e["input_content_id"]):
++            raise InputError("frozen scene/input identity mismatch")
++        if e["effective_config_sha256"] != content_sha(canonical(e["effective_config"]).encode()):
++            raise InputError("frozen effective config mismatch")
++    rebuilt = _plan(raw["split"], raw["entries"], raw["limits"])
++    if rebuilt.to_dict() != raw:
++        raise InputError("frozen plan policy or identity mismatch")
++    return rebuilt
+--- /dev/null
++++ S9-B01/src/fogsim/training/protocols.py
+@@ -0,0 +1,91 @@
++"""S9 canonical encoding. Immutable snapshots store canonical JSON, never engines."""
++from dataclasses import dataclass
++from hashlib import sha256
++import json
++from pathlib import Path
++import os
++from fogsim.errors import InputError
++from fogsim.replay.loader import read_replay_json
++
++IMPLEMENTATION = "fogsim-training-evaluation-B01-v1"
++POLICY = "all_success_feasible_v1"
++SEMANTICS = {
++    "language_version": "fogsim-gp-lisp-v1",
++    "feature_semantics_version": "fogsim-features-java-v1",
++    "numeric_semantics_version": "fogsim-gp-f64-dual-zero-v1",
++    "selection_policy_version": "fogsim-selection-java-v1",
++    "identity_encoding_version": "fogsim-rule-identity-v1",
++}
++
++
++def canonical(value):
++    try:
++        # ensure_ascii=False: UTF-8, no normalization; reject unpaired surrogates.
++        result = json.dumps(value, sort_keys=True, separators=(",", ":"),
++                            ensure_ascii=False, allow_nan=False)
++        result.encode("utf-8")
++        return result
++    except (ValueError, TypeError, UnicodeError) as exc:
++        raise InputError(f"invalid training JSON: {exc}") from exc
++
++
++def identity(domain, payload):
++    return "sha256:" + sha256((f"fogsim.training.{domain}.v1\n" + canonical(payload)).encode()).hexdigest()
++
++
++def content_sha(data):
++    return sha256(data).hexdigest()
++
++
++@dataclass(frozen=True)
++class Snapshot:
++    document: str
++
++    def to_dict(self):
++        return json.loads(self.document)
++
++
++def read_json(path):
++    try:
++        return read_replay_json(Path(path))
++    except OSError as exc:
++        raise InputError(f"cannot read {path}: {exc}") from exc
++
++
++def write_json(path, data):
++    from fogsim.io import write_json_atomic
++    path = Path(path)
++    path.parent.mkdir(parents=True, exist_ok=True)
++    write_json_atomic(path, data)
++
++
++def empty_output(path):
++    path = Path(path)
++    if path.exists() and (not path.is_dir() or any(path.iterdir())):
++        raise InputError(f"output must be absent or empty: {path}")
++    path.mkdir(parents=True, exist_ok=True)
++    return path
++
++
++def source_provenance():
++    root = Path(__file__).resolve().parents[1]
++    files = {p.relative_to(root).as_posix(): content_sha(p.read_bytes()) for p in sorted(root.rglob("*.py"))}
++    return dict(source_id=identity("implementation-source", files), source_files=files)
++
++
++def append_jsonl(path, value):
++    path = Path(path)
++    with path.open("a", encoding="utf-8") as stream:
++        stream.write(canonical(value) + "\n")
++        stream.flush()
++        os.fsync(stream.fileno())
++
++
++def read_jsonl(path):
++    """Only committed LF-terminated rows; report, never treat a tail as committed."""
++    data = Path(path).read_bytes()
++    lines = data.splitlines(keepends=True)
++    incomplete = bool(lines and not lines[-1].endswith(b"\n"))
++    rows = [json.loads(line) for line in (lines[:-1] if incomplete else lines)]
++    return dict(rows=rows, interrupted_tail=incomplete,
++                tail_bytes=len(lines[-1]) if incomplete else 0)
+--- /dev/null
++++ S9-B01/src/fogsim/training/runtime.py
+@@ -0,0 +1,118 @@
++"""Real B08 execution only. Each entry constructs a fresh engine/context."""
++from dataclasses import replace
++from pathlib import Path
++from tempfile import TemporaryDirectory
++import base64
++from fogsim.errors import PreparationError
++from fogsim.experiment_config import parse_experiment_config, RuleConfig
++from fogsim.config import RunConfig
++from fogsim.instances.fixed import parse_instance
++from fogsim.simulation.engine import create_engine
++from fogsim.simulation.context import create_dynamic_context
++from fogsim.replay.engine import create_replay_engine
++from fogsim.replay.loader import parse_replay_input
++from fogsim.replay.export_input import export_replay_input
++
++
++def rule_config(spec):
++    return RuleConfig(spec.kind, spec.resource_id, spec.expression)
++
++
++def bind_config(entry, prepared, root):
++    cfg = entry["effective_config"]
++    if entry["mode"] == "fixed":
++        return RunConfig(**(cfg | dict(routing_kind=prepared.routing_spec.kind,
++            fixed_resource_id=prepared.routing_spec.resource_id, routing_expression=prepared.routing_spec.expression,
++            sequencing_kind=prepared.sequencing_spec.kind, sequencing_expression=prepared.sequencing_spec.expression)))
++    from copy import deepcopy
++    cfg = deepcopy(cfg)
++    if entry["mode"] == "dynamic":
++        cfg["source"]["dag_root"] = str(root)
++    cfg["run"].update(routing_rule=prepared.routing_spec.to_dict(), sequencing_rule=prepared.sequencing_spec.to_dict())
++    return parse_experiment_config(cfg, base_dir=root)
++
++
++def preflight(prepared, plan, trees):
++    from fogsim.rules.factory import validate_rules_for_environment, install_rules
++    from fogsim.instances.catalog import load_dax_catalog, STANDARD_DAX_FILES
++    from fogsim.errors import InputError
++    for expression in prepared.rule_manifest["expressions"]:
++        nodes = expression["ast"]["nodes"]
++        depths, stack = [], [(0, 0)]
++        while stack:
++            index, depth = stack.pop()
++            depths.append(depth)
++            node = nodes[index]
++            if node["kind"] == "binary":
++                stack.extend(((node["left"], depth+1), (node["right"], depth+1)))
++        if max(depths) > trees["max_height"] or len(nodes) > trees["max_nodes"]:
++            raise InputError("training rule exceeds per-tree height/node budget")
++    # Validate every entry and all rules before any input RNG is created.
++    for e in plan["entries"]:
++        with TemporaryDirectory(prefix="fogsim-preflight-") as tmp:
++            root = Path(tmp)
++            cfg = bind_config(e, prepared, root)
++            if e["mode"] == "dynamic":
++                types = cfg.source.workflow_types
++                expected = {STANDARD_DAX_FILES[i] for i in range(types.lower, types.upper+1)}
++                if set(e["templates"]) != expected:
++                    raise InputError("frozen template names do not match requested catalog")
++                for name, value in e["templates"].items():
++                    (root / name).write_bytes(base64.b64decode(value, validate=True))
++                load_dax_catalog(cfg)
++                install_rules(cfg.run, prepared)
++                validate_rules_for_environment(prepared, cfg.source.environment)
++            elif e["mode"] == "fixed":
++                install_rules(cfg, prepared)
++                validate_rules_for_environment(prepared, parse_instance(e["input"]))
++            else:
++                inp = parse_replay_input(e["input"])
++                install_rules(replace(inp.run_config, routing_rule=rule_config(prepared.routing_spec),
++                    sequencing_rule=rule_config(prepared.sequencing_spec)), prepared)
++                validate_rules_for_environment(prepared, inp.archive.environment)
++
++
++def run_entry(entry, prepared, dataset_role, on_fault, on_config=None):
++    engine, cfg = None, None
++    with TemporaryDirectory(prefix="fogsim-run-") as tmp:
++        root = Path(tmp)
++        cfg = bind_config(entry, prepared, root)
++        active = cfg.to_dict()
++        if entry["mode"] == "dynamic":
++            active["source"]["dag_root"] = "@frozen-templates"
++        if on_config is not None:
++            on_config(active)
++        try:
++            try:
++                if entry["mode"] == "dynamic":
++                    for name, text in entry["templates"].items():
++                        (root / name).write_bytes(base64.b64decode(text, validate=True))
++                    context = create_dynamic_context(cfg, prepared_rules=prepared)
++                    engine = context.engine
++                elif entry["mode"] == "fixed":
++                    engine = create_engine(parse_instance(entry["input"]), cfg, prepared_rules=prepared)
++                else:
++                    engine = create_replay_engine(parse_replay_input(entry["input"]), cfg.run,
++                        purpose="reuse_inputs", output_profile="v2")
++                result = engine.run()
++            except PreparationError as exc:
++                engine, result = exc.engine, exc.result
++            archive = export_replay_input(engine, cfg.source, dataset_role=dataset_role).to_dict() if entry["mode"] == "dynamic" and engine.admission is not None and engine.environment is not None else None
++            if entry["mode"] != "dynamic":
++                archive = entry["input"]
++            return result.to_dict(), archive
++        except BaseException:
++            # Preserve the original exception even if diagnostic collection fails.
++            partial = {}
++            if engine is not None:
++                try:
++                    partial["result"] = engine.result().to_dict()
++                except Exception as exc:
++                    partial["snapshot_error"] = repr(exc)
++                if entry["mode"] == "dynamic":
++                    try:
++                        partial["input"] = export_replay_input(engine, cfg.source, dataset_role=dataset_role).to_dict()
++                    except Exception as exc:
++                        partial["capture_error"] = repr(exc)
++            on_fault(partial)
++            raise
+--- /dev/null
++++ S9-B01/src/fogsim/training/worker.py
+@@ -0,0 +1,40 @@
++"""One serial spawn worker per evaluation. No shared global RNG with caller."""
++import random
++import traceback
++from fogsim.rules.specs import RuleSpec
++from fogsim.rules.factory import prepare_rules
++from .runtime import run_entry
++from .fitness import classify
++
++
++def evaluation_worker(conn, rules, plan, evolution_seed):
++    try:
++        random.seed(evolution_seed)
++        evolution_start = repr(random.getstate())
++        prepared = prepare_rules(RuleSpec.from_mapping("routing", rules["routing"]),
++                                 RuleSpec.from_mapping("sequencing", rules["sequencing"]))
++        for index, entry in enumerate(plan["entries"]):
++            conn.send(dict(kind="run_started", index=index, run_id=entry["run_id"]))
++            if conn.recv() != "START":
++                raise RuntimeError("invalid controller acknowledgement")
++            partial = {}
++            try:
++                raw, archive = run_entry(entry, prepared, plan["dataset_role"], partial.update,
++                    on_config=lambda config: conn.send(dict(kind="active_config", index=index, config=config)))
++                # A coverage/metric classification error must still retain the
++                # untouched B08 result and input returned just before it.
++                partial.update(result=raw, input=archive)
++                classification = classify(raw)
++            except BaseException as exc:
++                conn.send(dict(kind="error", index=index, error_type=type(exc).__name__, message=str(exc),
++                    traceback=traceback.format_exc(), partial=partial,
++                    classification=getattr(exc, "classification", "INPUT_OR_PLAN_ERROR" if isinstance(exc, ValueError) else "PROGRAM_EXCEPTION")))
++                return
++            conn.send(dict(kind="run_completed", index=index, raw=raw, archive=archive,
++                classification=classification))
++        conn.send(dict(kind="done", evolution_rng_unchanged=repr(random.getstate()) == evolution_start))
++    except BaseException as exc:
++        conn.send(dict(kind="error", error_type=type(exc).__name__, message=str(exc),
++            traceback=traceback.format_exc(), classification="PROGRAM_EXCEPTION"))
++    finally:
++        conn.close()
+--- /dev/null
++++ S9-B01/tests/training/test_b01.py
+@@ -0,0 +1,487 @@
++"""S9-B01 contract tests: real B08 runs plus explicit fault injection in child."""
++from copy import deepcopy
++from dataclasses import replace
++import json
++import math
++import multiprocessing
++import os
++from pathlib import Path
++import random
++import subprocess
++import sys
++import pytest
++
++from fogsim.errors import InputError
++from fogsim import create_dynamic_context
++from fogsim.rules.factory import prepare_rules
++from fogsim.rules.specs import RuleSpec
++from fogsim.training.config import parse_training_config, load_training_config
++from fogsim.training.plans import build_training_plans, parse_training_plan, _entry, _plan
++from fogsim.training.evaluation import evaluate_rule_pair, RemoteEvaluationError
++from fogsim.training.fitness import compare, summarize, classify, EvaluationContractError
++from fogsim.training.protocols import canonical, identity, write_json, read_json
++from fogsim.training.runtime import bind_config, run_entry
++
++ROOT=Path(__file__).resolve().parents[2]
++DEFAULT=dict(format='fogsim.training-config',schema_version=1,mode='single_routing',
++             plans=dict(training='train-sources.json',validation='validation-sources.json',test='test-sources.json'))
++
++
++def rules(expr='PT', sequencing='fcfs'):
++    return prepare_rules(RuleSpec('routing','gp',expression=expr),RuleSpec('sequencing',sequencing))
++
++
++@pytest.fixture
++def config():return load_training_config(ROOT/'configs/training/B01.json')
++
++
++@pytest.fixture
++def plan(config):return build_training_plans(config).training[0]
++
++
++@pytest.mark.parametrize('path,value',[
++    (('extra',),1), (('schema_version',),True), (('mode',),'java_lifecycle'),
++    (('evolution','population_size'),True), (('evolution','generations'),0),
++    (('evolution','elite_count'),13), (('evolution','crossover_attempts'),0),
++    (('evolution','unknown'),1), (('evolution','operator_weights'),dict(crossover=.7,mutation=.1,reproduction=.1)),
++    (('evolution','operator_weights'),dict(crossover=float('nan'),mutation=.1,reproduction=.1)),
++    (('evolution','operator_weights'),dict(crossover=-.1,mutation=.5,reproduction=.6)),
++    (('trees','init_full_probability'),1.1), (('trees','max_height'),8),
++    (('trees','max_nodes'),True), (('trees','max_nodes'),2), (('trees','init_min_height'),4),
++    (('trees','numeric_erc'),True), (('trees','grow_policy'),'deap_default'),
++    (('evaluation','lifecycle'),'reset'), (('evaluation','seed_rotation_step'),1),
++    (('evaluation','rotation_period'),0), (('evaluation','aggregation'),'scene_mean'),
++    (('limits','wallclock_seconds_per_run'),0), (('limits','wallclock_seconds_per_run'),float('inf')),
++    (('output','save_run_results'),False), (('trials','evolution_seeds'),[1,1]),
++    (('trials','evolution_seeds'),[2**63]), (('semantics','numeric_semantics_version'),'other'),
++    (('plans','extra'),'foo'),
++])
++def test_strict_config(path,value):
++    d=deepcopy(DEFAULT);target=d
++    for key in path[:-1]:target=target.setdefault(key,{})
++    target[path[-1]]=value
++    with pytest.raises(InputError):parse_training_config(d,ROOT/'configs/training')
++
++
++def test_defaults_and_rotation_do_not_consume_rng(config):
++    before=random.getstate();plans=build_training_plans(config)
++    assert random.getstate()==before
++    assert [[e['seed'] for e in p.to_dict()['entries']] for p in plans.training]==[[101,102],[10101,10102],[20101,20102],[30101,30102]]
++    assert plans.validation.to_dict()['dataset_role']=='debug'
++    assert plans.validation.to_dict()['split']=='validation'
++    d=config.to_dict();d['evaluation']['rotation_period']=2;d.pop('resolution_root')
++    c=parse_training_config(d,ROOT)
++    pp=build_training_plans(c)
++    assert pp.training[0].plan_id==pp.training[1].plan_id
++    assert pp.training[1].plan_id!=pp.training[2].plan_id
++    assert len(pp.training)==4
++
++
++def configured(tmp_path, **changes):
++    tmp_path.mkdir(exist_ok=True)
++    source=read_json(ROOT/'configs/training/train-a.json')
++    source['source']['dag_root']=str(ROOT/'examples/step5/dax')
++    for split,seed in [('train',101),('validation',11001),('test',21001)]:
++        raw=deepcopy(source);raw['source']['seed']=seed
++        for k,v in changes.get(split,{}).items():
++            if k=='seed':raw['source'][k]=v
++            else:raw['run'][k]=v
++        write_json(tmp_path/(split+'.json'),raw)
++        write_json(tmp_path/(split+'-sources.json'),dict(format='fogsim.training-source-plan',schema_version=1,
++            entries=[dict(run_id=split,config=split+'.json')]))
++    d=deepcopy(DEFAULT);d['plans']['training']='train-sources.json'
++    return parse_training_config(d,tmp_path)
++
++
++def test_split_collision_ignores_statistics_and_event_budget(tmp_path):
++    c=configured(tmp_path,validation=dict(seed=101,num_jobs_recorded=3,max_events=100))
++    with pytest.raises(InputError,match='cross-split'):build_training_plans(c)
++
++
++def test_signed64_overflow_and_missing_file(tmp_path):
++    c=configured(tmp_path,train=dict(seed=2**63-1))
++    with pytest.raises(InputError,match='seed'):build_training_plans(c)
++    (tmp_path/'test.json').unlink()
++    with pytest.raises(InputError):build_training_plans(c)
++
++
++def test_scene_family_identity_and_order(tmp_path):
++    c=configured(tmp_path);a=build_training_plans(c).training[0].to_dict()['entries'][0]
++    raw=read_json(tmp_path/'train.json');raw['run']['max_events']=1
++    write_json(tmp_path/'train.json',raw);b=build_training_plans(c).training[0].to_dict()['entries'][0]
++    assert a['input_family_id']==b['input_family_id'] and a['scene_id']!=b['scene_id']
++    raw['run']['routing_rule']=dict(kind='gp',expression='(- PT WIQ)')
++    raw['source']['seed']=404;write_json(tmp_path/'train.json',raw)
++    cc=build_training_plans(c).training[0].to_dict()['entries'][0]
++    assert (cc['input_family_id'],cc['scene_id'])==(b['input_family_id'],b['scene_id'])
++    p=_plan('validation',[a,b],dict(wallclock_seconds_per_run=None))
++    assert p.plan_id!=_plan('validation',[b,a],dict(wallclock_seconds_per_run=None)).plan_id
++
++
++def test_same_input_different_paths_rejected(tmp_path):
++    c=configured(tmp_path)
++    for split in ['validation','test']:
++        raw=dict(instance=str(ROOT/'data/cases/chain_remote.json'),routing_rule=dict(kind='fcfs'),sequencing_rule=dict(kind='fcfs'))
++        # Two physical copies of identical JSON with distinct filenames.
++        inp=read_json(ROOT/'data/cases/chain_remote.json');write_json(tmp_path/(split+'-input.json'),inp)
++        raw['instance']=split+'-input.json';write_json(tmp_path/(split+'.json'),raw)
++    with pytest.raises(InputError,match='cross-split'):build_training_plans(c)
++
++
++def test_native_capture_cannot_evade_split_identity_as_replay(tmp_path,plan):
++    native=evaluate_rule_pair(rules(),plan,tmp_path/'capture').to_dict()
++    c=configured(tmp_path/'configs')
++    archive=tmp_path/'capture'/native['runs'][0]['input_ref']
++    replay=dict(format='fogsim.experiment',schema_version=2,mode='replay',
++        source=dict(input_path=str(archive),purpose='reuse_inputs'),run=dict(max_events=2000))
++    write_json(tmp_path/'configs/validation.json',replay)
++    e=_entry(tmp_path/'configs/validation.json','v','validation',0,dict(trace='all'))
++    assert e['input_family_id']==plan.to_dict()['entries'][0]['input_family_id'] and e['seed']==101
++    with pytest.raises(InputError,match='cross-split'):build_training_plans(c)
++
++
++def test_frozen_plan_content_portable_tamper_and_detachment(plan,tmp_path):
++    raw=plan.to_dict();raw['entries'][0]['seed']=111
++    with pytest.raises(InputError):parse_training_plan(raw)
++    assert plan.to_dict()['entries'][0]['seed']==101
++    copy=parse_training_plan(json.loads(plan.document))
++    assert copy==plan
++    # XML is frozen as bytes, no source path is needed at execution.
++    result=evaluate_rule_pair(rules(),copy,tmp_path/'frozen').to_dict()
++    assert result['status']=='FEASIBLE'
++    assert all(read_json(tmp_path/'frozen'/r['result_ref'])['diagnostics']['initial_cutoff_release_time']==0 for r in result['runs'])
++
++
++def fixed_entry(tmp_path,name,pt):
++    inp=read_json(ROOT/'data/cases/single_local.json')
++    inp['workflows'][0]['tasks'][0]['execution_times']['M0']['processing_time']=pt
++    write_json(tmp_path/(name+'-input.json'),inp)
++    write_json(tmp_path/(name+'.json'),dict(instance=name+'-input.json',routing_rule=dict(kind='fcfs'),sequencing_rule=dict(kind='fcfs')))
++    return _entry(tmp_path/(name+'.json'),name,'validation',0,dict(trace='all'))
++
++
++def test_real_fixed_multiscene_equal_weight_mean(tmp_path):
++    entries=[fixed_entry(tmp_path,'a',1),fixed_entry(tmp_path,'b',1),fixed_entry(tmp_path,'c',10)]
++    plan=_plan('validation',entries,dict(wallclock_seconds_per_run=None))
++    actual=evaluate_rule_pair(rules(),plan,tmp_path/'evidence').to_dict()
++    assert actual['status']=='FEASIBLE' and actual['fitness']==4
++    assert actual['diagnostic_sample_stddev_over_successes']==math.sqrt(27)
++    assert [read_json(tmp_path/'evidence'/r['result_ref'])['makespan'] for r in actual['runs']]==[1,1,10]
++
++
++def test_event_budget_domain_continues_complete_plan(tmp_path):
++    c=configured(tmp_path,train=dict(max_events=1));p=build_training_plans(c).training[0]
++    good=build_training_plans(load_training_config(ROOT/'configs/training/B01.json')).training[0].to_dict()['entries'][0]
++    bad=p.to_dict()['entries'][0]
++    p=_plan('train',[bad,good],dict(wallclock_seconds_per_run=None))
++    actual=evaluate_rule_pair(rules(),p,tmp_path/'failed').to_dict()
++    assert (actual['status'],actual['fitness'],actual['completed_runs'],actual['failed_runs'],actual['succeeded_runs'])==('INFEASIBLE',None,2,1,1)
++    assert actual['failure_rate']==.5 and actual['not_run']==0
++    assert actual['runs'][0]['classification']=='EVENT_BUDGET_EXHAUSTED'
++    raw=read_json(tmp_path/'failed'/actual['runs'][0]['result_ref'])
++    assert raw['status']=='FAILED' and raw['makespan'] is None and raw['reason_code']=='MAX_EVENTS_EXCEEDED'
++    assert actual['diagnostic_mean_over_successes'] is not None
++    feasible=actual|dict(status='FEASIBLE',fitness=1e300)
++    assert compare(feasible,actual)==-1
++    assert compare(actual,actual|dict(failed_runs=123))==0
++
++
++def injected_worker(conn,rules_desc,plan,seed):
++    from fogsim.training import worker
++    from fogsim.training import runtime
++    original=runtime.run_entry
++    def fail(entry,*args,**kwargs):
++        if entry['seed']==102:
++            from fogsim.rules.gp import GPRule
++            def broken(*a,**kw):
++                try:raise KeyError('injected cause')
++                except KeyError as exc:raise TypeError('injected program fault') from exc
++            GPRule.priority=broken
++        return original(entry,*args,**kwargs)
++    worker.run_entry=fail
++    worker.evaluation_worker(conn,rules_desc,plan,seed)
++
++
++def exit_worker(conn,*args):
++    conn.send(dict(kind='run_started',index=0,run_id='exit'))
++    conn.recv();os._exit(17)
++
++
++def domain_worker(conn,rules_desc,plan,seed):
++    from fogsim.training import worker
++    from fogsim.rules.gp import GPRule
++    from fogsim.errors import StateError
++    original=GPRule.priority
++    calls=[0]
++    def domain(*args,**kwargs):
++        calls[0]+=1
++        if calls[0]==1:raise StateError('injected real B08 domain failure')
++        return original(*args,**kwargs)
++    GPRule.priority=domain
++    worker.evaluation_worker(conn,rules_desc,plan,seed)
++
++
++def extra_draw_worker(conn,rules_desc,plan,seed):
++    from fogsim.training import worker
++    original=worker.run_entry
++    def extra(*args,**kwargs):
++        for _ in range(137):random.random()
++        return original(*args,**kwargs)
++    worker.run_entry=extra
++    worker.evaluation_worker(conn,rules_desc,plan,seed)
++
++
++def slow_b08_worker(conn,rules_desc,plan,seed):
++    from fogsim.training import worker
++    from fogsim.rules.gp import GPRule
++    import time
++    original=GPRule.priority
++    def slow(*args,**kwargs):
++        # Marker is sent from an actual B08 scoring call, after engine enters run.
++        conn.send(dict(kind='active_config',index=0,config=dict(test_observation='inside_B08_priority')))
++        time.sleep(.5)
++        return original(*args,**kwargs)
++    GPRule.priority=slow
++    worker.evaluation_worker(conn,rules_desc,plan,seed)
++
++
++def invalid_metric_worker(conn,rules_desc,plan,seed):
++    from fogsim.training import worker
++    original=worker.run_entry
++    def invalid(*args,**kwargs):
++        raw,archive=original(*args,**kwargs)
++        raw['makespan']=None
++        return raw,archive
++    worker.run_entry=invalid
++    worker.evaluation_worker(conn,rules_desc,plan,seed)
++
++
++def test_result_contract_error_keeps_returned_raw_result(plan,tmp_path,monkeypatch):
++    import fogsim.training.evaluation as e
++    monkeypatch.setattr(e,'evaluation_worker',invalid_metric_worker)
++    with pytest.raises(RemoteEvaluationError) as exc:evaluate_rule_pair(rules(),plan,tmp_path/'invalid-metric')
++    assert exc.value.error['classification']=='RESULT_CONTRACT_ERROR'
++    raw=read_json(tmp_path/'invalid-metric/failures/exception.json')['partial']['result']
++    assert raw['status']=='SUCCEEDED' and raw['makespan'] is None
++    assert read_json(tmp_path/'invalid-metric/evaluation.json')['status']=='INCOMPLETE'
++
++
++def test_wallclock_interrupts_actual_b08_scoring(plan,tmp_path,monkeypatch):
++    import fogsim.training.evaluation as e
++    monkeypatch.setattr(e,'evaluation_worker',slow_b08_worker)
++    p=plan.to_dict();p=_plan(p['split'],p['entries'],dict(wallclock_seconds_per_run=.2))
++    result=evaluate_rule_pair(rules(),p,tmp_path/'in-run-timeout').to_dict()
++    assert result['status']=='INCOMPLETE' and result['interruption']['classification']=='WALLCLOCK_INTERRUPTED'
++    assert read_json(tmp_path/'in-run-timeout/runs/0000/active_config.json')['test_observation']=='inside_B08_priority'
++    assert result['completed_runs']==0 and result['fitness'] is None
++
++
++def test_actual_extra_evolution_draws_leave_simulation_unchanged(plan,monkeypatch,tmp_path):
++    import fogsim.training.evaluation as e
++    before=random.getstate()
++    ordinary=evaluate_rule_pair(rules(),plan).to_dict()
++    monkeypatch.setattr(e,'evaluation_worker',extra_draw_worker)
++    extra=evaluate_rule_pair(rules(),plan).to_dict()
++    write_json(tmp_path/'ordinary.json',ordinary)
++    write_json(tmp_path/'extra-evolution-draws.json',extra)
++    assert ordinary['runs']==extra['runs'] and ordinary['fitness']==extra['fitness']
++    assert ordinary['evolution_rng_unchanged'] and extra['evolution_rng_unchanged'] is False
++    assert before==random.getstate()
++
++
++def test_jsonl_tail_and_finite_canonical_contract(tmp_path):
++    from fogsim.training.protocols import append_jsonl,read_jsonl
++    path=tmp_path/'progress.jsonl'
++    append_jsonl(path,dict(index=0));append_jsonl(path,dict(index=1))
++    with path.open('ab') as stream:stream.write(b'{"index":')
++    assert read_jsonl(path)==dict(rows=[dict(index=0),dict(index=1)],interrupted_tail=True,tail_bytes=9)
++    with pytest.raises(InputError):canonical(dict(value=float('nan')))
++
++
++def test_utf16_dax_bytes_frozen_exactly(tmp_path):
++    import base64
++    c=configured(tmp_path)
++    folder=tmp_path/'utf16';folder.mkdir()
++    raw='<?xml version="1.0" encoding="UTF-16"?><adag><job id="R"/></adag>'.encode('utf-16')
++    (folder/'CyberShake_30.xml').write_bytes(raw)
++    for name in ['train','validation','test']:
++        cfg=read_json(tmp_path/(name+'.json'));cfg['source']['dag_root']=str(folder);write_json(tmp_path/(name+'.json'),cfg)
++    p=build_training_plans(c).training[0]
++    assert base64.b64decode(p.to_dict()['entries'][0]['templates']['CyberShake_30.xml'])==raw
++    actual=evaluate_rule_pair(rules(),p).to_dict()
++    write_json(tmp_path/'utf16-evaluation.json',actual)
++    assert actual['status']=='FEASIBLE'
++
++
++def test_actual_domain_error_has_separate_reason(plan,tmp_path,monkeypatch):
++    import fogsim.training.evaluation as e
++    monkeypatch.setattr(e,'evaluation_worker',domain_worker)
++    result=evaluate_rule_pair(rules(),plan,tmp_path/'domain').to_dict()
++    assert result['status']=='INFEASIBLE' and result['completed_runs']==2 and result['failed_runs']==1
++    assert result['runs'][0]['classification']=='DOMAIN_FAILURE'
++    assert result['runs'][0]['reason_code']=='STATE_INVARIANT_VIOLATION'
++
++
++def test_actual_replay_and_changed_rule_coverage_abort(tmp_path,plan):
++    original=evaluate_rule_pair(rules(),plan,tmp_path/'native').to_dict()
++    archive=tmp_path/'native'/original['runs'][0]['input_ref']
++    cfg=dict(format='fogsim.experiment',schema_version=2,mode='replay',
++        source=dict(input_path=str(archive),purpose='reuse_inputs'),run=dict(max_events=2000,trace_enabled=True))
++    write_json(tmp_path/'replay.json',cfg)
++    entry=_entry(tmp_path/'replay.json','replay','validation',0,dict(trace='all'))
++    replay=_plan('validation',[entry],dict(wallclock_seconds_per_run=None))
++    result=evaluate_rule_pair(rules(),replay,tmp_path/'replay').to_dict()
++    assert result['status']=='FEASIBLE' and result['fitness']==original['runs'][0]['makespan']
++    # Complete finite recording may stop too soon for another rule; use an
++    # intentionally much slower, still eligible local rule against the capture.
++    from fogsim.rules.factory import prepare_rules
++    slow=prepare_rules(RuleSpec('routing','fixed_resource','M0'),RuleSpec('sequencing','fcfs'))
++    try:
++        changed=evaluate_rule_pair(slow,replay,tmp_path/'changed').to_dict()
++    except RemoteEvaluationError as exc:
++        assert exc.error['classification']=='INPUT_OR_PLAN_ERROR'
++        assert exc.evaluation.to_dict()['status']=='INCOMPLETE'
++    else:
++        # Coverage is only insufficient if a required call actually diverges.
++        assert changed['status']=='FEASIBLE'
++
++
++def test_replay_exhaustion_is_actual_plan_error(tmp_path):
++    # Use the supplied complete finite archive, then deliberately reduce its
++    # independent accepted statistical target by overriding only runtime config
++    # in a test worker to require another input. No production fault flag.
++    from fogsim.replay.loader import load_replay_input
++    path=ROOT/'tests/fixtures/dynamic_v1/input.json'
++    inp=load_replay_input(path)
++    from fogsim.replay.engine import create_replay_engine
++    engine=create_replay_engine(inp,purpose='reuse_inputs')
++    engine.admission.source.position=len(inp.archive.generation_attempts)
++    result=engine.run().to_dict()
++    write_json(tmp_path/'exhaustion-result.json',result)
++    write_json(tmp_path/'original-input.json',inp.to_dict())
++    assert result['status']=='FAILED' and result['reason_code']=='REPLAY_INPUT_EXHAUSTED'
++    with pytest.raises(EvaluationContractError):classify(result)
++
++
++def test_unknown_exception_aborts_preserves_chain_and_prior_failure(monkeypatch,plan,tmp_path):
++    import fogsim.training.evaluation as e
++    monkeypatch.setattr(e,'evaluation_worker',injected_worker)
++    p=plan.to_dict();p['entries'][0]['effective_config']['run']['max_events']=1
++    # Rebuild a legitimate event-budget entry rather than bypassing identity validation.
++    c=configured(tmp_path,train=dict(max_events=1))
++    bad=build_training_plans(c).training[0].to_dict()['entries'][0]
++    p=_plan('train',[bad,plan.to_dict()['entries'][1],plan.to_dict()['entries'][0]],dict(wallclock_seconds_per_run=None))
++    with pytest.raises(RemoteEvaluationError) as exc:evaluate_rule_pair(rules(),p,tmp_path/'fault')
++    record=read_json(tmp_path/'fault/evaluation.json')
++    assert record['status']=='INCOMPLETE' and record['failed_runs']==1 and record['not_run']==2
++    assert 'KeyError' in str(exc.value) and 'TypeError' in str(exc.value)
++    assert read_json(tmp_path/'fault/failures/exception.json')['error_type']=='TypeError'
++    partial=read_json(tmp_path/'fault/failures/exception.json')['partial']
++    assert partial['input']['capture']['complete'] is False
++    assert partial['result']['makespan'] is None
++
++
++def test_wallclock_worker_exit_progress_exception(plan,tmp_path,monkeypatch):
++    p=plan.to_dict();p=_plan(p['split'],p['entries'],dict(wallclock_seconds_per_run=1e-9))
++    result=evaluate_rule_pair(rules(),p,tmp_path/'timeout').to_dict()
++    assert result['status']=='INCOMPLETE' and result['interruption']['classification']=='WALLCLOCK_INTERRUPTED'
++    assert result['fitness'] is None and result['completed_runs']==0
++    def callback(fact):raise RuntimeError('callback fault')
++    with pytest.raises(RuntimeError,match='callback fault'):evaluate_rule_pair(rules(),plan,tmp_path/'callback',on_progress=callback)
++    assert read_json(tmp_path/'callback/evaluation.json')['interruption']['classification']=='CONTROLLER_EXCEPTION'
++    import fogsim.training.evaluation as e
++    monkeypatch.setattr(e,'evaluation_worker',exit_worker)
++    result=evaluate_rule_pair(rules(),plan,tmp_path/'exit').to_dict()
++    assert result['status']=='INCOMPLETE' and result['interruption']['classification']=='WORKER_EXIT'
++    assert not multiprocessing.active_children()
++
++
++@pytest.mark.parametrize('expression',['(* 1e309 0)','1e309','-1e309','-0.0','(/ 1 -0.0)'])
++def test_special_scores_real_b08_unchanged(plan,tmp_path,expression):
++    r=rules(expression);result=evaluate_rule_pair(r,plan,tmp_path/'special').to_dict()
++    assert result['status']=='FEASIBLE' and result['rule_manifest']==r.rule_manifest
++    raw=read_json(tmp_path/'special'/result['runs'][0]['result_ref'])
++    assert raw['rule_manifest']==r.rule_manifest and raw['schema_version']==2
++    assert raw['decisions']
++
++
++def test_order_fresh_objects_and_two_rng_streams(plan,tmp_path,monkeypatch):
++    a,b=rules('PT'),rules('(+ MRT PT)')
++    before=random.getstate()
++    first={}
++    for name,rule in [('a',a),('b',b),('b-again',b),('a-again',a)]:
++        first[name]=evaluate_rule_pair(rule,plan,evolution_seed=700 if name.endswith('again') else 50001).to_dict()
++        write_json(tmp_path/(name+'.json'),first[name])
++    assert random.getstate()==before
++    for name in ['a','b']:
++        assert first[name]['fitness']==first[name+'-again']['fitness']
++        assert first[name]['runs']==first[name+'-again']['runs']
++        assert first[name]['evolution_rng_unchanged']
++    # Actual B08 construction, including resources, queues, source and RNG, must be fresh.
++    entry=plan.to_dict()['entries'][0]
++    from tempfile import TemporaryDirectory
++    import base64
++    with TemporaryDirectory() as t:
++        root=Path(t)
++        for n,v in entry['templates'].items():(root/n).write_bytes(base64.b64decode(v))
++        cfg=bind_config(entry,a,root)
++        x=create_dynamic_context(cfg,prepared_rules=a);y=create_dynamic_context(cfg,prepared_rules=a)
++        assert x.engine is not y.engine and x.environment is not y.environment
++        assert x.inputs.rng is not y.inputs.rng and x.engine.state is not y.engine.state
++        assert x.engine.admission is not y.engine.admission and x.engine.statistics is not y.engine.statistics
++        assert all(u is not v for u,v in zip(x.engine.state.resources_by_id.values(),y.engine.state.resources_by_id.values()))
++        assert x.engine.initial_cutoff==y.engine.initial_cutoff==0
++        old_rng=random.Random(19);state=old_rng.getstate()
++        for _ in range(87):random.random()
++        xr,yr=x.run().to_dict(),y.run().to_dict()
++        write_json(tmp_path/'direct-context-x.json',xr)
++        write_json(tmp_path/'direct-context-y.json',yr)
++        from fogsim.replay.export_input import export_replay_input
++        write_json(tmp_path/'direct-input-x.json',export_replay_input(x.engine,cfg.source).to_dict())
++        write_json(tmp_path/'direct-input-y.json',export_replay_input(y.engine,cfg.source).to_dict())
++        assert xr==yr
++        assert old_rng.getstate()==state
++    random.setstate(before)
++
++
++def test_limits_legacy_deep_parser_untouched(plan,tmp_path):
++    def deep(n):return '(+ PT '*n+'PT'+')'*n
++    assert evaluate_rule_pair(rules(deep(7)),plan,tmp_path/'height7').to_dict()['status']=='FEASIBLE'
++    # B08 parses this depth; only training admission rejects it.
++    r=rules(deep(8))
++    with pytest.raises(InputError,match='height/node'):evaluate_rule_pair(r,plan,tmp_path/'height8')
++    with pytest.raises(InputError,match='height/node'):evaluate_rule_pair(rules(deep(7)),plan,trees=dict(max_nodes=14,init_max_height=2))
++    assert not (tmp_path/'height8').exists()
++
++
++@pytest.mark.parametrize('value',[None,-1,float('nan'),float('inf')])
++def test_success_missing_metric_aborts(value):
++    with pytest.raises(EvaluationContractError):classify(dict(status='SUCCEEDED',makespan=value))
++
++
++def test_replay_coverage_errors_and_fixed_program_errors():
++    for code in ['REPLAY_INPUT_EXHAUSTED','REPLAY_INPUT_DIVERGENCE']:
++        with pytest.raises(EvaluationContractError):classify(dict(status='FAILED',reason_code=code))
++    with pytest.raises(EvaluationContractError):classify(dict(status='FAILED',reason_code=None,reason='unexpected program error'))
++
++
++def test_cli_and_no_deap(config,tmp_path):
++    code="""import sys,importlib.abc
++class Guard(importlib.abc.MetaPathFinder):
++ def find_spec(self,fullname,*args):
++  if fullname=='deap' or fullname.startswith('deap.'):raise ImportError('DEAP deliberately unavailable')
++sys.meta_path.insert(0,Guard())
++from fogsim import RunConfig,simulate,load_fixed_instance
++from fogsim.training import load_training_config,build_training_plans
++assert simulate(load_fixed_instance('data/cases/single_local.json'),RunConfig()).status=='SUCCEEDED'
++assert len(build_training_plans(load_training_config('configs/training/B01.json')).training)==4
++assert 'deap' not in sys.modules
++"""
++    run=subprocess.run([sys.executable,'-c',code],cwd=ROOT,capture_output=True,text=True)
++    assert run.returncode==0,run.stderr
++    from fogsim.training.cli import main
++    out=tmp_path/'validate'
++    assert main(['validate','--config',str(ROOT/'configs/training/B01.json'),'--output',str(out)])==0
++    assert read_json(out/'preflight.json')['simulations_executed']==0
++    with pytest.raises(SystemExit) as exc:main(['validate','--config',str(ROOT/'configs/training/B01.json'),'--output',str(out)])
++    assert exc.value.code==2
+--- B08/tests/unit/test_final_contracts.py
++++ S9-B01/tests/unit/test_final_contracts.py
+@@ -64,9 +64,9 @@
+ 
+ 
+ def test_release_version_and_python_capture_provenance():
+-    assert __version__=='0.3.0'==tomllib.loads((ROOT/'pyproject.toml').read_text())['project']['version']
++    assert __version__=='0.4.0'==tomllib.loads((ROOT/'pyproject.toml').read_text())['project']['version']
+     cfg=load_experiment_config(ROOT/'configs/examples/step5_dynamic.json');ctx=create_dynamic_context(cfg);ctx.run()
+-    assert export_replay_input(ctx.engine,cfg.source).to_dict()['origin']['implementation_version']=='fogsim-0.3.0'
++    assert export_replay_input(ctx.engine,cfg.source).to_dict()['origin']['implementation_version']=='fogsim-0.4.0'
+ 
+ 
+ def test_progress_callback_cannot_mutate_final_results_or_later_checkpoints():
+--- /dev/null
++++ S9-B01/tools/accept_s9_b01.py
+@@ -0,0 +1,94 @@
++"""Assemble B01 acceptance from actual JUnit, lifecycle, smoke and byte audit."""
++import hashlib
++import json
++from pathlib import Path
++import platform
++import sys
++import xml.etree.ElementTree as ET
++import zipfile
++
++ROOT=Path(__file__).resolve().parents[1]
++OUT=ROOT/'outputs/step9/B01'
++
++
++def read(path):return json.loads(path.read_text())
++def sha(data):return hashlib.sha256(data).hexdigest()
++def write(path,value):path.write_text(json.dumps(value,indent=2,ensure_ascii=False,allow_nan=False)+'\n')
++
++
++def junit(path):
++    root=ET.parse(path).getroot();suites=list(root.iter('testsuite'))
++    return {key:sum(int(s.get(key,0)) for s in suites) for key in ['tests','failures','errors','skipped']} | dict(
++        seconds=sum(float(s.get('time',0)) for s in suites),evidence=path.relative_to(ROOT).as_posix())
++
++
++def audit():
++    allowed={'README.md','pyproject.toml','src/fogsim/__init__.py','tests/unit/test_final_contracts.py'}
++    original=ROOT/'rollback/fogsim-0.3.0-b08.zip';mismatches=[];changed=[];checked=0;production=0
++    with zipfile.ZipFile(original) as z:
++        assert z.testzip() is None
++        for info in z.infolist():
++            if info.is_dir():continue
++            rel='/'.join(info.filename.split('/')[1:])
++            if not rel:continue
++            expected=sha(z.read(info));p=ROOT/rel
++            actual=sha(p.read_bytes()) if p.exists() else None
++            checked+=1
++            production+=rel.startswith('src/')
++            if actual!=expected:
++                (changed if rel in allowed else mismatches).append(dict(path=rel,before=expected,after=actual))
++    return dict(original_zip_sha256=sha(original.read_bytes()),files_checked=checked,production_files_checked=production,
++                allowed_changes=changed,unexpected_mismatches=mismatches,passed=not mismatches)
++
++
++def main():
++    from fogsim.training.protocols import source_provenance,identity,canonical
++    full=junit(OUT/'identity-final-regression.xml');unit=junit(OUT/'unit-identity-final.xml');life=read(OUT/'lifecycle-final/checks.json')
++    old=audit();write(OUT/'source-retention.json',old)
++    a=read(OUT/'identity-smoke/evaluation.json');b=read(OUT/'identity-smoke-repeat/evaluation.json')
++    # Output refs are relative. All evaluation and raw-run fields are semantic;
++    # only provenance contains observed process/environment fields.
++    smoke_equal=a==b
++    for row in a['runs']:
++        for key in ('result_ref','input_ref'):
++            if row[key]:smoke_equal &= (OUT/'identity-smoke'/row[key]).read_bytes()==(OUT/'identity-smoke-repeat'/row[key]).read_bytes()
++    source=source_provenance()
++    smoke_equal &= a['implementation_source_id']==source['source_id']
++    passed=all(full[k]==0 and unit[k]==0 for k in ('failures','errors','skipped')) and old['passed'] and life['passed'] and smoke_equal and a['status']=='FEASIBLE'
++    current_lanes={lane:read(OUT/lane/'summary.json') for lane in ['regression-fixed','regression-dynamic','regression-native-retry']}
++    passed &= all(p['passed'] for p in current_lanes.values())
++    scope={
++      'S01':('B01_PASSED','strict config, plan freezing/rotation/signed64, leakage, unknown fields','evolution execution remains B02/B03'),
++      'S03':('B01_PASSED','real fixed makespans 1/1/10 => mean 4, full-plan denominator','none'),
++      'S04':('B01_PASSED','domain, event budget, continuation, unknown exception chain, coverage and invalid metric abort','training no-feasible population belongs B02'),
++      'S05':('B01_PASSED','real B08 special scores and cumulative identity/numerics regression','DEAP constant adaptation belongs B02'),
++      'S06':('B01_PASSED','A/B order invariance, independent mutable contexts/resources/RNG/queues/B','trial population lifecycle belongs B02'),
++      'S07':('B01_PASSED','spawn, extra evolution draws, extra simulation, caller/old RNG isolation','actual DEAP components belong B02'),
++      'S11':('B01_PART_PASSED','J05 actual independent JDK17 lifecycle; 68 checks','J01-J04/J06 operators and evolution belong B02/B03'),
++      'S14':('B01_PART_PASSED','height 7/8, nodes, event budget, in-B08 wallclock, worker exit','mutation subtree 0..3 belongs B02'),
++      'S15':('B01_PART_PASSED','validate/evaluate API+CLI, result/input/exception protocols, output protection, callback failure','train/evolution/selected-rule/spectra logs belong B02/B03'),
++      'S16':('B01_PASSED','full current regression, DEAP absent and import blocker, fixed/v1/v2/dynamic/replay/identity/CLI','B04 final combined audit still required'),
++    }
++    gates={k:dict(status=status,executed_scope=done,deferred=later) for k,(status,done,later) in scope.items()}
++    for k in ['S02','S08','S09','S10','S12','S13','S17']:
++        gates[k]=dict(status='NOT_EXECUTED',reason='outside S9-B01; B02/B03/B04',component_note='fixed-rule repeat is component evidence only' if k=='S13' else None)
++    report=dict(format='fogsim.training-acceptance',schema_version=1,batch='S9-B01',version='0.4.0',
++        design='S9-frozen-1',acceptance_passed=bool(passed),tests=full,component_tests=unit,
++        historical_test_count_not_reused=True,source_retention=old,source=source,
++        java_lifecycle=dict(passed=life['passed'],checks=len(life['checks']),evidence='outputs/step9/B01/lifecycle-final'),
++        current_compatibility_lanes={k:dict(passed=v['passed'],counts=v['counts']) for k,v in current_lanes.items()},
++        fixed_rule_repeat=dict(passed=smoke_equal,fitness=a['fitness'],runs_per_evaluation=a['planned_runs'],evaluations=2),
++        gates=gates,budget_848_executed=False,evolution_trials_executed=0,
++        known_differences=['Native Python and Java RNG values are not compared. Java original B/seed/resource lifecycle is independently observed.',
++           'B01 main path is fresh; reset/rerun/rotate only in lifecycle probes.',
++           'Missing B07 fixtures reconstructed from supplied generators; evidence independently regenerated and labelled current.',
++           'No paper-scale training, DEAP integration, single/dual evolution or final winner is claimed.'])
++    write(OUT/'acceptance.json',report)
++    vectors=[dict(domain='test-vector',payload=x,canonical=canonical(x),expected=identity('test-vector',x)) for x in
++        [dict(a='中文',b=[-9223372036854775808,None,0.0,-0.0]),dict(a=1),dict(a=None),{}]]
++    write(ROOT/'development/S9-B01/identity-vectors.json',dict(encoding='fogsim.training.<domain>.v1 + LF + canonical UTF-8',vectors=vectors,
++        actual_plan_vector='outputs/step9/B01/identity-preflight/plans/train-0000.json'))
++    print(json.dumps(dict(acceptance_passed=bool(passed),tests=full,component_tests=unit,java_checks=len(life['checks']))))
++    return 0 if passed else 1
++
++if __name__=='__main__':raise SystemExit(main())
+--- /dev/null
++++ S9-B01/tools/build_s9_b01.py
+@@ -0,0 +1,39 @@
++"""Package a fully accepted cumulative B01 snapshot; no historical gate rewriting."""
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import zipfile
++
++ROOT=Path(__file__).resolve().parents[1]
++
++
++def main():
++    from fogsim.training.protocols import source_provenance
++    parser=argparse.ArgumentParser();parser.add_argument('--output',required=True);args=parser.parse_args()
++    report=json.loads((ROOT/'outputs/step9/B01/acceptance.json').read_text())
++    if not report['acceptance_passed'] or report['source']!=source_provenance():
++        raise RuntimeError('B01 acceptance missing or source changed since validation')
++    from accept_s9_b01 import audit
++    if not audit()['passed']:raise RuntimeError('historical byte retention failed')
++    manifest_path=ROOT/'S9-B01-FILES.json'
++    paths=[p for p in sorted(ROOT.rglob('*')) if p.is_file() and not p.is_symlink()
++           and '__pycache__' not in p.parts and '.pytest_cache' not in p.parts and p.suffix!='.pyc' and p!=manifest_path
++           and p.relative_to(ROOT).parts[0]!='build' and not any(x.endswith('.egg-info') for x in p.parts)]
++    files={p.relative_to(ROOT).as_posix():dict(size=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in paths}
++    manifest_path.write_text(json.dumps(dict(format='fogsim.s9-B01-files',schema_version=1,files=files),indent=2)+'\n')
++    paths.append(manifest_path)
++    output=Path(args.output).resolve();output.parent.mkdir(parents=True,exist_ok=True)
++    if output.exists():raise RuntimeError('refusing to replace an existing package')
++    with zipfile.ZipFile(output,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=6,allowZip64=True) as z:
++        z.writestr('fogsim-0.4.0/','')
++        for p in sorted(paths):
++            rel='fogsim-0.4.0/'+p.relative_to(ROOT).as_posix()
++            info=zipfile.ZipInfo(rel,date_time=(2026,11,14,12,0,0));info.compress_type=zipfile.ZIP_DEFLATED
++            info.external_attr=(p.stat().st_mode & 0xffff)<<16
++            z.writestr(info,p.read_bytes(),compresslevel=6)
++    with zipfile.ZipFile(output) as z:
++        if z.testzip():raise RuntimeError('ZIP CRC failed')
++    print(json.dumps(dict(package=str(output),bytes=output.stat().st_size,sha256=hashlib.sha256(output.read_bytes()).hexdigest(),members=len(paths)+1)))
++
++if __name__=='__main__':main()
+--- /dev/null
++++ S9-B01/tools/check_s9_lifecycle.py
+@@ -0,0 +1,106 @@
++"""Independent original Java runtime plus separately executed B08 Python lifecycle."""
++import argparse
++import difflib
++import hashlib
++import json
++import os
++from pathlib import Path
++import shutil
++import subprocess
++import sys
++from dataclasses import replace, asdict
++from java_support import ORIGINAL, reference_jdk, sha
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++def main():
++    parser=argparse.ArgumentParser()
++    parser.add_argument('--java',required=True)
++    parser.add_argument('--output',required=True)
++    args=parser.parse_args()
++    out=Path(args.output).resolve();out.mkdir(parents=True,exist_ok=True)
++    java=Path(args.java).resolve();env=reference_jdk(java)
++    original=ORIGINAL/'src/mengxu/simulation/DynamicSimulation.java'
++    before=original.read_text()
++    after=before.replace('public void setup(){','public void setup(){\n fogsim.adapter.S9LifeObserver.mark("setup_before_input",this);',1)
++    after=after.replace('    public PriorityQueue<AbstractEvent> getEventQueue()',
++        '    public PriorityQueue<AbstractEvent> getEventQueue()',1)
++    # Insert before the closing brace of setup, identified by its next method.
++    anchor='    public PriorityQueue<AbstractEvent> getEventQueue()'
++    pos=after.index(anchor);end=after.rfind('    }',0,pos)
++    after=after[:end]+'        fogsim.adapter.S9LifeObserver.mark("setup_after_input",this);\n'+after[end:]
++    after=after.replace('    public void run(){','    public void run(){\n fogsim.adapter.S9LifeObserver.mark("run_start",this);',1)
++    pos=after.index('    public void rerun()');end=after.rfind('    }',0,pos)
++    after=after[:end]+'        fogsim.adapter.S9LifeObserver.mark("run_end",this);\n'+after[end:]
++    overlay=out/'overlay/mengxu/simulation/DynamicSimulation.java';overlay.parent.mkdir(parents=True,exist_ok=True);overlay.write_text(after)
++    (out/'observation.patch').write_text(''.join(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile='original/DynamicSimulation.java',tofile='observed/DynamicSimulation.java')))
++    jars=sorted((ORIGINAL/'libraries').glob('*.jar'))
++    classes=out/'classes';classes.mkdir(exist_ok=True)
++    sources=[overlay,ROOT/'tools/java/src/fogsim/adapter/Json.java',ROOT/'tools/java/step5/fogsim/adapter/Step5Probe.java',ROOT/'tools/java/s9/fogsim/adapter/S9LifeObserver.java']
++    cp=os.pathsep.join(map(str,jars))
++    command=[str(java.parent/'javac'),'-encoding','UTF-8','-cp',cp,'-sourcepath',os.pathsep.join(map(str,[out/'overlay',ORIGINAL/'src',ROOT/'tools/java/src',ROOT/'tools/java/step5',ROOT/'tools/java/s9'])),'-d',str(classes),*map(str,sources)]
++    build=subprocess.run(command,capture_output=True,text=True)
++    (out/'compile.stdout').write_text(build.stdout);(out/'compile.stderr').write_text(build.stderr)
++    run_cwd=out/'working';(run_cwd/'dax').mkdir(parents=True,exist_ok=True)
++    shutil.copy(ROOT/'examples/step5/dax/CyberShake_30.xml',run_cwd/'dax/CyberShake_30.xml')
++    run_cmd=[str(java),'-cp',str(classes)+os.pathsep+cp,'fogsim.adapter.S9LifeObserver',str(out/'java.json')]
++    manifest=dict(environment=env,source_sha256={str(p.relative_to(ROOT)):sha(p) for p in [original,*sources[1:]]},overlay_sha256=sha(overlay),
++        original_sources={p.relative_to(ORIGINAL).as_posix():sha(p) for p in sorted((ORIGINAL/'src').rglob('*.java'))},
++        jars={p.name:sha(p) for p in jars},compile_command=command,compile_returncode=build.returncode,
++        run_command=run_cmd,run_cwd=str(run_cwd),javac_sha256=sha(java.parent/'javac'),dax_sha256=sha(run_cwd/'dax/CyberShake_30.xml'))
++    if build.returncode:
++        (out/'manifest.json').write_text(json.dumps(manifest,indent=2));raise RuntimeError(build.stderr)
++    run=subprocess.run(run_cmd,cwd=run_cwd,capture_output=True,text=True,timeout=30)
++    (out/'run.stdout').write_text(run.stdout);(out/'run.stderr').write_text(run.stderr)
++    manifest['run_returncode']=run.returncode
++    (out/'manifest.json').write_text(json.dumps(manifest,indent=2))
++    if run.returncode:raise RuntimeError(run.stderr)
++    raw=json.loads((out/'java.json').read_text());checks=[]
++    for case in raw['cases']:
++        rows=case['rows'];initial=rows[0]['environment'];samples=case['samples']
++        def check(name,condition):checks.append(dict(case=[case['initial_seed'],case['N']],name=name,passed=bool(condition)))
++        check('environment retained throughout',all(r['environment']==initial for r in rows))
++        check('construction consumes resource prefix',rows[0]['rng']!=case['seed_origin_rng'] and any(x['role'].startswith('rate_') for x in samples[:rows[0]['samples_so_far']]))
++        for op in ['rerun','reset','rotateSeed']:
++            begin=next(r for r in rows if r['operation']==op and r['boundary']=='before_operation')
++            cleared=next(r for r in rows if r['operation']==op and r['boundary']=='setup_before_input')
++            generated=next(r for r in rows if r['operation']==op and r['boundary']=='setup_after_input')
++            check(op+' clears runtime before input',cleared['clock']==0 and cleared['recorded']==0 and cleared['generated']==0 and cleared['jobs_in_system']==0 and cleared['event_queue']==0 and all(q['queue']==0 for q in cleared['queues']))
++            check(op+' retains B before generation',cleared['B']==begin['B'])
++            check(op+' input consumes RNG',generated['rng']!=cleared['rng'])
++            check(op+' no resource resampling',not any(x['role'].startswith(('rate_','upload_','download_')) for x in samples[begin['samples_so_far']:generated['samples_so_far']]))
++            if op=='rerun':check('rerun continues RNG',cleared['rng']==begin['rng'])
++            if op in ['reset','rotateSeed']:
++                check(op+' resets RNG at independent seed origin',cleared['rng']==case['seed_origin_rng' if op=='reset' else 'rotated_seed_origin_rng'])
++            if case['sentinel_B_probe']:check(op+' sentinel B retained after setup',generated['B']==1000000.0)
++            else:check(op+' B updated by new input',generated['B']!=cleared['B'])
++        end=next(r for r in rows if r['operation']=='rotateSeed' and r['boundary']=='after_operation')
++        expected=((case['initial_seed']+10000+2**63)%2**64)-2**63
++        check('Java long rotation',end['seed']==expected)
++        check('each run observed on both boundaries',len([r for r in rows if r['boundary']=='run_start'])==4 and len([r for r in rows if r['boundary']=='run_end'])==4)
++    # Independent Python state contract, never asserting native RNG sample parity.
++    from fogsim.experiment_config import load_experiment_config
++    from fogsim import create_dynamic_context
++    cfg=load_experiment_config(ROOT/'configs/training/train-a.json')
++    py=[];ctx=create_dynamic_context(cfg)
++    def snap(op,boundary):
++        e=ctx.engine
++        py.append(dict(operation=op,boundary=boundary,seed=ctx.public_seed,environment=ctx.environment.fingerprint,
++            B=ctx.cutoff_release_time,initial_B=e.initial_cutoff,status=e.run_status,clock=e.state.clock_time,
++            G=e.statistics.generated_total,R=e.statistics.recorded_total,rng=ctx.inputs.snapshot().fingerprint))
++    snap('construct','after')
++    for op in ['run','rerun','reset','run_after_reset','rotate_seed','run_after_rotate']:
++        snap(op,'before')
++        getattr(ctx,'run' if op.startswith('run') else op)()
++        snap(op,'after')
++    (out/'python.json').write_text(json.dumps(py,indent=2))
++    checks.append(dict(name='Python fresh starts B=0 and runtime RNG consumes',passed=py[0]['initial_B']==0 and py[0]['rng']!=py[2]['rng']))
++    checks.append(dict(name='Python environment retained in lifecycle',passed=len({r['environment'] for r in py})==1))
++    report=dict(format='fogsim.s9-lifecycle-checks',schema_version=1,checks=checks,passed=all(c['passed'] for c in checks),
++        scope='J05 only; Java/Python native random values are intentionally not compared')
++    (out/'checks.json').write_text(json.dumps(report,indent=2))
++    print(json.dumps(dict(passed=report['passed'],checks=len(checks))))
++    return 0 if report['passed'] else 1
++
++if __name__=='__main__':raise SystemExit(main())
+--- /dev/null
++++ S9-B01/tools/java/s9/fogsim/adapter/S9LifeObserver.java
+@@ -0,0 +1,52 @@
++package fogsim.adapter;
++
++import java.nio.file.*;
++import java.util.*;
++import mengxu.simulation.DynamicSimulation;
++import mengxu.simulation.state.SystemState;
++import mengxu.taskscheduling.*;
++
++/** Observation only: no RNG calls, no reset, no model writes in mark(). */
++public final class S9LifeObserver {
++    static final List<Object> rows = new ArrayList<>();
++    static String operation = "construct";
++    public static void mark(String boundary, DynamicSimulation sim) {
++        SystemState state = sim.getSystemState();
++        List<Object> queues = new ArrayList<>();
++        for (MobileDevice d : state.getMobileDevices())
++            queues.add(Step5Probe.row("device",d.getId(),"queue",d.getQueue().size(),
++                "events",d.eventQueue.size(),"throughput",d.getThroughput()));
++        for (Server s : state.getServers())
++            queues.add(Step5Probe.row("server",s.getId(),"queue",s.numTaskInQueue()));
++        rows.add(Step5Probe.row("operation",operation,"boundary",boundary,
++            "seed",Step5Probe.get(sim,"seed"),"environment",Step5Probe.environment(sim),
++            "B",state.getFirstArriveJobRecordedTime(),"clock",state.getClockTime(),
++            "generated",state.getAllNumJobsReleased(),"recorded",sim.getCurrentCompletedJobsNum(),
++            "jobs_in_system",state.getJobsInSystem().size(),"jobs_completed",state.getJobsCompleted().size(),
++            "event_queue",sim.getEventQueue().size(),"queues",queues,
++            "rng",Step5Probe.rngHash(sim.getRandomDataGenerator()),"samples_so_far",Step5Probe.calls.size()));
++    }
++    static Object sequence(long seed,int N,int W,boolean sentinel) {
++        rows.clear(); Step5Probe.calls.clear(); operation="construct";
++        String origin=Step5Probe.seedOrigin(seed);
++        DynamicSimulation sim=Step5Probe.sim(seed,N,W,false);
++        mark("after_operation",sim);
++        if (sentinel) Step5Probe.set(sim.getSystemState(),"firstArriveJobRecordedTime",1000000.0);
++        for (String op:List.of("run","rerun","reset","run_after_reset","rotateSeed","run_after_rotate")) {
++            operation=op; mark("before_operation",sim);
++            if(op.equals("rerun"))sim.rerun();
++            else if(op.equals("reset"))sim.reset();
++            else if(op.equals("rotateSeed"))sim.rotateSeed();
++            else sim.run();
++            mark("after_operation",sim);
++        }
++        return Step5Probe.row("initial_seed",seed,"N",N,"W",W,"sentinel_B_probe",sentinel,
++            "seed_origin_rng",origin,"rotated_seed_origin_rng",Step5Probe.seedOrigin(seed+10000),
++            "rows",new ArrayList<>(rows),"samples",new ArrayList<>(Step5Probe.calls));
++    }
++    public static void main(String[] args)throws Exception {
++        Object result=Step5Probe.row("format","fogsim.s9-java-lifecycle","schema_version",1,
++            "cases",List.of(sequence(7,2,1,false),sequence(7,1,0,true),sequence(Long.MAX_VALUE,1,0,true)));
++        Files.writeString(Path.of(args[0]),Json.write(result)+"\n");
++    }
++}
+--- /dev/null
++++ S9-B01/tools/verify_s9_b01_package.py
+@@ -0,0 +1,58 @@
++"""Verify an independent extraction, including fresh Python and Java executions."""
++import argparse
++import hashlib
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import time
++import xml.etree.ElementTree as ET
++import zipfile
++
++
++def sha(data):return hashlib.sha256(data).hexdigest()
++
++
++def main():
++    p=argparse.ArgumentParser();p.add_argument('--package',required=True);p.add_argument('--output',required=True)
++    p.add_argument('--java',required=True);p.add_argument('--test-deps',required=True);a=p.parse_args()
++    package=Path(a.package).resolve();out=Path(a.output).resolve();out.mkdir(parents=True,exist_ok=False)
++    with zipfile.ZipFile(package) as z:
++        assert z.testzip() is None
++        assert all(n=='fogsim-0.4.0/' or n.startswith('fogsim-0.4.0/') for n in z.namelist())
++        assert not any('..' in Path(n).parts for n in z.namelist())
++        manifest=json.loads(z.read('fogsim-0.4.0/S9-B01-FILES.json'))
++        for name,item in manifest['files'].items():
++            data=z.read('fogsim-0.4.0/'+name)
++            assert len(data)==item['size'] and sha(data)==item['sha256'],name
++        z.extractall(out/'unpacked')
++    root=out/'unpacked/fogsim-0.4.0';env=dict(os.environ,
++        PYTHONPATH=os.pathsep.join([str(Path(a.test_deps).resolve()),str(root/'src'),str(root/'tools')]),
++        PYTEST_DISABLE_PLUGIN_AUTOLOAD='1',FOGSIM_JAVA=str(Path(a.java).resolve()))
++    commands=[]
++    def run(name,args):
++        start=time.monotonic();r=subprocess.run(args,cwd=root,env=env,text=True,capture_output=True,timeout=180)
++        (out/(name+'.stdout.txt')).write_text(r.stdout);(out/(name+'.stderr.txt')).write_text(r.stderr)
++        commands.append(dict(name=name,argv=args,cwd=str(root),exit_code=r.returncode,seconds=time.monotonic()-start))
++        if r.returncode:raise RuntimeError(f'{name} failed; see preserved output')
++    run('unit',[sys.executable,'-m','pytest','tests/training','-q','-p','no:cacheprovider',
++                '--basetemp='+str(out/'cases'),'--junitxml='+str(out/'unit.xml')])
++    run('version',[sys.executable,'-m','fogsim','--version'])
++    run('old-fixed',[sys.executable,'-c',"import json;from fogsim import RunConfig,simulate,load_fixed_instance; r=simulate(load_fixed_instance('data/cases/single_local.json'),RunConfig()); print(json.dumps(r.to_dict())); assert r.status=='SUCCEEDED'"])
++    run('preflight',[sys.executable,'-m','fogsim.training.cli','validate','--config','configs/training/B01.json','--output',str(out/'preflight')])
++    run('evaluation',[sys.executable,'-m','fogsim.training.cli','evaluate','--rules','configs/training/rules.json',
++                      '--plan',str(out/'preflight/plans/train-0000.json'),'--output',str(out/'evaluation')])
++    run('java-lifecycle',[sys.executable,'tools/check_s9_lifecycle.py','--java',str(Path(a.java).resolve()),'--output',str(out/'java-lifecycle')])
++    suites=list(ET.parse(out/'unit.xml').getroot().iter('testsuite'))
++    counts={k:sum(int(s.get(k,0)) for s in suites) for k in ['tests','failures','errors','skipped']}
++    life=json.loads((out/'java-lifecycle/checks.json').read_text())
++    report=dict(format='fogsim.s9-B01-package-verification',schema_version=1,
++        package=package.name,package_bytes=package.stat().st_size,package_sha256=sha(package.read_bytes()),
++        crc_passed=True,top_directory='fogsim-0.4.0/',manifest_files_verified=len(manifest['files']),
++        independent_extraction=True,tests=counts,java_checks=len(life['checks']),java_passed=life['passed'],
++        commands=commands,passed=all(counts[k]==0 for k in ['failures','errors','skipped']) and life['passed'])
++    (out/'verification.json').write_text(json.dumps(report,indent=2)+'\n')
++    print(json.dumps({k:report[k] for k in ['passed','tests','java_checks','package_sha256']}))
++
++if __name__=='__main__':main()

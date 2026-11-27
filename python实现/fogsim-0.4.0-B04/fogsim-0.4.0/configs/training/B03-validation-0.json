@@ -1,0 +1,60 @@
+{
+  "format": "fogsim.experiment",
+  "schema_version": 2,
+  "mode": "dynamic",
+  "source": {
+    "seed": 11001,
+    "dag_root": "../../development/b07/fixtures/fork_join",
+    "workflow_types": {
+      "lower": 0,
+      "upper": 0
+    },
+    "environment": {
+      "num_mobile_devices": 2,
+      "num_edge_servers": 1,
+      "num_cloud_servers": 0,
+      "can_mobile_devices_process_tasks": true
+    },
+    "samplers": {
+      "workload": {
+        "lower": 50,
+        "upper": 150
+      },
+      "data_size": {
+        "lower": 0,
+        "upper": 1
+      },
+      "edge_data": {
+        "lower": 0,
+        "upper": 1
+      },
+      "processing_rate_device": {
+        "lower": 10,
+        "upper": 20
+      },
+      "processing_rate_edge": {
+        "lower": 20,
+        "upper": 30
+      },
+      "processing_rate_cloud": {
+        "lower": 30,
+        "upper": 40
+      }
+    }
+  },
+  "run": {
+    "num_jobs_recorded": 2,
+    "warmup_jobs": 2,
+    "max_events": 2000,
+    "trace_enabled": true,
+    "edge_data_policy": "release_after_materialization",
+    "routing_rule": {
+      "kind": "gp",
+      "expression": "(+ PT (* 0 (+ MRT WIQ)))"
+    },
+    "sequencing_rule": {
+      "kind": "gp",
+      "expression": "(- 0 TIS)"
+    }
+  }
+}

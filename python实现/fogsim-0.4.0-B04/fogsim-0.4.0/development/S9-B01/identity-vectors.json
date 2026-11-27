@@ -1,0 +1,42 @@
+{
+  "encoding": "fogsim.training.<domain>.v1 + LF + canonical UTF-8",
+  "vectors": [
+    {
+      "domain": "test-vector",
+      "payload": {
+        "a": "中文",
+        "b": [
+          -9223372036854775808,
+          null,
+          0.0,
+          -0.0
+        ]
+      },
+      "canonical": "{\"a\":\"中文\",\"b\":[-9223372036854775808,null,0.0,-0.0]}",
+      "expected": "sha256:f2251bdb37c7bb62cd44c828c2725133690ab38d6354864fb6d1bb13bebf61a6"
+    },
+    {
+      "domain": "test-vector",
+      "payload": {
+        "a": 1
+      },
+      "canonical": "{\"a\":1}",
+      "expected": "sha256:950427f20c052b989729316d70975b8272a914ed4fae89d0096c970ba75a5114"
+    },
+    {
+      "domain": "test-vector",
+      "payload": {
+        "a": null
+      },
+      "canonical": "{\"a\":null}",
+      "expected": "sha256:796deb1979e805e674b28e5d271bc806a7a3a67f5ef24138592b29ff328b74a3"
+    },
+    {
+      "domain": "test-vector",
+      "payload": {},
+      "canonical": "{}",
+      "expected": "sha256:22ce2b650ba35c9b9d6605259b30ad0e9af4c34bede8b888c1d1efb05cbeba22"
+    }
+  ],
+  "actual_plan_vector": "outputs/step9/B01/identity-preflight/plans/train-0000.json"
+}

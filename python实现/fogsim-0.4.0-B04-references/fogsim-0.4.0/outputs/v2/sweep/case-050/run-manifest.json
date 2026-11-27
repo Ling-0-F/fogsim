@@ -1,0 +1,174 @@
+{
+  "instance_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/outputs/v2/sweep/case-050/input.json",
+  "instance_sha256": "e9f3ba344cd31d07f358fd3c6ccb001f6f7cdc2b8082dc055a344b9b1de5a13e",
+  "config_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/outputs/v2/sweep/case-050/config.json",
+  "config_file_sha256": "555c4ad46d8e552aadb9464f9e877e5da835ad51f5db9a4de5f6dbf65d6b343b",
+  "effective_config": {
+    "routing_kind": "fcfs",
+    "fixed_resource_id": null,
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "java_build_fingerprint": "a69f3c65cce9eae3111d7c15f95c3aeac49946d2308df8c02d594ec8b189b921",
+  "resource_ids": [
+    [
+      "M0",
+      "MOBILE",
+      0
+    ],
+    [
+      "E0",
+      "EDGE",
+      0
+    ],
+    [
+      "C0",
+      "CLOUD",
+      1
+    ]
+  ],
+  "devices": [
+    "M0"
+  ],
+  "task_ids": [
+    {
+      "workflow_id": -5,
+      "string_id": "T0",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 21,
+      "string_id": "T0",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": -19,
+      "string_id": "T0",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": -19,
+      "string_id": "T1",
+      "java_numeric_id": 1,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": -19,
+      "string_id": "T2",
+      "java_numeric_id": 2,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": -19,
+      "string_id": "T3",
+      "java_numeric_id": 3,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": -19,
+      "string_id": "T4",
+      "java_numeric_id": 4,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 37,
+      "string_id": "T0",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 37,
+      "string_id": "T1",
+      "java_numeric_id": 1,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 37,
+      "string_id": "T2",
+      "java_numeric_id": 2,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 37,
+      "string_id": "T3",
+      "java_numeric_id": 3,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    }
+  ],
+  "initial_stage_order": [
+    [
+      -5,
+      "M0",
+      1.0
+    ],
+    [
+      21,
+      "M0",
+      2.0
+    ],
+    [
+      -19,
+      "M0",
+      0.1
+    ],
+    [
+      37,
+      "M0",
+      0.0
+    ]
+  ],
+  "raw_trace_sha256": {
+    "python-raw.json": "dd2914ea7067fa3e91d91034c1ecac3853067461457fee44ffb80696e5733059",
+    "java-raw.json": "d1800a2c716eed7794cc29f8240484a3f9becb4024ac02b9b9577a884ec81bc6"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "passed": true,
+  "jdk_executable": "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+  "priority_queue_source_sha256": null,
+  "operation_count": 4764,
+  "comparison_output_count": 3797,
+  "python_output_count": 3797,
+  "first_difference_line": null,
+  "scope": "Extracted original comparator/priorTo/cache methods and java.util.PriorityQueue; not full simulator parity",
+  "methods": [
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/simulation/event/JobArrivalEvent.java",
+      "signature": "public int compareTo(AbstractEvent other)",
+      "source_sha256": "51fe4bb26b884bbe9c787311afe509dc948f72c65acca6fa2c5af629190c0bf7",
+      "method_utf8_sha256": "fc25ac1f19bc32efc1c0eb021b73ebc6e818b7cc84409923076299a278cab155"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/simulation/event/ProcessStartEvent.java",
+      "signature": "public int compareTo(AbstractEvent other)",
+      "source_sha256": "fb06ceb228d45d763943cac238b7dba3d035970526a098f4667c7683e6f0cd7a",
+      "method_utf8_sha256": "fd2dc5003282f24908073f39fbcb1961256e2ad6f953d6a0a3749702a18de696"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/simulation/event/TaskVisitEvent.java",
+      "signature": "public int compareTo(AbstractEvent other)",
+      "source_sha256": "7ed5aa8fc77b3b3b9a32afc351077dd626abc426cd809ffca4b2d565f04443b0",
+      "method_utf8_sha256": "1097b40aa372191f15bcc6c2fe0e818d9f3f70021b1d22170cfc0697c6fd1b68"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/simulation/event/ProcessFinishEvent.java",
+      "signature": "public int compareTo(AbstractEvent other)",
+      "source_sha256": "e477a9ac8a48c556aca8c84b1a076c0302ec071ec6fd58b7505fe6cd8cc2d30f",
+      "method_utf8_sha256": "54edfe9564dfb17d9e6b437328d638c50696aeabad9e1050b2da07d14f3d9621"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/taskscheduling/TaskOption.java",
+      "signature": "public boolean priorTo(TaskOption other)",
+      "source_sha256": "551833cb1ef28ba90855ff1e9f9ed1c7dd9cf06ea62eb64313174672c39cd31a",
+      "method_utf8_sha256": "732f502d99b8cdae4e2bdef1de89e61e96653a1aa40831e3362ea71479d8ce89"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/taskscheduling/MobileDevice.java",
+      "signature": "public void addToQueue",
+      "source_sha256": "6a4631115ec397a4a65802ed6430ee1b9b6b75993733e9aa66b4c609e73857ec",
+      "method_utf8_sha256": "4dd740dbd8a76aabc5b2eaa3f74fc5f5e5636d863a0298109eec94fff1f8f8f9"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/taskscheduling/MobileDevice.java",
+      "signature": "public void removeFromQueue",
+      "source_sha256": "6a4631115ec397a4a65802ed6430ee1b9b6b75993733e9aa66b4c609e73857ec",
+      "method_utf8_sha256": "8273dd7565eccaa4b0250e97d9916a65d6a47ff82908de2721796d636f7f23c2"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/taskscheduling/MobileDevice.java",
+      "signature": "public double totalProcTimeInQueue()",
+      "source_sha256": "6a4631115ec397a4a65802ed6430ee1b9b6b75993733e9aa66b4c609e73857ec",
+      "method_utf8_sha256": "b3ab2c183a7e01b62f8b109617934d662d3cb19645c668c9c1ddae62a13f8fa7"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/taskscheduling/MobileDevice.java",
+      "signature": "public double totalProcTimeAndUpLoadAndDownLoadTimeInQueue()",
+      "source_sha256": "6a4631115ec397a4a65802ed6430ee1b9b6b75993733e9aa66b4c609e73857ec",
+      "method_utf8_sha256": "a4f1f04d46095d4c455593af3d8c7fa792cfb7cf45df1cad7989fed4b6d0cb12"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/taskscheduling/Server.java",
+      "signature": "public void addToQueue",
+      "source_sha256": "c19e5ada61e913796a7de0a395e05804f27bdd34e77ce7d450738bf24b2e9f47",
+      "method_utf8_sha256": "4dd740dbd8a76aabc5b2eaa3f74fc5f5e5636d863a0298109eec94fff1f8f8f9"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/taskscheduling/Server.java",
+      "signature": "public void removeFromQueue",
+      "source_sha256": "c19e5ada61e913796a7de0a395e05804f27bdd34e77ce7d450738bf24b2e9f47",
+      "method_utf8_sha256": "8fd7fbbd3b4a7cbc3dbf9e194bd4e9221d5e050b3bfc9c34ca59575625331ac7"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/taskscheduling/Server.java",
+      "signature": "public double totalProcTimeInQueue()",
+      "source_sha256": "c19e5ada61e913796a7de0a395e05804f27bdd34e77ce7d450738bf24b2e9f47",
+      "method_utf8_sha256": "86fbf9facc3531045f2ebe6864092ccc62d9890f372f7c86662eabb7358bfb13"
+    },
+    {
+      "source": "references/java/Fog-Computing-multiDeviceDebug/src/mengxu/taskscheduling/Server.java",
+      "signature": "public double totalProcTimeAndUpLoadAndDownLoadTimeInQueue()",
+      "source_sha256": "c19e5ada61e913796a7de0a395e05804f27bdd34e77ce7d450738bf24b2e9f47",
+      "method_utf8_sha256": "05c9e8e80ba3c9a64edf877773216be4b72804c6729bb016f5a7f932d08c667d"
+    }
+  ],
+  "fixture_sha256": "77b9e2baf9bbf52b4888a0bbfdef1c01c82fe25e2c8feaee0d37a85f6700f1a3"
+}

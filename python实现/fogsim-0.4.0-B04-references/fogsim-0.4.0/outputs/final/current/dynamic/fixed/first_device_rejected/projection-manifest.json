@@ -1,0 +1,19 @@
+{
+  "kind": "fixed_projection",
+  "source_format": "fogsim.dynamic-replay",
+  "schema_version": 1,
+  "accepted_record_ids": [
+    "2",
+    "3"
+  ],
+  "losses": [
+    "rejected_attempts",
+    "dynamic_generation_call_positions",
+    "statistical_window",
+    "physical_input_fields_not_representable_in_legacy_format"
+  ],
+  "metrics_scope": "all projected workflows run to completion in both fixed engines; do not compare original dynamic metrics",
+  "java_adapter_scope": "FCFS/fixed_resource only; physical rate/bandwidth placeholders are not validated",
+  "fixed_input_sha256": "405fd520a590de94cda836768302d7a87fd157daf7c0371b66e17e07bd5cc664",
+  "java_build_fingerprint": "a69f3c65cce9eae3111d7c15f95c3aeac49946d2308df8c02d594ec8b189b921"
+}

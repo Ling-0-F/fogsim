@@ -1,0 +1,52 @@
+{
+  "scope": "scripted original constructor/setup/generation only; no triggered events or full input export",
+  "known_differences": [
+    "Python retains edge maps; original Java clears maps",
+    "scripted test samplers replace RNG sampling only"
+  ],
+  "cases": [
+    {
+      "case": "normal",
+      "classification": "NORMAL_PARITY_PASSED",
+      "passed": true,
+      "first_difference": null
+    },
+    {
+      "case": "local_disabled",
+      "classification": "NORMAL_PARITY_PASSED",
+      "passed": true,
+      "first_difference": null
+    },
+    {
+      "case": "local_only",
+      "classification": "NORMAL_PARITY_PASSED",
+      "passed": true,
+      "first_difference": null
+    },
+    {
+      "case": "first_device_rejected",
+      "classification": "NORMAL_PARITY_PASSED",
+      "passed": true,
+      "first_difference": null
+    },
+    {
+      "case": "all_devices_rejected",
+      "classification": "NORMAL_PARITY_PASSED",
+      "passed": true,
+      "first_difference": null
+    },
+    {
+      "case": "release_rounding",
+      "classification": "NORMAL_PARITY_PASSED",
+      "passed": true,
+      "first_difference": null
+    },
+    {
+      "case": "adjacency_accumulation",
+      "classification": "NORMAL_PARITY_PASSED",
+      "passed": true,
+      "first_difference": null
+    }
+  ],
+  "passed": true
+}

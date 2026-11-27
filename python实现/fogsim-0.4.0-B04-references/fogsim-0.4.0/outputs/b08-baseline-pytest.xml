@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="20" failures="0" skipped="0" tests="20" time="1.298" timestamp="2026-11-07T21:02:15.961800-08:00" hostname="958b1055268f"><testcase classname="" name="tests.gp.test_features" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/test_features.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/gp/test_features.py:12: in &lt;module&gt;
+    from conftest import step
+E   ImportError: cannot import name 'step' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.integration.test_dynamic_business_oracle" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/integration/test_dynamic_business_oracle.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_dynamic_business_oracle.py:4: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.integration.test_generated_kernel" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/integration/test_generated_kernel.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_generated_kernel.py:4: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.integration.test_runs" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/integration/test_runs.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_runs.py:7: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.integration.test_step1_fixed_compatibility" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/integration/test_step1_fixed_compatibility.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_step1_fixed_compatibility.py:7: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.integration.test_v01_regression" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/integration/test_v01_regression.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_v01_regression.py:7: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.parity.test_fixed_java" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/parity/test_fixed_java.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/parity/test_fixed_java.py:8: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.parity.test_v2_acceptance" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/parity/test_v2_acceptance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/parity/test_v2_acceptance.py:11: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_dax" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_dax.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_dax.py:7: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_environment_build" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_environment_build.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_environment_build.py:4: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_final_contracts" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_final_contracts.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_final_contracts.py:7: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_jdk_lock" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_jdk_lock.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_jdk_lock.py:7: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_materialize_workflow" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_materialize_workflow.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_materialize_workflow.py:3: in &lt;module&gt;
+    from test_workflow_generation import inputs_for, template, environment
+tests/unit/test_workflow_generation.py:5: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_model_rules" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_model_rules.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_model_rules.py:13: in &lt;module&gt;
+    from conftest import step, two_workflows
+E   ImportError: cannot import name 'step' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_queue_lifecycle" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_queue_lifecycle.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_queue_lifecycle.py:9: in &lt;module&gt;
+    from conftest import step, two_workflows
+E   ImportError: cannot import name 'step' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_random_input_state" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_random_input_state.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_random_input_state.py:8: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_replay" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_replay.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_replay.py:8: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_step7" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_step7.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_step7.py:8: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_trace_compare" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_trace_compare.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_trace_compare.py:10: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase><testcase classname="" name="tests.unit.test_workflow_generation" time="0.000"><error message="collection failure">ImportError while importing test module '/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/unit/test_workflow_generation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_workflow_generation.py:5: in &lt;module&gt;
+    from conftest import ROOT
+E   ImportError: cannot import name 'ROOT' from 'conftest' (/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/tests/gp/b06/conftest.py)</error></testcase></testsuite></testsuites>

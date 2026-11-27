@@ -1,0 +1,676 @@
+{
+  "stage": "step4-development-snapshot",
+  "date": "2026-11-05",
+  "timezone": "America/Los_Angeles",
+  "baseline_step3_zip_sha256": "6fbb34ffd6c11489a69892583441d068aa26d14c6c84dd65085b21b87fe86c4e",
+  "design_sha256": "e47a1953e65a8b152f9e6d63b8a8702c862b5fb5518894169922b63543e92758",
+  "java_zip_sha256": "17a273961e66f409c4cfc8305ee31433bf7022232da3a2cbd0cc8e70e4c32c9a",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.39",
+  "pytest": "9.2.0",
+  "contracts": {
+    "tests": 73,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "python_unit_integration": {
+    "tests": 590,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "java_v16": {
+    "scope": "V16 Java export only; V17/V19/complete V01 NOT_EXECUTED",
+    "passed": true,
+    "cases": [
+      {
+        "case": "minimal_chain",
+        "scope": "V16 Java observation noninterference and complete input; no Python dynamic replay",
+        "passed": true,
+        "first_differences": {
+          "plain_vs_audited_baseline": null,
+          "baseline_vs_minimal": null,
+          "baseline_vs_full": null,
+          "minimal_vs_full_capture": null
+        },
+        "reference_checks": {
+          "emitted_events_accounted_for": true,
+          "decisions_accounted_for": true,
+          "event_sequences_contiguous": true,
+          "java_maps_cleared_but_export_edges_retained": true,
+          "attempts_link_to_actual_arrivals": true
+        },
+        "counts": {
+          "attempts": 2,
+          "accepted": 2,
+          "rejected": 0,
+          "events": 7,
+          "decisions": 3,
+          "samples": 17,
+          "templates": 1
+        },
+        "java_native_result": {
+          "target_reached": true,
+          "clock_time": 273.6381514759075,
+          "G": 2,
+          "B": 111.1692439540546,
+          "R": 1,
+          "completed_workflow_ids": [
+            0
+          ],
+          "statistical_workflow_ids": [
+            0
+          ],
+          "not_arrived_workflow_ids": [
+            1
+          ],
+          "unfinished_workflow_ids": [
+            1
+          ],
+          "pending_global_events": 1,
+          "makespan": {
+            "kind": "FINITE",
+            "value": 162.46890752185288,
+            "java_text": "162.46890752185288"
+          },
+          "mean_flowtime": {
+            "kind": "FINITE",
+            "value": 162.46890752185288,
+            "java_text": "162.46890752185288"
+          }
+        },
+        "python_dynamic_parity": "NOT_EXECUTED",
+        "classification": "NORMAL_PARITY_PASSED",
+        "observation_noninterference_passed": true
+      },
+      {
+        "case": "multi_device_diamond",
+        "scope": "V16 Java observation noninterference and complete input; no Python dynamic replay",
+        "passed": true,
+        "first_differences": {
+          "plain_vs_audited_baseline": null,
+          "baseline_vs_minimal": null,
+          "baseline_vs_full": null,
+          "minimal_vs_full_capture": null
+        },
+        "reference_checks": {
+          "emitted_events_accounted_for": true,
+          "decisions_accounted_for": true,
+          "event_sequences_contiguous": true,
+          "java_maps_cleared_but_export_edges_retained": true,
+          "attempts_link_to_actual_arrivals": true
+        },
+        "counts": {
+          "attempts": 14,
+          "accepted": 14,
+          "rejected": 0,
+          "events": 77,
+          "decisions": 61,
+          "samples": 218,
+          "templates": 1
+        },
+        "java_native_result": {
+          "target_reached": true,
+          "clock_time": 459.0968787531216,
+          "G": 14,
+          "B": 201.98988467906236,
+          "R": 2,
+          "completed_workflow_ids": [
+            0,
+            2
+          ],
+          "statistical_workflow_ids": [
+            0,
+            2
+          ],
+          "not_arrived_workflow_ids": [
+            11,
+            13
+          ],
+          "unfinished_workflow_ids": [
+            1,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "pending_global_events": 7,
+          "makespan": {
+            "kind": "FINITE",
+            "value": 422.6549370161364,
+            "java_text": "422.6549370161364"
+          },
+          "mean_flowtime": {
+            "kind": "FINITE",
+            "value": 268.60679291202337,
+            "java_text": "268.60679291202337"
+          }
+        },
+        "python_dynamic_parity": "NOT_EXECUTED",
+        "classification": "NORMAL_PARITY_PASSED",
+        "observation_noninterference_passed": true
+      },
+      {
+        "case": "local_disabled",
+        "scope": "V16 Java observation noninterference and complete input; no Python dynamic replay",
+        "passed": true,
+        "first_differences": {
+          "plain_vs_audited_baseline": null,
+          "baseline_vs_minimal": null,
+          "baseline_vs_full": null,
+          "minimal_vs_full_capture": null
+        },
+        "reference_checks": {
+          "emitted_events_accounted_for": true,
+          "decisions_accounted_for": true,
+          "event_sequences_contiguous": true,
+          "java_maps_cleared_but_export_edges_retained": true,
+          "attempts_link_to_actual_arrivals": true
+        },
+        "counts": {
+          "attempts": 12,
+          "accepted": 12,
+          "rejected": 0,
+          "events": 63,
+          "decisions": 52,
+          "samples": 194,
+          "templates": 1
+        },
+        "java_native_result": {
+          "target_reached": true,
+          "clock_time": 377.88231349705654,
+          "G": 12,
+          "B": 105.32803419138705,
+          "R": 2,
+          "completed_workflow_ids": [
+            0,
+            2
+          ],
+          "statistical_workflow_ids": [
+            0,
+            2
+          ],
+          "not_arrived_workflow_ids": [
+            9,
+            11
+          ],
+          "unfinished_workflow_ids": [
+            1,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "pending_global_events": 8,
+          "makespan": {
+            "kind": "FINITE",
+            "value": 285.4766176564161,
+            "java_text": "285.4766176564161"
+          },
+          "mean_flowtime": {
+            "kind": "FINITE",
+            "value": 266.67841986921246,
+            "java_text": "266.67841986921246"
+          }
+        },
+        "python_dynamic_parity": "NOT_EXECUTED",
+        "classification": "NORMAL_PARITY_PASSED",
+        "observation_noninterference_passed": true
+      },
+      {
+        "case": "first_device_rejected",
+        "scope": "V16 Java observation noninterference and complete input; no Python dynamic replay",
+        "passed": true,
+        "first_differences": {
+          "baseline_vs_minimal": null,
+          "baseline_vs_full": null,
+          "minimal_vs_full_capture": null
+        },
+        "reference_checks": {
+          "emitted_events_accounted_for": true,
+          "decisions_accounted_for": true,
+          "event_sequences_contiguous": true,
+          "java_maps_cleared_but_export_edges_retained": true,
+          "attempts_link_to_actual_arrivals": true
+        },
+        "counts": {
+          "attempts": 3,
+          "accepted": 2,
+          "rejected": 1,
+          "events": 7,
+          "decisions": 3,
+          "samples": 32,
+          "templates": 1
+        },
+        "java_native_result": {
+          "target_reached": true,
+          "clock_time": 107.11003619145927,
+          "G": 2,
+          "B": 10.0,
+          "R": 1,
+          "completed_workflow_ids": [
+            0
+          ],
+          "statistical_workflow_ids": [
+            0
+          ],
+          "not_arrived_workflow_ids": [
+            1
+          ],
+          "unfinished_workflow_ids": [
+            1
+          ],
+          "pending_global_events": 1,
+          "makespan": {
+            "kind": "FINITE",
+            "value": 97.11003619145927,
+            "java_text": "97.11003619145927"
+          },
+          "mean_flowtime": {
+            "kind": "FINITE",
+            "value": 97.11003619145927,
+            "java_text": "97.11003619145927"
+          }
+        },
+        "python_dynamic_parity": "NOT_EXECUTED",
+        "classification": "NORMAL_PARITY_PASSED",
+        "observation_noninterference_passed": true
+      },
+      {
+        "case": "all_devices_rejected",
+        "scope": "V16 Java observation noninterference and complete input; no Python dynamic replay",
+        "passed": true,
+        "first_differences": {
+          "baseline_vs_minimal": null,
+          "baseline_vs_full": null,
+          "minimal_vs_full_capture": null
+        },
+        "reference_checks": {
+          "emitted_events_accounted_for": true,
+          "decisions_accounted_for": true,
+          "event_sequences_contiguous": true,
+          "java_maps_cleared_but_export_edges_retained": true,
+          "attempts_link_to_actual_arrivals": true
+        },
+        "counts": {
+          "attempts": 2,
+          "accepted": 0,
+          "rejected": 2,
+          "events": 0,
+          "decisions": 0,
+          "samples": 38,
+          "templates": 1
+        },
+        "java_native_result": {
+          "target_reached": false,
+          "clock_time": 0.0,
+          "G": 0,
+          "B": 0.0,
+          "R": 0,
+          "completed_workflow_ids": [],
+          "statistical_workflow_ids": [],
+          "not_arrived_workflow_ids": [],
+          "unfinished_workflow_ids": [],
+          "pending_global_events": 0,
+          "makespan": {
+            "kind": "POSITIVE_INFINITY",
+            "value": null,
+            "java_text": "Infinity"
+          },
+          "mean_flowtime": {
+            "kind": "DOUBLE_MAX_VALUE",
+            "value": 1.7976931348623157e+308,
+            "java_text": "1.7976931348623157E308"
+          }
+        },
+        "python_dynamic_parity": "NOT_EXECUTED",
+        "classification": "EXPECTED_DIFFERENCE_CONFIRMED",
+        "observation_noninterference_passed": true
+      },
+      {
+        "case": "arrival_rejected",
+        "scope": "V16 Java observation noninterference and complete input; no Python dynamic replay",
+        "passed": true,
+        "first_differences": {
+          "baseline_vs_minimal": null,
+          "baseline_vs_full": null,
+          "minimal_vs_full_capture": null
+        },
+        "reference_checks": {
+          "emitted_events_accounted_for": true,
+          "decisions_accounted_for": true,
+          "event_sequences_contiguous": true,
+          "java_maps_cleared_but_export_edges_retained": true,
+          "attempts_link_to_actual_arrivals": true
+        },
+        "counts": {
+          "attempts": 2,
+          "accepted": 1,
+          "rejected": 1,
+          "events": 7,
+          "decisions": 3,
+          "samples": 17,
+          "templates": 1
+        },
+        "java_native_result": {
+          "target_reached": false,
+          "clock_time": 164.46890752185286,
+          "G": 1,
+          "B": 0.0,
+          "R": 0,
+          "completed_workflow_ids": [
+            0
+          ],
+          "statistical_workflow_ids": [],
+          "not_arrived_workflow_ids": [],
+          "unfinished_workflow_ids": [],
+          "pending_global_events": 0,
+          "makespan": {
+            "kind": "POSITIVE_INFINITY",
+            "value": null,
+            "java_text": "Infinity"
+          },
+          "mean_flowtime": {
+            "kind": "DOUBLE_MAX_VALUE",
+            "value": 1.7976931348623157e+308,
+            "java_text": "1.7976931348623157E308"
+          }
+        },
+        "python_dynamic_parity": "NOT_EXECUTED",
+        "classification": "EXPECTED_DIFFERENCE_CONFIRMED",
+        "observation_noninterference_passed": true
+      },
+      {
+        "case": "pending_at_stop",
+        "scope": "V16 Java observation noninterference and complete input; no Python dynamic replay",
+        "passed": true,
+        "first_differences": {
+          "baseline_vs_minimal": null,
+          "baseline_vs_full": null,
+          "minimal_vs_full_capture": null
+        },
+        "reference_checks": {
+          "emitted_events_accounted_for": true,
+          "decisions_accounted_for": true,
+          "event_sequences_contiguous": true,
+          "java_maps_cleared_but_export_edges_retained": true,
+          "attempts_link_to_actual_arrivals": true
+        },
+        "counts": {
+          "attempts": 3,
+          "accepted": 3,
+          "rejected": 0,
+          "events": 7,
+          "decisions": 3,
+          "samples": 32,
+          "templates": 1
+        },
+        "java_native_result": {
+          "target_reached": true,
+          "clock_time": 159.53145063565964,
+          "G": 3,
+          "B": 1.0,
+          "R": 1,
+          "completed_workflow_ids": [
+            0
+          ],
+          "statistical_workflow_ids": [
+            0
+          ],
+          "not_arrived_workflow_ids": [
+            1,
+            2
+          ],
+          "unfinished_workflow_ids": [
+            1,
+            2
+          ],
+          "pending_global_events": 2,
+          "makespan": {
+            "kind": "FINITE",
+            "value": 158.53145063565964,
+            "java_text": "158.53145063565964"
+          },
+          "mean_flowtime": {
+            "kind": "FINITE",
+            "value": 158.53145063565964,
+            "java_text": "158.53145063565964"
+          }
+        },
+        "python_dynamic_parity": "NOT_EXECUTED",
+        "classification": "NORMAL_PARITY_PASSED",
+        "observation_noninterference_passed": true
+      },
+      {
+        "case": "native_standard_dax",
+        "scope": "V16 Java observation noninterference and complete input; no Python dynamic replay",
+        "passed": true,
+        "first_differences": {
+          "plain_vs_audited_baseline": null,
+          "baseline_vs_minimal": null,
+          "baseline_vs_full": null,
+          "minimal_vs_full_capture": null
+        },
+        "reference_checks": {
+          "emitted_events_accounted_for": true,
+          "decisions_accounted_for": true,
+          "event_sequences_contiguous": true,
+          "java_maps_cleared_but_export_edges_retained": true,
+          "attempts_link_to_actual_arrivals": true
+        },
+        "counts": {
+          "attempts": 32,
+          "accepted": 32,
+          "rejected": 0,
+          "events": 362,
+          "decisions": 334,
+          "samples": 3688,
+          "templates": 1
+        },
+        "java_native_result": {
+          "target_reached": true,
+          "clock_time": 1930.5728280112105,
+          "G": 32,
+          "B": 207.43207169376583,
+          "R": 2,
+          "completed_workflow_ids": [
+            0,
+            2,
+            8
+          ],
+          "statistical_workflow_ids": [
+            0,
+            2
+          ],
+          "not_arrived_workflow_ids": [
+            30,
+            31
+          ],
+          "unfinished_workflow_ids": [
+            1,
+            3,
+            4,
+            5,
+            6,
+            7,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31
+          ],
+          "pending_global_events": 7,
+          "makespan": {
+            "kind": "FINITE",
+            "value": 1769.1133877130605,
+            "java_text": "1769.1133877130605"
+          },
+          "mean_flowtime": {
+            "kind": "FINITE",
+            "value": 1193.5127172882771,
+            "java_text": "1193.5127172882771"
+          }
+        },
+        "python_dynamic_parity": "NOT_EXECUTED",
+        "classification": "NORMAL_PARITY_PASSED",
+        "observation_noninterference_passed": true
+      },
+      {
+        "case": "native_multiple_types",
+        "scope": "V16 Java observation noninterference and complete input; no Python dynamic replay",
+        "passed": true,
+        "first_differences": {
+          "plain_vs_audited_baseline": null,
+          "baseline_vs_minimal": null,
+          "baseline_vs_full": null,
+          "minimal_vs_full_capture": null
+        },
+        "reference_checks": {
+          "emitted_events_accounted_for": true,
+          "decisions_accounted_for": true,
+          "event_sequences_contiguous": true,
+          "java_maps_cleared_but_export_edges_retained": true,
+          "attempts_link_to_actual_arrivals": true
+        },
+        "counts": {
+          "attempts": 26,
+          "accepted": 26,
+          "rejected": 0,
+          "events": 598,
+          "decisions": 549,
+          "samples": 2424,
+          "templates": 5
+        },
+        "java_native_result": {
+          "target_reached": true,
+          "clock_time": 1982.9571351745044,
+          "G": 26,
+          "B": 180.49772330872082,
+          "R": 2,
+          "completed_workflow_ids": [
+            1,
+            2,
+            3
+          ],
+          "statistical_workflow_ids": [
+            1,
+            2
+          ],
+          "not_arrived_workflow_ids": [
+            24,
+            25
+          ],
+          "unfinished_workflow_ids": [
+            0,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "pending_global_events": 6,
+          "makespan": {
+            "kind": "FINITE",
+            "value": 1920.9261828147473,
+            "java_text": "1920.9261828147473"
+          },
+          "mean_flowtime": {
+            "kind": "FINITE",
+            "value": 1487.480749475389,
+            "java_text": "1487.480749475389"
+          }
+        },
+        "python_dynamic_parity": "NOT_EXECUTED",
+        "classification": "NORMAL_PARITY_PASSED",
+        "observation_noninterference_passed": true
+      }
+    ],
+    "interruption_check": {
+      "passed": true,
+      "classification": "EXPECTED_DIFFERENCE_CONFIRMED",
+      "reason": "forced sampler script exhaustion during second initialization; full gate rejects partial capture",
+      "complete_attempts": 1,
+      "full_audit_rejected": true
+    },
+    "classification": "NORMAL_PARITY_PASSED"
+  },
+  "integrity": {
+    "uploaded_java_sources_dependencies_matched": 659,
+    "python_production_src_unchanged_from_step3": true
+  },
+  "changed_modules": [
+    "README.md",
+    "configs/examples/step4_java_export.json",
+    "docs/IMPLEMENTATION-NOTES.md",
+    "docs/ISSUES-AND-FIXES.md",
+    "docs/STEP4-PROGRESS.md",
+    "docs/VALIDATION.md",
+    "docs/roadmap.md",
+    "docs/semantics.md",
+    "tests/fixtures/dynamic_v1/input.json",
+    "tests/unit/test_dynamic_export.py",
+    "tools/check_step4.py",
+    "tools/dynamic_export_contract.py",
+    "tools/export_java_dynamic.py",
+    "tools/java/step4/fogsim/adapter/DynamicCapture.java",
+    "tools/java/step4/fogsim/adapter/DynamicExportMain.java",
+    "tools/java_dynamic_support.py"
+  ],
+  "not_executed": [
+    "V17 Python dynamic replay",
+    "V18 production coverage handling",
+    "V19 fixed projection",
+    "V09-V15 production dynamic admission/statistics/lifecycle",
+    "V20-V22 cleanup/CLI/batches",
+    "complete V01",
+    "GP/paper experiments"
+  ]
+}

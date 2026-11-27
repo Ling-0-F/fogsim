@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "schema_version",
+    "implementation",
+    "status",
+    "budget",
+    "trials",
+    "source_id"
+  ],
+  "properties": {
+    "format": {
+      "const": "fogsim.training-result"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "implementation": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "budget": {
+      "type": "object"
+    },
+    "trials": {
+      "type": "array"
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "interruption": {
+      "type": "object"
+    }
+  }
+}

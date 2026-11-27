@@ -1,0 +1,1508 @@
+{
+  "schema_version": 1,
+  "input": {
+    "time_unit": "s",
+    "resources": [
+      {
+        "id": "M0",
+        "type": "MOBILE",
+        "can_process_tasks": true
+      },
+      {
+        "id": "M1",
+        "type": "MOBILE",
+        "can_process_tasks": true
+      },
+      {
+        "id": "E0",
+        "type": "EDGE"
+      },
+      {
+        "id": "C0",
+        "type": "CLOUD"
+      }
+    ],
+    "workflows": [
+      {
+        "id": 0,
+        "owner_device_id": "M0",
+        "release_time": 36.441941736985186,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 96.24401971975027,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 11.415830127501971,
+                "processing_time": 41.65634318788192,
+                "download_time": 11.692938707371631
+              },
+              "C0": {
+                "upload_time": 22.831660255003943,
+                "processing_time": 16.417362528433888,
+                "download_time": 23.385877414743263
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 84.31660084203396,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 10.148604379286784,
+                "processing_time": 36.49391693467117,
+                "download_time": 10.194014323236438
+              },
+              "C0": {
+                "upload_time": 20.297208758573568,
+                "processing_time": 14.382776272434326,
+                "download_time": 20.388028646472875
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 44.57243109286611,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 16.90428818644874,
+                "processing_time": 19.29184266959322,
+                "download_time": 16.94121873984295
+              },
+              "C0": {
+                "upload_time": 33.80857637289748,
+                "processing_time": 7.603191992146775,
+                "download_time": 33.8824374796859
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 90.79297498360673,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 6.414163532664698,
+                "processing_time": 39.297021632916824,
+                "download_time": 6.054714455451178
+              },
+              "C0": {
+                "upload_time": 12.828327065329397,
+                "processing_time": 15.487520052479868,
+                "download_time": 12.109428910902356
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 1,
+        "owner_device_id": "M1",
+        "release_time": 210.2712716630515,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 90.31162923879343,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 18.226120172899055,
+                "processing_time": 43.695544867769925,
+                "download_time": 18.52108135854716
+              },
+              "C0": {
+                "upload_time": 36.45224034579811,
+                "processing_time": 17.221041168594788,
+                "download_time": 37.04216271709432
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 91.43771659592934,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 16.46213934528432,
+                "processing_time": 44.240380577783064,
+                "download_time": 16.382731069324528
+              },
+              "C0": {
+                "upload_time": 32.92427869056864,
+                "processing_time": 17.435768739120576,
+                "download_time": 32.765462138649056
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 66.31924795742773,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 11.681400782510774,
+                "processing_time": 32.08729262383594,
+                "download_time": 11.681340012021625
+              },
+              "C0": {
+                "upload_time": 23.36280156502155,
+                "processing_time": 12.646062406041999,
+                "download_time": 23.36268002404325
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 71.13100364403314,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 16.786888398479658,
+                "processing_time": 34.41536806958928,
+                "download_time": 16.571396259280494
+              },
+              "C0": {
+                "upload_time": 33.573776796959315,
+                "processing_time": 13.563590342041826,
+                "download_time": 33.14279251856099
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "owner_device_id": "M0",
+        "release_time": 201.98988467906236,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 113.37810186668867,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 11.783449820549038,
+                "processing_time": 49.07231779285531,
+                "download_time": 12.087069600259667
+              },
+              "C0": {
+                "upload_time": 23.566899641098075,
+                "processing_time": 19.34010452338954,
+                "download_time": 24.174139200519335
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 73.04173428731873,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 9.946476410090138,
+                "processing_time": 31.61392842246641,
+                "download_time": 9.910202377674564
+              },
+              "C0": {
+                "upload_time": 19.892952820180277,
+                "processing_time": 12.45950278253364,
+                "download_time": 19.820404755349127
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 48.62962423345474,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 16.199906872732992,
+                "processing_time": 21.047877281780124,
+                "download_time": 16.230158805517778
+              },
+              "C0": {
+                "upload_time": 32.399813745465984,
+                "processing_time": 8.295270428094002,
+                "download_time": 32.460317611035556
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 66.11688385934333,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 19.092674206769995,
+                "processing_time": 28.616714187312244,
+                "download_time": 18.795076526690153
+              },
+              "C0": {
+                "upload_time": 38.18534841353999,
+                "processing_time": 11.278257648942004,
+                "download_time": 37.590153053380305
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "owner_device_id": "M0",
+        "release_time": 223.676833044498,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 99.46615920965856,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 15.833846371963293,
+                "processing_time": 43.050949821953154,
+                "download_time": 16.12281487517824
+              },
+              "C0": {
+                "upload_time": 31.667692743926587,
+                "processing_time": 16.966997012498894,
+                "download_time": 32.24562975035648
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 62.77308982498828,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 10.999911480529688,
+                "processing_time": 27.169453025005424,
+                "download_time": 10.99260368161775
+              },
+              "C0": {
+                "upload_time": 21.999822961059376,
+                "processing_time": 10.707871259821182,
+                "download_time": 21.9852073632355
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 71.20394139578,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 18.536502217697592,
+                "processing_time": 30.81849477764248,
+                "download_time": 18.52070349090279
+              },
+              "C0": {
+                "upload_time": 37.073004435395184,
+                "processing_time": 12.146010970362598,
+                "download_time": 37.04140698180558
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 92.35603232515972,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 19.072509649253345,
+                "processing_time": 39.97354421823345,
+                "download_time": 18.80664767174514
+              },
+              "C0": {
+                "upload_time": 38.14501929850669,
+                "processing_time": 15.754147309983534,
+                "download_time": 37.61329534349028
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 4,
+        "owner_device_id": "M1",
+        "release_time": 280.25146823797843,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 71.64870416215015,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 7.406279054449646,
+                "processing_time": 34.66584750848454,
+                "download_time": 7.792166553112133
+              },
+              "C0": {
+                "upload_time": 14.812558108899292,
+                "processing_time": 13.66230788274661,
+                "download_time": 15.584333106224266
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 70.7954540620256,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 9.268792772963055,
+                "processing_time": 34.25301885787032,
+                "download_time": 9.269785817033883
+              },
+              "C0": {
+                "upload_time": 18.53758554592611,
+                "processing_time": 13.499606188344655,
+                "download_time": 18.539571634067766
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 72.30744424213542,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 17.66096405696844,
+                "processing_time": 34.98456622681356,
+                "download_time": 17.599172751640662
+              },
+              "C0": {
+                "upload_time": 35.32192811393688,
+                "processing_time": 13.787919502561754,
+                "download_time": 35.198345503281324
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 40.887312165058695,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 15.442976610429252,
+                "processing_time": 19.782539616320033,
+                "download_time": 15.117887373023715
+              },
+              "C0": {
+                "upload_time": 30.885953220858504,
+                "processing_time": 7.796582699287703,
+                "download_time": 30.23577474604743
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 5,
+        "owner_device_id": "M0",
+        "release_time": 304.4086292846331,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 53.39181263971366,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 18.133144267620864,
+                "processing_time": 23.109047993000587,
+                "download_time": 18.484047449399256
+              },
+              "C0": {
+                "upload_time": 36.26628853524173,
+                "processing_time": 9.107607378710929,
+                "download_time": 36.96809489879851
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 49.85228081834894,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 14.422922427079188,
+                "processing_time": 21.577067588352747,
+                "download_time": 14.406015742790965
+              },
+              "C0": {
+                "upload_time": 28.845844854158376,
+                "processing_time": 8.50383192064631,
+                "download_time": 28.81203148558193
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 41.310028836036366,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 12.205859933624724,
+                "processing_time": 17.87980950199338,
+                "download_time": 12.228404197579227
+              },
+              "C0": {
+                "upload_time": 24.41171986724945,
+                "processing_time": 7.0466894611852195,
+                "download_time": 24.456808395158454
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 40.77007468767885,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 8.446402149408085,
+                "processing_time": 17.646106510626264,
+                "download_time": 8.089861387963413
+              },
+              "C0": {
+                "upload_time": 16.89280429881617,
+                "processing_time": 6.954583759156879,
+                "download_time": 16.179722775926827
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 6,
+        "owner_device_id": "M1",
+        "release_time": 286.19232995326394,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 64.89260682800062,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 17.152462441336635,
+                "processing_time": 31.397039751570063,
+                "download_time": 17.49477676137478
+              },
+              "C0": {
+                "upload_time": 34.30492488267327,
+                "processing_time": 12.374023845451823,
+                "download_time": 34.98955352274956
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 58.54271959369743,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 18.47941064547424,
+                "processing_time": 28.324768938935993,
+                "download_time": 18.5055370189281
+              },
+              "C0": {
+                "upload_time": 36.95882129094848,
+                "processing_time": 11.163197837776416,
+                "download_time": 37.0110740378562
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 71.24039053171904,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 11.373870991325681,
+                "processing_time": 34.468292811387336,
+                "download_time": 11.348511279598435
+              },
+              "C0": {
+                "upload_time": 22.747741982651362,
+                "processing_time": 13.584448742139587,
+                "download_time": 22.69702255919687
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 58.831974652519456,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 12.87140957970308,
+                "processing_time": 28.46471943598182,
+                "download_time": 12.528328597938323
+              },
+              "C0": {
+                "upload_time": 25.74281915940616,
+                "processing_time": 11.21835433664798,
+                "download_time": 25.056657195876646
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 7,
+        "owner_device_id": "M1",
+        "release_time": 365.4026890176991,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 52.81049965060298,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 10.181084889237972,
+                "processing_time": 25.551344565723397,
+                "download_time": 10.54996956645868
+              },
+              "C0": {
+                "upload_time": 20.362169778475945,
+                "processing_time": 10.070151499674628,
+                "download_time": 21.09993913291736
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 52.19399104734693,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 8.673831649330099,
+                "processing_time": 25.2530587351831,
+                "download_time": 8.647557129090988
+              },
+              "C0": {
+                "upload_time": 17.347663298660198,
+                "processing_time": 9.952592774104602,
+                "download_time": 17.295114258181975
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 88.84327585810013,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 12.378548128797082,
+                "processing_time": 42.98511032496948,
+                "download_time": 12.32404414717838
+              },
+              "C0": {
+                "upload_time": 24.757096257594164,
+                "processing_time": 16.941048722083785,
+                "download_time": 24.64808829435676
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 40.91916522447787,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 9.455133118518827,
+                "processing_time": 19.797951106498626,
+                "download_time": 9.167026943155934
+              },
+              "C0": {
+                "upload_time": 18.910266237037654,
+                "processing_time": 7.802656588688513,
+                "download_time": 18.334053886311867
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 8,
+        "owner_device_id": "M0",
+        "release_time": 320.6028799692016,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 43.361990916930495,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 16.876281019016705,
+                "processing_time": 18.767939869980342,
+                "download_time": 17.21616580355629
+              },
+              "C0": {
+                "upload_time": 33.75256203803341,
+                "processing_time": 7.396714381951548,
+                "download_time": 34.43233160711258
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 101.06429692557971,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 11.36348786823383,
+                "processing_time": 43.74265589729955,
+                "download_time": 11.320952384560453
+              },
+              "C0": {
+                "upload_time": 22.72697573646766,
+                "processing_time": 17.239608301273407,
+                "download_time": 22.641904769120906
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 67.85959911414191,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 11.156732317156038,
+                "processing_time": 29.37099632290918,
+                "download_time": 11.160838278881874
+              },
+              "C0": {
+                "upload_time": 22.313464634312076,
+                "processing_time": 11.57553106089187,
+                "download_time": 22.321676557763748
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 52.790000960246125,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 18.38487453115183,
+                "processing_time": 22.848571820794007,
+                "download_time": 18.083419268559787
+              },
+              "C0": {
+                "upload_time": 36.76974906230366,
+                "processing_time": 9.004949981976734,
+                "download_time": 36.166838537119574
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 9,
+        "owner_device_id": "M0",
+        "release_time": 322.2007754110972,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 78.931419441703,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 5.290100650532816,
+                "processing_time": 34.16310235321047,
+                "download_time": 5.619513788340737
+              },
+              "C0": {
+                "upload_time": 10.580201301065632,
+                "processing_time": 13.464168803751573,
+                "download_time": 11.239027576681474
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 68.76321263208567,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 12.152628889741646,
+                "processing_time": 29.76209838745595,
+                "download_time": 12.143946650672243
+              },
+              "C0": {
+                "upload_time": 24.30525777948329,
+                "processing_time": 11.729669995995303,
+                "download_time": 24.287893301344486
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 55.35255455688494,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 5.773351123530333,
+                "processing_time": 23.957696443495337,
+                "download_time": 5.820514522638134
+              },
+              "C0": {
+                "upload_time": 11.546702247060667,
+                "processing_time": 9.442071909313777,
+                "download_time": 11.641029045276268
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 44.44847770461666,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 17.186683216212415,
+                "processing_time": 19.23819315562596,
+                "download_time": 16.8187889183661
+              },
+              "C0": {
+                "upload_time": 34.37336643242483,
+                "processing_time": 7.582047948938224,
+                "download_time": 33.6375778367322
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 10,
+        "owner_device_id": "M0",
+        "release_time": 388.58360252112004,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 102.56370030549364,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 17.516545806791463,
+                "processing_time": 44.39162777059244,
+                "download_time": 17.749847542187926
+              },
+              "C0": {
+                "upload_time": 35.033091613582926,
+                "processing_time": 17.495377427875614,
+                "download_time": 35.49969508437585
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 73.50389066795809,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 15.779001084878491,
+                "processing_time": 31.813958978696718,
+                "download_time": 15.85343436477476
+              },
+              "C0": {
+                "upload_time": 31.558002169756982,
+                "processing_time": 12.538337694748224,
+                "download_time": 31.70686872954952
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 91.91235805922533,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 14.46055177040284,
+                "processing_time": 39.78151309215194,
+                "download_time": 14.465737142947313
+              },
+              "C0": {
+                "upload_time": 28.92110354080568,
+                "processing_time": 15.678465087965048,
+                "download_time": 28.931474285894627
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 46.03313405439052,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 5.695724470435921,
+                "processing_time": 19.924064225155803,
+                "download_time": 5.382804082598716
+              },
+              "C0": {
+                "upload_time": 11.391448940871841,
+                "processing_time": 7.85235957820077,
+                "download_time": 10.765608165197431
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 11,
+        "owner_device_id": "M1",
+        "release_time": 509.4503193144825,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 38.06422662925394,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 10.842216099743226,
+                "processing_time": 18.416643975470254,
+                "download_time": 11.160052770244384
+              },
+              "C0": {
+                "upload_time": 21.68443219948645,
+                "processing_time": 7.258263629591693,
+                "download_time": 22.32010554048877
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 78.40817703725781,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 20.10614035533479,
+                "processing_time": 37.93628845597072,
+                "download_time": 20.04212763562113
+              },
+              "C0": {
+                "upload_time": 40.21228071066958,
+                "processing_time": 14.951235583878447,
+                "download_time": 40.08425527124226
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 59.39106273181252,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 14.383069798231302,
+                "processing_time": 28.73522345035621,
+                "download_time": 14.364100508248002
+              },
+              "C0": {
+                "upload_time": 28.766139596462605,
+                "processing_time": 11.324963849858273,
+                "download_time": 28.728201016496005
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 39.75136689361381,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 8.353588182452413,
+                "processing_time": 19.232934344063136,
+                "download_time": 8.118733521648211
+              },
+              "C0": {
+                "upload_time": 16.707176364904825,
+                "processing_time": 7.579975375848786,
+                "download_time": 16.237467043296423
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 12,
+        "owner_device_id": "M0",
+        "release_time": 431.6582137287771,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 65.92803939510453,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 11.51079816953401,
+                "processing_time": 28.534978513403676,
+                "download_time": 11.817006359996022
+              },
+              "C0": {
+                "upload_time": 23.02159633906802,
+                "processing_time": 11.246044447125163,
+                "download_time": 23.634012719992043
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 55.531692743024294,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 18.54045895613071,
+                "processing_time": 24.035231045454033,
+                "download_time": 18.570228874646883
+              },
+              "C0": {
+                "upload_time": 37.08091791226142,
+                "processing_time": 9.472629408398909,
+                "download_time": 37.140457749293766
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 53.15935530088789,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 7.987338419015766,
+                "processing_time": 23.00843579173484,
+                "download_time": 7.97022307659609
+              },
+              "C0": {
+                "upload_time": 15.974676838031533,
+                "processing_time": 9.067954666625438,
+                "download_time": 15.94044615319218
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 43.73395757165484,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 15.560375226789878,
+                "processing_time": 18.9289345028808,
+                "download_time": 15.24151246023137
+              },
+              "C0": {
+                "upload_time": 31.120750453579756,
+                "processing_time": 7.460164676701085,
+                "download_time": 30.48302492046274
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      },
+      {
+        "id": 13,
+        "owner_device_id": "M0",
+        "release_time": 541.4968625895699,
+        "tasks": [
+          {
+            "id": "root",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 62.760814417279356,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 18.456751117231022,
+                "processing_time": 27.164139982202524,
+                "download_time": 18.77837631465704
+              },
+              "C0": {
+                "upload_time": 36.913502234462044,
+                "processing_time": 10.70577731342193,
+                "download_time": 37.55675262931408
+              }
+            }
+          },
+          {
+            "id": "left",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 78.2878200257721,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 5.591999153367567,
+                "processing_time": 33.88453961005401,
+                "download_time": 5.558795371472204
+              },
+              "C0": {
+                "upload_time": 11.183998306735134,
+                "processing_time": 13.354383229903004,
+                "download_time": 11.117590742944408
+              }
+            }
+          },
+          {
+            "id": "right",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 63.4593001584061,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 7.15769752506555,
+                "processing_time": 27.46645862837859,
+                "download_time": 7.147065769562983
+              },
+              "C0": {
+                "upload_time": 14.3153950501311,
+                "processing_time": 10.824925429496163,
+                "download_time": 14.294131539125965
+              }
+            }
+          },
+          {
+            "id": "join",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 63.98112462368018,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 16.961556617433263,
+                "processing_time": 27.692314729075402,
+                "download_time": 16.683766957405172
+              },
+              "C0": {
+                "upload_time": 33.92311323486653,
+                "processing_time": 10.913938559325493,
+                "download_time": 33.367533914810345
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "right",
+            "join"
+          ],
+          [
+            "left",
+            "join"
+          ],
+          [
+            "root",
+            "right"
+          ],
+          [
+            "root",
+            "left"
+          ]
+        ]
+      }
+    ]
+  },
+  "config": {
+    "routing_kind": "fcfs",
+    "fixed_resource_id": null,
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "record_trace": true
+}

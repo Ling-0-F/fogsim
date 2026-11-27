@@ -1,0 +1,2360 @@
+{
+  "format": "fogsim.dynamic-replay",
+  "schema_version": 1,
+  "origin": {
+    "language": "Java",
+    "implementation_version": "multiDeviceDebug+fogsim-v030-observer-v2",
+    "code_dependency_fingerprint": "3cb4f26a19a8cb209f6c3b3beca9cce7079c195fb3aa855624b8eeb9780a3a40",
+    "rules": {
+      "sequencing": "FCFS",
+      "routing": "FCFS"
+    },
+    "operation": "fresh",
+    "fixture_kind": "native_random",
+    "label": "local_disabled"
+  },
+  "initial_state": {
+    "B": 0.0,
+    "public_seed": 7,
+    "seed_encoding_version": "java-signed64-v1",
+    "run_index": 0
+  },
+  "effective_config": {
+    "num_jobs_recorded": 2,
+    "warmup_jobs": 2,
+    "statistics_policy": "java_jobsCompleted",
+    "sequencing_rule": "FCFS",
+    "routing_rule": "FCFS",
+    "exception_policy": "java_original",
+    "event_order": "java_two_level_priority_queue",
+    "guards": {
+      "resource_queue_greater_than": 400,
+      "stagnation_greater_than": 400000,
+      "generated_greater_than_multiplier": 500
+    },
+    "samplers": {
+      "workload": [
+        5000.0,
+        15000.0
+      ],
+      "data_size": [
+        5120.0,
+        20480.0
+      ],
+      "edge_data": [
+        100.0,
+        200.0
+      ],
+      "inter_release_time": {
+        "family": "java_exponential",
+        "effective_mean": 100.0
+      },
+      "weight": "java_TwoSixTwo",
+      "upload_bandwidth_edge": "java_BandwidthEdge",
+      "download_bandwidth_edge": "java_BandwidthEdge",
+      "upload_bandwidth_cloud": "java_BandwidthCloud",
+      "download_bandwidth_cloud": "java_BandwidthCloud",
+      "processing_rate_device": [
+        125.0,
+        250.0
+      ],
+      "processing_rate_edge": [
+        250.0,
+        500.0
+      ],
+      "processing_rate_cloud": [
+        500.0,
+        1000.0
+      ],
+      "workflow_type": [
+        0,
+        0
+      ]
+    },
+    "additional_budget": null
+  },
+  "units": {
+    "time": "s",
+    "workload": "model_workload",
+    "data": "model_data"
+  },
+  "environment": {
+    "devices": [
+      {
+        "id": "M0",
+        "numeric_id": 0,
+        "processing_rate": 131.54413394346219,
+        "can_process_tasks": false
+      },
+      {
+        "id": "M1",
+        "numeric_id": 1,
+        "processing_rate": 147.04747750356105,
+        "can_process_tasks": false
+      }
+    ],
+    "servers": [
+      {
+        "id": "E0",
+        "numeric_id": 0,
+        "type": "EDGE",
+        "processing_rate": 303.9233704257318,
+        "upload_bandwidth": 1024.0,
+        "download_bandwidth": 1024.0
+      },
+      {
+        "id": "E1",
+        "numeric_id": 1,
+        "type": "EDGE",
+        "processing_rate": 408.56138041233066,
+        "upload_bandwidth": 1024.0,
+        "download_bandwidth": 1024.0
+      },
+      {
+        "id": "C0",
+        "numeric_id": 2,
+        "type": "CLOUD",
+        "processing_rate": 747.0946660802491,
+        "upload_bandwidth": 512.0,
+        "download_bandwidth": 512.0
+      },
+      {
+        "id": "C1",
+        "numeric_id": 3,
+        "type": "CLOUD",
+        "processing_rate": 583.3809854665549,
+        "upload_bandwidth": 512.0,
+        "download_bandwidth": 256.0
+      }
+    ],
+    "parameter_source": "java-recorded",
+    "fingerprint": "66281d1df9b5a72f471de61f2349444a7fdfbb1cba3f2eca592a4f76b03d8510"
+  },
+  "templates": [
+    {
+      "dag_type_id": 0,
+      "source_name": "CyberShake_30.xml",
+      "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9",
+      "tasks": [
+        {
+          "xml_id": "root",
+          "java_index": 0
+        },
+        {
+          "xml_id": "left",
+          "java_index": 1
+        },
+        {
+          "xml_id": "right",
+          "java_index": 2
+        },
+        {
+          "xml_id": "join",
+          "java_index": 3
+        }
+      ],
+      "dependencies": [
+        [
+          "right",
+          "join"
+        ],
+        [
+          "left",
+          "join"
+        ],
+        [
+          "root",
+          "right"
+        ],
+        [
+          "root",
+          "left"
+        ]
+      ],
+      "diagnostics": []
+    }
+  ],
+  "candidates": [
+    {
+      "record_id": "1",
+      "workflow_input": {
+        "candidate_id": 0,
+        "owner_device_id": "M0",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 92.4056958406404,
+        "inter_release_time": 92.4056958406404,
+        "weight": 2.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 11091.354234821953,
+            "data_size": 10239.184443049297,
+            "total_input_data": 0.0,
+            "total_output_data": 308.1186424034721,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 36.49391693467117,
+                "upload_time": 9.999203557665329,
+                "download_time": 10.300100669387469
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 27.147338849375025,
+                "upload_time": 9.999203557665329,
+                "download_time": 10.300100669387469
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 14.845982361264209,
+                "upload_time": 19.998407115330657,
+                "download_time": 20.600201338774937
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 19.012197022417038,
+                "upload_time": 19.998407115330657,
+                "download_time": 41.200402677549874
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 12851.053618800357,
+            "data_size": 15655.367340313107,
+            "total_input_data": 108.63241845865718,
+            "total_output_data": 169.43283262368973,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 42.28386122725203,
+                "upload_time": 15.394531014425551,
+                "download_time": 15.45390641888359
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 31.45440130888226,
+                "upload_time": 15.394531014425551,
+                "download_time": 15.45390641888359
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 17.201372466257123,
+                "upload_time": 30.789062028851102,
+                "download_time": 30.90781283776718
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 22.028578131532374,
+                "upload_time": 30.789062028851102,
+                "download_time": 61.81562567553436
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 5703.142970300785,
+            "data_size": 14082.06903014094,
+            "total_input_data": 199.48622394481492,
+            "total_output_data": 138.21803411811743,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 18.765068847163345,
+                "upload_time": 13.94683130281812,
+                "download_time": 13.886999086190485
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 13.959084837007909,
+                "upload_time": 13.94683130281812,
+                "download_time": 13.886999086190485
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 7.633762131140932,
+                "upload_time": 27.89366260563624,
+                "download_time": 27.77399817238097
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 9.77601792375824,
+                "upload_time": 27.89366260563624,
+                "download_time": 55.54799634476194
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 5536.366079451102,
+            "data_size": 7452.8249851397695,
+            "total_input_data": 307.65086674180714,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 18.216322330513233,
+                "upload_time": 7.5785896991031025,
+                "download_time": 7.278149399550556
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 13.550879610460635,
+                "upload_time": 7.5785896991031025,
+                "download_time": 7.278149399550556
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 7.4105281844649316,
+                "upload_time": 15.157179398206205,
+                "download_time": 14.556298799101112
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 9.490138035649949,
+                "upload_time": 15.157179398206205,
+                "download_time": 29.112597598202225
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 199.48622394481492
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 108.63241845865718
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 169.43283262368973
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 138.21803411811743
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "2",
+      "workflow_input": {
+        "candidate_id": 1,
+        "owner_device_id": "M1",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 164.96411144029605,
+        "inter_release_time": 164.96411144029605,
+        "weight": 1.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 13445.685574116911,
+            "data_size": 16670.982269883523,
+            "total_input_data": 0.0,
+            "total_output_data": 252.4551263255221,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 44.240380577783064,
+                "upload_time": 16.280256122933128,
+                "download_time": 16.526794332235397
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 32.90983000044493,
+                "upload_time": 16.280256122933128,
+                "download_time": 16.526794332235397
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 17.997298313829273,
+                "upload_time": 32.560512245866256,
+                "download_time": 33.053588664470794
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 23.047863932973094,
+                "upload_time": 32.560512245866256,
+                "download_time": 66.10717732894159
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 9378.881879475906,
+            "data_size": 7536.067394839072,
+            "total_input_data": 147.52078122072942,
+            "total_output_data": 154.59634658151683,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 30.85936387957956,
+                "upload_time": 7.5035040781834,
+                "download_time": 7.510413809981044
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 22.955869862223633,
+                "upload_time": 7.5035040781834,
+                "download_time": 7.510413809981044
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 12.55380650578554,
+                "upload_time": 15.0070081563668,
+                "download_time": 15.020827619962088
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 16.07676992073235,
+                "upload_time": 15.0070081563668,
+                "download_time": 30.041655239924175
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 12714.264172853662,
+            "data_size": 19844.526112817268,
+            "total_input_data": 104.93434510479265,
+            "total_output_data": 179.55353317909237,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 41.833782492750366,
+                "upload_time": 19.481894978439513,
+                "download_time": 19.55476527929332
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 31.11959373160062,
+                "upload_time": 19.481894978439513,
+                "download_time": 19.55476527929332
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 17.018277268075103,
+                "upload_time": 38.963789956879026,
+                "download_time": 39.10953055858664
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 21.794101092762766,
+                "upload_time": 38.963789956879026,
+                "download_time": 78.21906111717328
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 5770.885261494891,
+            "data_size": 11755.661973958897,
+            "total_input_data": 334.1498797606092,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 18.987961516125306,
+                "upload_time": 11.806456888397955,
+                "download_time": 11.480138646444235
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 14.124891725377385,
+                "upload_time": 11.806456888397955,
+                "download_time": 11.480138646444235
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 7.7244364382532105,
+                "upload_time": 23.61291377679591,
+                "download_time": 22.96027729288847
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 9.892138080022724,
+                "upload_time": 23.61291377679591,
+                "download_time": 45.92055458577694
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 104.93434510479265
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 147.52078122072942
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 154.59634658151683
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 179.55353317909237
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "3",
+      "workflow_input": {
+        "candidate_id": 2,
+        "owner_device_id": "M0",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 105.32803419138705,
+        "inter_release_time": 12.922338350746637,
+        "weight": 2.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 8172.479285783807,
+            "data_size": 13586.286352613308,
+            "total_input_data": 0.0,
+            "total_output_data": 287.8630485341033,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 26.889933716962627,
+                "upload_time": 13.267857766223933,
+                "download_time": 13.548974024558019
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 20.00306362176457,
+                "upload_time": 13.267857766223933,
+                "download_time": 13.548974024558019
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 10.939014367030644,
+                "upload_time": 26.535715532447867,
+                "download_time": 27.097948049116038
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 14.00882011820787,
+                "upload_time": 26.535715532447867,
+                "download_time": 54.195896098232076
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 9962.097262693434,
+            "data_size": 10799.03471562413,
+            "total_input_data": 173.89363049624524,
+            "total_output_data": 191.96717684460103,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 32.77831924783758,
+                "upload_time": 10.715750338008178,
+                "download_time": 10.733400285613994
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 24.383355207580877,
+                "upload_time": 10.715750338008178,
+                "download_time": 10.733400285613994
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 13.334451060882499,
+                "upload_time": 21.431500676016356,
+                "download_time": 21.46680057122799
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 17.076486054351456,
+                "upload_time": 21.431500676016356,
+                "download_time": 42.93360114245598
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 14738.237054412772,
+            "data_size": 10375.504369164511,
+            "total_input_data": 113.96941803785805,
+            "total_output_data": 151.54670448365655,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 48.493266686821904,
+                "upload_time": 10.243626745314813,
+                "download_time": 10.28032331410954
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 36.07349534490647,
+                "upload_time": 10.243626745314813,
+                "download_time": 10.28032331410954
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 19.727402327390816,
+                "upload_time": 20.487253490629627,
+                "download_time": 20.56064662821908
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 25.26348547789224,
+                "upload_time": 20.487253490629627,
+                "download_time": 41.12129325643816
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 6819.555420019689,
+            "data_size": 7959.529688299663,
+            "total_input_data": 343.5138813282576,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 22.43840416242735,
+                "upload_time": 8.108440985964766,
+                "download_time": 7.772978211230139
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 16.691630063363352,
+                "upload_time": 8.108440985964766,
+                "download_time": 7.772978211230139
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 9.12810080120043,
+                "upload_time": 16.21688197192953,
+                "download_time": 15.545956422460279
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 11.689711509136345,
+                "upload_time": 16.21688197192953,
+                "download_time": 31.091912844920557
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 113.96941803785805
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 173.89363049624524
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 191.96717684460103
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 151.54670448365655
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "4",
+      "workflow_input": {
+        "candidate_id": 3,
+        "owner_device_id": "M0",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 197.2215484840143,
+        "inter_release_time": 91.89351429262726,
+        "weight": 2.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 9366.460804268916,
+            "data_size": 18830.36222607148,
+            "total_input_data": 0.0,
+            "total_output_data": 306.3270914796507,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 30.81849477764248,
+                "upload_time": 18.38902561139793,
+                "download_time": 18.688173161671028
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 22.92546788151157,
+                "upload_time": 18.38902561139793,
+                "download_time": 18.688173161671028
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 12.537180667359788,
+                "upload_time": 36.77805122279586,
+                "download_time": 37.376346323342055
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 16.05547838824084,
+                "upload_time": 36.77805122279586,
+                "download_time": 74.75269264668411
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 14204.431781163426,
+            "data_size": 19218.601405458805,
+            "total_input_data": 171.48894286667533,
+            "total_output_data": 110.42859306618675,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 46.736885555283386,
+                "upload_time": 18.935635105786602,
+                "download_time": 18.87600585793456
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 34.76694680938259,
+                "upload_time": 18.935635105786602,
+                "download_time": 18.87600585793456
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 19.012894116470186,
+                "upload_time": 37.871270211573204,
+                "download_time": 37.75201171586912
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 24.34846547115952,
+                "upload_time": 37.871270211573204,
+                "download_time": 75.50402343173825
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 11577.222348690157,
+            "data_size": 12782.520462039294,
+            "total_input_data": 134.83814861297532,
+            "total_output_data": 193.52959774967448,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 38.09257028333471,
+                "upload_time": 12.614608018215106,
+                "download_time": 12.671923886512666
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 28.3365557875444,
+                "upload_time": 12.614608018215106,
+                "download_time": 12.671923886512666
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 15.496325799556157,
+                "upload_time": 25.229216036430213,
+                "download_time": 25.34384777302533
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 19.845045754159013,
+                "upload_time": 25.229216036430213,
+                "download_time": 50.68769554605066
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 11409.426355424315,
+            "data_size": 9022.576744872518,
+            "total_input_data": 303.95819081586126,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 37.54047061087189,
+                "upload_time": 9.107944273133183,
+                "download_time": 8.811110102414569
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 27.925856193039166,
+                "upload_time": 9.107944273133183,
+                "download_time": 8.811110102414569
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 15.271727765486112,
+                "upload_time": 18.215888546266367,
+                "download_time": 17.622220204829137
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 19.557418976039656,
+                "upload_time": 18.215888546266367,
+                "download_time": 35.244440409658274
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 134.83814861297532
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 171.48894286667533
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 110.42859306618675
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 193.52959774967448
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "5",
+      "workflow_input": {
+        "candidate_id": 4,
+        "owner_device_id": "M1",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 183.79600021891912,
+        "inter_release_time": 18.83188877862307,
+        "weight": 2.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 13312.3789656968,
+            "data_size": 10302.280658393589,
+            "total_input_data": 0.0,
+            "total_output_data": 277.5763436445502,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 43.801761434301675,
+                "upload_time": 10.06082095546249,
+                "download_time": 10.33189160355287
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 32.583547060325685,
+                "upload_time": 10.06082095546249,
+                "download_time": 10.33189160355287
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 17.818864957960834,
+                "upload_time": 20.12164191092498,
+                "download_time": 20.66378320710574
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 22.819356985127513,
+                "upload_time": 20.12164191092498,
+                "download_time": 41.32756641421148
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 6787.057858488362,
+            "data_size": 18450.055424099424,
+            "total_input_data": 167.45258248682478,
+            "total_output_data": 154.2222905193835,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 22.331477335820352,
+                "upload_time": 18.181160162681884,
+                "download_time": 18.16823995568243
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 16.61208862090364,
+                "upload_time": 18.181160162681884,
+                "download_time": 18.16823995568243
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 9.084602215269104,
+                "upload_time": 36.36232032536377,
+                "download_time": 36.33647991136486
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 11.634005954205827,
+                "upload_time": 36.36232032536377,
+                "download_time": 72.67295982272972
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 11688.773166469176,
+            "data_size": 17969.30395745067,
+            "total_input_data": 110.12376115772545,
+            "total_output_data": 123.01447985005794,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 38.459606281990425,
+                "upload_time": 17.655691131453512,
+                "download_time": 17.668279723926492
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 28.60958897943943,
+                "upload_time": 17.655691131453512,
+                "download_time": 17.668279723926492
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 15.645638628095396,
+                "upload_time": 35.311382262907024,
+                "download_time": 35.336559447852984
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 20.036260107314195,
+                "upload_time": 35.311382262907024,
+                "download_time": 70.67311889570597
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 6379.409157600626,
+            "data_size": 16928.64577071047,
+            "total_input_data": 277.23677036944144,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 20.99018956214007,
+                "upload_time": 16.80261966902335,
+                "download_time": 16.531880635459444
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 15.614322506846737,
+                "upload_time": 16.80261966902335,
+                "download_time": 16.531880635459444
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 8.538956904981278,
+                "upload_time": 33.6052393380467,
+                "download_time": 33.06376127091889
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 10.935236691848532,
+                "upload_time": 33.6052393380467,
+                "download_time": 66.12752254183778
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 110.12376115772545
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 167.45258248682478
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 154.2222905193835
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 123.01447985005794
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "6",
+      "workflow_input": {
+        "candidate_id": 5,
+        "owner_device_id": "M1",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 245.747667771111,
+        "inter_release_time": 61.95166755219188,
+        "weight": 4.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 9699.065099204348,
+            "data_size": 18041.124752882904,
+            "total_input_data": 0.0,
+            "total_output_data": 224.22971757576593,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 31.912863711724533,
+                "upload_time": 17.61828589148721,
+                "download_time": 17.837260225057296
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 23.739554358798674,
+                "upload_time": 17.61828589148721,
+                "download_time": 17.837260225057296
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 12.982377655153174,
+                "upload_time": 35.23657178297442,
+                "download_time": 35.67452045011459
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 16.625610605816348,
+                "upload_time": 35.23657178297442,
+                "download_time": 71.34904090022918
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 11222.30031038885,
+            "data_size": 11332.651632945535,
+            "total_input_data": 120.5990759197561,
+            "total_output_data": 162.26382323239653,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 36.924769209649135,
+                "upload_time": 11.18481514537626,
+                "download_time": 11.225503375173762
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 27.467844119439324,
+                "upload_time": 11.18481514537626,
+                "download_time": 11.225503375173762
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 15.02125610033924,
+                "upload_time": 22.36963029075252,
+                "download_time": 22.451006750347524
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 19.23665767305373,
+                "upload_time": 22.36963029075252,
+                "download_time": 44.90201350069505
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 14869.63582190337,
+            "data_size": 14582.547059203354,
+            "total_input_data": 103.63064165600983,
+            "total_output_data": 119.50234706277932,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 48.92560845542804,
+                "upload_time": 14.341970410995472,
+                "download_time": 14.35747012330677
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 36.395108629446455,
+                "upload_time": 14.341970410995472,
+                "download_time": 14.35747012330677
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 19.903282002961255,
+                "upload_time": 28.683940821990944,
+                "download_time": 28.71494024661354
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 25.488722108437393,
+                "upload_time": 28.683940821990944,
+                "download_time": 57.42988049322708
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 8275.85285318731,
+            "data_size": 7328.186238500467,
+            "total_input_data": 281.76617029517587,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 27.23006408357017,
+                "upload_time": 7.431594149214495,
+                "download_time": 7.156431873535612
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 20.25608207225829,
+                "upload_time": 7.431594149214495,
+                "download_time": 7.156431873535612
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 11.077381795011183,
+                "upload_time": 14.86318829842899,
+                "download_time": 14.312863747071225
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 14.186017472901957,
+                "upload_time": 14.86318829842899,
+                "download_time": 28.62572749414245
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 103.63064165600983
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 120.5990759197561
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 162.26382323239653
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 119.50234706277932
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "7",
+      "workflow_input": {
+        "candidate_id": 6,
+        "owner_device_id": "M0",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 264.1620750146699,
+        "inter_release_time": 66.9405265306556,
+        "weight": 2.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 9123.066984535817,
+            "data_size": 15540.94009268986,
+            "total_input_data": 0.0,
+            "total_output_data": 286.6997920116531,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 30.01765534435982,
+                "upload_time": 15.176699309267441,
+                "download_time": 15.456679574903822
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 22.329734091187433,
+                "upload_time": 15.176699309267441,
+                "download_time": 15.456679574903822
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 12.211393547221315,
+                "upload_time": 30.353398618534882,
+                "download_time": 30.913359149807643
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 15.638265921951001,
+                "upload_time": 30.353398618534882,
+                "download_time": 61.82671829961529
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 14684.988928707136,
+            "data_size": 15728.087648642864,
+            "total_input_data": 150.1888573195888,
+            "total_output_data": 163.18422313625462,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 48.318064215123044,
+                "upload_time": 15.506129400353958,
+                "download_time": 15.518820187284296
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 35.94316455923139,
+                "upload_time": 15.506129400353958,
+                "download_time": 15.518820187284296
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 19.65612872830998,
+                "upload_time": 31.012258800707915,
+                "download_time": 31.037640374568593
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 25.172210432883613,
+                "upload_time": 31.012258800707915,
+                "download_time": 62.075280749137185
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 5989.593681139753,
+            "data_size": 16535.70958208275,
+            "total_input_data": 136.51093469206427,
+            "total_output_data": 153.55230611050885,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 19.707578501612467,
+                "upload_time": 16.281465348412905,
+                "download_time": 16.298107312688728
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 14.660205218356422,
+                "upload_time": 16.281465348412905,
+                "download_time": 16.298107312688728
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 8.0171816947444,
+                "upload_time": 32.56293069682581,
+                "download_time": 32.596214625377456
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 10.267036174224323,
+                "upload_time": 32.56293069682581,
+                "download_time": 65.19242925075491
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 5678.961775512345,
+            "data_size": 11473.230131237178,
+            "total_input_data": 316.73652924676344,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 18.68550538761574,
+                "upload_time": 11.51363931687885,
+                "download_time": 11.204326300036307
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 13.899898638929091,
+                "upload_time": 11.51363931687885,
+                "download_time": 11.204326300036307
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 7.601395155593763,
+                "upload_time": 23.0272786337577,
+                "download_time": 22.408652600072614
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 9.734567833009907,
+                "upload_time": 23.0272786337577,
+                "download_time": 44.81730520014523
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 136.51093469206427
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 150.1888573195888
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 163.18422313625462
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 153.55230611050885
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "8",
+      "workflow_input": {
+        "candidate_id": 7,
+        "owner_device_id": "M1",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 302.81335642994765,
+        "inter_release_time": 57.065688658836635,
+        "weight": 2.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 7332.988779026435,
+            "data_size": 13050.020188861627,
+            "total_input_data": 0.0,
+            "total_output_data": 328.535208963312,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 24.12775552190831,
+                "upload_time": 12.744160340685182,
+                "download_time": 13.064995505688417
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 17.948316044031852,
+                "upload_time": 12.744160340685182,
+                "download_time": 13.064995505688417
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 9.81534082889405,
+                "upload_time": 25.488320681370364,
+                "download_time": 26.129991011376834
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 12.5698110869382,
+                "upload_time": 25.488320681370364,
+                "download_time": 52.25998202275367
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 9339.298796703544,
+            "data_size": 6682.204202717554,
+            "total_input_data": 147.8934128824455,
+            "total_output_data": 127.78017962103955,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 30.729123540651646,
+                "upload_time": 6.670017202734375,
+                "download_time": 6.650375373377533
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 22.858985808394525,
+                "upload_time": 6.670017202734375,
+                "download_time": 6.650375373377533
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 12.500823818892536,
+                "upload_time": 13.34003440546875,
+                "download_time": 13.300750746755066
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 16.008918750127766,
+                "upload_time": 13.34003440546875,
+                "download_time": 26.60150149351013
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 6226.843384052998,
+            "data_size": 17928.136834100547,
+            "total_input_data": 180.6417960808665,
+            "total_output_data": 186.76404814481967,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 20.48820192843518,
+                "upload_time": 17.684354131036535,
+                "download_time": 17.69033289281774
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 15.2409005906743,
+                "upload_time": 17.684354131036535,
+                "download_time": 17.69033289281774
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 8.334744801114859,
+                "upload_time": 35.36870826207307,
+                "download_time": 35.38066578563548
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 10.6737167291682,
+                "upload_time": 35.36870826207307,
+                "download_time": 70.76133157127096
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 8210.417746268518,
+            "data_size": 18156.51700522131,
+            "total_input_data": 314.5442277658592,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 27.01476275012177,
+                "upload_time": 18.038145735339032,
+                "download_time": 17.730973637911436
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 20.095922277290022,
+                "upload_time": 18.038145735339032,
+                "download_time": 17.730973637911436
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 10.989795696636117,
+                "upload_time": 36.076291470678065,
+                "download_time": 35.46194727582287
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 14.07385216661166,
+                "upload_time": 36.076291470678065,
+                "download_time": 70.92389455164574
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 180.6417960808665
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 147.8934128824455
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 127.78017962103955
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 186.76404814481967
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "9",
+      "workflow_input": {
+        "candidate_id": 8,
+        "owner_device_id": "M0",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 280.8569946886207,
+        "inter_release_time": 16.69491967395085,
+        "weight": 1.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 9139.234451324523,
+            "data_size": 7391.916731715172,
+            "total_input_data": 0.0,
+            "total_output_data": 279.0752134446267,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 30.07085121003497,
+                "upload_time": 7.218668683315598,
+                "download_time": 7.491203071445116
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 22.369305787299258,
+                "upload_time": 7.218668683315598,
+                "download_time": 7.491203071445116
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 12.233033999927972,
+                "upload_time": 14.437337366631196,
+                "download_time": 14.982406142890232
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 15.66597931541338,
+                "upload_time": 14.437337366631196,
+                "download_time": 29.964812285780464
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 14389.906433881439,
+            "data_size": 8106.314174244015,
+            "total_input_data": 139.80989149242333,
+            "total_output_data": 187.22279512373194,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 47.3471533752875,
+                "upload_time": 8.05285553294574,
+                "download_time": 8.099157196648191
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 35.220916914268244,
+                "upload_time": 8.05285553294574,
+                "download_time": 8.099157196648191
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 19.261155362519677,
+                "upload_time": 16.10571106589148,
+                "download_time": 16.198314393296382
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 24.666396047127268,
+                "upload_time": 16.10571106589148,
+                "download_time": 32.396628786592764
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 13745.442163744712,
+            "data_size": 13213.61345248133,
+            "total_input_data": 139.26532195220332,
+            "total_output_data": 104.48934737302773,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 45.22667060611457,
+                "upload_time": 13.039920678157747,
+                "download_time": 13.005959765482771
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 33.64351801893869,
+                "upload_time": 13.039920678157747,
+                "download_time": 13.005959765482771
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 18.398528041783994,
+                "upload_time": 26.079841356315494,
+                "download_time": 26.011919530965542
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 23.56169039817417,
+                "upload_time": 26.079841356315494,
+                "download_time": 52.023839061931085
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 9215.002871795663,
+            "data_size": 9662.204560462156,
+            "total_input_data": 291.71214249675967,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 30.32015227683021,
+                "upload_time": 9.720621780233316,
+                "download_time": 9.435746641076324
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 22.55475753115883,
+                "upload_time": 9.720621780233316,
+                "download_time": 9.435746641076324
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 12.334451429219325,
+                "upload_time": 19.44124356046663,
+                "download_time": 18.87149328215265
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 15.795857426559813,
+                "upload_time": 19.44124356046663,
+                "download_time": 37.7429865643053
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 139.26532195220332
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 139.80989149242333
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 187.22279512373194
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 104.48934737302773
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "10",
+      "workflow_input": {
+        "candidate_id": 9,
+        "owner_device_id": "M0",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 651.2068625292617,
+        "inter_release_time": 370.34986784064097,
+        "weight": 2.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 13756.623872748858,
+            "data_size": 11333.730180389657,
+            "total_input_data": 0.0,
+            "total_output_data": 325.1386841519815,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 45.2634618176245,
+                "upload_time": 11.068095879286775,
+                "download_time": 11.385614125528944
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 33.67088651126379,
+                "upload_time": 11.068095879286775,
+                "download_time": 11.385614125528944
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 18.413494965671713,
+                "upload_time": 22.13619175857355,
+                "download_time": 22.771228251057888
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 23.58085747643471,
+                "upload_time": 22.13619175857355,
+                "download_time": 45.542456502115776
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 7281.30385074367,
+            "data_size": 5762.158736107239,
+            "total_input_data": 178.6756259204193,
+            "total_output_data": 198.04813507421,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 23.957696443495337,
+                "upload_time": 5.801596056667635,
+                "download_time": 5.820514522638134
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 17.82181136013196,
+                "upload_time": 5.801596056667635,
+                "download_time": 5.820514522638134
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 9.746159598416341,
+                "upload_time": 11.60319211333527,
+                "download_time": 11.641029045276268
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 12.481215590049612,
+                "upload_time": 11.60319211333527,
+                "download_time": 23.282058090552535
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 5846.936504759086,
+            "data_size": 17222.439852406886,
+            "total_input_data": 146.46305823156223,
+            "total_output_data": 167.171229171625,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 19.23819315562596,
+                "upload_time": 16.96181924867036,
+                "download_time": 16.982042071854014
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 14.31103570988087,
+                "upload_time": 16.96181924867036,
+                "download_time": 16.982042071854014
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 7.826232431073251,
+                "upload_time": 33.92363849734072,
+                "download_time": 33.96408414370803
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 10.022500990640001,
+                "upload_time": 33.92363849734072,
+                "download_time": 67.92816828741606
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 10823.101856938156,
+            "data_size": 10503.810695457147,
+            "total_input_data": 365.219364245835,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 35.61128531108779,
+                "upload_time": 10.614287167678693,
+                "download_time": 10.25762763228237
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 26.490760937842932,
+                "upload_time": 10.614287167678693,
+                "download_time": 10.25762763228237
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 14.486921602215794,
+                "upload_time": 21.228574335357386,
+                "download_time": 20.51525526456474
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 18.552373365893054,
+                "upload_time": 21.228574335357386,
+                "download_time": 41.03051052912948
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 146.46305823156223
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 178.6756259204193
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 198.04813507421
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 167.171229171625
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "11",
+      "workflow_input": {
+        "candidate_id": 10,
+        "owner_device_id": "M1",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 369.7006338538338,
+        "inter_release_time": 66.88727742388613,
+        "weight": 2.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 6755.378853537659,
+            "data_size": 12291.592662105308,
+            "total_input_data": 0.0,
+            "total_output_data": 364.8681502375698,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 22.227243808446897,
+                "upload_time": 12.003508459087215,
+                "download_time": 12.35982501205359
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 16.5345506878794,
+                "upload_time": 12.003508459087215,
+                "download_time": 12.35982501205359
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 9.042199282429397,
+                "upload_time": 24.00701691817443,
+                "download_time": 24.71965002410718
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 11.579703524507389,
+                "upload_time": 24.00701691817443,
+                "download_time": 49.43930004821436
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 12090.531539602192,
+            "data_size": 14686.257824381908,
+            "total_input_data": 193.77346714915706,
+            "total_output_data": 126.65700999614066,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 39.78151309215194,
+                "upload_time": 14.531280558135805,
+                "download_time": 14.465737142947313
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 29.59293785281447,
+                "upload_time": 14.531280558135805,
+                "download_time": 14.465737142947313
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 16.183399625963183,
+                "upload_time": 29.06256111627161,
+                "download_time": 28.931474285894627
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 20.724932489756885,
+                "upload_time": 29.06256111627161,
+                "download_time": 57.86294857178925
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 6055.388751888097,
+            "data_size": 5511.991380581085,
+            "total_input_data": 171.09468308841275,
+            "total_output_data": 175.9381385621022,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 19.924064225155803,
+                "upload_time": 5.549888734052244,
+                "download_time": 5.554618671038268
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 14.821246065344804,
+                "upload_time": 5.549888734052244,
+                "download_time": 5.554618671038268
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 8.10524961134933,
+                "upload_time": 11.099777468104488,
+                "download_time": 11.109237342076536
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 10.379818510960453,
+                "upload_time": 11.099777468104488,
+                "download_time": 22.218474684153072
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 5708.411988501472,
+            "data_size": 15889.293684324228,
+            "total_input_data": 302.59514855824284,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 18.782405513946507,
+                "upload_time": 15.812391438361788,
+                "download_time": 15.516888363597879
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 13.971981352570317,
+                "upload_time": 15.812391438361788,
+                "download_time": 15.516888363597879
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 7.640814809255114,
+                "upload_time": 31.624782876723575,
+                "download_time": 31.033776727195757
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 9.78504978858063,
+                "upload_time": 31.624782876723575,
+                "download_time": 62.067553454391515
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 171.09468308841275
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 193.77346714915706
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 126.65700999614066
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 175.9381385621022
+          }
+        ]
+      }
+    },
+    {
+      "record_id": "12",
+      "workflow_input": {
+        "candidate_id": 11,
+        "owner_device_id": "M1",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "f2459ec7f6504f467ecae24f358f6ba4637e2d1405074b93dbb8646df3ca0cf9"
+        },
+        "release_time": 494.8077812363143,
+        "inter_release_time": 125.10714738248056,
+        "weight": 2.0,
+        "tasks": [
+          {
+            "id": "root",
+            "workload": 12373.595525062332,
+            "data_size": 15149.657060835432,
+            "total_input_data": 0.0,
+            "total_output_data": 307.7634391740733,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 40.712879393676,
+                "upload_time": 14.794586973472102,
+                "download_time": 15.095137207040533
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 30.285768842308542,
+                "upload_time": 14.794586973472102,
+                "download_time": 15.095137207040533
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 16.562285995136826,
+                "upload_time": 29.589173946944204,
+                "download_time": 30.190274414081067
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 21.210145399522467,
+                "upload_time": 29.589173946944204,
+                "download_time": 60.380548828162134
+              }
+            ]
+          },
+          {
+            "id": "left",
+            "workload": 8733.305960968784,
+            "data_size": 14576.534678046291,
+            "total_input_data": 108.18693026383762,
+            "total_output_data": 132.30424239966334,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 28.73522345035621,
+                "upload_time": 14.34054844561536,
+                "download_time": 14.364100508248002
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 21.37575008228851,
+                "upload_time": 14.34054844561536,
+                "download_time": 14.364100508248002
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 11.689691223187902,
+                "upload_time": 28.68109689123072,
+                "download_time": 28.728201016496005
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 14.970158744519901,
+                "upload_time": 28.68109689123072,
+                "download_time": 57.45640203299201
+              }
+            ]
+          },
+          {
+            "id": "right",
+            "workload": 5845.338229024479,
+            "data_size": 8313.583126167769,
+            "total_input_data": 199.5765089102357,
+            "total_output_data": 163.92699586655655,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 19.232934344063136,
+                "upload_time": 8.313632456130863,
+                "download_time": 8.278818478549146
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 14.307123749986387,
+                "upload_time": 8.313632456130863,
+                "download_time": 8.278818478549146
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 7.8240931095024076,
+                "upload_time": 16.627264912261726,
+                "download_time": 16.557636957098293
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 10.019761313183203,
+                "upload_time": 16.627264912261726,
+                "download_time": 33.115273914196585
+              }
+            ]
+          },
+          {
+            "id": "join",
+            "workload": 6269.376763433194,
+            "data_size": 10810.146263254854,
+            "total_input_data": 296.23123826621986,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "E0",
+                "processing_time": 20.628149637361336,
+                "upload_time": 10.846071778829174,
+                "download_time": 10.556783460209818
+              },
+              {
+                "resource_id": "E1",
+                "processing_time": 15.345005827780339,
+                "upload_time": 10.846071778829174,
+                "download_time": 10.556783460209818
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 8.391676514472357,
+                "upload_time": 21.692143557658348,
+                "download_time": 21.113566920419636
+              },
+              {
+                "resource_id": "C1",
+                "processing_time": 10.746625137977892,
+                "upload_time": 21.692143557658348,
+                "download_time": 42.22713384083927
+              }
+            ]
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "root",
+            "child_id": "right",
+            "data_size": 199.5765089102357
+          },
+          {
+            "parent_id": "root",
+            "child_id": "left",
+            "data_size": 108.18693026383762
+          },
+          {
+            "parent_id": "left",
+            "child_id": "join",
+            "data_size": 132.30424239966334
+          },
+          {
+            "parent_id": "right",
+            "child_id": "join",
+            "data_size": 163.92699586655655
+          }
+        ]
+      }
+    }
+  ],
+  "generation_attempts": [
+    {
+      "attempt_sequence": 1,
+      "phase": "initialize",
+      "owner_device_id": "M0",
+      "generation_clock_time": 0.0,
+      "causing_workflow_id": null,
+      "event_sequence": null,
+      "candidate_ref": "1",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 2,
+      "phase": "initialize",
+      "owner_device_id": "M1",
+      "generation_clock_time": 0.0,
+      "causing_workflow_id": null,
+      "event_sequence": null,
+      "candidate_ref": "2",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 3,
+      "phase": "after_arrival",
+      "owner_device_id": "M0",
+      "generation_clock_time": 92.4056958406404,
+      "causing_workflow_id": 0,
+      "event_sequence": 1,
+      "candidate_ref": "3",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 4,
+      "phase": "after_arrival",
+      "owner_device_id": "M0",
+      "generation_clock_time": 105.32803419138705,
+      "causing_workflow_id": 2,
+      "event_sequence": 4,
+      "candidate_ref": "4",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 5,
+      "phase": "after_arrival",
+      "owner_device_id": "M1",
+      "generation_clock_time": 164.96411144029605,
+      "causing_workflow_id": 1,
+      "event_sequence": 9,
+      "candidate_ref": "5",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 6,
+      "phase": "after_arrival",
+      "owner_device_id": "M1",
+      "generation_clock_time": 183.79600021891912,
+      "causing_workflow_id": 4,
+      "event_sequence": 15,
+      "candidate_ref": "6",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 7,
+      "phase": "after_arrival",
+      "owner_device_id": "M0",
+      "generation_clock_time": 197.2215484840143,
+      "causing_workflow_id": 3,
+      "event_sequence": 16,
+      "candidate_ref": "7",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 8,
+      "phase": "after_arrival",
+      "owner_device_id": "M1",
+      "generation_clock_time": 245.747667771111,
+      "causing_workflow_id": 5,
+      "event_sequence": 23,
+      "candidate_ref": "8",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 9,
+      "phase": "after_arrival",
+      "owner_device_id": "M0",
+      "generation_clock_time": 264.1620750146699,
+      "causing_workflow_id": 6,
+      "event_sequence": 28,
+      "candidate_ref": "9",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 10,
+      "phase": "after_arrival",
+      "owner_device_id": "M0",
+      "generation_clock_time": 280.8569946886207,
+      "causing_workflow_id": 8,
+      "event_sequence": 33,
+      "candidate_ref": "10",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 11,
+      "phase": "after_arrival",
+      "owner_device_id": "M1",
+      "generation_clock_time": 302.81335642994765,
+      "causing_workflow_id": 7,
+      "event_sequence": 39,
+      "candidate_ref": "11",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 12,
+      "phase": "after_arrival",
+      "owner_device_id": "M1",
+      "generation_clock_time": 369.7006338538338,
+      "causing_workflow_id": 10,
+      "event_sequence": 61,
+      "candidate_ref": "12",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    }
+  ],
+  "capture": {
+    "complete": true,
+    "complete_attempt_count": 12,
+    "write_interrupted": false,
+    "process_interrupted": false,
+    "termination": "JAVA_RUN_RETURNED"
+  }
+}

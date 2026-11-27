@@ -1,0 +1,210 @@
+{
+  "scope": "0.2 named fixed-instance acceptance; positive representable execution intervals",
+  "passed": true,
+  "cases": [
+    {
+      "case": "single_local",
+      "passed": true,
+      "events": {
+        "python": 4,
+        "java": 4
+      },
+      "decisions": {
+        "python": 1,
+        "java": 1
+      },
+      "first_difference": null,
+      "report": "single_local/comparison.json"
+    },
+    {
+      "case": "single_local_release5",
+      "passed": true,
+      "events": {
+        "python": 4,
+        "java": 4
+      },
+      "decisions": {
+        "python": 1,
+        "java": 1
+      },
+      "first_difference": null,
+      "report": "single_local_release5/comparison.json"
+    },
+    {
+      "case": "chain_remote",
+      "passed": true,
+      "events": {
+        "python": 7,
+        "java": 7
+      },
+      "decisions": {
+        "python": 3,
+        "java": 3
+      },
+      "first_difference": null,
+      "report": "chain_remote/comparison.json"
+    },
+    {
+      "case": "chain_fcfs",
+      "passed": true,
+      "events": {
+        "python": 7,
+        "java": 7
+      },
+      "decisions": {
+        "python": 3,
+        "java": 3
+      },
+      "first_difference": null,
+      "report": "chain_fcfs/comparison.json"
+    },
+    {
+      "case": "v2_diamond",
+      "passed": true,
+      "events": {
+        "python": 13,
+        "java": 13
+      },
+      "decisions": {
+        "python": 8,
+        "java": 8
+      },
+      "first_difference": null,
+      "report": "v2_diamond/comparison.json"
+    },
+    {
+      "case": "v2_contention",
+      "passed": true,
+      "events": {
+        "python": 12,
+        "java": 12
+      },
+      "decisions": {
+        "python": 5,
+        "java": 5
+      },
+      "first_difference": null,
+      "report": "v2_contention/comparison.json"
+    },
+    {
+      "case": "v2_candidates",
+      "passed": true,
+      "events": {
+        "python": 27,
+        "java": 27
+      },
+      "decisions": {
+        "python": 10,
+        "java": 10
+      },
+      "first_difference": null,
+      "report": "v2_candidates/comparison.json"
+    },
+    {
+      "case": "v2_collision_m0",
+      "passed": true,
+      "events": {
+        "python": 20,
+        "java": 20
+      },
+      "decisions": {
+        "python": 8,
+        "java": 8
+      },
+      "first_difference": null,
+      "report": "v2_collision_m0/comparison.json"
+    },
+    {
+      "case": "v2_collision_e0",
+      "passed": true,
+      "events": {
+        "python": 20,
+        "java": 20
+      },
+      "decisions": {
+        "python": 8,
+        "java": 8
+      },
+      "first_difference": null,
+      "report": "v2_collision_e0/comparison.json"
+    },
+    {
+      "case": "v2_equal_heap",
+      "passed": true,
+      "events": {
+        "python": 39,
+        "java": 39
+      },
+      "decisions": {
+        "python": 29,
+        "java": 29
+      },
+      "first_difference": null,
+      "report": "v2_equal_heap/comparison.json"
+    },
+    {
+      "case": "v2_float_local",
+      "passed": true,
+      "events": {
+        "python": 16,
+        "java": 16
+      },
+      "decisions": {
+        "python": 7,
+        "java": 7
+      },
+      "first_difference": null,
+      "report": "v2_float_local/comparison.json"
+    },
+    {
+      "case": "v2_float_remote",
+      "passed": true,
+      "events": {
+        "python": 16,
+        "java": 16
+      },
+      "decisions": {
+        "python": 7,
+        "java": 7
+      },
+      "first_difference": null,
+      "report": "v2_float_remote/comparison.json"
+    },
+    {
+      "case": "v2_shared_server",
+      "passed": true,
+      "events": {
+        "python": 15,
+        "java": 15
+      },
+      "decisions": {
+        "python": 8,
+        "java": 8
+      },
+      "first_difference": null,
+      "report": "v2_shared_server/comparison.json"
+    },
+    {
+      "case": "v2_order",
+      "passed": true,
+      "events": {
+        "python": 12,
+        "java": 12
+      },
+      "decisions": {
+        "python": 4,
+        "java": 4
+      },
+      "first_difference": null,
+      "report": "v2_order/comparison.json"
+    }
+  ],
+  "java_build_fingerprint": "a69f3c65cce9eae3111d7c15f95c3aeac49946d2308df8c02d594ec8b189b921",
+  "first_difference": null,
+  "not_validated": [
+    "arbitrary-input equivalence",
+    "full multi-device model extension",
+    "precision-collapse inputs (separate negative acceptance)",
+    "random generation/GP/training statistics"
+  ]
+}

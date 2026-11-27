@@ -1,0 +1,242 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fogsim.local/schema/training/evaluation.schema.json",
+  "type": "object",
+  "required": [
+    "format",
+    "schema_version",
+    "evaluation_id",
+    "plan_id",
+    "status",
+    "fitness",
+    "runs",
+    "rule_pair_id",
+    "implementation_source_id",
+    "implementation",
+    "failure_policy",
+    "trial_id",
+    "evaluation_sequence",
+    "trees",
+    "rule_manifest",
+    "planned_runs",
+    "completed_runs",
+    "succeeded_runs",
+    "failed_runs",
+    "not_run",
+    "diagnostic_mean_over_successes",
+    "diagnostic_sample_stddev_over_successes",
+    "diagnostic_stddev_denominator",
+    "failure_rate",
+    "failure_rate_denominator",
+    "not_run_fraction",
+    "interruption",
+    "evolution_rng_unchanged"
+  ],
+  "properties": {
+    "format": {
+      "const": "fogsim.individual-evaluation"
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "evaluation_id": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "plan_id": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "status": {
+      "enum": [
+        "FEASIBLE",
+        "INFEASIBLE",
+        "INCOMPLETE"
+      ]
+    },
+    "fitness": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "index",
+          "run_id",
+          "classification",
+          "status",
+          "makespan",
+          "reason_code",
+          "reason",
+          "result_ref",
+          "input_ref",
+          "raw_result",
+          "input_archive"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "run_id": {
+            "type": "string"
+          },
+          "classification": {
+            "enum": [
+              "SUCCESS",
+              "DOMAIN_FAILURE",
+              "EVENT_BUDGET_EXHAUSTED"
+            ]
+          },
+          "status": {
+            "enum": [
+              "SUCCEEDED",
+              "FAILED"
+            ]
+          },
+          "makespan": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "reason_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "result_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "input_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "raw_result": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "input_archive": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "rule_pair_id": {
+      "type": "string"
+    },
+    "implementation_source_id": {
+      "type": "string"
+    },
+    "implementation": {
+      "type": "string"
+    },
+    "failure_policy": {
+      "type": "string"
+    },
+    "trial_id": {
+      "type": "string"
+    },
+    "evaluation_sequence": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "trees": {
+      "type": "object"
+    },
+    "rule_manifest": {
+      "type": "object"
+    },
+    "planned_runs": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "completed_runs": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "succeeded_runs": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "failed_runs": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "not_run": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "diagnostic_mean_over_successes": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "diagnostic_sample_stddev_over_successes": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "diagnostic_stddev_denominator": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "failure_rate": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "failure_rate_denominator": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "not_run_fraction": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "interruption": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "evolution_rng_unchanged": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "description": "Full field inventory and invariants are frozen in docs/TRAINING-PROTOCOL-B01.md; no evolution/selected-rule schema is implemented in B01.",
+  "additionalProperties": false
+}

@@ -1,0 +1,25 @@
+{
+  "format": "fogsim.b08-validation",
+  "schema_version": 1,
+  "batch": "B08",
+  "review_id": "B08-r1-20261107",
+  "baseline": "B07-r1-20261107",
+  "status": "COMPLETED",
+  "passed": true,
+  "stage_d_complete": true,
+  "B08_implemented": true,
+  "gates": {
+    "b07_restore_and_contracts": {"planned": 69, "executed": 69, "passed": 69},
+    "cumulative_python_regression": {"planned": 5797, "executed": 5797, "passed": 5797, "failures": 0, "errors": 0, "skipped": 0},
+    "contract_audit": {"planned": 149, "executed": 149, "passed": 149, "unresolved": 0},
+    "source_retention": {"unexpected_production_changes": 0, "allowed_test_compatibility_changes": 2},
+    "final_dynamic": "PASSED",
+    "final_performance": "PASSED"
+  },
+  "classification": "NORMAL_AND_EXPECTED_DIFFERENCES_SEPARATED",
+  "limitations": [
+    "two optional native large fixed projections remain NOT_EXECUTED by design",
+    "paper-scale performance, GP training/evolution and D20 experiment interpretation remain outside this stage",
+    "arbitrary-input Java equivalence is not claimed"
+  ]
+}

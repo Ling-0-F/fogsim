@@ -1,0 +1,474 @@
+{
+  "events": [
+    {
+      "kind": "JobArrivalEvent",
+      "time": 10.0,
+      "producer_device_id": "M1",
+      "workflow_id": 0,
+      "task_java_index": null,
+      "resource_id": null,
+      "start_time": null,
+      "finish_time": null,
+      "event_sequence": 1
+    },
+    {
+      "kind": "TaskVisitEvent",
+      "time": 10.0,
+      "producer_device_id": "M1",
+      "workflow_id": 0,
+      "task_java_index": 0,
+      "resource_id": "M1",
+      "start_time": null,
+      "finish_time": null,
+      "event_sequence": 2
+    },
+    {
+      "kind": "ProcessStartEvent",
+      "time": 10.0,
+      "producer_device_id": "M1",
+      "workflow_id": 0,
+      "task_java_index": 0,
+      "resource_id": "M1",
+      "start_time": 10.0,
+      "finish_time": 62.20427254722805,
+      "event_sequence": 3
+    },
+    {
+      "kind": "ProcessFinishEvent",
+      "time": 62.20427254722805,
+      "producer_device_id": "M1",
+      "workflow_id": 0,
+      "task_java_index": 0,
+      "resource_id": "M1",
+      "start_time": 10.0,
+      "finish_time": 62.20427254722805,
+      "event_sequence": 4
+    },
+    {
+      "kind": "TaskVisitEvent",
+      "time": 75.45721037940888,
+      "producer_device_id": "M1",
+      "workflow_id": 0,
+      "task_java_index": 1,
+      "resource_id": "E0",
+      "start_time": null,
+      "finish_time": null,
+      "event_sequence": 5
+    },
+    {
+      "kind": "ProcessStartEvent",
+      "time": 75.45721037940888,
+      "producer_device_id": "M1",
+      "workflow_id": 0,
+      "task_java_index": 1,
+      "resource_id": "E0",
+      "start_time": 75.45721037940888,
+      "finish_time": 107.11003619145927,
+      "event_sequence": 6
+    },
+    {
+      "kind": "ProcessFinishEvent",
+      "time": 107.11003619145927,
+      "producer_device_id": "M1",
+      "workflow_id": 0,
+      "task_java_index": 1,
+      "resource_id": "E0",
+      "start_time": 75.45721037940888,
+      "finish_time": 107.11003619145927,
+      "event_sequence": 7
+    }
+  ],
+  "decisions": [
+    {
+      "event_sequence": 1,
+      "clock_time": 10.0,
+      "kind": "routing",
+      "options": [
+        {
+          "workflow_id": 0,
+          "task_java_index": 0,
+          "resource_id": "M1",
+          "ready_time": 10.0,
+          "priority": 0.0
+        },
+        {
+          "workflow_id": 0,
+          "task_java_index": 0,
+          "resource_id": "E0",
+          "ready_time": 10.0,
+          "priority": 0.0
+        },
+        {
+          "workflow_id": 0,
+          "task_java_index": 0,
+          "resource_id": "C0",
+          "ready_time": 10.0,
+          "priority": 0.0
+        }
+      ],
+      "selected": {
+        "workflow_id": 0,
+        "task_java_index": 0,
+        "resource_id": "M1",
+        "ready_time": 10.0,
+        "priority": 0.0
+      }
+    },
+    {
+      "event_sequence": 4,
+      "clock_time": 62.20427254722805,
+      "kind": "routing",
+      "options": [
+        {
+          "workflow_id": 0,
+          "task_java_index": 1,
+          "resource_id": "M1",
+          "ready_time": 0.0,
+          "priority": 62.20427254722805
+        },
+        {
+          "workflow_id": 0,
+          "task_java_index": 1,
+          "resource_id": "E0",
+          "ready_time": 0.0,
+          "priority": 0.0
+        },
+        {
+          "workflow_id": 0,
+          "task_java_index": 1,
+          "resource_id": "C0",
+          "ready_time": 0.0,
+          "priority": 0.0
+        }
+      ],
+      "selected": {
+        "workflow_id": 0,
+        "task_java_index": 1,
+        "resource_id": "E0",
+        "ready_time": 0.0,
+        "priority": 0.0
+      }
+    },
+    {
+      "event_sequence": 4,
+      "clock_time": 62.20427254722805,
+      "kind": "routing",
+      "options": [
+        {
+          "workflow_id": 0,
+          "task_java_index": 1,
+          "resource_id": "M1",
+          "ready_time": 0.0,
+          "priority": 62.20427254722805
+        },
+        {
+          "workflow_id": 0,
+          "task_java_index": 1,
+          "resource_id": "E0",
+          "ready_time": 0.0,
+          "priority": 0.0
+        },
+        {
+          "workflow_id": 0,
+          "task_java_index": 1,
+          "resource_id": "C0",
+          "ready_time": 0.0,
+          "priority": 0.0
+        }
+      ],
+      "selected": {
+        "workflow_id": 0,
+        "task_java_index": 1,
+        "resource_id": "E0",
+        "ready_time": 0.0,
+        "priority": 0.0
+      }
+    }
+  ],
+  "actions": [
+    {
+      "event_sequence": null,
+      "kind": "EMIT",
+      "event": {
+        "kind": "JobArrivalEvent",
+        "time": 10.0,
+        "producer_device_id": "M1",
+        "workflow_id": 0,
+        "task_java_index": null,
+        "resource_id": null,
+        "start_time": null,
+        "finish_time": null
+      }
+    },
+    {
+      "event_sequence": 1,
+      "kind": "DECISION",
+      "decision": {
+        "event_sequence": 1,
+        "clock_time": 10.0,
+        "kind": "routing",
+        "options": [
+          {
+            "workflow_id": 0,
+            "task_java_index": 0,
+            "resource_id": "M1",
+            "ready_time": 10.0,
+            "priority": 0.0
+          },
+          {
+            "workflow_id": 0,
+            "task_java_index": 0,
+            "resource_id": "E0",
+            "ready_time": 10.0,
+            "priority": 0.0
+          },
+          {
+            "workflow_id": 0,
+            "task_java_index": 0,
+            "resource_id": "C0",
+            "ready_time": 10.0,
+            "priority": 0.0
+          }
+        ],
+        "selected": {
+          "workflow_id": 0,
+          "task_java_index": 0,
+          "resource_id": "M1",
+          "ready_time": 10.0,
+          "priority": 0.0
+        }
+      }
+    },
+    {
+      "event_sequence": 1,
+      "kind": "EMIT",
+      "event": {
+        "kind": "TaskVisitEvent",
+        "time": 10.0,
+        "producer_device_id": "M1",
+        "workflow_id": 0,
+        "task_java_index": 0,
+        "resource_id": "M1",
+        "start_time": null,
+        "finish_time": null
+      }
+    },
+    {
+      "event_sequence": 1,
+      "kind": "EMIT",
+      "event": {
+        "kind": "JobArrivalEvent",
+        "time": 210.0,
+        "producer_device_id": "M1",
+        "workflow_id": 1,
+        "task_java_index": null,
+        "resource_id": null,
+        "start_time": null,
+        "finish_time": null
+      }
+    },
+    {
+      "event_sequence": 2,
+      "kind": "EMIT",
+      "event": {
+        "kind": "ProcessStartEvent",
+        "time": 10.0,
+        "producer_device_id": "M1",
+        "workflow_id": 0,
+        "task_java_index": 0,
+        "resource_id": "M1",
+        "start_time": 10.0,
+        "finish_time": 62.20427254722805
+      }
+    },
+    {
+      "event_sequence": 3,
+      "kind": "EMIT",
+      "event": {
+        "kind": "ProcessFinishEvent",
+        "time": 62.20427254722805,
+        "producer_device_id": "M1",
+        "workflow_id": 0,
+        "task_java_index": 0,
+        "resource_id": "M1",
+        "start_time": 10.0,
+        "finish_time": 62.20427254722805
+      }
+    },
+    {
+      "event_sequence": 4,
+      "kind": "DECISION",
+      "decision": {
+        "event_sequence": 4,
+        "clock_time": 62.20427254722805,
+        "kind": "routing",
+        "options": [
+          {
+            "workflow_id": 0,
+            "task_java_index": 1,
+            "resource_id": "M1",
+            "ready_time": 0.0,
+            "priority": 62.20427254722805
+          },
+          {
+            "workflow_id": 0,
+            "task_java_index": 1,
+            "resource_id": "E0",
+            "ready_time": 0.0,
+            "priority": 0.0
+          },
+          {
+            "workflow_id": 0,
+            "task_java_index": 1,
+            "resource_id": "C0",
+            "ready_time": 0.0,
+            "priority": 0.0
+          }
+        ],
+        "selected": {
+          "workflow_id": 0,
+          "task_java_index": 1,
+          "resource_id": "E0",
+          "ready_time": 0.0,
+          "priority": 0.0
+        }
+      }
+    },
+    {
+      "event_sequence": 4,
+      "kind": "DECISION",
+      "decision": {
+        "event_sequence": 4,
+        "clock_time": 62.20427254722805,
+        "kind": "routing",
+        "options": [
+          {
+            "workflow_id": 0,
+            "task_java_index": 1,
+            "resource_id": "M1",
+            "ready_time": 0.0,
+            "priority": 62.20427254722805
+          },
+          {
+            "workflow_id": 0,
+            "task_java_index": 1,
+            "resource_id": "E0",
+            "ready_time": 0.0,
+            "priority": 0.0
+          },
+          {
+            "workflow_id": 0,
+            "task_java_index": 1,
+            "resource_id": "C0",
+            "ready_time": 0.0,
+            "priority": 0.0
+          }
+        ],
+        "selected": {
+          "workflow_id": 0,
+          "task_java_index": 1,
+          "resource_id": "E0",
+          "ready_time": 0.0,
+          "priority": 0.0
+        }
+      }
+    },
+    {
+      "event_sequence": 4,
+      "kind": "EMIT",
+      "event": {
+        "kind": "TaskVisitEvent",
+        "time": 75.45721037940888,
+        "producer_device_id": "M1",
+        "workflow_id": 0,
+        "task_java_index": 1,
+        "resource_id": "E0",
+        "start_time": null,
+        "finish_time": null
+      }
+    },
+    {
+      "event_sequence": 5,
+      "kind": "EMIT",
+      "event": {
+        "kind": "ProcessStartEvent",
+        "time": 75.45721037940888,
+        "producer_device_id": "M1",
+        "workflow_id": 0,
+        "task_java_index": 1,
+        "resource_id": "E0",
+        "start_time": 75.45721037940888,
+        "finish_time": 107.11003619145927
+      }
+    },
+    {
+      "event_sequence": 6,
+      "kind": "EMIT",
+      "event": {
+        "kind": "ProcessFinishEvent",
+        "time": 107.11003619145927,
+        "producer_device_id": "M1",
+        "workflow_id": 0,
+        "task_java_index": 1,
+        "resource_id": "E0",
+        "start_time": 75.45721037940888,
+        "finish_time": 107.11003619145927
+      }
+    }
+  ],
+  "final": {
+    "clock_time": 107.11003619145927,
+    "G": 2,
+    "B": 10.0,
+    "R": 1,
+    "statistical_workflow_ids": [
+      0
+    ],
+    "completed_workflow_ids": [
+      0
+    ],
+    "not_arrived_workflow_ids": [
+      1
+    ],
+    "unfinished_workflow_ids": [
+      1
+    ],
+    "pending_global_events": 1,
+    "resources": [
+      {
+        "id": "M0",
+        "available_time": 0.0,
+        "queue": [],
+        "total_processing": 0.0,
+        "total_occupancy": 0.0,
+        "tasks_completed": 0,
+        "staged_events": 0
+      },
+      {
+        "id": "M1",
+        "available_time": 62.20427254722805,
+        "queue": [],
+        "total_processing": 0.0,
+        "total_occupancy": 0.0,
+        "tasks_completed": 1,
+        "staged_events": 0
+      },
+      {
+        "id": "E0",
+        "available_time": 107.11003619145927,
+        "queue": [],
+        "total_processing": 0.0,
+        "total_occupancy": 0.0,
+        "tasks_completed": 1
+      },
+      {
+        "id": "C0",
+        "available_time": 0.0,
+        "queue": [],
+        "total_processing": 0.0,
+        "total_occupancy": 0.0,
+        "tasks_completed": 0
+      }
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "passed": true,
+  "scope": "full small dynamic run including initialization and event execution; 2 seeds, 2 devices, 1 edge, 1 cloud, trace off; not paper scale",
+  "measurements": [
+    {
+      "seed": 7,
+      "policy": "retain",
+      "status": "SUCCEEDED",
+      "elapsed_seconds": 0.04800871099996584,
+      "current_bytes": 149181,
+      "peak_bytes": 512420,
+      "events": 12,
+      "tasks": 10,
+      "cleanup": {
+        "workflows_released": 0,
+        "released_task_count": 0,
+        "removed_mapping_entry_count": 0
+      },
+      "rng_final": "ad25ee2652d44fc755733af4b8989c8881c8aa035303aedc266024dcdf7546f0"
+    },
+    {
+      "seed": 7,
+      "policy": "release_after_materialization",
+      "status": "SUCCEEDED",
+      "elapsed_seconds": 0.04827170499993372,
+      "current_bytes": 134660,
+      "peak_bytes": 458655,
+      "events": 12,
+      "tasks": 10,
+      "cleanup": {
+        "workflows_released": 5,
+        "released_task_count": 10,
+        "removed_mapping_entry_count": 10
+      },
+      "rng_final": "ad25ee2652d44fc755733af4b8989c8881c8aa035303aedc266024dcdf7546f0"
+    },
+    {
+      "seed": 42,
+      "policy": "retain",
+      "status": "SUCCEEDED",
+      "elapsed_seconds": 0.07731193000017811,
+      "current_bytes": 134244,
+      "peak_bytes": 767923,
+      "events": 17,
+      "tasks": 10,
+      "cleanup": {
+        "workflows_released": 0,
+        "released_task_count": 0,
+        "removed_mapping_entry_count": 0
+      },
+      "rng_final": "a71ddad93a8487f17031dd24742d215b706657db190a3927c0ac7ef9daad59b8"
+    },
+    {
+      "seed": 42,
+      "policy": "release_after_materialization",
+      "status": "SUCCEEDED",
+      "elapsed_seconds": 0.07729738699981681,
+      "current_bytes": 129297,
+      "peak_bytes": 712915,
+      "events": 17,
+      "tasks": 10,
+      "cleanup": {
+        "workflows_released": 5,
+        "released_task_count": 10,
+        "removed_mapping_entry_count": 10
+      },
+      "rng_final": "a71ddad93a8487f17031dd24742d215b706657db190a3927c0ac7ef9daad59b8"
+    }
+  ],
+  "conclusion": "measured peak/current/time; no unconditional speedup or scale generalization"
+}

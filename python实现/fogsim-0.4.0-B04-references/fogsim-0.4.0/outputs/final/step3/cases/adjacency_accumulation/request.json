@@ -1,0 +1,95 @@
+{
+  "name": "adjacency_accumulation",
+  "environment": {
+    "num_mobile_devices": 2,
+    "num_edge_servers": 2,
+    "num_cloud_servers": 2,
+    "can_mobile_devices_process_tasks": true
+  },
+  "extra_clock": null,
+  "xml": "<adag><job id=\"p0\"/><job id=\"p1\"/><job id=\"p2\"/><job id=\"J\"/><job id=\"X\"/><job id=\"Y\"/><child ref=\"J\"><parent ref=\"p2\"/><parent ref=\"p1\"/><parent ref=\"p0\"/></child><child ref=\"X\"><parent ref=\"p0\"/><parent ref=\"J\"/></child><child ref=\"Y\"><parent ref=\"p0\"/></child></adag>",
+  "role_values": {
+    "processing_rate_device": [
+      125,
+      150
+    ],
+    "processing_rate_edge": [
+      250,
+      300
+    ],
+    "processing_rate_cloud": [
+      500,
+      600
+    ],
+    "upload_bandwidth_edge": [
+      1024,
+      1024
+    ],
+    "download_bandwidth_edge": [
+      1024,
+      1024
+    ],
+    "upload_bandwidth_cloud": [
+      256,
+      512
+    ],
+    "download_bandwidth_cloud": [
+      128,
+      256
+    ],
+    "workflow_type": [
+      0,
+      0
+    ],
+    "inter_release_time": [
+      2,
+      3
+    ],
+    "weight": [
+      4,
+      2
+    ],
+    "workload": [
+      5000,
+      5137,
+      5274,
+      5411,
+      5548,
+      5685,
+      5822,
+      5959,
+      6096,
+      6233,
+      6370,
+      6507
+    ],
+    "data_size": [
+      5120,
+      5137,
+      5154,
+      5171,
+      5188,
+      5205,
+      5222,
+      5239,
+      5256,
+      5273,
+      5290,
+      5307
+    ],
+    "edge_data": [
+      1e+16,
+      1,
+      1,
+      1,
+      1,
+      5,
+      1e+16,
+      1,
+      1,
+      1,
+      1,
+      5
+    ]
+  }
+}

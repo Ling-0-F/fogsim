@@ -1,0 +1,36 @@
+平台：AutoDL 3080（没用GPU，只使用CPU）
+
+相关文件：
+reproduction.zip，
+fogsim-0.4.0-B04.zip，
+fogsim-0.4.0-B04-references.zip
+
+命令：
+cd /root/autodl-tmp/fogsim-small3
+
+source /root/miniconda3/etc/profile.d/conda.sh
+conda create -n fogsim312 python=3.12 pip -y
+conda activate fogsim312
+python --version
+
+python -m zipfile -e reproduction.zip .
+python -m zipfile -e fogsim-0.4.0-B04.zip .
+python -m zipfile -e fogsim-0.4.0-B04-references.zip .
+
+python -m pip install --no-index --require-hashes \
+  --find-links fogsim-0.4.0/development/S9-B02/wheels \
+  -r fogsim-0.4.0/development/S9-B02/requirements-train.lock
+
+export PYTHONPATH="$PWD/fogsim-0.4.0/src"
+export OPENBLAS_NUM_THREADS=1
+dax="$PWD/fogsim-0.4.0/references/java/Fog-Computing-multiDeviceDebug/src/mengxu/dax"
+
+run="small3-paper-$(date +%Y%m%d-%H%M%S)"
+nohup python -u reproduction/run_mtgp.py \
+  --profile paper --scales small --devices 3 \
+  --dax "$dax" --workers 14 --out "$run" \
+  > "$run.log" 2>&1 < /dev/null &
+echo "PID=$!  日志=$run.log"
+tail -f "$run.log"
+
+

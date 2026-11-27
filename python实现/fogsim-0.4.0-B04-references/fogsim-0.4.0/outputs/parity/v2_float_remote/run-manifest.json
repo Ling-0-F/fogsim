@@ -1,0 +1,104 @@
+{
+  "instance_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/data/cases/v2_float_remote.json",
+  "instance_sha256": "a3ae7ea0660e0329741f5713025007b4184a0bc87a6744f0ece5093f46e451dd",
+  "config_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/configs/v2_float_remote.json",
+  "config_file_sha256": "4ac6dfd6c906b920253fc24171aadad78f31f4b94e2e84fc90aedd5523323444",
+  "effective_config": {
+    "routing_kind": "fixed_resource",
+    "fixed_resource_id": "E0",
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "java_build_fingerprint": "a69f3c65cce9eae3111d7c15f95c3aeac49946d2308df8c02d594ec8b189b921",
+  "resource_ids": [
+    [
+      "M0",
+      "MOBILE",
+      0
+    ],
+    [
+      "E0",
+      "EDGE",
+      0
+    ],
+    [
+      "C0",
+      "CLOUD",
+      1
+    ]
+  ],
+  "devices": [
+    "M0"
+  ],
+  "task_ids": [
+    {
+      "workflow_id": 0,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 1,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 2,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 3,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    }
+  ],
+  "initial_stage_order": [
+    [
+      0,
+      "M0",
+      0.0
+    ],
+    [
+      1,
+      "M0",
+      0.1
+    ],
+    [
+      2,
+      "M0",
+      0.1
+    ],
+    [
+      3,
+      "M0",
+      0.1
+    ]
+  ],
+  "raw_trace_sha256": {
+    "python-raw.json": "e9e147bbccb89e3c33ca7cd7edf651ab00ac37df89610328514aeb295c6fa42e",
+    "java-raw.json": "193f195bf7c165116eaa31fc287a2e6546b5c9770f8a73d7e06d1861fca94230"
+  }
+}

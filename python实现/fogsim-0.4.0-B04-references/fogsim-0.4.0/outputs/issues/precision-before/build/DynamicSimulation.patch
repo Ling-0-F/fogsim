@@ -1,0 +1,16 @@
+--- original/mengxu/simulation/DynamicSimulation.java
++++ overlay/mengxu/simulation/DynamicSimulation.java
+@@ -14,6 +14,13 @@
+ import java.util.PriorityQueue;
+ 
+ public class DynamicSimulation {
++
++    /** Fixed-instance adapter only: skip random provisioning and setup. */
++    protected DynamicSimulation(SystemState fixedState) {
++        this.systemState = fixedState;
++        this.eventQueue = new PriorityQueue<>();
++    }
++
+ 
+     private long seed;
+     public final static int SEED_ROTATION = 10000;

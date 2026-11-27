@@ -1,0 +1,51 @@
+{
+  "case": "all_devices_rejected",
+  "scope": "V16 Java observation noninterference and complete input; no Python dynamic replay",
+  "passed": true,
+  "first_differences": {
+    "baseline_vs_minimal": null,
+    "baseline_vs_full": null,
+    "minimal_vs_full_capture": null
+  },
+  "reference_checks": {
+    "emitted_events_accounted_for": true,
+    "decisions_accounted_for": true,
+    "event_sequences_contiguous": true,
+    "java_maps_cleared_but_export_edges_retained": true,
+    "attempts_link_to_actual_arrivals": true
+  },
+  "counts": {
+    "attempts": 2,
+    "accepted": 0,
+    "rejected": 2,
+    "events": 0,
+    "decisions": 0,
+    "samples": 38,
+    "templates": 1
+  },
+  "java_native_result": {
+    "target_reached": false,
+    "clock_time": 0.0,
+    "G": 0,
+    "B": 0.0,
+    "R": 0,
+    "completed_workflow_ids": [],
+    "statistical_workflow_ids": [],
+    "not_arrived_workflow_ids": [],
+    "unfinished_workflow_ids": [],
+    "pending_global_events": 0,
+    "makespan": {
+      "kind": "POSITIVE_INFINITY",
+      "value": null,
+      "java_text": "Infinity"
+    },
+    "mean_flowtime": {
+      "kind": "DOUBLE_MAX_VALUE",
+      "value": 1.7976931348623157e+308,
+      "java_text": "1.7976931348623157E308"
+    }
+  },
+  "python_dynamic_parity": "NOT_EXECUTED",
+  "classification": "EXPECTED_DIFFERENCE_CONFIRMED",
+  "observation_noninterference_passed": true
+}

@@ -1,0 +1,66 @@
+{
+  "format": "fogsim.b07-dynamic-plan",
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "D09A-chain",
+      "shape": "chain",
+      "seed": 31,
+      "N": 2,
+      "W": 1,
+      "devices": 1,
+      "edges": 1,
+      "clouds": 1,
+      "local": true,
+      "routing_rule": {
+        "kind": "gp",
+        "expression": "(+ PT (+ UT DT))"
+      },
+      "sequencing_rule": {
+        "kind": "gp",
+        "expression": "(- 0 PT)"
+      },
+      "require_shared_nonfirst": false
+    },
+    {
+      "id": "D09A-shared-fork-join",
+      "shape": "fork_join",
+      "seed": 31,
+      "N": 2,
+      "W": 2,
+      "devices": 2,
+      "edges": 1,
+      "clouds": 0,
+      "local": true,
+      "routing_rule": {
+        "kind": "gp",
+        "expression": "(+ PT (* 0 (+ MRT WIQ)))"
+      },
+      "sequencing_rule": {
+        "kind": "gp",
+        "expression": "(- 0 TIS)"
+      },
+      "require_shared_nonfirst": true
+    },
+    {
+      "id": "D09A-no-local",
+      "shape": "chain",
+      "seed": 7,
+      "N": 1,
+      "W": 1,
+      "devices": 2,
+      "edges": 1,
+      "clouds": 1,
+      "local": false,
+      "routing_rule": {
+        "kind": "gp",
+        "expression": "(+ MRT (+ TTIQ (+ PT (+ UT DT))))"
+      },
+      "sequencing_rule": {
+        "kind": "gp",
+        "expression": "(- 0 PT)"
+      },
+      "require_shared_nonfirst": false
+    }
+  ]
+}

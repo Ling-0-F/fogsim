@@ -1,0 +1,110 @@
+{
+  "format": "fogsim.s9-B01-package-verification",
+  "schema_version": 1,
+  "package": "fogsim-0.4.0-B01.zip",
+  "package_bytes": 120563325,
+  "package_sha256": "9bdad190123d44642eb4847bbf4d3ee32d555bdb51ac427b0c7429e25ef21bd1",
+  "crc_passed": true,
+  "top_directory": "fogsim-0.4.0/",
+  "manifest_files_verified": 18754,
+  "independent_extraction": true,
+  "tests": {
+    "tests": 61,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "java_checks": 68,
+  "java_passed": true,
+  "commands": [
+    {
+      "name": "unit",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "pytest",
+        "tests/training",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=/workspace/scratch/40aefbfcd628/package-check-B01/cases",
+        "--junitxml=/workspace/scratch/40aefbfcd628/package-check-B01/unit.xml"
+      ],
+      "cwd": "/workspace/scratch/40aefbfcd628/package-check-B01/unpacked/fogsim-0.4.0",
+      "exit_code": 0,
+      "seconds": 10.210473409000315
+    },
+    {
+      "name": "version",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "fogsim",
+        "--version"
+      ],
+      "cwd": "/workspace/scratch/40aefbfcd628/package-check-B01/unpacked/fogsim-0.4.0",
+      "exit_code": 0,
+      "seconds": 0.117589966000196
+    },
+    {
+      "name": "old-fixed",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-c",
+        "import json;from fogsim import RunConfig,simulate,load_fixed_instance; r=simulate(load_fixed_instance('data/cases/single_local.json'),RunConfig()); print(json.dumps(r.to_dict())); assert r.status=='SUCCEEDED'"
+      ],
+      "cwd": "/workspace/scratch/40aefbfcd628/package-check-B01/unpacked/fogsim-0.4.0",
+      "exit_code": 0,
+      "seconds": 0.09634946899996066
+    },
+    {
+      "name": "preflight",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "fogsim.training.cli",
+        "validate",
+        "--config",
+        "configs/training/B01.json",
+        "--output",
+        "/workspace/scratch/40aefbfcd628/package-check-B01/preflight"
+      ],
+      "cwd": "/workspace/scratch/40aefbfcd628/package-check-B01/unpacked/fogsim-0.4.0",
+      "exit_code": 0,
+      "seconds": 0.13653179599987197
+    },
+    {
+      "name": "evaluation",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "fogsim.training.cli",
+        "evaluate",
+        "--rules",
+        "configs/training/rules.json",
+        "--plan",
+        "/workspace/scratch/40aefbfcd628/package-check-B01/preflight/plans/train-0000.json",
+        "--output",
+        "/workspace/scratch/40aefbfcd628/package-check-B01/evaluation"
+      ],
+      "cwd": "/workspace/scratch/40aefbfcd628/package-check-B01/unpacked/fogsim-0.4.0",
+      "exit_code": 0,
+      "seconds": 0.4594640619998245
+    },
+    {
+      "name": "java-lifecycle",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "tools/check_s9_lifecycle.py",
+        "--java",
+        "/workspace/scratch/40aefbfcd628/.runtime/jdk-17.0.21+9/bin/java",
+        "--output",
+        "/workspace/scratch/40aefbfcd628/package-check-B01/java-lifecycle"
+      ],
+      "cwd": "/workspace/scratch/40aefbfcd628/package-check-B01/unpacked/fogsim-0.4.0",
+      "exit_code": 0,
+      "seconds": 3.43656997700009
+    }
+  ],
+  "passed": true
+}

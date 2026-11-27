@@ -1,0 +1,105 @@
+{
+  "instance_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/outputs/v2/sweep/case-063/input.json",
+  "instance_sha256": "3735d3beaf47aa2334578fc1937a5944e84e06f17237c0911e44582aef3dff06",
+  "config_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/outputs/v2/sweep/case-063/config.json",
+  "config_file_sha256": "2b241d4415f9fb0b66da0faa793fef1a8e2ff1e0398d05a4d64665463bb0dc3e",
+  "effective_config": {
+    "routing_kind": "fixed_resource",
+    "fixed_resource_id": "E0",
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "java_build_fingerprint": "a69f3c65cce9eae3111d7c15f95c3aeac49946d2308df8c02d594ec8b189b921",
+  "resource_ids": [
+    [
+      "C0",
+      "CLOUD",
+      1
+    ],
+    [
+      "E0",
+      "EDGE",
+      0
+    ],
+    [
+      "M1",
+      "MOBILE",
+      0
+    ],
+    [
+      "M0",
+      "MOBILE",
+      1
+    ]
+  ],
+  "devices": [
+    "M1",
+    "M0"
+  ],
+  "task_ids": [
+    {
+      "workflow_id": 23,
+      "string_id": "T0",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": -20,
+      "string_id": "T0",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": -20,
+      "string_id": "T1",
+      "java_numeric_id": 1,
+      "candidate_order": [
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": -20,
+      "string_id": "T2",
+      "java_numeric_id": 2,
+      "candidate_order": [
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": -20,
+      "string_id": "T3",
+      "java_numeric_id": 3,
+      "candidate_order": [
+        "E0",
+        "C0"
+      ]
+    }
+  ],
+  "initial_stage_order": [
+    [
+      23,
+      "M1",
+      0.0
+    ],
+    [
+      -20,
+      "M1",
+      2.0
+    ]
+  ],
+  "raw_trace_sha256": {
+    "python-raw.json": "37d4479839a16ec2eb895ae4baf40d47a5c845fd647a431a72b249bf66707209",
+    "java-raw.json": "2f8a05295899fd188bd09846b93ad7b8778a58e7b32fad820950f06a6fa0d3a5"
+  }
+}

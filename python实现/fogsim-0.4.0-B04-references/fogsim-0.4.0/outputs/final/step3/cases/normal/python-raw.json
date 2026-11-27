@@ -1,0 +1,461 @@
+{
+  "devices": [
+    {
+      "id": "M0",
+      "numeric_id": 0,
+      "processing_rate": 125.0,
+      "can_process_tasks": true
+    },
+    {
+      "id": "M1",
+      "numeric_id": 1,
+      "processing_rate": 150.0,
+      "can_process_tasks": true
+    }
+  ],
+  "servers": [
+    {
+      "id": "E0",
+      "numeric_id": 0,
+      "type": "EDGE",
+      "processing_rate": 250.0,
+      "upload_bandwidth": 1024.0,
+      "download_bandwidth": 1024.0
+    },
+    {
+      "id": "E1",
+      "numeric_id": 1,
+      "type": "EDGE",
+      "processing_rate": 300.0,
+      "upload_bandwidth": 1024.0,
+      "download_bandwidth": 1024.0
+    },
+    {
+      "id": "C0",
+      "numeric_id": 2,
+      "type": "CLOUD",
+      "processing_rate": 500.0,
+      "upload_bandwidth": 256.0,
+      "download_bandwidth": 128.0
+    },
+    {
+      "id": "C1",
+      "numeric_id": 3,
+      "type": "CLOUD",
+      "processing_rate": 600.0,
+      "upload_bandwidth": 512.0,
+      "download_bandwidth": 256.0
+    }
+  ],
+  "accepted_workflows": [
+    {
+      "id": 0,
+      "owner_device_id": "M0",
+      "release_time": 2.0,
+      "weight": 4.0,
+      "tasks": [
+        {
+          "id": "Z",
+          "workload": 5000.0,
+          "data_size": 5120.0,
+          "total_input_data": 0.0,
+          "total_output_data": 100.0,
+          "options": [
+            {
+              "resource_id": "M0",
+              "upload_time": 0.0,
+              "processing_time": 40.0,
+              "download_time": 0.0
+            },
+            {
+              "resource_id": "E0",
+              "upload_time": 5.0,
+              "processing_time": 20.0,
+              "download_time": 5.09765625
+            },
+            {
+              "resource_id": "E1",
+              "upload_time": 5.0,
+              "processing_time": 16.666666666666668,
+              "download_time": 5.09765625
+            },
+            {
+              "resource_id": "C0",
+              "upload_time": 20.0,
+              "processing_time": 10.0,
+              "download_time": 40.78125
+            },
+            {
+              "resource_id": "C1",
+              "upload_time": 10.0,
+              "processing_time": 8.333333333333334,
+              "download_time": 20.390625
+            }
+          ],
+          "java_index": 0
+        },
+        {
+          "id": "A",
+          "workload": 5137.0,
+          "data_size": 5137.0,
+          "total_input_data": 0.0,
+          "total_output_data": 107.0,
+          "options": [
+            {
+              "resource_id": "M0",
+              "upload_time": 0.0,
+              "processing_time": 41.096,
+              "download_time": 0.0
+            },
+            {
+              "resource_id": "E0",
+              "upload_time": 5.0166015625,
+              "processing_time": 20.548,
+              "download_time": 5.12109375
+            },
+            {
+              "resource_id": "E1",
+              "upload_time": 5.0166015625,
+              "processing_time": 17.123333333333335,
+              "download_time": 5.12109375
+            },
+            {
+              "resource_id": "C0",
+              "upload_time": 20.06640625,
+              "processing_time": 10.274,
+              "download_time": 40.96875
+            },
+            {
+              "resource_id": "C1",
+              "upload_time": 10.033203125,
+              "processing_time": 8.561666666666667,
+              "download_time": 20.484375
+            }
+          ],
+          "java_index": 1
+        },
+        {
+          "id": "join",
+          "workload": 5274.0,
+          "data_size": 5154.0,
+          "total_input_data": 207.0,
+          "total_output_data": 0.0,
+          "options": [
+            {
+              "resource_id": "M0",
+              "upload_time": 0.0,
+              "processing_time": 42.192,
+              "download_time": 0.0
+            },
+            {
+              "resource_id": "E0",
+              "upload_time": 5.2353515625,
+              "processing_time": 21.096,
+              "download_time": 5.033203125
+            },
+            {
+              "resource_id": "E1",
+              "upload_time": 5.2353515625,
+              "processing_time": 17.58,
+              "download_time": 5.033203125
+            },
+            {
+              "resource_id": "C0",
+              "upload_time": 20.94140625,
+              "processing_time": 10.548,
+              "download_time": 40.265625
+            },
+            {
+              "resource_id": "C1",
+              "upload_time": 10.470703125,
+              "processing_time": 8.79,
+              "download_time": 20.1328125
+            }
+          ],
+          "java_index": 2
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "owner_device_id": "M1",
+      "release_time": 3.0,
+      "weight": 2.0,
+      "tasks": [
+        {
+          "id": "Z",
+          "workload": 5411.0,
+          "data_size": 5171.0,
+          "total_input_data": 0.0,
+          "total_output_data": 114.0,
+          "options": [
+            {
+              "resource_id": "M1",
+              "upload_time": 0.0,
+              "processing_time": 36.07333333333333,
+              "download_time": 0.0
+            },
+            {
+              "resource_id": "E0",
+              "upload_time": 5.0498046875,
+              "processing_time": 21.644,
+              "download_time": 5.1611328125
+            },
+            {
+              "resource_id": "E1",
+              "upload_time": 5.0498046875,
+              "processing_time": 18.036666666666665,
+              "download_time": 5.1611328125
+            },
+            {
+              "resource_id": "C0",
+              "upload_time": 20.19921875,
+              "processing_time": 10.822,
+              "download_time": 41.2890625
+            },
+            {
+              "resource_id": "C1",
+              "upload_time": 10.099609375,
+              "processing_time": 9.018333333333333,
+              "download_time": 20.64453125
+            }
+          ],
+          "java_index": 0
+        },
+        {
+          "id": "A",
+          "workload": 5548.0,
+          "data_size": 5188.0,
+          "total_input_data": 0.0,
+          "total_output_data": 121.0,
+          "options": [
+            {
+              "resource_id": "M1",
+              "upload_time": 0.0,
+              "processing_time": 36.986666666666665,
+              "download_time": 0.0
+            },
+            {
+              "resource_id": "E0",
+              "upload_time": 5.06640625,
+              "processing_time": 22.192,
+              "download_time": 5.1845703125
+            },
+            {
+              "resource_id": "E1",
+              "upload_time": 5.06640625,
+              "processing_time": 18.493333333333332,
+              "download_time": 5.1845703125
+            },
+            {
+              "resource_id": "C0",
+              "upload_time": 20.265625,
+              "processing_time": 11.096,
+              "download_time": 41.4765625
+            },
+            {
+              "resource_id": "C1",
+              "upload_time": 10.1328125,
+              "processing_time": 9.246666666666666,
+              "download_time": 20.73828125
+            }
+          ],
+          "java_index": 1
+        },
+        {
+          "id": "join",
+          "workload": 5685.0,
+          "data_size": 5205.0,
+          "total_input_data": 235.0,
+          "total_output_data": 0.0,
+          "options": [
+            {
+              "resource_id": "M1",
+              "upload_time": 0.0,
+              "processing_time": 37.9,
+              "download_time": 0.0
+            },
+            {
+              "resource_id": "E0",
+              "upload_time": 5.3125,
+              "processing_time": 22.74,
+              "download_time": 5.0830078125
+            },
+            {
+              "resource_id": "E1",
+              "upload_time": 5.3125,
+              "processing_time": 18.95,
+              "download_time": 5.0830078125
+            },
+            {
+              "resource_id": "C0",
+              "upload_time": 21.25,
+              "processing_time": 11.37,
+              "download_time": 40.6640625
+            },
+            {
+              "resource_id": "C1",
+              "upload_time": 10.625,
+              "processing_time": 9.475,
+              "download_time": 20.33203125
+            }
+          ],
+          "java_index": 2
+        }
+      ]
+    }
+  ],
+  "calls": [
+    {
+      "role": "processing_rate_device",
+      "value": 125.0
+    },
+    {
+      "role": "processing_rate_device",
+      "value": 150.0
+    },
+    {
+      "role": "upload_bandwidth_edge",
+      "value": 1024.0
+    },
+    {
+      "role": "download_bandwidth_edge",
+      "value": 1024.0
+    },
+    {
+      "role": "processing_rate_edge",
+      "value": 250.0
+    },
+    {
+      "role": "upload_bandwidth_edge",
+      "value": 1024.0
+    },
+    {
+      "role": "download_bandwidth_edge",
+      "value": 1024.0
+    },
+    {
+      "role": "processing_rate_edge",
+      "value": 300.0
+    },
+    {
+      "role": "upload_bandwidth_cloud",
+      "value": 256.0
+    },
+    {
+      "role": "download_bandwidth_cloud",
+      "value": 128.0
+    },
+    {
+      "role": "processing_rate_cloud",
+      "value": 500.0
+    },
+    {
+      "role": "upload_bandwidth_cloud",
+      "value": 512.0
+    },
+    {
+      "role": "download_bandwidth_cloud",
+      "value": 256.0
+    },
+    {
+      "role": "processing_rate_cloud",
+      "value": 600.0
+    },
+    {
+      "role": "workflow_type",
+      "value": 0.0
+    },
+    {
+      "role": "inter_release_time",
+      "value": 2.0
+    },
+    {
+      "role": "weight",
+      "value": 4.0
+    },
+    {
+      "role": "workload",
+      "value": 5000.0
+    },
+    {
+      "role": "data_size",
+      "value": 5120.0
+    },
+    {
+      "role": "edge_data",
+      "value": 100.0
+    },
+    {
+      "role": "workload",
+      "value": 5137.0
+    },
+    {
+      "role": "data_size",
+      "value": 5137.0
+    },
+    {
+      "role": "edge_data",
+      "value": 107.0
+    },
+    {
+      "role": "workload",
+      "value": 5274.0
+    },
+    {
+      "role": "data_size",
+      "value": 5154.0
+    },
+    {
+      "role": "workflow_type",
+      "value": 0.0
+    },
+    {
+      "role": "inter_release_time",
+      "value": 3.0
+    },
+    {
+      "role": "weight",
+      "value": 2.0
+    },
+    {
+      "role": "workload",
+      "value": 5411.0
+    },
+    {
+      "role": "data_size",
+      "value": 5171.0
+    },
+    {
+      "role": "edge_data",
+      "value": 114.0
+    },
+    {
+      "role": "workload",
+      "value": 5548.0
+    },
+    {
+      "role": "data_size",
+      "value": 5188.0
+    },
+    {
+      "role": "edge_data",
+      "value": 121.0
+    },
+    {
+      "role": "workload",
+      "value": 5685.0
+    },
+    {
+      "role": "data_size",
+      "value": 5205.0
+    }
+  ],
+  "generated_total": 2,
+  "staged_arrivals": [
+    1,
+    1
+  ],
+  "clock_time": 0.0,
+  "shared_input_rng": true
+}

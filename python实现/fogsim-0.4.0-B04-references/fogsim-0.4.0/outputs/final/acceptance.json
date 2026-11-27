@@ -1,0 +1,300 @@
+{
+  "format": "fogsim.final-acceptance",
+  "schema_version": 1,
+  "version": "0.3.0",
+  "acceptance_passed": true,
+  "unresolved_contracts": [],
+  "contract_count": 149,
+  "validation_snapshot_sha256": "51821d792f7acb83738259377d7d9066d367fc0e372300462105a317667a3feb",
+  "validated_source_snapshot_matches": true,
+  "tests": {
+    "tests": 5797,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "design_sha256": "e47a1953e65a8b152f9e6d63b8a8702c862b5fb5518894169922b63543e92758",
+  "validation_matrix": {
+    "V01": {
+      "passed": true,
+      "scope": "14 named fixed cases, 96 sweeps, component oracle and explicit precision boundary",
+      "evidence": [
+        "outputs/validation-manifest.json",
+        "outputs/v2/summary.json"
+      ]
+    },
+    "V02": {
+      "passed": true,
+      "scope": "all 20 original Java/Python topologies; IDs, order, adjacency and actual size",
+      "evidence": [
+        "outputs/final/step2/checks.json"
+      ]
+    },
+    "V03": {
+      "passed": true,
+      "scope": "current zero-skip assertions and reviewed implementation",
+      "evidence": [
+        "outputs/pytest-results.xml",
+        "outputs/final/contracts-audit.json"
+      ]
+    },
+    "V04": {
+      "passed": true,
+      "scope": "deterministic boundary assertions plus independently sampled theoretical distributions: 3 seeds x 100000 per role in each language",
+      "evidence": [
+        "outputs/final/step2/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V05": {
+      "passed": true,
+      "scope": "current zero-skip assertions and reviewed implementation",
+      "evidence": [
+        "outputs/pytest-results.xml",
+        "outputs/final/contracts-audit.json"
+      ]
+    },
+    "V06": {
+      "passed": true,
+      "scope": "original Java construction/generation probes and all standard template materialization assertions",
+      "evidence": [
+        "outputs/final/step3/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V07": {
+      "passed": true,
+      "scope": "original Java construction/generation probes and all standard template materialization assertions",
+      "evidence": [
+        "outputs/final/step3/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V08": {
+      "passed": true,
+      "scope": "original Java construction/generation probes and all standard template materialization assertions",
+      "evidence": [
+        "outputs/final/step3/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V09": {
+      "passed": true,
+      "scope": "current dynamic assertions, 50 original Java component/lifecycle checks, fresh input captures and full-trace replays; injected guard/lifecycle states are component tests",
+      "evidence": [
+        "outputs/final/current/dynamic/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V10": {
+      "passed": true,
+      "scope": "current dynamic assertions, 50 original Java component/lifecycle checks, fresh input captures and full-trace replays; injected guard/lifecycle states are component tests",
+      "evidence": [
+        "outputs/final/current/dynamic/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V11": {
+      "passed": true,
+      "scope": "current dynamic assertions, 50 original Java component/lifecycle checks, fresh input captures and full-trace replays; injected guard/lifecycle states are component tests",
+      "evidence": [
+        "outputs/final/current/dynamic/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V12": {
+      "passed": true,
+      "scope": "current dynamic assertions, 50 original Java component/lifecycle checks, fresh input captures and full-trace replays; injected guard/lifecycle states are component tests",
+      "evidence": [
+        "outputs/final/current/dynamic/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V13": {
+      "passed": true,
+      "scope": "current dynamic assertions, 50 original Java component/lifecycle checks, fresh input captures and full-trace replays; injected guard/lifecycle states are component tests",
+      "evidence": [
+        "outputs/final/current/dynamic/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V14": {
+      "passed": true,
+      "scope": "current dynamic assertions, 50 original Java component/lifecycle checks, fresh input captures and full-trace replays; injected guard/lifecycle states are component tests",
+      "evidence": [
+        "outputs/final/current/dynamic/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V15": {
+      "passed": true,
+      "scope": "current dynamic assertions, 50 original Java component/lifecycle checks, fresh input captures and full-trace replays; injected guard/lifecycle states are component tests",
+      "evidence": [
+        "outputs/final/current/dynamic/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V16": {
+      "passed": true,
+      "scope": "7 fresh original Java exports, plain/baseline/minimal/full noninterference and interrupted capture rejection",
+      "evidence": [
+        "outputs/final/current/dynamic/checks.json"
+      ]
+    },
+    "V17": {
+      "passed": true,
+      "scope": "5 normal full-trace replays: input/config, ordinal event header, pre-state, interleaved actions, post-state, errors, final state/statistics/metrics; 2 expected failure differences counted separately",
+      "evidence": [
+        "outputs/final/current/dynamic/checks.json"
+      ]
+    },
+    "V18": {
+      "passed": true,
+      "scope": "exhaustion, incomplete capture, divergence and changed-rule coverage; no additional input; unused normal tails tested",
+      "evidence": [
+        "outputs/final/current/dynamic/negative/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V19": {
+      "passed": true,
+      "scope": "6 nonempty same-input fixed projections, 10 FCFS/fixed-resource lanes to completion; empty accepted set is an explicit legacy-format boundary; two optional native large projections excluded",
+      "evidence": [
+        "outputs/final/current/dynamic/checks.json"
+      ]
+    },
+    "V20": {
+      "passed": true,
+      "scope": "atomic/idempotent cleanup and archived-input/RNG invariance; strict fresh Java diamond replay with release; initialization and full small-run performance measured, no universal gain claimed",
+      "evidence": [
+        "outputs/final/performance/checks.json",
+        "outputs/final/current/dynamic/checks.json",
+        "outputs/pytest-results.xml"
+      ]
+    },
+    "V21": {
+      "passed": true,
+      "scope": "CLI/batches, signed64 seeds, continuation, independent cursors, denominators, callback snapshot isolation and interruption outputs",
+      "evidence": [
+        "outputs/pytest-results.xml",
+        "outputs/final/contracts-audit.json"
+      ]
+    },
+    "V22": {
+      "passed": true,
+      "scope": "all specified finite/underflow/collapse/count/seed boundaries; original Java collapse is an expected difference",
+      "evidence": [
+        "outputs/pytest-results.xml",
+        "outputs/v2/precision-collapse/comparison.json"
+      ]
+    }
+  },
+  "classification_counts": {
+    "NORMAL_PARITY_PASSED": 5,
+    "EXPECTED_DIFFERENCE_CONFIRMED": 2
+  },
+  "fresh_dynamic_counts": {
+    "events": 168,
+    "decisions": 125,
+    "attempts": 38
+  },
+  "same_projection_cases": 6,
+  "fixed_rule_lanes": 10,
+  "original_java_lifecycle_checks": 50,
+  "source_integrity": {
+    "format": "fogsim.b08-source-audit",
+    "schema_version": 1,
+    "batch": "B08",
+    "baseline": "B07-r1-20261107",
+    "active_baseline_files": 1262,
+    "active_baseline_files_checked": 1262,
+    "baseline_mismatches": [
+      {
+        "path": "tests/gp/b06/conftest.py",
+        "expected": "7540bd738f746a29f2afcea9fb6f0a290bf5b3295534724448342e0a39e2a8ac",
+        "actual": "dc71965d4f8453925aabc5205f473e040047a71743a45f362e088ca8623678ef"
+      },
+      {
+        "path": "tests/stage_d/b07/conftest.py",
+        "expected": "ac74a86438b4ed55e4ed76d21f48ca8cee904ec5b862fa7d1a510770a63d498b",
+        "actual": "19bafedae0de8f125c0740c2f8f3433f6ede7fd8e8fb2921370d1da54ea79a6e"
+      },
+      {
+        "path": "tools/build_release.py",
+        "expected": "278803d912391a1aa3bb00865eb9949c8c877cf1814097c953ee1bc254b37269",
+        "actual": "bfd492679e3f44211145f50387c9cb6234b2eb291c0e79a2ad1842a1eb84f5bd"
+      }
+    ],
+    "allowed_test_compatibility_changes": [
+      {
+        "path": "tests/gp/b06/conftest.py",
+        "expected": "7540bd738f746a29f2afcea9fb6f0a290bf5b3295534724448342e0a39e2a8ac",
+        "actual": "dc71965d4f8453925aabc5205f473e040047a71743a45f362e088ca8623678ef"
+      },
+      {
+        "path": "tests/stage_d/b07/conftest.py",
+        "expected": "ac74a86438b4ed55e4ed76d21f48ca8cee904ec5b862fa7d1a510770a63d498b",
+        "actual": "19bafedae0de8f125c0740c2f8f3433f6ede7fd8e8fb2921370d1da54ea79a6e"
+      },
+      {
+        "path": "tools/build_release.py",
+        "expected": "278803d912391a1aa3bb00865eb9949c8c877cf1814097c953ee1bc254b37269",
+        "actual": "bfd492679e3f44211145f50387c9cb6234b2eb291c0e79a2ad1842a1eb84f5bd"
+      }
+    ],
+    "unexpected_mismatches": [],
+    "production_simulator_source_changed": false,
+    "production_source_files_checked": 85,
+    "tests": {
+      "tests": 5797,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "regression_passed": true,
+    "dynamic_gate_passed": true,
+    "performance_gate_passed": true,
+    "contract_audit_passed": true,
+    "validation_snapshot_passed": true,
+    "all_matched": true,
+    "passed": true,
+    "scope": "B08 regression, contract audit, source retention, final dynamic/performance gates; B07 evidence remains immutable except test compatibility imports"
+  },
+  "known_differences": [
+    "fixed injection bypasses original random construction/training statistics; both fixed adapters use the same explicit input",
+    "DAX malformed/forward/duplicate/cyclic/unknown structures are rejected rather than silently dropped",
+    "XML declared counts are diagnostic only; actual topology determines size",
+    "templates are loaded/frozen per context rather than reread on every generation; path root explicit",
+    "Python task IDs preserve XML strings; Java position mapping does not add tie keys",
+    "Java clears edge maps; Python retains by default or explicitly releases runtime maps; immutable archive survives",
+    "Python samplers are frozen parameter objects and use a separate random.Random algorithm on one shared input stream",
+    "signed64 public seeds map to unsigned64 bit patterns; paired Java/Python samples are not asserted equal",
+    "future accepted inputs remain pending and are not exposed to scheduling rule views",
+    "physical completion and statistical qualification are stored separately",
+    "Python stops explicitly on first original guard; Java exception tail/max-clock/queue clearing is not reproduced",
+    "failed Python metrics are None; Java sentinel metrics are preserved only in reference output",
+    "positive PT lost to binary64 total-interval collapse is rejected before execution; original Java can overlap",
+    "Python checks count/derived-threshold overflow instead of reproducing Java int wraparound",
+    "explicit experiments do not reproduce GP evaluation/reset/penalty logic",
+    "legacy producer_device_id is owner; fresh references separately observe actual staging by event identity",
+    "Java fixed adapter only supports FCFS/fixed_resource and unobserved physical placeholders"
+  ],
+  "not_executed": [
+    {
+      "classification": "NOT_EXECUTED",
+      "item": "two optional native large V19 fixed projections",
+      "reason": "not a frozen minimum gate; six nonempty projections and ten lanes exercised with full production guards"
+    },
+    {
+      "classification": "NOT_EXECUTED",
+      "item": "paper-scale performance/GP/ten features/training and D20 experimental errata interpretation",
+      "reason": "explicitly outside this design stage"
+    }
+  ],
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.39",
+    "pytest": "9.2.0"
+  },
+  "scope": "all frozen in-scope obligations reviewed and their scoped V01-V22 gates passed; no arbitrary-input or paper-experiment equivalence claim"
+}

@@ -1,0 +1,37 @@
+{
+  "passed": false,
+  "first_difference": {
+    "path": "$.result.events[18].actions[0]",
+    "python_value": 0,
+    "java_value": 2,
+    "reason": "list length differs after common prefix",
+    "phase": "actions",
+    "event_sequence": 19,
+    "event_type": "ProcessFinishEvent",
+    "time": 9007199254740992.0
+  },
+  "event_count": {
+    "python": 24,
+    "java": 24
+  },
+  "decision_count": {
+    "python": 9,
+    "java": 9
+  },
+  "tolerance": {
+    "abs_tol": 1e-09,
+    "rel_tol": 1e-12
+  },
+  "representation_mappings": [
+    "unregistered Java workflow completion_time==0.0 -> Python None; nonzero values are not hidden",
+    "Python pending_start -> zero/one item list; Java pending starts are observed event references only",
+    "Java accepted Process plans/completed ProcessFinishEvent history -> task-keyed execution observations"
+  ],
+  "comparison_order": "input, config, loaded model; each event header, before, chronological actions, emitted, after, error; final records",
+  "java_observations": {
+    "suppressed_generation_calls": 6,
+    "anomalies": [],
+    "pending_is_observed_only": true,
+    "random_generator_is_null": true
+  }
+}

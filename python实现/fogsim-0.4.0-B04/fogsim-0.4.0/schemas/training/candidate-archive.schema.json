@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "schema_version",
+    "candidates",
+    "archive_id"
+  ],
+  "properties": {
+    "format": {
+      "const": "fogsim.candidate-archive"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "candidates": {
+      "type": "array"
+    },
+    "archive_id": {
+      "type": "string"
+    }
+  }
+}

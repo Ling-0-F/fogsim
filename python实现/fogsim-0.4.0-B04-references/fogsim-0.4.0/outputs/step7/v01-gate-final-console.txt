@@ -1,0 +1,109 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 22%]
+........................................................................ [ 29%]
+........................................................................ [ 37%]
+........................................................................ [ 44%]
+........................................................................ [ 51%]
+........................................................................ [ 59%]
+........................................................................ [ 66%]
+........................................................................ [ 74%]
+........................................................................ [ 81%]
+........................................................................ [ 88%]
+........................................................................ [ 96%]
+....................................                                     [100%]
+972 passed in 100.58s (0:01:40)
+{
+  "tests": {
+    "tests": 972,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "runs": {
+    "single_local": {
+      "status": "SUCCEEDED",
+      "makespan": 3.0,
+      "final_clock_time": 3.0,
+      "processed_event_count": 4
+    },
+    "single_local_release5": {
+      "status": "SUCCEEDED",
+      "makespan": 3.0,
+      "final_clock_time": 8.0,
+      "processed_event_count": 4
+    },
+    "chain_remote": {
+      "status": "SUCCEEDED",
+      "makespan": 13.0,
+      "final_clock_time": 13.0,
+      "processed_event_count": 7
+    },
+    "chain_fcfs": {
+      "status": "SUCCEEDED",
+      "makespan": 17.0,
+      "final_clock_time": 17.0,
+      "processed_event_count": 7
+    },
+    "v2_diamond": {
+      "status": "SUCCEEDED",
+      "makespan": 11.0,
+      "final_clock_time": 11.0,
+      "processed_event_count": 13
+    },
+    "v2_contention": {
+      "status": "SUCCEEDED",
+      "makespan": 17.0,
+      "final_clock_time": 17.0,
+      "processed_event_count": 12
+    },
+    "v2_candidates": {
+      "status": "SUCCEEDED",
+      "makespan": 14.0,
+      "final_clock_time": 14.0,
+      "processed_event_count": 27
+    },
+    "v2_collision_m0": {
+      "status": "SUCCEEDED",
+      "makespan": 11.0,
+      "final_clock_time": 11.0,
+      "processed_event_count": 20
+    },
+    "v2_collision_e0": {
+      "status": "SUCCEEDED",
+      "makespan": 11.0,
+      "final_clock_time": 11.0,
+      "processed_event_count": 20
+    },
+    "v2_equal_heap": {
+      "status": "SUCCEEDED",
+      "makespan": 12.0,
+      "final_clock_time": 12.0,
+      "processed_event_count": 39
+    },
+    "v2_float_local": {
+      "status": "SUCCEEDED",
+      "makespan": 1.6,
+      "final_clock_time": 1.6,
+      "processed_event_count": 16
+    },
+    "v2_float_remote": {
+      "status": "SUCCEEDED",
+      "makespan": 2.2,
+      "final_clock_time": 2.2,
+      "processed_event_count": 16
+    },
+    "v2_shared_server": {
+      "status": "SUCCEEDED",
+      "makespan": 8.0,
+      "final_clock_time": 8.0,
+      "processed_event_count": 15
+    },
+    "v2_order": {
+      "status": "SUCCEEDED",
+      "makespan": 4.0,
+      "final_clock_time": 4.0,
+      "processed_event_count": 12
+    }
+  }
+}

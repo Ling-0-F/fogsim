@@ -1,0 +1,1221 @@
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,8 @@
+ # 雾计算工作流调度复现：0.2.1 固定实例验收版
+ 
+-> 当前为 **step2 开发快照**：已完成 DAX 目录/严格解析、冻结 sampler 和共享输入 RNG 准备；新增 88 项及 Python 单元/集成共 443 项通过。原 Java 20 个 DAX 拓扑与两侧分布检查实际通过。调用方式、证据及尚未实现范围见 [第 2 步记录](docs/STEP2-PROGRESS.md)。仍未提供完整动态模拟或新的正式验收版，以下跨语言调度结果属于原 0.2.1 历史证据。
++> 当前为 **step3 开发快照**：环境采样、两遍完整输入生成及 TaskOption 建图已实现；新增 74 项及 Python 单元/集成共 517 项通过，7 个原 Java 脚本输入业务案例通过。API、证据和接纳边界见 [第 3 步记录](docs/STEP3-PROGRESS.md)。完整动态事件/统计、Java 输入导出和重放仍按后续步骤推进。
++
++> step2 历史记录：DAX 目录/解析、sampler 和输入流准备的实现及当时测试见 [第 2 步记录](docs/STEP2-PROGRESS.md)。当前进度以上方 step3 为准；下方完整跨语言调度结果属于原 0.2.1 历史证据。
+ 
+ > step1 历史记录：新配置、不可变输入及身份映射的实现选择和当时验证见 [第 1 步记录](docs/STEP1-PROGRESS.md)。当前进度以上方 step2 说明为准；以下 286 项及完整跨语言调度结果仍是原 0.2.1 的历史验收证据。
+ 
+--- a/docs/IMPLEMENTATION-NOTES.md
++++ b/docs/IMPLEMENTATION-NOTES.md
+@@ -226,3 +226,7 @@
+ ## N29：第 2 步 DAX 与随机输入基础（2026-11-04）
+ 
+ 在独立 step2 副本完成保序 DAX 解析、冻结目录、sampler 及单一输入流准备。DagTemplate 仅尾部增加不可变诊断，旧构造兼容；使用返回独立数据的 adjacency，不共享运行图。标准输入逐字节来自 Java ZIP 顶层 dax，辅助图不分配类型编号。seed 起点编码、sampler 参数及阈值遵循冻结设计，没有调整调度/统计/生命周期。实际 Java 17 可通过进程库路径启动，使用 jdk.compiler 模块编译原解析器/sampler，20 类型与两侧分布验收通过；无 source overlay。浮点手写预期错误的修正依据、命令、证据及验收范围见 [STEP2-PROGRESS](STEP2-PROGRESS.md)。实际环境/设备共享、两遍生成与 Context 的 B 延续留在相应后续步骤验证。
++
++## N30：第 3 步环境、完整候选和运行图（2026-11-04）
++
++保留原资源/事件内核，新增环境采样/快照建图、两遍完整输入生成、纯 release gate 和脱离索引的运行图建造。候选公式/累计/调用顺序按 Java 源码和冻结设计；未知程序异常传播，非法派生值独立抛 NumericDerivationError。动态建图要求实际物理参数，旧固定模型的 None 仍受支持。7 个脚本数值案例实际运行原 Java 构造/setup/generate，未触发事件、无 source overlay；它不是完整输入导出器。生产 G/B/Arrival、prepare 失败结果封装和生命周期仍由第 5 步负责。当前边映射保留，清理服务在第 7 步必做。详见 [STEP3-PROGRESS](STEP3-PROGRESS.md)。
+--- a/docs/SOURCES.md
++++ b/docs/SOURCES.md
+@@ -33,3 +33,9 @@
+ 
+ `dax/` 的 22 份 XML 来自已上传 Java ZIP 的顶层 dax；本轮逐字节哈希核验，来源清单为 `dax/SOURCES.json`。20 个标准类型已实际 Java/Python 逐项拓扑核对；各自 sampler 对理论分布检查通过，证据见 `outputs/step2/` 与 `STEP2-PROGRESS.md`。没有以静态文档、论文或 getMean 值代替实际 next 和解析器运行结果。
+ 
++## 第 3 步补充（2026-11-04）
++
++独立 step3 副本来自本对话已保存的 step2 ZIP。重读冻结设计的资源/两遍生成/公式/拒绝/数值段落，及现有输入、sampler、资源、建图和测试代码。Java 静态核对 DynamicSimulation 的设备/边缘/云构造与 setup，MobileDevice.generateWorkflowJob、Task.addChildOutputData/addParentInputData/mapClear，TaskOption 与 SystemState.addJobToSystem。
++
++运行核对使用 659 份指纹匹配的原源码/依赖，无覆盖补丁。只增加独立观察入口和脚本 sampler 子类，以相同数值检查原构造/生成调用、物理总量及候选时长。没有据此宣称原随机流、完整动态输入导出、统计/事件或调度轨迹已对照。原始 request、两侧结果、构建命令和版本保存在 `outputs/step3/`。
++
+--- /dev/null
++++ b/docs/STEP3-PROGRESS.md
+@@ -0,0 +1,87 @@
++# 冻结设计实施记录：第 3 步
++
++日期：2026-11-04（America/Los_Angeles）。从已交付 step2 ZIP 解压到独立 step3 工作副本。上传基线、step1 和 step2 ZIP 保持不变。本轮依据冻结设计 §§5、8–10、19 实现环境初始化、两遍输入生成和 TaskOption 建图，没有改变已确认语义。
++
++| 模块 | 已实现 |
++| --- | --- |
++| `environment/build.py` | 按设备→边缘→云采环境；每台服务器依次上行、下行、算力；从数值快照建立全新 SystemState 和规范资源 |
++| `instances/generation.py` | 共享输入流完成类型、间隔、权重及两遍生成；依邻接顺序累计；建立完整不可变 WorkflowInput/TaskInput/EdgeInput/OptionSpec；纯 release gate |
++| `instances/materialize.py` | 用记录时长创建脱离索引的 Workflow/Task/TaskOption；引用本轮规范资源；填充物理值、XML/Java 映射及独立保留边映射 |
++| `errors.py`、`numerics.py` | NumericDerivationError/NUMERIC_DERIVATION_ERROR；采样结果、累计、加法、除法提交前保护；未知程序异常不包装 |
++| 测试与 `tools/check_step3.py` | 精确调用顺序、公式、拒绝及数值测试；20 标准模板实际生成；有限生成图复用原内核；原 Java 脚本输入业务核对 |
++
++原固定加载、RunConfig、事件循环、比较器、堆、队列、预约、统计结果和 repeat 路径均未修改。新动态建图要求资源已有正有限的物理参数，旧固定路径仍允许参数未知为 None。
++
++## API 与后续接纳边界
++
++```python
++from fogsim import (load_experiment_config, prepare_random_input, sample_environment,
++                    build_environment, generate_workflow_input, release_rejection_reason,
++                    materialize_workflow)
++from fogsim.instances.generated import GenerationCause, CandidateRecord
++
++config = load_experiment_config("configs/examples/step1_dynamic.json").single_run(0)
++inputs = prepare_random_input(config)
++environment = sample_environment(config.source.environment, inputs,
++                                 parameter_source=config.fingerprint)
++state = build_environment(environment)
++cause = GenerationCause("initialize", environment.devices[0].id, 0.0)
++candidate = generate_workflow_input(inputs, environment, cause, candidate_id=0)
++record = CandidateRecord("1", candidate)  # 不可变完整输入；可加入独立归档
++if release_rejection_reason(candidate, cause) is None:
++    workflow = materialize_workflow(candidate,
++        inputs.catalog.template(candidate.template_ref.dag_type_id), state,
++        input_record_id=record.record_id)
++    # workflow 尚未发布到 state，也没有 Arrival；发布属于第 5 步集中接纳。
++```
++
++调用者向生成器传入接纳前的 G 作为 candidate_id。生成器不持有 SystemState、计数或事件堆；它只推进已有 inputs.rng。release gate 返回 None 仅表示发布时间合格，不表示已正式接纳。第 5 步服务将统一检查 G+1 上限、记录实际接纳/拒绝、发布规范索引、更新 G/B、登记必要事实并 stage Arrival；本轮不伪造这些副作用已经实现。
++
++先采完全部资源，再按设备顺序调用生成。20 模板集成测试和 Java 原 setup 核对已覆盖这条顺序；生产 Context 的首批调用编排及后续 after_arrival 钩子仍在第 5 步。build_environment 可从同一快照生成新对象，验证了资源参数保留与对象隔离的基础，但不是 reset/rerun/rotateSeed 的实现。
++
++materialize_workflow 不重算、覆盖记录中的 PT/UT/DT，不进行重放文件装载。它检查模板、任务/边顺序、合法候选、规范资源、物理参数及本地零通信，并为每轮新建图。完成图发布前已经能获得完整不可变输入。运行图只持有来源 ID/哈希，不回引完整归档或 Context。
++
++## 本轮落实的数值和顺序
++
++第一遍逐任务采 workload、基础 data、再逐 children 采边，每边一次，并从 0.0 逐项加到 output_total。第二遍按各任务 parents 顺序读同一边值并逐项加到 input_total，再按合法本地、边缘、云顺序生成选项。两个总量不含基础 data；远程 UT=(基础data+input_total)/上行，PT=workload/算力，DT=(基础data+output_total)/下行。没有排序、fsum、通信复用或单位换算。
++
++禁用本地仍采设备算力、workload/data/边值。无父/无子仍传输基础 data。同服务器父子保持 UT/DT，有限两任务手算案例由原内核实际完成于 5.5 和 9，makespan=7。
++
++release<=clock 时完整候选仍生成，不提前退出、不重抽或回滚 RNG；gate 返回 REJECTED_RELEASE_NOT_FUTURE。零 delta、正 delta 被时钟加法舍掉均已测试，保留原 delta 而非倒算。非有限 release、累计/基础数据加法溢出、非正/非有限 PT（含下溢）、UT/DT 溢出抛 NumericDerivationError，不作为普通拒绝。未来便利入口对准备期失败结果的封装留在 Context 实现时完成。
++
++本轮默认运行图边状态为 RETAINED，空邻接用空字典；两端字典分别复制，独立不可变输入不受运行字典修改影响。实际 release_edge_data 服务及 release_after_materialization 编排仍按第 7 步交付，当前 standalone API 不执行 run.edge_data_policy，也未宣称已验证 V20。最终阶段不能省略该服务。
++
++## 实际执行与证据
++
++项目根目录的实际命令（pytest 9.2.0 使用前两步建立的独立测试依赖目录）：
++
++```text
++PYTHONPATH=../../.test-deps:src python -m pytest -q tests/unit/test_environment_build.py tests/unit/test_workflow_generation.py tests/unit/test_materialize_workflow.py tests/integration/test_generated_kernel.py --junitxml=outputs/step3/contracts.xml
++PYTHONPATH=../../.test-deps:src python -m pytest -q tests/unit tests/integration --junitxml=outputs/step3/python-regression.xml
++LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib:/usr/lib/jvm/java-17-openjdk-amd64/lib/server PYTHONPATH=../../.test-deps:src python tools/check_step3.py
++```
++
++常规环境安装 `.[test]` 后可省略临时 PYTHONPATH；正常 JDK 17 可用 `python tools/check_step3.py --java /path/to/jdk17/bin/java`。本轮使用 CPython 3.12.14、pytest 9.2.0、Ubuntu OpenJDK 17.0.20+8，通过 jdk.compiler 模块编译，未要求特定厂商/更新号。
++
++| 项目 | 实际结果及范围 |
++| --- | --- |
++| 新增测试 | **74 passed，0 failed/errors/skipped**。首批 49 passed；加入 20 标准模板和参数完整性检查后为最终计数 |
++| Python 单元+集成 | **517 passed，0 failed/errors/skipped**；包含前两步、旧 CLI/repeat、14 固定配置完整结果与轨迹、原精度负例 |
++| V06 | 精确角色调用顺序、资源数值、上下行分别调用、禁用本地仍采算力、同一输入流、初始运行状态与跨轮资源隔离通过 |
++| V07 | 交错采样、每边一次、模板边序与采样边序不同、父/子累计顺序及舍入敏感案例通过 |
++| V08 | 本地/边缘/云公式与顺序、其他设备不作候选、单点/无边/仅本地/禁本地、同服务器仍通信通过 |
++| V11 本轮部分 | 完整生成后拒绝、原 delta 保留、RNG 继续推进、无自动重试/无索引副作用通过；实际动态 G/B、Arrival 钩子与拒绝后长期生成链随第 5 步验证 |
++| 20 标准模板 | 每个模板为两个设备实际生成完整候选和独立运行图；边/总量/引用/共享服务器通过 |
++| 原 Java 业务层核对 | **7 案例通过，首差均为空**：normal、local_disabled、local_only、first_device_rejected、all_devices_rejected、release_rounding、adjacency_accumulation |
++
++Java 核对实际调用原 DynamicSimulation 构造和 setup、MobileDevice.generateWorkflowJob、Task 累计及 TaskOption 构造，源码/方法无 overlay，构建前核验 659 份原源码/依赖指纹。只通过 sampler 子类向两侧提供同一组脚本数值，不移植或比较 RNG 算法。原构造内的共享 RandomDataGenerator 引用也有检查。
++
++核对比较资源值、逐项 sampler 调用、接纳工作流的任务物理值/总量/全部时长，以及 release gate 的 ID/数量预期。Python 的接纳计数和预计 Arrival 数只由工具测试编排计算，未作为生产服务实现；Java 原件实际产生的初始化 G/Arrival 与这些预期比较。额外时钟案例是直接调用生成方法的数值探针，不是假装已处理 Arrival。未触发任何 Java 事件，也未验证动态统计或调度轨迹。
++
++原 Java mapClear 后观察不到完整边映射；本工具只保留脚本调用值和生成后数值，不导出拒绝者的完整 Java 候选。因此这不是第 4 步 V16 动态输入导出器，也不能替代 mapClear 前完整捕获和观察无干扰验证。Python 保留边映射是已确认差异。
++
++证据在 `outputs/step3/`：测试 XML、checks.json、原构建/运行命令和输出、每案例 request/两侧 raw/完整 Python 候选/comparison。当前文件指纹为 current-files.json，真实汇总为 current-validation.json；旧 RELEASE-FILES、STEP1/STEP2-FILES 与历史 validation-manifest 仍是对应阶段的证据，不能描述当前工作副本。包为 step3 开发快照，未调用正式 release 门禁。
++
++## 下一步
++
++未发现必须调整冻结设计的问题。本轮 API 分层和 NumericDerivationError 是实现具体化，不改变语义。可按原顺序进入第 4 步 Java 完整动态输入导出与最小参考案例（V16）；随后第 5 步复用这些生成/建图接口接入集中接纳、Arrival、统计与 Context 生命周期。动态重放、清理、CLI、实验批次、完整 V01 和论文/GP 实验仍未实现或未执行，按对应步骤推进。
+--- a/docs/VALIDATION.md
++++ b/docs/VALIDATION.md
+@@ -1,4 +1,6 @@
+ # 0.2 固定实例完整验收记录
++
++> step3 的真实验证另见 [STEP3-PROGRESS](STEP3-PROGRESS.md) 和 `outputs/step3/`。本轮 Java 对照范围为脚本数值驱动的原构造/生成，不是完整动态调度或 V16 导出；旧完整验收记录保持为历史证据。
+ 
+ > step2 本轮证据见 [STEP2-PROGRESS](STEP2-PROGRESS.md) 和 `outputs/step2/`。已执行的 Java 范围仅为原 DAX 解析及 sampler；本轮没有重跑完整调度验收。
+ 
+--- a/docs/roadmap.md
++++ b/docs/roadmap.md
+@@ -1,4 +1,6 @@
+ # 进度与后续工作
++
++2026-11-04（step3）：环境采样/运行资源、完整两遍候选、TaskOption 与独立运行图已实现并验证。下一步按原顺序推进 Java 动态输入导出（第 4 步），然后集中接纳/Arrival/统计/生命周期（第 5 步）。详见 [STEP3-PROGRESS](STEP3-PROGRESS.md)；以下保留各阶段历史证据。
+ 
+ 2026-11-04（step2）：DAX 目录/解析、sampler、单一输入流准备及 seed/RNG 基础已实现并验证；20 个标准拓扑实际 Java 对照及两侧分布检查通过。下一步为环境采样与两遍生成，见 [STEP2-PROGRESS](STEP2-PROGRESS.md)。后续原有记录按时间和阶段保留。
+ 
+--- a/docs/semantics.md
++++ b/docs/semantics.md
+@@ -1,4 +1,6 @@
+ # 当前语义基线
++
++第 3 步环境、输入生成和运行建图契约见 [STEP3-PROGRESS](STEP3-PROGRESS.md)。生成只推进共享输入流；建图不发布索引，不更新 G/B 或安排 Arrival；release gate 的通过不等于正式接纳。运行边映射默认保留且与不可变输入独立。以下固定内核语义继续保持。
+ 
+ 第 2 步新增纯 DAX 与采样基础见 [STEP2-PROGRESS](STEP2-PROGRESS.md)。sampler 必须接收同一上下文的输入 RNG，构造/clone 不持有或创建随机流；prepare_random_input 不创建 Engine。固定调度语义继续保持。
+ 
+--- a/src/fogsim/__init__.py
++++ b/src/fogsim/__init__.py
+@@ -5,8 +5,13 @@
+ from .instances.dax import parse_dax
+ from .instances.catalog import DagCatalog, load_dax_catalog
+ from .randomness import prepare_random_input
++from .environment.build import sample_environment, build_environment
++from .instances.generation import generate_workflow_input, release_rejection_reason
++from .instances.materialize import materialize_workflow
+ 
+ __version__ = "0.2.1"
+ __all__ = ["RunConfig", "InstanceSpec", "load_fixed_instance", "parse_instance", "create_engine", "simulate",
+            "ExperimentConfig", "load_experiment_config", "parse_experiment_config",
+-           "parse_dax", "DagCatalog", "load_dax_catalog", "prepare_random_input"]
++           "parse_dax", "DagCatalog", "load_dax_catalog", "prepare_random_input",
++           "sample_environment", "build_environment", "generate_workflow_input",
++           "release_rejection_reason", "materialize_workflow"]
+--- /dev/null
++++ b/src/fogsim/environment/build.py
+@@ -0,0 +1,58 @@
++"""Ordered environment sampling and fresh canonical resource construction."""
++from fogsim.errors import InputError
++from fogsim.experiment_config import EnvironmentConfig
++from fogsim.input_validation import text
++from fogsim.model.resource import MobileDevice, Server, ResourceType
++from fogsim.numerics import checked_number
++from fogsim.randomness.state import RandomInputState
++from fogsim.simulation.state import SystemState
++from .spec import DeviceSnapshot, ServerSnapshot, EnvironmentSnapshot
++
++
++def sample_environment(config: EnvironmentConfig, inputs: RandomInputState, *, parameter_source: str) -> EnvironmentSnapshot:
++    """Devices first, then EDGE and CLOUD, sharing inputs.rng with generation.
++
++    This always samples a device's rate, even when local execution is disabled.
++    There is no first-workflow generation, registration or event side effect.
++    """
++    if type(config) is not EnvironmentConfig or type(inputs) is not RandomInputState:
++        raise InputError("sample_environment requires EnvironmentConfig and RandomInputState")
++    text(parameter_source, "parameter_source")
++    samplers, rng = inputs.samplers, inputs.rng
++    devices = []
++    for index in range(config.num_mobile_devices):
++        rate = checked_number(samplers.processing_rate_device.sample(rng), f"M{index}.processing_rate", positive=True)
++        devices.append(DeviceSnapshot(f"M{index}", index, rate, config.can_mobile_devices_process_tasks))
++    servers = []
++    for kind, prefix, count, upload, download, processing in (
++        ("EDGE", "E", config.num_edge_servers, samplers.upload_bandwidth_edge,
++         samplers.download_bandwidth_edge, samplers.processing_rate_edge),
++        ("CLOUD", "C", config.num_cloud_servers, samplers.upload_bandwidth_cloud,
++         samplers.download_bandwidth_cloud, samplers.processing_rate_cloud),
++    ):
++        for index in range(count):
++            rid = f"{prefix}{index}"
++            up = checked_number(upload.sample(rng), f"{rid}.upload_bandwidth", positive=True)
++            down = checked_number(download.sample(rng), f"{rid}.download_bandwidth", positive=True)
++            rate = checked_number(processing.sample(rng), f"{rid}.processing_rate", positive=True)
++            servers.append(ServerSnapshot(rid, len(servers), kind, rate, up, down))
++    return EnvironmentSnapshot(tuple(devices), tuple(servers), parameter_source)
++
++
++def build_environment(snapshot: EnvironmentSnapshot) -> SystemState:
++    """Build a fresh empty state, preserving values but sharing no runtime objects."""
++    if type(snapshot) is not EnvironmentSnapshot:
++        raise InputError("build_environment requires EnvironmentSnapshot")
++    state = SystemState()
++    for device in snapshot.devices:
++        resource = MobileDevice(device.id, device.numeric_id, ResourceType.MOBILE,
++                                processing_rate=device.processing_rate, can_process_tasks=device.can_process_tasks)
++        state.mobile_devices.append(resource)
++        state.resources_by_id[resource.id] = resource
++    for server in snapshot.servers:
++        resource = Server(server.id, server.numeric_id, ResourceType(server.type), processing_rate=server.processing_rate,
++                          upload_bandwidth=server.upload_bandwidth, download_bandwidth=server.download_bandwidth)
++        state.servers.append(resource)
++        state.resources_by_id[resource.id] = resource
++    state.check_invariants()
++    return state
+--- a/src/fogsim/errors.py
++++ b/src/fogsim/errors.py
+@@ -12,6 +12,16 @@
+     pass
+ 
+ 
++class NumericDerivationError(StateError):
++    """A sampled/derived dynamic value cannot enter the input or runtime model."""
++    reason_code = "NUMERIC_DERIVATION_ERROR"
++
++    def __init__(self, operation, value):
++        self.operation = operation
++        self.value = value
++        super().__init__(f"{self.reason_code}: {operation}: invalid value {value!r}")
++
++
+ def require(condition: bool, message: str) -> None:
+     if not condition:
+         raise StateError(message)
+--- /dev/null
++++ b/src/fogsim/instances/generation.py
+@@ -0,0 +1,80 @@
++"""Java-ordered two-pass generation of complete immutable workflow inputs.
++
++The only mutable dependency is the caller's shared input RNG. Generation never
++publishes runtime objects, assigns the next G, changes B or stages events.
++"""
++from fogsim.errors import InputError
++from fogsim.environment.spec import EnvironmentSnapshot
++from fogsim.input_validation import integer, INT32_MAX
++from fogsim.numerics import checked_number
++from fogsim.randomness.state import RandomInputState
++from .generated import EdgeInput, TaskInput, WorkflowInput, GenerationCause
++from .spec import OptionSpec
++
++REJECTED_RELEASE_NOT_FUTURE = "REJECTED_RELEASE_NOT_FUTURE"
++
++
++def generate_workflow_input(inputs: RandomInputState, environment: EnvironmentSnapshot,
++                            cause: GenerationCause, *, candidate_id: int) -> WorkflowInput:
++    """Generate a full candidate, including when release <= the current clock.
++
++    candidate_id is the caller's G before admission. The caller retains that G
++    after rejection. A derived numeric failure raises NumericDerivationError;
++    it is never converted into an ordinary release rejection or auto-retried.
++    """
++    if type(inputs) is not RandomInputState or type(environment) is not EnvironmentSnapshot or type(cause) is not GenerationCause:
++        raise InputError("generation requires RandomInputState, EnvironmentSnapshot and GenerationCause")
++    integer(candidate_id, "candidate_id", 0, INT32_MAX)
++    # Pure owner/candidate validation occurs before the first draw.
++    environment.eligible_resource_ids(cause.owner_device_id)
++    owner = next(d for d in environment.devices if d.id == cause.owner_device_id)
++    samplers, rng = inputs.samplers, inputs.rng
++    template = inputs.catalog.template(samplers.workflow_type.sample(rng))
++    delta = checked_number(samplers.inter_release_time.sample(rng), "inter_release_time")
++    release = checked_number(cause.clock_time + delta, "clock_time + inter_release_time")
++    weight = checked_number(samplers.weight.sample(rng), "workflow.weight", positive=True)
++    parents, children = template.adjacency()
++    values, edges, raw_tasks = {}, [], {}
++    # First pass: workload, base data, then this task's children in adjacency order.
++    for task in template.tasks:
++        tid = task.xml_id
++        workload = checked_number(samplers.workload.sample(rng), f"{tid}.workload", positive=True)
++        data = checked_number(samplers.data_size.sample(rng), f"{tid}.data_size")
++        output_total = 0.0
++        for child in children[tid]:
++            value = checked_number(samplers.edge_data.sample(rng), f"edge {tid}->{child}")
++            values[tid, child] = value
++            edges.append(EdgeInput(tid, child, value))
++            output_total = checked_number(output_total + value, f"{tid}.total_output_data")
++        raw_tasks[tid] = workload, data, output_total
++    # Second pass: input accumulation order comes from parents, not sampled edges.
++    tasks = []
++    for task in template.tasks:
++        tid = task.xml_id
++        workload, data, output_total = raw_tasks[tid]
++        input_total = 0.0
++        for parent in parents[tid]:
++            input_total = checked_number(input_total + values[parent, tid], f"{tid}.total_input_data")
++        options = []
++        if owner.can_process_tasks:
++            pt = checked_number(workload / owner.processing_rate, f"{tid}/{owner.id}.PT", positive=True)
++            options.append(OptionSpec(owner.id, 0.0, pt, 0.0))
++        for server in environment.servers:
++            pt = checked_number(workload / server.processing_rate, f"{tid}/{server.id}.PT", positive=True)
++            # Keep addition before division, and do not include base data in totals.
++            upload_data = checked_number(data + input_total, f"{tid}/{server.id}.data + input_total")
++            ut = checked_number(upload_data / server.upload_bandwidth, f"{tid}/{server.id}.UT")
++            download_data = checked_number(data + output_total, f"{tid}/{server.id}.data + output_total")
++            dt = checked_number(download_data / server.download_bandwidth, f"{tid}/{server.id}.DT")
++            options.append(OptionSpec(server.id, ut, pt, dt))
++        tasks.append(TaskInput(tid, workload, data, input_total, output_total, tuple(options)))
++    return WorkflowInput(candidate_id, owner.id, template.ref, release, delta, weight, tuple(tasks), tuple(edges))
++
++
++def release_rejection_reason(candidate: WorkflowInput, cause: GenerationCause) -> str | None:
++    """Pure release gate for future admission; None means eligible, not registered."""
++    if type(candidate) is not WorkflowInput or type(cause) is not GenerationCause:
++        raise InputError("release check requires WorkflowInput and GenerationCause")
++    if candidate.owner_device_id != cause.owner_device_id or candidate.release_time != cause.clock_time + candidate.inter_release_time:
++        raise InputError("candidate/cause owner or release-time derivation mismatch")
++    return REJECTED_RELEASE_NOT_FUTURE if candidate.release_time <= cause.clock_time else None
+--- /dev/null
++++ b/src/fogsim/instances/materialize.py
+@@ -0,0 +1,69 @@
++"""Build a detached runtime graph with canonical resources, without registration."""
++from fogsim.errors import InputError
++from fogsim.input_validation import text, finite
++from fogsim.model.resource import MobileDevice, ResourceType
++from fogsim.model.workflow import Workflow
++from fogsim.model.task import Task, TaskOption, EdgeDataState
++from fogsim.simulation.state import SystemState
++from .generated import WorkflowInput
++from .templates import DagTemplate
++
++
++def materialize_workflow(candidate: WorkflowInput, template: DagTemplate, state: SystemState,
++                         *, input_record_id: str) -> Workflow:
++    """Use recorded durations verbatim; create private edge maps in template order.
++
++    No indexes, queues, clock, counts or events change. A later centralized
++    admission service publishes this graph only after all preparation succeeds.
++    This is neither a fixed projection nor a replay loader/formula auditor.
++    """
++    if type(candidate) is not WorkflowInput or type(template) is not DagTemplate or type(state) is not SystemState:
++        raise InputError("materialization requires WorkflowInput, DagTemplate and SystemState")
++    text(input_record_id, "input_record_id")
++    if candidate.candidate_id in state.workflows_by_id:
++        raise InputError("workflow ID is already registered")
++    if candidate.template_ref != template.ref or tuple(t.id for t in candidate.tasks) != tuple(t.xml_id for t in template.tasks):
++        raise InputError("candidate/template identity or task order mismatch")
++    parents, children = template.adjacency()
++    expected_edges = tuple((t.xml_id, child) for t in template.tasks for child in children[t.xml_id])
++    if tuple((e.parent_id, e.child_id) for e in candidate.edges) != expected_edges:
++        raise InputError("candidate edges/order do not match template sampling order")
++    owner = state.resources_by_id.get(candidate.owner_device_id)
++    if not isinstance(owner, MobileDevice) or not any(owner is d for d in state.mobile_devices):
++        raise InputError("candidate owner is not a canonical MOBILE resource")
++    resources = ([owner] if owner.can_process_tasks else []) + list(state.servers)
++    if not resources or any(state.resources_by_id.get(r.id) is not r for r in resources):
++        raise InputError("candidate resources must be canonical and nonempty")
++    if any(r.resource_type not in (ResourceType.EDGE, ResourceType.CLOUD) for r in state.servers):
++        raise InputError("server list contains a non-server resource")
++    # Fixed models may legitimately have unknown physical parameters. This new
++    # dynamic builder requires actual values and leaves the old fixed path alone.
++    for resource in (owner, *state.servers):
++        finite(resource.processing_rate, f"{resource.id}.processing_rate", positive=True)
++        if resource is not owner:
++            finite(resource.upload_bandwidth, f"{resource.id}.upload_bandwidth", positive=True)
++            finite(resource.download_bandwidth, f"{resource.id}.download_bandwidth", positive=True)
++    for task in candidate.tasks:
++        if tuple(o.resource_id for o in task.options) != tuple(r.id for r in resources):
++            raise InputError("candidate options/order do not match runtime resources")
++        for option in task.options:
++            if option.resource_id == owner.id and (option.upload_time != 0 or option.download_time != 0):
++                raise InputError("local upload/download must be zero")
++    workflow = Workflow(candidate.candidate_id, owner, candidate.release_time, weight=candidate.weight,
++                        dag_type_id=template.dag_type_id, template_hash=template.source_sha256, input_record_id=input_record_id)
++    values = {(e.parent_id, e.child_id): e.data_size for e in candidate.edges}
++    by_id = {}
++    for spec, template_task in zip(candidate.tasks, template.tasks):
++        task = Task(spec.id, workflow, workload=spec.workload, data_size=spec.data_size,
++                    input_data_by_parent={parent: values[parent, spec.id] for parent in parents[spec.id]},
++                    output_data_by_child={child: values[spec.id, child] for child in children[spec.id]},
++                    total_input_data=spec.total_input_data, total_output_data=spec.total_output_data,
++                    edge_data_state=EdgeDataState.RETAINED, java_index=template_task.java_index)
++        task.options = [TaskOption(task, state.resources_by_id[o.resource_id], processing_time=o.processing_time,
++                                   upload_time=o.upload_time, download_time=o.download_time) for o in spec.options]
++        workflow.tasks.append(task)
++        by_id[task.id] = task
++    for parent, child in template.dependencies:
++        by_id[parent].children.append(by_id[child])
++        by_id[child].parents.append(by_id[parent])
++    return workflow
+--- /dev/null
++++ b/src/fogsim/numerics.py
+@@ -0,0 +1,10 @@
++"""Checks for dynamic derivations; input/config validation stays separate."""
++import math
++from fogsim.errors import NumericDerivationError
++
++
++def checked_number(value, operation, *, positive=False):
++    # Unexpected programmer types/errors propagate; do not wrap arbitrary exceptions.
++    if not math.isfinite(value) or (value <= 0 if positive else value < 0):
++        raise NumericDerivationError(operation, value)
++    return value
+--- /dev/null
++++ b/tests/integration/test_generated_kernel.py
+@@ -0,0 +1,99 @@
++"""Finite generated graphs through the unchanged kernel; no dynamic source hook."""
++from dataclasses import replace
++import pytest
++from conftest import ROOT
++from fogsim import (load_experiment_config, prepare_random_input, sample_environment, build_environment,
++                    generate_workflow_input, materialize_workflow)
++from fogsim.config import RunConfig
++from fogsim.environment.spec import EnvironmentSnapshot, DeviceSnapshot, ServerSnapshot
++from fogsim.instances.generated import (GenerationCause, CandidateRecord, GenerationAttempt, InputArchive, AdmissionMapping)
++from fogsim.experiment_config import WorkflowTypeRange
++from fogsim.simulation.engine import Engine
++from fogsim.simulation.events import JobArrivalEvent
++
++
++def test_environment_then_initial_devices_share_exact_input_stream():
++    cfg = load_experiment_config(ROOT / "configs/examples/step1_dynamic.json")
++    cfg = replace(cfg, source=replace(cfg.source, workflow_types=WorkflowTypeRange(0, 0)))
++    first, second = prepare_random_input(cfg), prepare_random_input(cfg)
++    e1 = sample_environment(cfg.source.environment, first, parameter_source=cfg.fingerprint)
++    e2 = sample_environment(cfg.source.environment, second, parameter_source=cfg.fingerprint)
++    assert e1 == e2 and first.rng is not second.rng
++    records, attempts, mappings = [], [], []
++    for i, device in enumerate(e1.devices):
++        cause = GenerationCause("initialize", device.id, 0)
++        a = generate_workflow_input(first, e1, cause, candidate_id=i)
++        b = generate_workflow_input(second, e2, cause, candidate_id=i)
++        assert a == b
++        records.append(CandidateRecord(str(i + 1), a))
++        attempts.append(GenerationAttempt(i + 1, cause, str(i + 1), True))
++        mappings.append(AdmissionMapping(str(i + 1), i))
++    assert first.snapshot() == second.snapshot()
++    archive = InputArchive(first.catalog.templates, e1, tuple(records), tuple(attempts), tuple(mappings))
++    state = build_environment(e1)
++    graphs = [materialize_workflow(r.workflow_input, first.catalog.template(0), state, input_record_id=r.record_id) for r in records]
++    assert graphs[0].tasks[0].options[1].resource is graphs[1].tasks[0].options[1].resource
++    graphs[0].tasks[0].output_data_by_child.clear()
++    assert archive == InputArchive(first.catalog.templates, e1, tuple(records), tuple(attempts), tuple(mappings))
++
++
++def test_single_server_parent_and_child_keep_upload_download(tmp_path):
++    (tmp_path / "CyberShake_30.xml").write_text('<adag><job id="A"/><job id="B"/>'
++        '<child ref="B"><parent ref="A"/></child></adag>')
++    cfg = load_experiment_config(ROOT / "configs/examples/step1_dynamic.json")
++    cfg = replace(cfg, source=replace(cfg.source, dag_root=tmp_path, workflow_types=WorkflowTypeRange(0, 0)))
++    inputs = prepare_random_input(cfg)
++    # Controlled scalar values exercise the real two-pass generator and existing events.
++    from unittest.mock import patch
++    samplers = inputs.samplers
++    def values(self, rng):
++        if self is samplers.workload: return 100.0
++        if self is samplers.data_size: return 10.0
++        if self is samplers.edge_data: return 5.0
++        raise AssertionError("unexpected sampling role")
++    env = EnvironmentSnapshot((DeviceSnapshot("M0", 0, 125, False),),
++        (ServerSnapshot("E0", 0, "EDGE", 100, 10, 10),), "hand-check")
++    with patch.object(type(samplers.workload), "sample", values), patch.object(type(samplers.inter_release_time), "sample", return_value=2):
++        candidate = generate_workflow_input(inputs, env, GenerationCause("initialize", "M0", 0), candidate_id=0)
++    state = build_environment(env)
++    graph = materialize_workflow(candidate, inputs.catalog.template(0), state, input_record_id="1")
++    # Test-only fixed finite registration. Production centralized admission is step 5.
++    state.workflows_by_id[0] = state.pending_arrivals[0] = graph
++    state.tasks_by_key.update((t.key, t) for t in graph.tasks)
++    engine = Engine(state, RunConfig())
++    engine.event_queue.stage(JobArrivalEvent(graph), graph.owner_device)
++    result = engine.run()
++    assert result.status == "SUCCEEDED" and result.makespan == 7
++    assert [e.finish_time for e in graph.completed_executions] == [5.5, 9]
++    assert graph.tasks[1].options[0].upload_time == 1.5
++    assert graph.tasks[1].options[0].download_time == 1
++
++
++@pytest.mark.parametrize("type_id", range(20))
++def test_all_standard_templates_generate_complete_independent_graphs(type_id):
++    cfg = load_experiment_config(ROOT / "configs/examples/step1_dynamic.json")
++    cfg = replace(cfg, source=replace(cfg.source, workflow_types=WorkflowTypeRange(type_id, type_id)))
++    inputs = prepare_random_input(cfg)
++    env = sample_environment(cfg.source.environment, inputs, parameter_source=cfg.fingerprint)
++    state = build_environment(env)
++    t = inputs.catalog.template(type_id)
++    graphs = []
++    for index, device in enumerate(env.devices):
++        c = generate_workflow_input(inputs, env, GenerationCause("initialize", device.id, 0), candidate_id=index)
++        graph = materialize_workflow(c, t, state, input_record_id=str(index + 1))
++        assert len(c.edges) == len(t.dependencies) and len(graph.tasks) == len(t.tasks)
++        edge_values = {(e.parent_id, e.child_id): e.data_size for e in c.edges}
++        for task in graph.tasks:
++            input_total = 0.0; output_total = 0.0
++            for parent in task.parents: input_total += edge_values[parent.id, task.id]
++            for child in task.children: output_total += edge_values[task.id, child.id]
++            assert task.total_input_data == input_total and task.total_output_data == output_total
++            assert list(task.input_data_by_parent) == [p.id for p in task.parents]
++            assert list(task.output_data_by_child) == [child.id for child in task.children]
++            assert task.workflow is graph
++            for option in task.options:
++                assert option.resource is state.resources_by_id[option.resource.id]
++        graphs.append(graph)
++    assert graphs[0].tasks[0] is not graphs[1].tasks[0]
++    assert graphs[0].tasks[0].options[1].resource is graphs[1].tasks[0].options[1].resource
++    assert not state.workflows_by_id and not state.tasks_by_key
+--- /dev/null
++++ b/tests/unit/test_environment_build.py
+@@ -0,0 +1,114 @@
++from dataclasses import fields, replace
++import random
++import pytest
++from conftest import ROOT
++from fogsim import load_experiment_config, prepare_random_input, sample_environment, build_environment
++from fogsim.errors import InputError, NumericDerivationError
++from fogsim.experiment_config import EnvironmentConfig, WorkflowTypeRange
++from fogsim.model.resource import ResourceType
++
++
++def prepared(seed=0):
++    config = load_experiment_config(ROOT / "configs/examples/step1_dynamic.json")
++    config = replace(config, source=replace(config.source, seed=seed, workflow_types=WorkflowTypeRange(0, 0)))
++    return config, prepare_random_input(config)
++
++
++def trace_roles(monkeypatch, inputs, scripted=None):
++    """Observe actual sampler calls; optional values isolate arithmetic boundaries."""
++    names = {id(getattr(inputs.samplers, f.name)): f.name for f in fields(inputs.samplers)}
++    calls = []
++    streams = {name: iter(values) for name, values in (scripted or {}).items()}
++    for cls in {type(getattr(inputs.samplers, f.name)) for f in fields(inputs.samplers)}:
++        original = cls.sample
++        def traced(self, rng, original=original):
++            if id(self) not in names:
++                return original(self, rng)
++            role = names[id(self)]
++            assert rng is inputs.rng
++            calls.append(role)
++            if role in streams:
++                return next(streams[role])
++            return original(self, rng)
++        monkeypatch.setattr(cls, "sample", traced)
++    return calls
++
++
++@pytest.mark.parametrize("local", [True, False])
++def test_exact_environment_call_order_even_without_local(local, monkeypatch):
++    _, inputs = prepared()
++    calls = trace_roles(monkeypatch, inputs)
++    snapshot = sample_environment(EnvironmentConfig(3, 2, 2, local), inputs, parameter_source="test")
++    assert calls == (["processing_rate_device"] * 3 +
++        ["upload_bandwidth_edge", "download_bandwidth_edge", "processing_rate_edge"] * 2 +
++        ["upload_bandwidth_cloud", "download_bandwidth_cloud", "processing_rate_cloud"] * 2)
++    assert [(r.id, r.numeric_id) for r in snapshot.devices] == [("M0", 0), ("M1", 1), ("M2", 2)]
++    assert [(r.id, r.numeric_id, r.type) for r in snapshot.servers] == [
++        ("E0", 0, "EDGE"), ("E1", 1, "EDGE"), ("C0", 2, "CLOUD"), ("C1", 3, "CLOUD")]
++    assert all(d.can_process_tasks is local for d in snapshot.devices)
++
++
++def test_environment_values_follow_the_same_rng_without_constant_draws():
++    _, inputs = prepared(-1)
++    control = random.Random((1 << 64) - 1)
++    def uniform(a, b):
++        u = control.random()
++        while u == 0: u = control.random()
++        return u * b + (1 - u) * a
++    expected_devices = [uniform(125, 250), uniform(125, 250)]
++    edge_rate = uniform(250, 500)
++    up_u, down_u = control.random(), control.random()
++    cloud_rate = uniform(500, 1000)
++    snapshot = sample_environment(EnvironmentConfig(2, 1, 1, True), inputs, parameter_source="test")
++    assert [d.processing_rate for d in snapshot.devices] == expected_devices
++    assert snapshot.servers[0].processing_rate == edge_rate
++    assert snapshot.servers[0].upload_bandwidth == snapshot.servers[0].download_bandwidth == 1024
++    expected_bw = lambda u: 256 if u < .2 else 512 if u < .8 else 128
++    assert snapshot.servers[1].upload_bandwidth == expected_bw(up_u)
++    assert snapshot.servers[1].download_bandwidth == expected_bw(down_u)
++    assert snapshot.servers[1].processing_rate == cloud_rate
++    assert inputs.rng.getstate() == control.getstate()
++
++
++def test_build_environment_preserves_snapshot_values_and_uses_fresh_objects():
++    config, inputs = prepared()
++    snapshot = sample_environment(config.source.environment, inputs, parameter_source=config.fingerprint)
++    before = inputs.snapshot()
++    first = build_environment(snapshot); second = build_environment(snapshot)
++    assert inputs.snapshot() == before
++    assert first.clock_time == 0 and not first.workflows_by_id and not first.tasks_by_key
++    for spec, resource in zip((*snapshot.devices, *snapshot.servers), first.resources_by_id.values()):
++        assert resource is not second.resources_by_id[spec.id]
++        assert resource.numeric_id == spec.numeric_id and resource.processing_rate == spec.processing_rate
++        assert resource.available_time == 0 and resource.pending_start is None
++        assert resource.completed_task_count == 0 and not resource.waiting_queue
++        assert resource.queued_processing_time == resource.queued_total_time == 0
++        if resource.resource_type != ResourceType.MOBILE:
++            assert resource.upload_bandwidth == spec.upload_bandwidth
++            assert resource.download_bandwidth == spec.download_bandwidth
++    first.servers[0].available_time = 99
++    assert second.servers[0].available_time == 0 and snapshot.servers[0].processing_rate > 0
++    second.check_invariants()
++
++
++@pytest.mark.parametrize("role,value", [
++    ("processing_rate_device", 0), ("processing_rate_device", float("nan")),
++    ("upload_bandwidth_edge", 0), ("download_bandwidth_edge", float("inf")),
++    ("processing_rate_edge", -1), ("upload_bandwidth_cloud", 0),
++    ("download_bandwidth_cloud", float("nan")), ("processing_rate_cloud", float("inf")),
++])
++def test_invalid_sampled_resource_is_domain_failure(role, value, monkeypatch):
++    _, inputs = prepared()
++    trace_roles(monkeypatch, inputs, {role: [value]})
++    with pytest.raises(NumericDerivationError) as exc:
++        sample_environment(EnvironmentConfig(1, 1, 1, True), inputs, parameter_source="test")
++    assert exc.value.reason_code == "NUMERIC_DERIVATION_ERROR"
++
++
++def test_environment_api_validation_precedes_draws():
++    _, inputs = prepared()
++    before = inputs.snapshot()
++    with pytest.raises(InputError): sample_environment({}, inputs, parameter_source="x")
++    with pytest.raises(InputError): sample_environment(EnvironmentConfig(1, 0, 0, True), inputs, parameter_source=" ")
++    with pytest.raises(InputError): build_environment({})
++    assert inputs.snapshot() == before
+--- /dev/null
++++ b/tests/unit/test_materialize_workflow.py
+@@ -0,0 +1,103 @@
++from dataclasses import replace, fields
++import pytest
++from test_workflow_generation import inputs_for, template, environment
++from fogsim import generate_workflow_input, build_environment, materialize_workflow
++from fogsim.errors import InputError
++from fogsim.instances.generated import GenerationCause
++from fogsim.instances.templates import TemplateRef
++from fogsim.model.task import EdgeDataState
++
++
++def test_materialization_preserves_all_values_and_canonical_references():
++    inputs = inputs_for(); env = environment(); state = build_environment(env)
++    candidate = generate_workflow_input(inputs, env, GenerationCause("initialize", "phone-X", 0), candidate_id=0)
++    before = inputs.snapshot()
++    workflow = materialize_workflow(candidate, template(), state, input_record_id="1")
++    assert inputs.snapshot() == before
++    assert not state.workflows_by_id and not state.tasks_by_key and not state.pending_arrivals
++    assert workflow.owner_device is state.mobile_devices[0]
++    assert workflow.id == 0 and workflow.weight == candidate.weight
++    assert workflow.input_record_id == "1" and workflow.template_hash == template().source_sha256
++    assert workflow.dag_type_id == 0 and workflow.completion_time is None
++    assert not workflow.completed_executions and not workflow.completion_registered
++    for index, (task, spec) in enumerate(zip(workflow.tasks, candidate.tasks)):
++        assert task.java_index == index and task.id == spec.id
++        assert task.workflow is workflow and not task.completed and not task.dispatched
++        assert (task.workload, task.data_size, task.total_input_data, task.total_output_data) == (
++            spec.workload, spec.data_size, spec.total_input_data, spec.total_output_data)
++        assert task.edge_data_state is EdgeDataState.RETAINED
++        for option, original in zip(task.options, spec.options):
++            assert option.task is task and option.resource is state.resources_by_id[original.resource_id]
++            assert (option.processing_time, option.upload_time, option.download_time) == (
++                original.processing_time, original.upload_time, original.download_time)
++            assert option.ready_time == option.priority == 0
++    z, a, join = workflow.tasks
++    assert join.parents == [a, z] and z.children == a.children == [join]
++    assert list(join.input_data_by_parent) == ["A", "Z"]
++    assert z.input_data_by_parent == {} and join.output_data_by_child == {}
++    assert z.output_data_by_child["join"] == join.input_data_by_parent["Z"] == candidate.edges[0].data_size
++    assert not any(f.name in ("context", "archive", "catalog", "rng") for f in fields(workflow))
++
++
++def test_multiple_devices_share_servers_but_not_workflows_maps_or_cross_run_resources():
++    inputs = inputs_for(); env = environment()
++    state = build_environment(env); other_state = build_environment(env)
++    candidates = [generate_workflow_input(inputs, env, GenerationCause("initialize", d.id, 0), candidate_id=i)
++                  for i, d in enumerate(env.devices)]
++    graphs = [materialize_workflow(c, template(), state, input_record_id=str(i + 1)) for i, c in enumerate(candidates)]
++    other = materialize_workflow(candidates[0], template(), other_state, input_record_id="1")
++    assert graphs[0].tasks[0] is not graphs[1].tasks[0]
++    assert graphs[0].tasks[0].options[1].resource is graphs[1].tasks[0].options[1].resource is state.servers[0]
++    assert other.tasks[0].options[1].resource is not state.servers[0]
++    assert other.tasks[0].output_data_by_child is not graphs[0].tasks[0].output_data_by_child
++    graphs[0].tasks[0].output_data_by_child.clear()
++    assert candidates[0].edges and other.tasks[0].output_data_by_child
++    assert graphs[1].tasks[0].output_data_by_child
++
++
++@pytest.mark.parametrize("defect", ["template_hash", "task_order", "edge_order", "missing_edge", "owner",
++    "option_order", "other_device_option", "local_communication", "duplicate_registered_id", "record_id"])
++def test_invalid_materialization_does_not_publish_any_state(defect):
++    inputs = inputs_for(); env = environment(); state = build_environment(env)
++    c = generate_workflow_input(inputs, env, GenerationCause("initialize", "phone-X", 0), candidate_id=0)
++    record_id = "1"
++    if defect == "template_hash": c = replace(c, template_ref=TemplateRef(0, "b" * 64))
++    elif defect == "task_order": c = replace(c, tasks=tuple(reversed(c.tasks)))
++    elif defect == "edge_order": c = replace(c, edges=tuple(reversed(c.edges)))
++    elif defect == "missing_edge": c = replace(c, edges=c.edges[:1])
++    elif defect == "owner": c = replace(c, owner_device_id="absent")
++    elif defect == "duplicate_registered_id": state.workflows_by_id[0] = object()
++    elif defect == "record_id": record_id = " "
++    else:
++        options = list(c.tasks[0].options)
++        if defect == "option_order": options.reverse()
++        elif defect == "other_device_option": options[0] = replace(options[0], resource_id="phone-Y")
++        else: options[0] = replace(options[0], upload_time=1)
++        c = replace(c, tasks=(replace(c.tasks[0], options=tuple(options)), *c.tasks[1:]))
++    before = dict(state.workflows_by_id)
++    with pytest.raises(InputError): materialize_workflow(c, template(), state, input_record_id=record_id)
++    assert state.workflows_by_id == before and not state.tasks_by_key and not state.pending_arrivals
++    assert state.clock_time == 0 and all(not r.waiting_queue for r in state.resources_by_id.values())
++
++
++def test_materialization_uses_recorded_durations_without_recalculating():
++    inputs = inputs_for(); env = environment(); state = build_environment(env)
++    c = generate_workflow_input(inputs, env, GenerationCause("initialize", "phone-X", 0), candidate_id=0)
++    altered = replace(c.tasks[0].options[1], processing_time=123.5)
++    c = replace(c, tasks=(replace(c.tasks[0], options=(c.tasks[0].options[0], altered, c.tasks[0].options[2])), *c.tasks[1:]))
++    graph = materialize_workflow(c, template(), state, input_record_id="1")
++    assert graph.tasks[0].options[1].processing_time == 123.5
++    # Replay formula auditing will be separate; materialization never overwrites input.
++
++
++@pytest.mark.parametrize("resource,field,value", [
++    ("phone-X", "processing_rate", None), ("phone-X", "processing_rate", 0),
++    ("edge-X", "processing_rate", float("nan")), ("edge-X", "upload_bandwidth", None),
++    ("cloud-X", "download_bandwidth", 0),
++])
++def test_dynamic_materialization_requires_actual_physical_values(resource, field, value):
++    inputs = inputs_for(); env = environment(); state = build_environment(env)
++    c = generate_workflow_input(inputs, env, GenerationCause("initialize", "phone-X", 0), candidate_id=0)
++    setattr(state.resources_by_id[resource], field, value)
++    with pytest.raises(InputError): materialize_workflow(c, template(), state, input_record_id="1")
++    assert not state.workflows_by_id and not state.tasks_by_key
+--- /dev/null
++++ b/tests/unit/test_workflow_generation.py
+@@ -0,0 +1,163 @@
++from dataclasses import replace
++from pathlib import Path
++import random
++import pytest
++from conftest import ROOT
++from test_environment_build import trace_roles
++from fogsim import (load_experiment_config, prepare_random_input, sample_environment, build_environment,
++                    generate_workflow_input, materialize_workflow, release_rejection_reason)
++from fogsim.errors import InputError, NumericDerivationError
++from fogsim.experiment_config import EnvironmentConfig, WorkflowTypeRange, SamplerParameters, RealRange
++from fogsim.environment.spec import DeviceSnapshot, ServerSnapshot, EnvironmentSnapshot
++from fogsim.instances.catalog import DagCatalog
++from fogsim.instances.templates import DagTemplate, DagTaskSpec
++from fogsim.instances.generated import (GenerationCause, GenerationAttempt, CandidateRecord, AdmissionMapping, InputArchive)
++from fogsim.randomness.state import RandomInputState
++from fogsim.randomness.samplers import make_samplers
++
++
++def template(ids=("Z", "A", "join"), dependencies=(("A", "join"), ("Z", "join"))):
++    return DagTemplate(0, "scripted.xml", "a" * 64,
++        tuple(DagTaskSpec(tid, index) for index, tid in enumerate(ids)), dependencies)
++
++
++def inputs_for(t=None, *, seed=7, parameters=None, rng=None):
++    t = t or template()
++    types = WorkflowTypeRange(0, 0)
++    return RandomInputState(seed, DagCatalog(ROOT / "dax", types, (t,)),
++                            make_samplers(parameters or SamplerParameters(), types), rng or random.Random(seed))
++
++
++def environment(local=True):
++    return EnvironmentSnapshot((DeviceSnapshot("phone-X", 0, 100, local), DeviceSnapshot("phone-Y", 1, 125, local)),
++        (ServerSnapshot("edge-X", 0, "EDGE", 200, 100, 50), ServerSnapshot("cloud-X", 1, "CLOUD", 400, 200, 100)), "scripted")
++
++
++def test_two_pass_sample_order_formulas_and_edge_identity(monkeypatch):
++    inputs = inputs_for()
++    calls = trace_roles(monkeypatch, inputs, {"workflow_type": [0], "inter_release_time": [2], "weight": [4],
++        "workload": [1000, 2000, 3000], "data_size": [10, 20, 30], "edge_data": [100, 150]})
++    env = environment()
++    cause = GenerationCause("initialize", "phone-X", 0)
++    candidate = generate_workflow_input(inputs, env, cause, candidate_id=0)
++    assert calls == ["workflow_type", "inter_release_time", "weight",
++                     "workload", "data_size", "edge_data", "workload", "data_size", "edge_data", "workload", "data_size"]
++    assert candidate.release_time == candidate.inter_release_time == 2 and candidate.weight == 4
++    assert [(e.parent_id, e.child_id, e.data_size) for e in candidate.edges] == [("Z", "join", 100), ("A", "join", 150)]
++    assert [(t.total_input_data, t.total_output_data) for t in candidate.tasks] == [(0, 100), (0, 150), (250, 0)]
++    assert [[o.resource_id for o in t.options] for t in candidate.tasks] == [["phone-X", "edge-X", "cloud-X"]] * 3
++    local, edge, cloud = candidate.tasks[0].options
++    assert (local.processing_time, local.upload_time, local.download_time) == (10, 0, 0)
++    assert (edge.processing_time, edge.upload_time, edge.download_time) == (5, .1, 2.2)
++    assert (cloud.processing_time, cloud.upload_time, cloud.download_time) == (2.5, .05, 1.1)
++    join = candidate.tasks[2].options[1]
++    assert (join.processing_time, join.upload_time, join.download_time) == (15, 2.8, .6)
++    assert release_rejection_reason(candidate, cause) is None
++
++
++def test_input_accumulates_in_parent_order_output_in_children_order(monkeypatch):
++    t = template(("p0", "p1", "p2", "J", "X", "Y"),
++                 (("p2", "J"), ("p1", "J"), ("p0", "J"), ("p0", "X"), ("p0", "Y"), ("J", "X")))
++    inputs = inputs_for(t, parameters=SamplerParameters(edge_data=RealRange(0, 2e16)))
++    trace_roles(monkeypatch, inputs, {"edge_data": [1e16, 1, 1, 1, 1, 5]})
++    c = generate_workflow_input(inputs, environment(), GenerationCause("initialize", "phone-X", 0), candidate_id=0)
++    assert c.tasks[0].total_output_data == 1e16  # sequential +1,+1 are lost
++    assert c.tasks[3].total_input_data == 10000000000000002.0  # +1,+1 before +1e16
++    assert c.tasks[4].total_input_data == 6
++    assert [(e.parent_id, e.child_id) for e in c.edges] != list(t.dependencies)
++
++
++@pytest.mark.parametrize("local,servers", [(True, True), (False, True), (True, False)])
++def test_candidate_eligibility_and_no_base_data_in_totals(local, servers):
++    inputs = inputs_for(template(("single",), ()))
++    env = environment(local)
++    if not servers: env = replace(env, servers=())
++    c = generate_workflow_input(inputs, env, GenerationCause("initialize", "phone-X", 0), candidate_id=0)
++    task = c.tasks[0]
++    assert task.total_input_data == task.total_output_data == 0
++    expected = (["phone-X"] if local else []) + (["edge-X", "cloud-X"] if servers else [])
++    assert [o.resource_id for o in task.options] == expected
++    for option in task.options:
++        if option.resource_id != "phone-X":
++            assert option.upload_time > 0 and option.download_time > 0
++
++
++def test_release_zero_consumes_full_generation_and_does_not_touch_state():
++    class FirstRealZero(random.Random):
++        def __init__(self, seed): super().__init__(seed); self.real_calls = 0
++        def getrandbits(self, k): return super().getrandbits(k)
++        def random(self):
++            value = super().random(); self.real_calls += 1
++            return 0.0 if self.real_calls == 1 else value
++    inputs = inputs_for(rng=FirstRealZero(7)); control = inputs_for()
++    env = environment(); state = build_environment(env)
++    before = inputs.snapshot()
++    cause = GenerationCause("initialize", "phone-X", 0)
++    c = generate_workflow_input(inputs, env, cause, candidate_id=0)
++    ordinary = generate_workflow_input(control, env, cause, candidate_id=0)
++    assert c.inter_release_time == c.release_time == 0
++    assert release_rejection_reason(c, cause) == "REJECTED_RELEASE_NOT_FUTURE"
++    assert c.tasks == ordinary.tasks and c.edges == ordinary.edges
++    assert inputs.snapshot() != before and inputs.rng.getstate() == control.rng.getstate()
++    assert not state.workflows_by_id and not state.tasks_by_key and state.clock_time == 0
++    # Complete rejected input can be archived without consuming a formal ID.
++    a = InputArchive((template(),), env, (CandidateRecord("1", c),),
++        (GenerationAttempt(1, cause, "1", False, "REJECTED_RELEASE_NOT_FUTURE"),), ())
++    assert a.workflow_input("1") is c and not a.admissions
++
++
++def test_release_rounding_rejection_retains_original_delta(monkeypatch):
++    inputs = inputs_for()
++    calls = trace_roles(monkeypatch, inputs, {"inter_release_time": [1]})
++    cause = GenerationCause("after_arrival", "phone-X", float(1 << 53), 0, 1)
++    c = generate_workflow_input(inputs, environment(), cause, candidate_id=3)
++    assert c.inter_release_time == 1 and c.release_time == cause.clock_time
++    assert release_rejection_reason(c, cause) == "REJECTED_RELEASE_NOT_FUTURE"
++    assert calls[-1] == "data_size" and calls.count("edge_data") == 2
++
++
++def test_invalid_owner_and_id_do_not_draw():
++    inputs = inputs_for(); before = inputs.snapshot()
++    for cause, cid in ((GenerationCause("initialize", "missing", 0), 0),
++                       (GenerationCause("initialize", "phone-X", 0), True)):
++        with pytest.raises(InputError): generate_workflow_input(inputs, environment(), cause, candidate_id=cid)
++    assert inputs.snapshot() == before
++
++
++@pytest.mark.parametrize("defect", ["release_overflow", "workload_zero", "data_negative", "edge_nan",
++    "output_total_overflow", "input_total_overflow", "combined_upload_overflow", "combined_download_overflow",
++    "pt_underflow", "pt_overflow", "ut_overflow", "dt_overflow"])
++def test_numerical_failures_are_not_ordinary_rejections(defect, monkeypatch):
++    t = template(("a", "b", "c"), (("a", "b"), ("a", "c")))
++    env = environment(); cause = GenerationCause("initialize", "phone-X", 0)
++    script = {}
++    if defect == "release_overflow":
++        cause = GenerationCause("after_arrival", "phone-X", 1e308, 0, 1); script["inter_release_time"] = [1e308]
++    elif defect == "workload_zero": script["workload"] = [0]
++    elif defect == "data_negative": script["data_size"] = [-1]
++    elif defect == "edge_nan": script["edge_data"] = [float("nan")]
++    elif defect == "output_total_overflow": script["edge_data"] = [1e308, 1e308]
++    elif defect == "input_total_overflow":
++        t = template(("a", "b", "c"), (("a", "c"), ("b", "c"))); script["edge_data"] = [1e308, 1e308]
++    elif defect in ("combined_upload_overflow", "combined_download_overflow"):
++        script.update(data_size=[1e308] * 3, edge_data=[1e308, 0])
++        if defect == "combined_upload_overflow":
++            # Keep the parent's base small so failure occurs at the child's upload.
++            script["data_size"] = [0, 1e308, 0]
++    elif defect in ("pt_underflow", "pt_overflow"):
++        script["workload"] = [5e-324 if defect == "pt_underflow" else 1e308] * 3
++        rate = 1e308 if defect == "pt_underflow" else 5e-324
++        env = replace(env, devices=(replace(env.devices[0], processing_rate=rate), env.devices[1]))
++    else:
++        field = "upload_bandwidth" if defect == "ut_overflow" else "download_bandwidth"
++        env = replace(env, servers=(replace(env.servers[0], **{field: 5e-324}), env.servers[1]))
++    inputs = inputs_for(t); trace_roles(monkeypatch, inputs, script)
++    with pytest.raises(NumericDerivationError): generate_workflow_input(inputs, env, cause, candidate_id=0)
++
++
++def test_unexpected_sampler_exception_propagates(monkeypatch):
++    inputs = inputs_for()
++    def bug(self, rng): raise RuntimeError("injected implementation bug")
++    monkeypatch.setattr(type(inputs.samplers.workload), "sample", bug)
++    with pytest.raises(RuntimeError, match="injected implementation bug"):
++        generate_workflow_input(inputs, environment(), GenerationCause("initialize", "phone-X", 0), candidate_id=0)
+--- /dev/null
++++ b/tools/check_step3.py
+@@ -0,0 +1,189 @@
++"""Scoped V06/V07/V08/V11 oracle with identical scripted sampler values.
++
++Original Java constructor/setup/generate methods execute without source changes.
++No events are triggered. Python's loop below is a test harness, not admission or
++dynamic simulation. This tool deliberately does not implement the V16 exporter.
++"""
++from pathlib import Path
++import argparse
++from contextlib import ExitStack
++from dataclasses import asdict, fields, replace
++import hashlib
++import json
++import os
++import shutil
++import struct
++import subprocess
++import sys
++from unittest.mock import patch
++
++ROOT = Path(__file__).resolve().parents[1]
++sys.path.insert(0, str(ROOT / "src"))
++from fogsim import (load_experiment_config, prepare_random_input, sample_environment,
++                    generate_workflow_input, release_rejection_reason)
++from fogsim.experiment_config import EnvironmentConfig, WorkflowTypeRange
++from fogsim.instances.generated import GenerationCause
++from java_support import ORIGINAL, reference_jdk, sha
++
++
++def write(path, value):
++    path.write_text(json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n", encoding="utf-8")
++
++
++def first_difference(left, right, path="$"):
++    if isinstance(left, dict) and isinstance(right, dict):
++        if left.keys() != right.keys(): return {"path": path, "left_keys": list(left), "right_keys": list(right)}
++        for key in left:
++            difference = first_difference(left[key], right[key], f"{path}.{key}")
++            if difference: return difference
++        return None
++    if isinstance(left, list) and isinstance(right, list):
++        if len(left) != len(right): return {"path": path, "left_length": len(left), "right_length": len(right)}
++        for index, (a, b) in enumerate(zip(left, right)):
++            difference = first_difference(a, b, f"{path}[{index}]")
++            if difference: return difference
++        return None
++    equal = struct.pack(">d", left) == struct.pack(">d", right) if type(left) is type(right) is float else left == right
++    return None if equal else {"path": path, "left": left, "right": right}
++
++
++def make_cases():
++    common = {"num_mobile_devices": 2, "num_edge_servers": 2, "num_cloud_servers": 2,
++              "can_mobile_devices_process_tasks": True}
++    ordinary = '<adag><job id="Z"/><job id="A"/><job id="join"/>' + \
++               '<child ref="join"><parent ref="A"/><parent ref="Z"/></child></adag>'
++    ordered = '<adag>' + ''.join(f'<job id="{x}"/>' for x in ("p0", "p1", "p2", "J", "X", "Y")) + \
++        '<child ref="J"><parent ref="p2"/><parent ref="p1"/><parent ref="p0"/></child>' + \
++        '<child ref="X"><parent ref="p0"/><parent ref="J"/></child><child ref="Y"><parent ref="p0"/></child></adag>'
++    definitions = [
++        ("normal", common, [2, 3], None, ordinary, 3, 2),
++        ("local_disabled", dict(common, can_mobile_devices_process_tasks=False), [2, 3], None, ordinary, 3, 2),
++        ("local_only", dict(common, num_edge_servers=0, num_cloud_servers=0), [2, 3], None, ordinary, 3, 2),
++        ("first_device_rejected", common, [0, 3], None, ordinary, 3, 2),
++        ("all_devices_rejected", common, [0, 0], None, ordinary, 3, 2),
++        ("release_rounding", common, [2, 3, 1], float(1 << 53), ordinary, 3, 2),
++        ("adjacency_accumulation", common, [2, 3], None, ordered, 6, 6),
++    ]
++    cases = []
++    for name, environment, deltas, clock, xml, tasks, edges in definitions:
++        n = len(deltas)
++        role_values = {
++            "processing_rate_device": [125 + 25*i for i in range(environment["num_mobile_devices"])],
++            "processing_rate_edge": [250 + 50*i for i in range(environment["num_edge_servers"])],
++            "processing_rate_cloud": [500 + 100*i for i in range(environment["num_cloud_servers"])],
++            "upload_bandwidth_edge": [1024] * environment["num_edge_servers"],
++            "download_bandwidth_edge": [1024] * environment["num_edge_servers"],
++            "upload_bandwidth_cloud": [256, 512][:environment["num_cloud_servers"]],
++            "download_bandwidth_cloud": [128, 256][:environment["num_cloud_servers"]],
++            "workflow_type": [0] * n, "inter_release_time": deltas, "weight": [4, 2, 1][:n],
++            "workload": [5000 + 137*i for i in range(n*tasks)],
++            "data_size": [5120 + 17*i for i in range(n*tasks)],
++            "edge_data": [100 + 7*i for i in range(n*edges)],
++        }
++        if name == "adjacency_accumulation": role_values["edge_data"] = [1e16, 1, 1, 1, 1, 5] * n
++        cases.append({"name": name, "environment": environment, "extra_clock": clock,
++                      "xml": xml, "role_values": role_values})
++    return cases
++
++
++def python_case(case, directory):
++    cfg = load_experiment_config(ROOT / "configs/examples/step1_dynamic.json")
++    cfg = replace(cfg, source=replace(cfg.source, dag_root=directory / "dax", seed=7,
++        workflow_types=WorkflowTypeRange(0, 0), environment=EnvironmentConfig(**case["environment"])))
++    inputs = prepare_random_input(cfg)
++    names = {id(getattr(inputs.samplers, f.name)): f.name for f in fields(inputs.samplers)}
++    streams = {key: iter(values) for key, values in case["role_values"].items()}
++    calls = []
++    def feed(sampler, rng):
++        if rng is not inputs.rng: raise AssertionError("input stream not shared")
++        role = names[id(sampler)]; value = next(streams[role])
++        calls.append({"role": role, "value": float(value)})
++        return int(value) if role == "workflow_type" else float(value)
++    eligible, candidates, staged = [], [], [0] * cfg.source.environment.num_mobile_devices
++    with ExitStack() as stack:
++        for cls in {type(getattr(inputs.samplers, f.name)) for f in fields(inputs.samplers)}:
++            stack.enter_context(patch.object(cls, "sample", feed))
++        snapshot = sample_environment(cfg.source.environment, inputs, parameter_source="scripted-oracle")
++        device_indices = {device.id: index for index, device in enumerate(snapshot.devices)}
++        causes = [GenerationCause("initialize", d.id, 0) for d in snapshot.devices]
++        if case["extra_clock"] is not None:
++            # A direct numeric probe of the generation method, not an Arrival replay.
++            causes.append(GenerationCause("after_arrival", "M0", case["extra_clock"], 0, 1))
++        for cause in causes:
++            candidate = generate_workflow_input(inputs, snapshot, cause, candidate_id=len(eligible))
++            candidates.append(asdict(candidate))
++            if release_rejection_reason(candidate, cause) is None:
++                staged[device_indices[cause.owner_device_id]] += 1
++                eligible.append({"id": candidate.candidate_id, "owner_device_id": candidate.owner_device_id,
++                    "release_time": candidate.release_time, "weight": candidate.weight,
++                    "tasks": [dict(asdict(t), java_index=i, options=[asdict(o) for o in t.options]) for i, t in enumerate(candidate.tasks)]})
++    # expected G/Arrival counts are harness expectations for Java's release gate;
++    # the Python production admission/event layer is deliberately not implemented.
++    comparable = {"devices": [asdict(d) for d in snapshot.devices], "servers": [asdict(s) for s in snapshot.servers],
++        "accepted_workflows": eligible, "calls": calls, "generated_total": len(eligible),
++        "staged_arrivals": staged, "clock_time": case["extra_clock"] or 0.0, "shared_input_rng": True}
++    write(directory / "python-candidates.json", candidates)
++    write(directory / "python-raw.json", comparable)
++    return comparable
++
++
++def compile_oracle(output, explicit):
++    java = Path(explicit or os.environ.get("FOGSIM_JAVA") or shutil.which("java") or "").resolve()
++    version = reference_jdk(java)
++    integrity = json.loads((ROOT / "outputs/source-integrity-v2.json").read_text())["files"]
++    for relative, expected in integrity.items():
++        if sha(ORIGINAL / relative) != expected: raise RuntimeError(f"original source changed: {relative}")
++    main = ROOT / "tools/java/step3/fogsim/adapter/Step3Oracle.java"
++    codec = ROOT / "tools/java/src/fogsim/adapter/Json.java"
++    jars = sorted(p for p in (ORIGINAL / "libraries").glob("*.jar") if "javadoc" not in p.name)
++    hashes = {str(p.relative_to(ROOT)): sha(p) for p in [*sorted((ORIGINAL / "src").rglob("*.java")), *jars, main, codec]}
++    fingerprint = hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
++    classes = output / "classes" / fingerprint[:16]; classes.mkdir(parents=True, exist_ok=True)
++    javac = java.with_name("javac.exe" if java.suffix == ".exe" else "javac")
++    compiler = [str(javac)] if javac.is_file() else [str(java), "-m", "jdk.compiler/com.sun.tools.javac.Main"]
++    classpath = os.pathsep.join(str(p) for p in jars)
++    command = [*compiler, "-encoding", "UTF-8", "-cp", classpath, "-sourcepath", str(ORIGINAL / "src"), "-d", str(classes), str(main), str(codec)]
++    compiled = subprocess.run(command, capture_output=True, text=True, timeout=60)
++    (output / "javac-stdout.txt").write_text(compiled.stdout)
++    (output / "javac-stderr.txt").write_text(compiled.stderr)
++    manifest = {"reference_jdk": version, "original_integrity_files": len(integrity), "inputs": hashes,
++        "source_overlays": [], "sampler_inputs": "scripted test values, not RNG parity", "compiler_command": command,
++        "compiler_exit_code": compiled.returncode}
++    write(output / "java-build.json", manifest)
++    if compiled.returncode: raise RuntimeError("Java compilation failed; see javac-stderr.txt")
++    return java, os.pathsep.join([str(classes), classpath])
++
++
++def main(argv=None):
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("--java"); parser.add_argument("--output", type=Path, default=ROOT / "outputs/step3")
++    args = parser.parse_args(argv)
++    output = args.output.resolve(); output.mkdir(parents=True, exist_ok=True)
++    report = {"scope": "scripted original constructor/setup/generation only; no triggered events or full input export",
++              "known_differences": ["Python retains edge maps; original Java clears maps", "scripted test samplers replace RNG sampling only"],
++              "cases": [], "passed": False}
++    try:
++        java, classpath = compile_oracle(output, args.java)
++        for case in make_cases():
++            directory = output / "cases" / case["name"]; (directory / "dax").mkdir(parents=True, exist_ok=True)
++            (directory / "dax/CyberShake_30.xml").write_text(case["xml"])
++            request = directory / "request.json"; write(request, case)
++            expected = python_case(case, directory)
++            raw = directory / "java-raw.json"; raw.unlink(missing_ok=True)
++            command = [str(java), "-cp", classpath, "fogsim.adapter.Step3Oracle", str(request), str(raw)]
++            run = subprocess.run(command, cwd=directory, capture_output=True, text=True, timeout=60)
++            (directory / "java-stdout.txt").write_text(run.stdout); (directory / "java-stderr.txt").write_text(run.stderr)
++            write(directory / "run.json", {"command": command, "cwd": str(directory), "exit_code": run.returncode})
++            if run.returncode: raise RuntimeError(f"Java oracle failed for {case['name']}")
++            actual = json.loads(raw.read_text()); difference = first_difference(expected, actual)
++            result = {"case": case["name"], "classification": "NORMAL_PARITY_PASSED" if difference is None else "FAILED",
++                      "passed": difference is None, "first_difference": difference}
++            write(directory / "comparison.json", result); report["cases"].append(result)
++        report["passed"] = all(case["passed"] for case in report["cases"])
++    except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as exc:
++        report.update(classification="INFRASTRUCTURE_ERROR", error=f"{type(exc).__name__}: {exc}")
++    write(output / "checks.json", report); print(json.dumps(report, indent=2))
++    return 0 if report["passed"] else 1
++
++
++if __name__ == "__main__": raise SystemExit(main())
+--- /dev/null
++++ b/tools/java/step3/fogsim/adapter/Step3Oracle.java
+@@ -0,0 +1,119 @@
++package fogsim.adapter;
++
++import java.nio.file.*;
++import java.lang.reflect.Field;
++import java.util.*;
++import org.apache.commons.math3.random.RandomDataGenerator;
++import org.jdom2.Element;
++import org.jdom2.input.SAXBuilder;
++import mengxu.simulation.DynamicSimulation;
++import mengxu.simulation.state.SystemState;
++import mengxu.taskscheduling.*;
++import mengxu.util.random.*;
++
++/** Scoped generation oracle. Original constructors/setup/generate methods run
++ * unchanged. Scripted samplers supply identical business inputs to both sides.
++ * This is not a full input exporter, replay format, or scheduling experiment.
++ */
++public final class Step3Oracle {
++    static Map<String,Object> row(Object... values) {
++        Map<String,Object> out = new LinkedHashMap<>();
++        for (int i=0; i<values.length; i+=2) out.put((String)values[i], values[i+1]);
++        return out;
++    }
++    static final class Feed {
++        final Map<String,Object> values;
++        final Map<String,Integer> positions = new LinkedHashMap<>();
++        final List<Object> calls = new ArrayList<>();
++        RandomDataGenerator shared;
++        Feed(Map<String,Object> values) { this.values=values; }
++        double next(String role, RandomDataGenerator rng) {
++            if (shared==null) shared=rng;
++            if (shared!=rng) throw new IllegalStateException("input RNG not shared");
++            List<?> sequence=(List<?>)values.get(role);
++            int index=positions.getOrDefault(role,0);
++            if (sequence==null || index>=sequence.size()) throw new IllegalStateException("feed exhausted: "+role);
++            double value=((Number)sequence.get(index)).doubleValue();
++            positions.put(role,index+1); calls.add(row("role",role,"value",value));
++            return value;
++        }
++    }
++    static final class Real extends AbstractRealSampler {
++        final String role; final Feed feed;
++        Real(String role, Feed feed) { this.role=role; this.feed=feed; }
++        public double next(RandomDataGenerator rng) { return feed.next(role,rng); }
++        public void setLower(double v) {} public void setUpper(double v) {}
++        public void setMean(double v) {
++            if (role.equals("inter_release_time") && v!=100) throw new IllegalStateException("unexpected compatibility mean");
++        }
++        public double getMean() { return 100; }
++        public AbstractRealSampler clone() { return new Real(role,feed); }
++    }
++    static final class IntegerFeed extends AbstractIntegerSampler {
++        final Feed feed; IntegerFeed(Feed feed) { this.feed=feed; }
++        public int next(RandomDataGenerator rng) { return (int)feed.next("workflow_type",rng); }
++        public void setLower(int v) {} public void setUpper(int v) {} public void setMean(double v) {}
++        public double getMean() { return 0; }
++        public AbstractIntegerSampler clone() { return new IntegerFeed(feed); }
++    }
++    static String rid(Server server, SystemState state) {
++        int localIndex=0;
++        for (Server current:state.getServers()) {
++            if (current==server) return (server.getType()==ServerType.EDGE?"E":"C")+localIndex;
++            if (current.getType()==server.getType()) localIndex++;
++        }
++        throw new IllegalStateException("foreign server");
++    }
++    @SuppressWarnings("unchecked")
++    public static void main(String[] args) throws Exception {
++        Map<String,Object> request=(Map<String,Object>)Json.parse(Files.readString(Path.of(args[0])));
++        Feed feed=new Feed((Map<String,Object>)request.get("role_values"));
++        Map<String,Object> cfg=(Map<String,Object>)request.get("environment");
++        int mobiles=((Number)cfg.get("num_mobile_devices")).intValue();
++        int edges=((Number)cfg.get("num_edge_servers")).intValue();
++        int clouds=((Number)cfg.get("num_cloud_servers")).intValue();
++        boolean local=(Boolean)cfg.get("can_mobile_devices_process_tasks");
++        DynamicSimulation sim=new DynamicSimulation(7,null,null,10,0,mobiles,edges,clouds,
++            new Real("workload",feed),new Real("data_size",feed),new Real("edge_data",feed),
++            new Real("inter_release_time",feed),new Real("weight",feed),
++            new Real("upload_bandwidth_cloud",feed),new Real("download_bandwidth_cloud",feed),
++            new Real("upload_bandwidth_edge",feed),new Real("download_bandwidth_edge",feed),
++            new Real("processing_rate_cloud",feed),new Real("processing_rate_edge",feed),
++            new Real("processing_rate_device",feed),new IntegerFeed(feed),local);
++        SystemState state=sim.getSystemState();
++        if (request.get("extra_clock")!=null) {
++            state.setClockTime(((Number)request.get("extra_clock")).doubleValue());
++            state.getMobileDevices().get(0).generateWorkflowJob();
++        }
++        List<Object> devices=new ArrayList<>(), servers=new ArrayList<>(), jobs=new ArrayList<>();
++        for (MobileDevice device:state.getMobileDevices()) devices.add(row("id","M"+device.getId(),
++            "numeric_id",device.getId(),"processing_rate",device.getProcessingRate(),"can_process_tasks",device.isCanProcessTask()));
++        for (Server server:state.getServers()) servers.add(row("id",rid(server,state),"numeric_id",server.getId(),
++            "type",server.getType().toString(),"processing_rate",server.getProcessingRate(),
++            "upload_bandwidth",server.getUploadBandwidth(),"download_bandwidth",server.getDownloadBandwidth()));
++        List<String> names=new ArrayList<>();
++        for (Element node:new SAXBuilder().build("dax/CyberShake_30.xml").getRootElement().getChildren())
++            if (node.getName().equalsIgnoreCase("job")) names.add(node.getAttributeValue("id"));
++        for (Job job:state.getJobsInSystem()) {
++            List<Object> tasks=new ArrayList<>();
++            for (Task task:job.getTaskList()) {
++                List<Object> options=new ArrayList<>();
++                for (TaskOption option:task.getTaskOptions()) options.add(row("resource_id",
++                    option.getServer()==null?"M"+option.getMobileDevice().getId():rid(option.getServer(),state),
++                    "processing_time",option.getProcTime(),"upload_time",option.getUploadDelay(),"download_time",option.getDownloadDelay()));
++                tasks.add(row("id",names.get(task.getId()),"java_index",task.getId(),"workload",task.getWorkload(),
++                    "data_size",task.getData(),"total_input_data",task.getAllInputDataTotal(),
++                    "total_output_data",task.getAllOutputDataTotal(),"options",options));
++            }
++            jobs.add(row("id",job.getId(),"owner_device_id","M"+job.getMobileDevice().getId(),
++                         "release_time",job.getReleaseTime(),"weight",job.getWeight(),"tasks",tasks));
++        }
++        Field eventQueue=MobileDevice.class.getDeclaredField("eventQueue"); eventQueue.setAccessible(true);
++        List<Integer> staged=new ArrayList<>();
++        for (MobileDevice device:state.getMobileDevices()) staged.add(((Collection<?>)eventQueue.get(device)).size());
++        Map<String,Object> output=row("devices",devices,"servers",servers,"accepted_workflows",jobs,
++            "calls",feed.calls,"generated_total",state.getAllNumJobsReleased(),"staged_arrivals",staged,
++            "clock_time",state.getClockTime(),"shared_input_rng",true);
++        Files.writeString(Path.of(args[1]),Json.write(output)+"\n");
++    }
++}

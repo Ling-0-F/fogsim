@@ -1,0 +1,67 @@
+[
+  {
+    "case": "missing_record",
+    "passed": true,
+    "classification": "INPUT_COVERAGE_INSUFFICIENT",
+    "reason_code": "REPLAY_INPUT_EXHAUSTED"
+  },
+  {
+    "case": "incomplete_capture",
+    "passed": true,
+    "classification": "EXPECTED_DIFFERENCE_CONFIRMED",
+    "reason_code": "REPLAY_CAPTURE_INCOMPLETE"
+  },
+  {
+    "case": "changed_rule_coverage",
+    "passed": true,
+    "classification": "INPUT_COVERAGE_INSUFFICIENT",
+    "reason_code": "REPLAY_INPUT_EXHAUSTED"
+  },
+  {
+    "case": "wrong_call_position",
+    "passed": true,
+    "classification": "EXPECTED_DIFFERENCE_CONFIRMED",
+    "diagnostic": {
+      "kind": "replay",
+      "purpose": "verify_reference",
+      "new_experiment": false,
+      "available_attempt_count": 14,
+      "consumed_record_count": 1,
+      "validated_attempt_count": 0,
+      "remaining_attempt_count": 13,
+      "input_capture_complete": true,
+      "last_call": {
+        "cause": {
+          "phase": "initialize",
+          "owner_device_id": "M1",
+          "clock_time": 0.0,
+          "causing_workflow_id": null,
+          "event_sequence": null
+        },
+        "candidate_id": 0,
+        "requested_attempt_sequence": 1
+      },
+      "failure": {
+        "reason_code": "REPLAY_INPUT_DIVERGENCE",
+        "message": "next attempt does not match generation call",
+        "expected": {
+          "phase": "initialize",
+          "owner_device_id": "M0",
+          "clock_time": 0.0,
+          "causing_workflow_id": null,
+          "candidate_id": 0
+        },
+        "actual": {
+          "phase": "initialize",
+          "owner_device_id": "M1",
+          "clock_time": 0.0,
+          "causing_workflow_id": null,
+          "candidate_id": 0
+        },
+        "record_id": "1"
+      },
+      "coverage": "finite_recorded_global_attempt_stream",
+      "rng_used": false
+    }
+  }
+]

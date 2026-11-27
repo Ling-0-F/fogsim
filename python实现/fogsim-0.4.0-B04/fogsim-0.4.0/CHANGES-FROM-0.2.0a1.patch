@@ -1,0 +1,3420 @@
+--- a/README.md
++++ b/README.md
+@@ -1,12 +1,24 @@
+-# 雾计算工作流调度复现：0.2 第一阶段（0.2.0a1）
++# 雾计算工作流调度复现：0.2.1 固定实例验收版
+ 
+-本项目按提供的设计文档及 Xu 等（2023）配套 `multiDeviceDebug` Java 源码实现固定实例模拟器。Python 源码位于 `src/fogsim/`，没有运行时第三方依赖；本次新增 Java 固定实例适配器和离线轨迹对照工具。
++按提供的设计及 Xu 等（2023）Java 源码实现固定输入模拟器。已完成本轮 V2-01～V2-05：正式 14 配置及 96 组固定扫查，共每种语言 3,469 条事件、2,021 次决策逐项一致。最终 286 项测试通过，0 失败、0 错误、0 跳过。环境为 Linux x86_64、CPython 3.12.14、pytest 9.2.0、Temurin 17.0.16+8。
+ 
+-已经实现固定 JSON 加载与校验、独立运行对象图、四类事件、两层 Java 兼容堆、FCFS 路由与排序、固定资源调试规则、预约及去重保护、事件/决策快照、失败结果和固定实例重跑。当前完整验收范围是单任务及链式工作流。
++**已知边界：** PT 虽然大于 0，仍可能因浮点精度使总执行区间归零。实测原 Java 在此输入上安排重叠执行；旧 Python 串行执行，两侧结果不同。当前版本在接受此类计划前返回明确 FAILED，不将该负例报告为跨语言通过。说明、触发输入、首差与修改文件见 [问题及修正](docs/ISSUES-AND-FIXES.md)，正式结果见 [完整验收记录](docs/VALIDATION.md)。
+ 
+-本次验证：**145项测试通过，0失败、0跳过**。四个现有配置的 Java/Python 固定模式对照通过，共22条事件、8次决策；首个调度差异均为 `null`。0.1 的4组行为结果保持不变，原有3,797条输出的局部oracle也继续通过。见 [验收记录](docs/VALIDATION.md) 和 [对照总报告](outputs/parity/summary.json)。
++实现包括固定 JSON、规范对象、四事件、两层 Java 兼容堆、FCFS、固定资源调试路由、预约/去重、事件/决策日志、失败与全新对象重跑。DAX、原始随机生成与训练统计、GP、论文规模实验属于后续阶段。
+ 
+-这是0.2的第一阶段。复杂DAG、完整竞争与同刻交错验收尚未完成；多设备完整集成是后续扩展，未自动增加为本轮必需项。DAX/随机生成、GP和论文规模实验仍未实现。本次对照结论只覆盖指定参考环境和四个现有配置。
++优先复跑完整验收：
++
++```text
++python tools/validate.py
++```
++
++只运行 V2 正式对照、扫查和边界：
++
++```text
++python tools/run_v2_acceptance.py --java /path/to/jdk-17.0.16+8/bin/java
++```
++
++设置 `FOGSIM_JAVA` 后可省略 `--java`。完整验收要求 **JDK 主版本 17**，允许不同更新版本及厂商，例如用户使用的 Temurin 17.0.20.1+1。工具记录实际 vendor、build、可取得的 PriorityQueue 源码哈希，不将它们作为版本拒绝条件。17.0.16+8 仅标识本次实际验证的参考环境；其他 17 更新版本应在本机运行验收。无 JDK 时直接 pytest 可 skip，但正式 validate/release 会失败，不会发布“验收通过”。
+ 
+ ## 本次新增：Java/Python 对照
+ 
+@@ -14,7 +26,7 @@
+ .\.venv\Scripts\python.exe tools/run_fixed_parity.py --java "C:\path\to\jdk-17\bin\java.exe"
+ ```
+ 
+-本机项目内已有参考JDK时，可省略 `--java`；工具也支持 `FOGSIM_JAVA` 或 PATH。必须使用包含 `javac` 的JDK 17。默认运行4个随附配置；可用 `--config configs/chain_fcfs.json` 选择案例，用 `--output outputs/my_parity` 指定证据目录。
++本机项目内已有参考JDK时，可省略 `--java`；工具也支持 `FOGSIM_JAVA` 或 PATH。必须使用包含 `javac` 的 JDK 17；`lib/src.zip` 可选，存在时记录源码指纹。默认运行14个正式配置；可用 `--config configs/chain_fcfs.json` 选择案例，用 `--output outputs/my_parity` 指定证据目录。
+ 
+ 适配器编译原Java调度类，保留原四事件、评分选择、比较器、等待队列、`canAddToQueue` 和设备归并。两份构造函数增量只用于跳过随机采样与隐式setup；固定到达、全输入统计、停止条件和观察日志由独立适配代码负责。Java没有加入Python的 `pending_start` 保护。详细改动和证据边界见 [适配说明](docs/JAVA-FIXED-ADAPTER.md)。
+ 
+@@ -32,8 +44,8 @@
+ 
+ ## 环境与安装
+ 
+-- Python **3.11 或更新版本**；本次实际执行为 Windows x64、CPython **3.12.12**。
+-- Python 模拟器不需要 Java；测试依赖 `pytest`，本次版本 **9.1.1**。
++- Python **3.11 或更新版本**；本次实际执行为 Linux x86_64、CPython **3.12.14**。
++- Python 模拟器不需要 Java；测试依赖 `pytest`，本次版本 **9.2.0**。
+ - Java固定实例适配器及局部oracle使用 **Eclipse Temurin OpenJDK 17.0.16+8**。完整版本及源文件指纹见 [Java 参考说明](docs/JAVA-REFERENCE.md)。编译使用原ZIP随附的依赖jar，无需另外安装Maven或Gradle。
+ 
+ 在本 README 所在目录执行（PowerShell）：
+@@ -47,7 +59,7 @@
+ 
+ Linux/macOS 将 `.\.venv\Scripts\python.exe` 换成 `.venv/bin/python`。安装后也可使用 `fogsim` 命令。不需激活环境即可执行上述命令。
+ 
+-当前工作目录里的 `.venv` 和参考JDK仅用于本次验证，不放入交付ZIP。交付包包含原Java源文件及非javadoc依赖jar，以便重新编译适配器；解压后请建立Python环境，并指定自己的JDK17。
++虚拟环境和参考 JDK 不放入交付 ZIP。交付包包含原Java源文件及非javadoc依赖jar，以便重新编译适配器；解压后请建立Python环境，并指定自己的JDK17。
+ 
+ ## 运行实例
+ 
+@@ -90,6 +102,8 @@
+ 
+ 实例采用设计 03 的 JSON 字段：`time_unit`、`resources`、`workflows`；工作流内含 `tasks`、`dependencies` 和每项合法候选的 `execution_times`。参考 [链式完整输入](data/cases/chain_remote.json)。
+ 
++运行接受 Execution 时还要求 `(start+PT)+DT > start`，防止整体执行时长被浮点精度吞掉。
++
+ 加载器拒绝重复 ID/JSON 键、缺失或多余候选、不合法设备归属、非有限或负时间、非正计算时间、非零本地通信、非法边及环。未知字段直接报错，包括混入输入的运行状态。至少一个移动设备、一个工作流、每个工作流一个任务；布尔值不当作数值时间或整数工作流 ID。
+ 
+ 路由候选按合法本地、边缘、云构建；设备及同类型服务器保留输入顺序。服务器数字 ID 为边缘后云，设备另有独立 ID 空间。工作流 ID 不随到达顺序重编号。
+@@ -123,7 +137,7 @@
+ .\.venv\Scripts\python.exe tools/validate.py
+ ```
+ 
+-该命令执行测试（含固定Java对照）、四组Python实例并生成 `outputs/validation-manifest.json`，保存源码快照哈希、输入哈希、配置/顺序映射及真实结果。详见 [验收记录](docs/VALIDATION.md)。原始证据包括 `outputs/pytest-console.txt`、`outputs/pytest-results.xml`、`outputs/parity/` 和 `outputs/java_oracle/`。0.1证据保留在 `outputs/v0.1/`，旧的 `fogsim-0.1.0.zip` 保持不变。
++该命令执行测试（含固定 Java 对照及 V2 gate）、14 组 Python 实例并生成 `outputs/validation-manifest.json`，保存源码快照哈希、输入哈希、配置/顺序映射及真实结果。详见 [验收记录](docs/VALIDATION.md)。原始证据包括 `outputs/pytest-console.txt`、`outputs/pytest-results.xml`、`outputs/v2/`、`outputs/issues/`、`outputs/parity/` 和 `outputs/java_oracle/`。0.1证据保留在 `outputs/v0.1/`，旧的 `fogsim-0.1.0.zip` 保持不变。
+ 
+ Java 局部对照可独立执行：
+ 
+@@ -131,7 +145,7 @@
+ .\.venv\Scripts\python.exe tools/run_java_oracle.py --java "C:\path\to\jdk-17\bin\java.exe"
+ ```
+ 
+-pytest自动查找本地参考JDK或PATH中的Java；也可设置 `FOGSIM_JAVA`。缺少Java时依赖Java的测试显式skip，不能报告为通过；找到非JDK17时明确报错。以本次保存报告为准，本次没有跳过测试。
++pytest自动查找本地参考JDK或PATH中的Java；也可设置 `FOGSIM_JAVA`。缺少Java时依赖Java的测试显式skip，不能报告为通过；找到主版本非 17 的 Java 时明确报错。以本次保存报告为准，本次没有跳过测试。
+ 
+ oracle 从随附 Java 原文件直接抽取比较器、`priorTo` 和缓存方法，放入只提供数据的最小支架，调用真实 `java.util.PriorityQueue`。它验证指定样例的组件行为，**没有运行完整原 Java 调度器**。
+ 
+@@ -147,10 +161,14 @@
+ | `src/fogsim/validation/trace_compare.py` | 不参与调度的逐事件/逐决策对照器 |
+ | [JAVA-FIXED-ADAPTER](docs/JAVA-FIXED-ADAPTER.md) | 适配改动清单、日志映射、运行证据和限制 |
+ | [IMPLEMENTATION-NOTES](docs/IMPLEMENTATION-NOTES.md) | 问题、证据、采用方式、影响和待验证事项 |
+-| [JAVA-REFERENCE](docs/JAVA-REFERENCE.md) | 锁定参考 JDK、源码/二进制指纹及兼容边界 |
++| [JAVA-REFERENCE](docs/JAVA-REFERENCE.md) | 参考 JDK 记录、JDK 17 主版本要求及兼容边界 |
+ | [VALIDATION](docs/VALIDATION.md) | 设计 11 验收映射、实际结果、未执行项目 |
+ | [SOURCES](docs/SOURCES.md) | 材料可访问性及阅读记录 |
+ | [java_mapping](docs/java_mapping.md)、[semantics](docs/semantics.md)、[roadmap](docs/roadmap.md) | 实现定位、语义与后续事项 |
+ | `references/design/` | 12 份原始设计快照，保留原文 |
+ 
+ 设计00—07中“尚未编码”等是旧快照。当前实现及验证进度以本README、VALIDATION和IMPLEMENTATION-NOTES为准；08—11的增量设计优先于旧进度描述。交付ZIP不包含完整参考JDK、虚拟环境和原论文副本。
++
++正式验收的全部输入/预期与 V2 映射见 docs/VALIDATION.md；相对 0.2.0a1 的文本改动见 CHANGES-FROM-0.2.0a1.patch。历史输出中的旧路径/版本为原运行记录，当前源码与最终快照以 validation-manifest 和 RELEASE-FILES 为准。
++
++0.2.1 撤回 0.2.0 额外加入的具体 JDK build/vendor/源码强制锁定；详见 [JDK 17 兼容说明](docs/JDK17-COMPATIBILITY.md)。零 skip、完整 Java 真实对照和 V2 验收门禁继续保留。
+--- /dev/null
++++ b/configs/v2_candidates.json
+@@ -0,0 +1,9 @@
++{
++  "instance": "../data/cases/v2_candidates.json",
++  "routing_rule": {
++    "kind": "fcfs"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ b/configs/v2_collision_e0.json
+@@ -0,0 +1,10 @@
++{
++  "instance": "../data/cases/v2_collision_e0.json",
++  "routing_rule": {
++    "kind": "fixed_resource",
++    "resource_id": "E0"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ b/configs/v2_collision_m0.json
+@@ -0,0 +1,10 @@
++{
++  "instance": "../data/cases/v2_collision_m0.json",
++  "routing_rule": {
++    "kind": "fixed_resource",
++    "resource_id": "M0"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ b/configs/v2_contention.json
+@@ -0,0 +1,10 @@
++{
++  "instance": "../data/cases/v2_contention.json",
++  "routing_rule": {
++    "kind": "fixed_resource",
++    "resource_id": "E0"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ b/configs/v2_diamond.json
+@@ -0,0 +1,9 @@
++{
++  "instance": "../data/cases/v2_diamond.json",
++  "routing_rule": {
++    "kind": "fcfs"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ b/configs/v2_equal_heap.json
+@@ -0,0 +1,10 @@
++{
++  "instance": "../data/cases/v2_equal_heap.json",
++  "routing_rule": {
++    "kind": "fixed_resource",
++    "resource_id": "E0"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ b/configs/v2_float_local.json
+@@ -0,0 +1,10 @@
++{
++  "instance": "../data/cases/v2_float_local.json",
++  "routing_rule": {
++    "kind": "fixed_resource",
++    "resource_id": "M0"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ b/configs/v2_float_remote.json
+@@ -0,0 +1,10 @@
++{
++  "instance": "../data/cases/v2_float_remote.json",
++  "routing_rule": {
++    "kind": "fixed_resource",
++    "resource_id": "E0"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ b/configs/v2_order.json
+@@ -0,0 +1,9 @@
++{
++  "instance": "../data/cases/v2_order.json",
++  "routing_rule": {
++    "kind": "fcfs"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ b/configs/v2_precision_collapse.json
+@@ -0,0 +1,10 @@
++{
++  "instance": "../data/cases/v2_precision_collapse.json",
++  "routing_rule": {
++    "kind": "fixed_resource",
++    "resource_id": "M0"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ b/configs/v2_shared_server.json
+@@ -0,0 +1,10 @@
++{
++  "instance": "../data/cases/v2_shared_server.json",
++  "routing_rule": {
++    "kind": "fixed_resource",
++    "resource_id": "E0"
++  },
++  "sequencing_rule": {
++    "kind": "fcfs"
++  }
++}
+--- /dev/null
++++ b/data/cases/v2_candidates.json
+@@ -0,0 +1,207 @@
++{
++  "time_unit": "s",
++  "resources": [
++    {
++      "id": "M0",
++      "type": "MOBILE"
++    },
++    {
++      "id": "E0",
++      "type": "EDGE"
++    },
++    {
++      "id": "C0",
++      "type": "CLOUD"
++    }
++  ],
++  "workflows": [
++    {
++      "id": 0,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 6,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "B",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 1,
++      "owner_device_id": "M0",
++      "release_time": 1,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 5,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 2,
++      "owner_device_id": "M0",
++      "release_time": 2,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 3,
++              "download_time": 1
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 3,
++      "owner_device_id": "M0",
++      "release_time": 3,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 4,
++      "owner_device_id": "M0",
++      "release_time": 4,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 5,
++      "owner_device_id": "M0",
++      "release_time": 6,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    }
++  ]
++}
+--- /dev/null
++++ b/data/cases/v2_collision_e0.json
+@@ -0,0 +1,159 @@
++{
++  "time_unit": "s",
++  "resources": [
++    {
++      "id": "M0",
++      "type": "MOBILE"
++    },
++    {
++      "id": "E0",
++      "type": "EDGE"
++    },
++    {
++      "id": "C0",
++      "type": "CLOUD"
++    }
++  ],
++  "workflows": [
++    {
++      "id": 0,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 1,
++      "owner_device_id": "M0",
++      "release_time": 1,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 3,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 3,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 2,
++      "owner_device_id": "M0",
++      "release_time": 2,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 3,
++      "owner_device_id": "M0",
++      "release_time": 4,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 4,
++      "owner_device_id": "M0",
++      "release_time": 5,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    }
++  ]
++}
+--- /dev/null
++++ b/data/cases/v2_collision_m0.json
+@@ -0,0 +1,159 @@
++{
++  "time_unit": "s",
++  "resources": [
++    {
++      "id": "M0",
++      "type": "MOBILE"
++    },
++    {
++      "id": "E0",
++      "type": "EDGE"
++    },
++    {
++      "id": "C0",
++      "type": "CLOUD"
++    }
++  ],
++  "workflows": [
++    {
++      "id": 0,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 1,
++      "owner_device_id": "M0",
++      "release_time": 1,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 3,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 3,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 2,
++      "owner_device_id": "M0",
++      "release_time": 2,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 3,
++      "owner_device_id": "M0",
++      "release_time": 4,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 4,
++      "owner_device_id": "M0",
++      "release_time": 5,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    }
++  ]
++}
+--- /dev/null
++++ b/data/cases/v2_contention.json
+@@ -0,0 +1,103 @@
++{
++  "time_unit": "s",
++  "resources": [
++    {
++      "id": "M0",
++      "type": "MOBILE"
++    },
++    {
++      "id": "E0",
++      "type": "EDGE"
++    },
++    {
++      "id": "C0",
++      "type": "CLOUD"
++    }
++  ],
++  "workflows": [
++    {
++      "id": 0,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 10,
++              "download_time": 2
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 1,
++      "owner_device_id": "M0",
++      "release_time": 1,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 5,
++              "processing_time": 2,
++              "download_time": 1
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 2,
++      "owner_device_id": "M0",
++      "release_time": 2,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 1
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    }
++  ]
++}
+--- /dev/null
++++ b/data/cases/v2_diamond.json
+@@ -0,0 +1,124 @@
++{
++  "time_unit": "s",
++  "resources": [
++    {
++      "id": "M0",
++      "type": "MOBILE"
++    },
++    {
++      "id": "E0",
++      "type": "EDGE"
++    },
++    {
++      "id": "C0",
++      "type": "CLOUD"
++    }
++  ],
++  "workflows": [
++    {
++      "id": 0,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "B",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 3,
++              "download_time": 1
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "C",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 1,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "D",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 1,
++              "processing_time": 2,
++              "download_time": 1
++            }
++          }
++        }
++      ],
++      "dependencies": [
++        [
++          "A",
++          "B"
++        ],
++        [
++          "A",
++          "C"
++        ],
++        [
++          "B",
++          "D"
++        ],
++        [
++          "C",
++          "D"
++        ]
++      ]
++    }
++  ]
++}
+--- /dev/null
++++ b/data/cases/v2_equal_heap.json
+@@ -0,0 +1,310 @@
++{
++  "time_unit": "s",
++  "resources": [
++    {
++      "id": "M0",
++      "type": "MOBILE"
++    },
++    {
++      "id": "E0",
++      "type": "EDGE"
++    },
++    {
++      "id": "C0",
++      "type": "CLOUD"
++    }
++  ],
++  "workflows": [
++    {
++      "id": 9,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "B",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "C",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "D",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": [
++        [
++          "A",
++          "C"
++        ],
++        [
++          "B",
++          "D"
++        ]
++      ]
++    },
++    {
++      "id": 3,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "B",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "C",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "D",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": [
++        [
++          "A",
++          "C"
++        ],
++        [
++          "B",
++          "D"
++        ]
++      ]
++    },
++    {
++      "id": 7,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "B",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "C",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "D",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": [
++        [
++          "A",
++          "C"
++        ],
++        [
++          "B",
++          "D"
++        ]
++      ]
++    }
++  ]
++}
+--- /dev/null
++++ b/data/cases/v2_float_local.json
+@@ -0,0 +1,131 @@
++{
++  "time_unit": "s",
++  "resources": [
++    {
++      "id": "M0",
++      "type": "MOBILE"
++    },
++    {
++      "id": "E0",
++      "type": "EDGE"
++    },
++    {
++      "id": "C0",
++      "type": "CLOUD"
++    }
++  ],
++  "workflows": [
++    {
++      "id": 0,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 1,
++      "owner_device_id": "M0",
++      "release_time": 0.1,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 0.1,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 2,
++      "owner_device_id": "M0",
++      "release_time": 0.1,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 0.2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 3,
++      "owner_device_id": "M0",
++      "release_time": 0.1,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 0.3,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    }
++  ]
++}
+--- /dev/null
++++ b/data/cases/v2_float_remote.json
+@@ -0,0 +1,131 @@
++{
++  "time_unit": "s",
++  "resources": [
++    {
++      "id": "M0",
++      "type": "MOBILE"
++    },
++    {
++      "id": "E0",
++      "type": "EDGE"
++    },
++    {
++      "id": "C0",
++      "type": "CLOUD"
++    }
++  ],
++  "workflows": [
++    {
++      "id": 0,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 1,
++      "owner_device_id": "M0",
++      "release_time": 0.1,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0.1,
++              "processing_time": 0.1,
++              "download_time": 0.2
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 2,
++      "owner_device_id": "M0",
++      "release_time": 0.1,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0.1,
++              "processing_time": 0.2,
++              "download_time": 0.2
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 3,
++      "owner_device_id": "M0",
++      "release_time": 0.1,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0.1,
++              "processing_time": 0.3,
++              "download_time": 0.2
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    }
++  ]
++}
+--- /dev/null
++++ b/data/cases/v2_order.json
+@@ -0,0 +1,103 @@
++{
++  "time_unit": "s",
++  "resources": [
++    {
++      "id": "C0",
++      "type": "CLOUD"
++    },
++    {
++      "id": "M0",
++      "type": "MOBILE"
++    },
++    {
++      "id": "E0",
++      "type": "EDGE"
++    }
++  ],
++  "workflows": [
++    {
++      "id": 9,
++      "owner_device_id": "M0",
++      "release_time": 2,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": -3,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 2,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    }
++  ]
++}
+--- /dev/null
++++ b/data/cases/v2_precision_collapse.json
+@@ -0,0 +1,187 @@
++{
++  "time_unit": "s",
++  "resources": [
++    {
++      "id": "M0",
++      "type": "MOBILE"
++    },
++    {
++      "id": "E0",
++      "type": "EDGE"
++    },
++    {
++      "id": "C0",
++      "type": "CLOUD"
++    }
++  ],
++  "workflows": [
++    {
++      "id": 0,
++      "owner_device_id": "M0",
++      "release_time": 9007199254740988,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 1,
++      "owner_device_id": "M0",
++      "release_time": 9007199254740990,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 2,
++      "owner_device_id": "M0",
++      "release_time": 9007199254740990,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 5,
++      "owner_device_id": "M0",
++      "release_time": 9007199254740990,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 3,
++      "owner_device_id": "M0",
++      "release_time": 9007199254740992,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 4,
++      "owner_device_id": "M0",
++      "release_time": 9007199254740992,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    }
++  ]
++}
+--- /dev/null
++++ b/data/cases/v2_shared_server.json
+@@ -0,0 +1,132 @@
++{
++  "time_unit": "s",
++  "resources": [
++    {
++      "id": "M0",
++      "type": "MOBILE"
++    },
++    {
++      "id": "M1",
++      "type": "MOBILE"
++    },
++    {
++      "id": "E0",
++      "type": "EDGE"
++    },
++    {
++      "id": "C0",
++      "type": "CLOUD"
++    }
++  ],
++  "workflows": [
++    {
++      "id": 10,
++      "owner_device_id": "M0",
++      "release_time": 0,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 4,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    },
++    {
++      "id": 1,
++      "owner_device_id": "M1",
++      "release_time": 1,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "M1": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        },
++        {
++          "id": "B",
++          "execution_times": {
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "M1": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": [
++        [
++          "A",
++          "B"
++        ]
++      ]
++    },
++    {
++      "id": 2,
++      "owner_device_id": "M0",
++      "release_time": 2,
++      "tasks": [
++        {
++          "id": "A",
++          "execution_times": {
++            "M0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            },
++            "E0": {
++              "upload_time": 0,
++              "processing_time": 1,
++              "download_time": 0
++            },
++            "C0": {
++              "upload_time": 0,
++              "processing_time": 2,
++              "download_time": 0
++            }
++          }
++        }
++      ],
++      "dependencies": []
++    }
++  ]
++}
+--- a/docs/IMPLEMENTATION-NOTES.md
++++ b/docs/IMPLEMENTATION-NOTES.md
+@@ -202,3 +202,19 @@
+ - **验证**：新版构建工具再次核对源码快照、ZIP CRC和逐文件SHA，并检查包内当前测试、四案例报告与0.2隔离运行记录。
+ - **同步**：交付说明；不需修订04/07/08/09/10的调度基线。
+ - **状态**：采用新文件名解决交付；原文件拒绝覆盖的具体原因未确认。
++
++
++## N25：0.2.0 正式验收与精度反例
++
++前述 0.2.0a1 的“四实例、尚待复杂验收”为历史快照。本轮 14 配置与 96 固定扫查完成，详见 VALIDATION。组件边界证明 canAddToQueue 的堆首检查与预约并不普遍相同；正常事件循环的 395 次原方法调用未观察到不同判断。
++
++实际发现 `(start+PT)+DT == start` 时，多条同资源 Finish 在同刻积累；Java 的 Finish 无预约保护，排出多条同资源未来 Start，旧 Python 保持串行，首差第 19 事件、makespan 12/16。新增 Execution 正总区间检查，在第 12 Visit 接受计划前明确失败；保留原 Java 和修正前失败证据，不放松 Python 预约。完整复现、代码位置及可选 Java 修正路径见 ISSUES-AND-FIXES。
++
++## N26：锁定 JDK 与发布证据门禁
++
++旧工具只检查主版本 17，当前共用 reference_jdk 同时检查 vendor/build/PriorityQueue SHA；记录 Linux 二进制与源包指纹。validate/release 必须无 skip 且正式 V2 gate 完成；不再把缺 JDK 的 pytest 成功退出码当成完整验收。
++
++
++## N27：按用户原意撤回具体 JDK build 限制（0.2.1）
++
++用户要求 JDK 17 主版本，并非固定 Temurin 17.0.16+8。N26 中额外收紧到 vendor/build/源码的决定已撤回；保留作为历史决策记录，当前以 N27 为准。reference_jdk 仅拒绝主版本非 17；其他更新版本、厂商和源码指纹不同只记录，不拒绝。源码归档可选。零 skip 和真实行为对照门禁继续保留。本次实际完整回归仍使用 17.0.16+8，未冒充用户的 Windows 17.0.20.1+1 实测。
+--- /dev/null
++++ b/docs/ISSUES-AND-FIXES.md
+@@ -0,0 +1,116 @@
++# 本轮发现的问题、复现与代码修改
++
++版本 0.2.0；验收日期 2026-10-29（America/Los_Angeles）。本报告仅讨论固定实例模拟器，不把 Java 原算法的问题改写为移植器应当照抄的正确行为。
++
++## 1. 可达的预约差异：正 PT 被浮点精度吞掉
++
++### 输入与执行方式
++
++完整输入：`data/cases/v2_precision_collapse.json`；配置：`configs/v2_precision_collapse.json`。三种资源候选齐全，所有任务固定选择 M0，本地 UT=DT=0，各工作流只有一个任务 A，无依赖。定义 T=2^53=9007199254740992 秒：
++
++| 工作流 ID | 发布时间 | PT | 目的 |
++| --- | ---: | ---: | --- |
++| 0 | T−4 | 4 | 在 T 产生一条旧完成事件 |
++| 1 | T−2 | 4 | 提前进入等待队列 |
++| 2 | T−2 | 4 | 提前进入等待队列 |
++| 5 | T−2 | 4 | 提前进入等待队列 |
++| 3 | T | 1 | PT 为正，但 binary64 下 T+1==T |
++| 4 | T | 1 | 同样形成零长度执行 |
++
++原始包 0.2.0a1 上运行本输入的固定对照，实际产物原样保留于 `outputs/issues/precision-before/v2_collapsed_time/`。其中 `java-request.json` 是实际交给 Java 的全部输入和配置，`comparison.json` 是未修正前的首差报告；目录名保留发现当时的名称。复现旧行为时，将该输入和配置放入用户原始 0.2.0a1 包，再运行其 `tools/run_fixed_parity.py --config ...` 即可；必须使用指定 JDK。
++
++### 第一个不同点与后果
++
++T 时刻，W3/W4 的 Start 都产生同刻 Finish，旧 W0 的 Finish 也尚未处理。堆按原比较器依次处理若干 Finish，W1 被安排在 [T,T+4)，W2 先被安排在 [T+4,T+8)，此时 M0 已有 W2 的未来预约。
++
++**第 19 条实际事件**是 W0 的 `ProcessFinishEvent`，time=T。旧 Python 看到 `pending_start=W2`，保留 W5 在队列；Java 的 `ProcessFinishEvent.trigger` 继续无条件出队 W5，再安排一条 [T+4,T+8) 的 Start。两条未来 Start 同资源、同区间，Java 日志保留 `observed_pending_starts=[[2,"A"],[5,"A"]]`。
++
++首差路径：`$.result.events[18].actions[0]`；Python 动作数 0，Java 动作数 2（SEQUENCING 与 EMIT）。未排序、未合并事件、未压缩 Java 的多条待开始列表。
++
++| 原始实现实测 | W2 区间 | W5 区间 | makespan |
++| --- | --- | --- | ---: |
++| Java | [T+4,T+8) | [T+4,T+8) | 12 |
++| 旧 Python 0.2.0a1 | [T+4,T+8) | [T+8,T+12) | 16 |
++
++真正的重叠是 W2 与 W5 两个正长度区间。W3/W4 的 [T,T) 是空区间，不单独算物理重叠。
++
++这里**不是某次 canAddToQueue 返回错误造成的差异**：Java 的 Finish 续接路径根本没有调用它。`pending_start` 与 Java 原保护的结构差别，在这个可达的数值退化输入上才转化为不同运行行为。
++
++### 本轮实际修改
++
++实际修改 `src/fogsim/model/execution.py` 的 `Execution.__post_init__`。在原有有限数值/非负检查后、写入计划字段前增加：
++
++```python
++require(finish > self.start_time,
++        "execution duration lost to floating-point precision ...")
++```
++
++保留 `(start+PT)+DT` 的原运算顺序。`reserve_start` 仍先成功构造 Execution 才登记执行索引、资源预约和 Start 事件，所以拒绝时没有幽灵计划或实际 start/finish。没有删除 `pending_start`、放松区间不重叠不变量、修改 Java 原件或改动对照器来隐藏差异。
++
++修正后该输入在**第 12 条 TaskVisitEvent**接受 W3 的安排时明确失败：`status=FAILED`、`makespan=null`，原因含 start/PT/DT。对应证据：`outputs/v2/precision-collapse/`。原 Java 仍成功结束但存在上述重叠；比较报告继续为 `passed=false`。总验收中的负例 gate 仅表示“已识别并拒绝这个已知边界”，不表示该输入跨语言等价。
++
++这收紧了此前“有限时间、PT>0 就可正常运行”的实现边界：实际总占用区间还必须在 binary64 中严格为正。仅计算结束时刻舍入为 start、但 DT 使总占用仍为正的情况保留原数值结果。若要支持极大绝对时间和极短作业，应先减去统一时间原点，或另立高精度时间模型并重新对照；不能只把输入改成更长的小数字符串。
++
++相关回归：`tests/unit/test_execution_precision.py`；完整原 Java 反例回归：`tests/parity/test_v2_acceptance.py::test_precision_counterexample_is_an_explicit_failure_not_false_parity`。
++
++### 若后续要修正原 Java
++
++本轮交付保持 `references/java/` 的原始字节，以它作为原实现 oracle。若另建“修正版 Java”分支，应至少修改：
++
++- `taskscheduling/Process.java`：计算 finish 后检查有限性及 `finishTime > startTime`，报告输入精度问题。
++- `taskscheduling/MobileDevice.java::canAddToQueue`：用统一、按资源标识的待开始预约；若暂用事件扫描，则必须覆盖全局堆与所有设备暂存堆，不能只看 iterator 第一项。
++- `simulation/event/ProcessFinishEvent.java::trigger`：本地、服务器两个续接分支均检查已有待开始预约；已有预约时不再从队列创建另一条 Start。
++- `simulation/event/ProcessStartEvent.java::trigger`：只消耗匹配的预约，再更新 readyTime。
++
++这是后续 Java 修正版建议，不属于本轮已修改的原件。不能只补 canAddToQueue，因为实际反例来自绕过该方法的 Finish 路径；也不能再把修正版当作原 Java 运行基线。
++
++## 2. canAddToQueue 的局部边界差异与正常路径
++
++`tools/java/src/fogsim/adapter/ReservationBoundaryMain.java` 调用原方法，分别注入四种状态。结果在 `outputs/v2/reservation-probe/result.json`：
++
++| 手工状态 | Java 允许新开始 | Python 预约允许新开始 | 是否相同 |
++| --- | --- | --- | --- |
++| 无待开始事件 | 是 | 是 | 是 |
++| 匹配 PS 仅在设备暂存堆 | 是 | 否 | 否 |
++| 匹配 PS 位于全局堆首 | 否 | 否 | 是 |
++| 其他资源 PS 为堆首、匹配 PS 在后面 | 是 | 否 | 否 |
++
++这些是组件边界实验，不是声称可由正常事件循环达到的四个完整案例。Python 一侧的预约规则也由已有直接 Visit/Start/Finish 组件测试实际执行；表中的 Python 列表示按预约存在与否作出的允许条件。
++
++正常 110 个实例的 395 次实际方法调用未观察到差异。观察器 `FixedDevice.canAddToQueue` **只调用一次 `super.canAddToQueue`，原样返回结果**，随后输出堆首和待开始列表；输出不参与调度。每个完整事件前后也比较资源预约，确保没有通过日志转换丢掉多个 Java 待开始项目。
++
++在总占用区间严格为正、每事件前都归并暂存堆的条件下，同刻 PS 会先于 TV；未来 PS 对应 available>time，会先走 busy 分支。因此本轮普通固定实例不需要删除或替换 Python 预约保护。该源码路径解释与实测不能外推为对任意输入、任意改动后入口的形式化等价证明。
++
++## 3. JDK 17 要求与验收证据
++
++0.2.0 额外要求 Eclipse Temurin 17.0.16+8 和固定源码 SHA，这超出了用户“限制 JDK 17 主版本”的原意；它并非用户要求，也不是通过行为对照所必需。0.2.1 已撤回具体 build/vendor/源码锁定，仅强制 `java.specification.version=17`。用户的 Temurin 17.0.20.1+1 符合版本条件，无需降级。
++
++实际完整版本、厂商、Java/javac 哈希继续记录，PriorityQueue 源码可取得时记录哈希；源码缺失或不同不会替代行为测试，也不直接阻止测试。历史参考版本用于说明旧证据来自哪个运行环境。每次使用其他 JDK 17 仍由真实组件 oracle、固定实例轨迹对照和 V2 gate 判断是否通过，不能仅凭“都是 17”宣称已验证。
++
++`tests/unit/test_jdk_lock.py` 现验证 17.0.20.1+1、其他厂商和不同源码均可接受，非 17 主版本被拒绝，源码可选。它们是门禁单元测试，用户本机 Windows/JDK 的完整运行尚未执行。
++
++零 skip 发布门禁继续保留：缺 JDK 的测试 skip 不能被当成 Java 对照已通过。`tools/validate.py` 与 `tools/build_release.py` 仍要求真实 Java 对照及正式 V2 gate 通过。
++
++## 4. 本轮开发中修正的诊断问题
++
++第一次新增完整测试结果为 276 通过、1 失败。`positive_intervals` 辅助函数原先将 [t,t) 放入正区间重叠扫描，多报了一个“W1 与零长度 W3 重叠”；W2/W5 的真实重叠始终可见。已过滤 `finish>start`，增加 `test_empty_half_open_intervals_are_not_reported_as_overlap`，保存初次 XML 后重新完整执行。
++
++新增 JDK 属性解析最初对空 `java.class.path = ` 先 strip 后 split，造成长度为 1 的字典项。已改为先分隔、再分别 strip，相关错误 build/vendor 测试也含空 class.path。此问题只在新增验证工具开发阶段出现，没有改变模拟规则。
++
++## 5. 修改文件导航
++
++| 文件 | 实际修改目的 |
++| --- | --- |
++| `src/fogsim/model/execution.py` | 拒绝整体执行时长被浮点精度吞掉的安排 |
++| `tools/java_support.py`、`tools/run_java_oracle.py` | JDK 17 主版本校验；平台路径支持；二进制与源码指纹 |
++| `tools/java/src/fogsim/adapter/FixedInstanceMain.java` | 原 canAddToQueue 返回值与堆首的只读观察，不改原调度 |
++| `tools/java/src/fogsim/adapter/ReservationBoundaryMain.java` | 四种隔离状态的原方法边界实验 |
++| `tools/v2_cases.py`、`tools/run_fixed_parity.py` | 14 个正式配置及固定对照入口 |
++| `tools/run_v2_acceptance.py` | 96 组同输入扫查、局部边界、精度反例及合并 gate |
++| `tests/parity/test_v2_acceptance.py` | V2-01～05、独立生命周期断言、重跑/日志无干扰、完整 Java 负例 |
++| `tests/unit/test_execution_precision.py`、`test_jdk_lock.py` | 数值精度与 JDK 17 版本要求回归 |
++| `tools/validate.py`、`tools/build_release.py` | 无 skip 发布门禁、当前 V2 证据及原 Java 完整性检查 |
++| `tools/package_smoke.py` | 最终 ZIP 独立解压后重新编译并核对来源、运行正式对照 |
++| `configs/v2_*.json`、`data/cases/v2_*.json` | 10 个正式输入与 1 个明确数值边界反例 |
++
++完整相对原 0.2.0a1 的文本变更另附 `CHANGES-FROM-0.2.0a1.patch`。所有新证据与原始 Java 参考文件均在修订包中。
+--- a/docs/JAVA-FIXED-ADAPTER.md
++++ b/docs/JAVA-FIXED-ADAPTER.md
+@@ -1,6 +1,6 @@
+-# Java固定实例适配器：0.2第一阶段
++# Java 固定实例适配器：0.2.0
+ 
+-本次适配器实际执行原Java项目的模型、规则和四类事件。它与0.1的“方法抽取组件oracle”是两套不同工具：固定适配器运行完整单任务/链式生命周期，组件oracle继续负责局部比较器/堆/缓存测试。
++本次适配器实际执行原Java项目的模型、规则和四类事件。它与0.1的“方法抽取组件oracle”是两套不同工具：固定适配器运行完整固定 DAG、竞争和同刻交错生命周期，组件oracle继续负责局部比较器/堆/缓存测试。
+ 
+ ## 原始代码与适配代码的边界
+ 
+@@ -22,9 +22,11 @@
+ 
+ FCFS评分使用原类委托；观察规则通过 `super.nextTaskOption/priorTask` 调用原选择循环。固定资源的0/1调试评分由适配器新增，与Python相同，不冒充论文基准算法。两轮后继路由来自原Java真实调用链，观察器只标注轮次。
+ 
+-## Python改动
++## Python 改动
+ 
+-只扩充TraceRecorder输出：所属事件序号、决策序号、候选状态，以及事件内部DECISION/EMIT交错记录。Engine在既有边界调用记录器；没有改变事件比较、选择逻辑、派发/预约/开始/完成顺序。4组原0.1轨迹在去掉新增日志字段后与保存的基线逐项相同。
++第一阶段只扩充日志，本轮另在 `Execution.__post_init__` 拒绝总执行区间因 binary64 精度归零的计划。普通正区间输入保留原调度路径。精度反例是明确不等价边界，见 `ISSUES-AND-FIXES.md`，不作为正常对照通过。
++
++本轮 `FixedDevice.canAddToQueue` 增加只读观察：恰好调用一次原 `super` 方法、原样返回结果，随后记录全局堆首和观察到的待开始列表。观测集合不参与调度。独立 `ReservationBoundaryMain` 只运行手工状态实验，不把它们冒充完整可达调度案例。
+ 
+ ## 日志口径与原始差异
+ 
+@@ -43,7 +45,7 @@
+ 
+ Java原生未完成 `completionTime` 为0.0，Python为None。只有“未登记且恰为0.0”的Java默认值转换为None；意外非零值仍参与比较。完成后的时间不作这一转换。
+ 
+-Java没有 `pending_start`。Java日志使用 `observed_pending_starts`，由已发出但未触发的Start事件引用观察得到；不会用于拒绝新安排。Python的零/一个预约与该列表按任务键对照，多个Java待开始项完整保留，不能压成一个。Java的原 `canAddToQueue` 检查保持原样。本次四案例未发现预约边界上的行为差异，不代表所有竞争场景都等价。
++Java没有 `pending_start`。Java日志使用 `observed_pending_starts`，由已发出但未触发的Start事件引用观察得到；不会用于拒绝新安排。Python的零/一个预约与该列表按任务键对照，多个Java待开始项完整保留，不能压成一个。Java的原 `canAddToQueue` 检查保持原样。本轮 110 个正常固定输入案例未发现预约差异；精度归零反例确有可达差异，已保留原始失败报告并明确拒绝该数值范围。
+ 
+ 原Java没有SystemState执行索引。日志从正式发出的Start事件观察已接受Process计划，忙分支创建但未安排的临时Process不进入此观察列表；完成历史从原Job的ProcessFinishEvent列表读取。观察集合均不参与规则、队列或事件比较。
+ 
+@@ -63,27 +65,12 @@
+ 
+ 失败报告保存首差的事件序号、时间、阶段、字段路径、Python值、Java值和原因。两侧都FAILED或缺少详细事件也不能判为通过。Java进程失败前会清除本次目标trace旧文件，防止读取上一轮结果；套件基础设施失败会写ERROR摘要，不保留旧“通过”结论。
+ 
+-## 本次实际结果与边界
++## 实测结果与范围
+ 
+-| 案例 | Java/Python事件数 | Java/Python决策数 | makespan | 首个调度差异 |
+-| --- | --- | --- | --- | --- |
+-| single_local | 4/4 | 1/1 | 3/3 | 未发现 |
+-| single_local_release5 | 4/4 | 1/1 | 3/3；最终时钟8/8 | 未发现 |
+-| chain_remote | 7/7 | 3/3 | 13/13 | 未发现 |
+-| chain_fcfs | 7/7 | 3/3 | 17/17 | 未发现 |
++14 个正式配置及 96 组固定扫查均通过：每种语言 3,469 条事件、2,021 次决策。详细逐例结果及 V2-01～05 映射见 `VALIDATION.md`，证据在 `outputs/v2/`。原链式首差故障注入继续执行，原 raw 不修改。
+ 
+-在参考Temurin17.0.16+8上真实执行。完整测试145通过，包含Java重复运行、日志开关无干扰、Unicode任务ID边界、源文件/补丁检查及首差检测负例。原Java依赖编译有44条旧API/strictfp等警告，0编译错误；没有为消除警告修改调度源码。
++本次实际采用 Temurin 17.0.16+8，记录 vendor/build/源码 SHA；0.2.1 允许任意 JDK 17 更新版本，不强制其与参考指纹相同；构造增量仍只增加构造函数，原 647 份源码及 12 个依赖与原 ZIP 一致。44 条既有编译警告、0 错误。
+ 
+-故障注入测试从真实chain_fcfs轨迹复制一份，将第一次决策的第一个分数0.0改成99.0。工具正确报告：
++数值精度归零负例单列于 `outputs/v2/precision-collapse/`：Python FAILED，Java 返回成功但两个正区间重叠，比较 `passed=false`。`outputs/issues/precision-before/` 保留修正前 Python/Java 的真实分叉。不得压缩待开始列表或改变对照器使其通过。
+ 
+-```text
+-event_sequence = 1
+-phase = actions
+-path = $.result.events[0].actions[0].decision.candidates[0].priority
+-python_value = 0.0
+-java_value = 99.0
+-```
+-
+-此故障是有意修改的日志副本，保存在 `outputs/parity/fault_injection/`，原始Java轨迹哈希未变；不是实际调度差异。
+-
+-本结论是“固定模式适配后的原Java调度核心在这4个配置上通过对照”。不覆盖原训练入口/统计窗口、任意输入、复杂DAG、完整竞争、多设备集成、随机生成、GP或论文结果。以上范围仍需后续推进。
++本结论只覆盖固定模式支架和明确列出的输入。原训练入口、warm-up、任意输入、DAX/RNG、GP、论文实验未验证；两个设备共享服务器只是一项额外集成检查。
+--- a/docs/JAVA-REFERENCE.md
++++ b/docs/JAVA-REFERENCE.md
+@@ -1,6 +1,6 @@
+ # Java 参考环境与局部对照
+ 
+-本次实际参考环境为 **Eclipse Temurin OpenJDK 17.0.16+8**，Windows x64 HotSpot。它是本项目锁定的参考环境，不是作者实验环境的证明。
++本次实际参考环境为 **Eclipse Temurin OpenJDK 17.0.16+8**，Linux x86_64 HotSpot（原 0.2.0a1 的 Windows 验证记录保留于历史文档）。它是本次验收记录的参考环境（允许使用其他 JDK 17 更新版本），不是作者实验环境的证明。
+ 
+ ```text
+ openjdk version "17.0.16" 2025-07-15
+@@ -8,12 +8,12 @@
+ OpenJDK 64-Bit Server VM Temurin-17.0.16+8 (build 17.0.16+8, mixed mode, sharing)
+ ```
+ 
+-原始完整 properties/version 输出：[java-version.txt](../outputs/java_oracle/java-version.txt)。本次可执行文件为项目内 `references/jdk/jdk-17.0.16+8/bin/java.exe`；未更改系统 PATH。原项目 `.idea/misc.xml` 仅记录 languageLevel=JDK_1_8、project-jdk-name=openjdk-17。
++原始完整 properties/version 输出：[java-version.txt](../outputs/java_oracle/java-version.txt)。本次可执行文件为临时参考目录的 `jdk-17.0.16+8/bin/java`（实际绝对路径见版本/构建清单）；未更改系统 PATH。原项目 `.idea/misc.xml` 仅记录 languageLevel=JDK_1_8、project-jdk-name=openjdk-17。
+ 
+-## 二进制和源码锁定
++## 本次参考环境的二进制和源码指纹
+ 
+-- [Temurin 官方 release](https://github.com/adoptium/temurin17-binaries/releases/tag/jdk-17.0.16%2B8) 的文件 `OpenJDK17U-jdk_x64_windows_hotspot_17.0.16_8.zip`。
+-- 下载包 SHA-256：`8c7cfff78a55c56ebaf470ed6a89c6466b47d8274bdabdda997d7507c20325c5`；实际下载字节与 release 的 `.sha256.txt` 相符。
++- [Temurin 官方 release](https://github.com/adoptium/temurin17-binaries/releases/tag/jdk-17.0.16%2B8) 的文件 `OpenJDK17U-jdk_x64_linux_hotspot_17.0.16_8.tar.gz`。
++- 下载包 SHA-256：`166774efcf0f722f2ee18eba0039de2d685b350ee14d7b69e6f83437dafd2af1`；实际下载字节与 release 的 `.sha256.txt` 相符。
+ - JDK `lib/src.zip` 中 `java.base/java/util/PriorityQueue.java` 的 SHA-256：`92f97c6625f4cd1994765acbd718e8a6f7c7697e5e65974a1d78d5e37e284ca8`。
+ - 上述文件与 [OpenJDK 固定 tag jdk-17.0.16+8 的源码](https://github.com/openjdk/jdk17u/blob/jdk-17.0.16%2B8/src/java.base/share/classes/java/util/PriorityQueue.java) 下载字节的 SHA-256 一致。没有以浮动 master 作为对照依据。
+ 
+@@ -45,4 +45,6 @@
+ 
+ 实际 **4,764 条输入操作，3,797 条输出，Java/Python 全部逐行一致**。证据：[report.json](../outputs/java_oracle/report.json)、[operations.txt](../outputs/java_oracle/operations.txt)、[Java 输出](../outputs/java_oracle/java-output.txt)、[Python 输出](../outputs/java_oracle/python-output.txt)。测试 fixture 生成使用固定本地 RNG，仅用于构造组件操作样例；模拟器本身不采样。
+ 
+-这支持“指定build、这些操作样例的组件对照通过”。该组件oracle本身没有运行完整工作流。0.2第一阶段另新增 [Java固定实例适配器](JAVA-FIXED-ADAPTER.md)，使用相同参考JDK，在4个单任务/链式配置上运行原Java调度类并通过逐事件/逐决策对照。仍未证明pending_start与canAddToQueue在所有可达场景等价，也未证明任意输入或论文结果等价。
++这支持指定 build 和所列组件样例的对照。完整固定实例另由 Java 适配器验证：14 个正式配置及 96 组固定扫查通过，详见 `VALIDATION.md`。浮点精度归零的实际反例表明不能声称任意有限输入等价；详见 `ISSUES-AND-FIXES.md`。
++
++0.2.1 的两个 Java 工具共用 `tools/java_support.py::reference_jdk`，只要求 `java.specification.version=17`。实际 vendor/build/二进制哈希保存于构建清单，PriorityQueue 源码可取得时记录 SHA，不因不同 build/vendor/源码而拒绝。0.2.0 强制锁定具体 build 的做法属于额外收紧，已撤回。真实堆 oracle 和完整轨迹对照仍必须通过。
+--- /dev/null
++++ b/docs/JDK17-COMPATIBILITY.md
+@@ -0,0 +1,27 @@
++# JDK 17 版本要求：0.2.1 修正
++
++用户希望限定 JDK 主版本 17，允许 17.x 更新。此前将验收参考环境 Temurin 17.0.16+8 额外变成强制运行要求，属于过度收紧，现已撤回。
++
++| 检查内容 | 0.2.1 行为 |
++| --- | --- |
++| java.specification.version | 必须为 17；拒绝 8、11、18、21 等 |
++| 更新号及 build | 记录实际值；17.0.20.1+1 等允许使用 |
++| 厂商 | 记录实际值；不限定 Eclipse Adoptium |
++| PriorityQueue 源码 | 可取得时记录 SHA；不同、缺失或不可读不直接阻止运行测试，并记录状态 |
++| javac | Java 适配器仍需完整 JDK 中的编译器 |
++| 组件 oracle 与固定输入轨迹 | 仍需真实运行并通过 |
++| 缺 JDK 导致 skip | 正式 validate/release 仍不允许据此宣称验收通过 |
++
++本次完整回归在 Temurin 17.0.16+8 上执行。针对用户 17.0.20.1+1 的单元测试证明版本门禁接受该元数据；不等于已经在其 Windows 环境运行全部 Java 轨迹。
++
++用户无需为运行本项目降级。建议在 PowerShell 中、解压后的项目根目录执行：
++
++```powershell
++java -version
++javac -version
++.\.venv\Scripts\python.exe tools/validate.py
++```
++
++前两个命令应显示 17 系列；若需要显式选择安装路径，可设置当前终端的 `FOGSIM_JAVA` 为对应 JDK 的 `bin\java.exe`。不要求修改系统全局 Java 配置。
++
++运行日志、构建清单和对照报告会记录本次实际环境。若某个 17 更新版本发生实际行为差异，对照器将报告首差；不会仅因更新号不同拒绝，也不会因为主版本相同自动判为行为一致。
+--- a/docs/VALIDATION.md
++++ b/docs/VALIDATION.md
+@@ -1,82 +1,100 @@
+-# 0.2 第一阶段实际验收记录
++# 0.2 固定实例完整验收记录
+ 
+-日期：2026-10-22。实现版本：**0.2.0a1**。本次完成Java固定实例入口及已有单任务/链式配置的逐事件、逐决策对照；未声明完整0.2验收完成。
++日期：2026-10-29（America/Los_Angeles）。版本：0.2.1。范围为设计 11 的 V2-01～V2-05，以及原有 0.1/0.2.0a1 回归。原第一阶段记录另存于 `docs/history/VALIDATION-0.2.0a1.md`，原始交付证据保留在 `outputs/history-0.2.0a1/`。
+ 
+-## 最终实际结果
++## 结论与适用范围
+ 
+-**145项测试通过，0失败、0错误、0跳过**，实际耗时见pytest原始报告。运行环境为Windows x64、CPython3.12.12、pytest9.1.1、Eclipse Temurin OpenJDK17.0.16+8。
++指定参考环境下，14 个正式固定配置和 96 组确定性生成的固定输入通过逐事件、逐决策、状态和结果对照，共 **3,469 条事件、2,021 次决策／每种语言**。原有 4,764 条局部操作、3,797 条输出的组件 oracle 继续逐行一致。最终测试 **286 项通过，0 失败、0 错误、0 跳过**；实际执行和计数以 `outputs/pytest-results.xml`、`outputs/validation-manifest.json` 为准。
+ 
+-实际执行：
++**存在明确的数值边界，不能宣称任意有限输入都与 Java 等价。** 正的 PT 可能在 binary64 加法中被舍掉，使 `(start+PT)+DT == start`。实测这种输入能使原 Java 同一资源上的两个正长度执行重叠；旧 Python 则保留预约保护并串行执行，结果不同。0.2.0 对该输入明确返回 FAILED、makespan=null，保留 Java 原件和失败对照报告。详见 `docs/ISSUES-AND-FIXES.md`。此负例不计入上面的 110 个正常对照通过案例。
+ 
+-```powershell
+-.\.venv\Scripts\python.exe tools/validate.py
++V2 验收完成的口径为：有可重复证据的固定输入验收、已发现错误的修正及回归、已知不等价边界显式化；不将边界反例改写成“与 Java 一致”。
++
++## 实际环境
++
++- Linux x86_64，CPython 3.12.14，pytest 9.2.0。
++- Eclipse Temurin OpenJDK **17.0.16+8**，HotSpot；与先前 Windows 验证使用相同 vendor/build，本轮使用 Linux 二进制。
++- 下载包 `OpenJDK17U-jdk_x64_linux_hotspot_17.0.16_8.tar.gz`，实际 SHA-256 与官方随附校验文件一致：`166774efcf0f722f2ee18eba0039de2d685b350ee14d7b69e6f83437dafd2af1`。
++- `PriorityQueue.java` SHA-256：`92f97c6625f4cd1994765acbd718e8a6f7c7697e5e65974a1d78d5e37e284ca8`，与原锁定值相同。
++- `tools/java_support.py` 只强制检查 Java 主版本 17；更新号、厂商、可取得的源码哈希记录为证据，不作拒绝条件。0.2.0 曾额外收紧到具体 build，现按用户原意撤回。Java 适配器与组件 oracle 共用此检查。
++
++构建清单记录实际 Java/javac 路径、二进制哈希、版本输出、编译命令和全部输入指纹。原 647 份 Java 源码及 12 个依赖 jar 与用户上传 ZIP 逐文件字节一致，见 `outputs/source-integrity-v2.json`。原 Java 编译 44 条旧 API 等警告、0 错误；没有为消除警告修改原方法。
++
++## 正式验收映射
++
++| 编号 | 实例与检查 | 实际证据与结果 |
++| --- | --- | --- |
++| V2-01 | A→B/C→D 分叉汇合；两整轮路由；空 ready 不代表完成；D 只派发一次 | `v2_diamond`；A=[0,2]、B=[2,6]、C=[6,7]、D=[8,11]；makespan=11；通过 |
++| V2-02 | 工作流竞争 E0；排队顺序与发布时间顺序相反；缓存含已发生 UT | `v2_contention`；W2 先入队，但 W1 按 release 先执行；[0,12]、[12,15]、[15,17]；通过 |
++| V2-03 | 三种资源不同 avail 和队列；候选平分保留输入顺序；读取原始 available_time | `v2_candidates`；路由依次 M0、M0、E0、C0、M0、M0、M0；makespan=14；通过 |
++| V2-04 | JA/TV/新 PS/旧 PF 同刻交错；队列安排未来 PS；到达前归并；多项完全平分 | `v2_collision_m0/e0`、`v2_equal_heap`、`v2_candidates`；保留真实两层堆顺序；通过 |
++| V2-05 | 同输入/加载模型/候选顺序；每条事件前后；内部 DECISION/EMIT；每次评分、选择、轮次；队列/缓存/预约；任务/工作流时间和指标 | 14 个正式配置、96 组固定扫查输入；全部通过；精度反例另列为明确失败边界 |
++
++V2-03 的特征检查涵盖当前固定规则直接读取的 MRT、release 以及队列数/两个缓存状态；没有宣称已完成后续十个 GP 特征和表达式模块。
++
++## 正式配置实测表
++
++计数为每种语言的实际事件数和决策数，Java 与 Python 均相同。
++
++| 配置 | 事件 | 决策 | makespan |
++| --- | ---: | ---: | ---: |
++| single_local | 4 | 1 | 3 |
++| single_local_release5 | 4 | 1 | 3；最终时钟 8 |
++| chain_remote | 7 | 3 | 13 |
++| chain_fcfs | 7 | 3 | 17 |
++| v2_diamond | 13 | 8 | 11 |
++| v2_contention | 12 | 5 | 17 |
++| v2_candidates | 27 | 10 | 14 |
++| v2_collision_m0 | 20 | 8 | 11 |
++| v2_collision_e0 | 20 | 8 | 11 |
++| v2_equal_heap | 39 | 29 | 12 |
++| v2_float_local | 16 | 7 | 1.6 |
++| v2_float_remote | 16 | 7 | 2.2 |
++| v2_shared_server | 15 | 8 | 8 |
++| v2_order | 12 | 4 | 4 |
++| 合计 | 212 | 102 | — |
++
++96 组固定扫查另有 3,257 条事件、1,919 次决策。生成器使用 Python `random.Random(20261029 + index)`，覆盖 1/2 设备、禁用本地执行、不同资源输入顺序、负及乱序工作流 ID、2～5 个工作流、1～5 个任务、DAG/无边、同刻到达、整数/小数时长、FCFS/固定 E0。生成后的 JSON 同时提供给两种运行时，不是 Java 随机实例分布或相同 seed 复现。全部输入、原始轨迹、规范化副本、比较报告、进程命令和 SHA 都保存在 `outputs/v2/sweep/`。
++
++## pending_start 与 canAddToQueue
++
++1. **方法边界确有差异。** 实际原方法只查看全局堆首项。`outputs/v2/reservation-probe/result.json` 的四项隔离实验显示：空状态、一条匹配 PS 在堆首时一致；PS 仅在设备暂存堆、匹配 PS 藏在其他资源堆首后面时不同。它们是手工注入状态，不能据此认定正常运行必然错误。
++2. **正常完整运行未观察到判断差异。** 110 个正常案例记录到 395 次真正执行的 `canAddToQueue` 调用，原返回值与观察到的待开始状态一致。资源忙的 Visit 由 Java `||` 短路，不进入该方法。每个事件边界仍完整对照预约与原 Java 待触发 Start 列表，多个 Start 不会被归一化隐藏。
++3. **正常路径的解释。** 每次事件前排空暂存堆；同刻 PS 优先于 TV。若已有未来 PS，它来自 Finish 的 `max(available,time)`，此时资源 available>time，Visit 已走 busy 分支。在实际占用区间严格为正时，一条旧 Finish 可以与一条新 Start 交错，但不会积累多条同资源同刻 Finish。此为源码路径推理与实测支持，不是任意输入的形式化证明。
++4. **可达反例已找到。** 数值精度使执行区间归零后，上述“严格为正”条件失效；多条旧 Finish 在同刻触发。原 Finish 无预约检查、也不调用 canAddToQueue，因而反复从等待队列安排未来 Start。Python 的 Finish 预约保护与 Java 分叉。详细复现见问题报告。
++
++## 回归、失败与交付检查
++
++- 原 145 项回归重新执行通过，基线 XML：`outputs/development/pytest-original-145.xml`。
++- 10 个新增正式配置逐一检查 Python 完整轨迹重跑一致、关闭日志不影响事实；Java 新 JVM 重跑完整 raw 相同，关闭观察日志不影响结果。
++- 每任务恰好一个 Visit/Start/Finish；每资源正长度占用区间无重叠；所有工作流完成并只登记一次。
++- 额外验证共享 E0 时事件 owner 与 staging_device 不同的三次跨设备安排；这不等于完成后续所有多设备模型扩展。
++- 数值反例在接受 Execution 前失败，无幽灵计划、实际 start 或 finish；PT 极小但总占用含 DT 仍可表示为正时，保留原加法顺序和结果。
++- `tools/validate.py`、`tools/build_release.py` 要求 Java 对照及 V2 gate 通过且无 skip，防止缺 JDK 时凭 Python 测试结束码误发“已验收”包。
++- 包内源码通过语法检查；从最终 ZIP 独立解压后重新编译原 Java 类、重跑正式配置并核对源码导入位置。交付清单见 `RELEASE-FILES.json`，独立运行证据见 `outputs/package-smoke-v2.json`。
++
++本轮首轮新增完整测试为 276 通过、1 失败。失败来自诊断辅助函数将空区间 [t,t) 误计为重叠，真实重叠仍被正确发现；已修正并增加独立回归测试。初次 XML 保留于 `outputs/development/pytest-v2-first.xml`。最终实际运行结果见顶部文件，不把开发中失败记录删除。
++
++## 复跑方式
++
++在项目根目录建立 Python 虚拟环境并安装 `.[test]`，将 `FOGSIM_JAVA` 设为所用 **JDK 17** 的 java 可执行文件，然后执行：
++
++```text
++python tools/validate.py
+ ```
+ 
+-证据：[测试控制台](../outputs/pytest-console.txt)、[JUnit XML](../outputs/pytest-results.xml)、[源码/输入/配置清单](../outputs/validation-manifest.json)、[固定对照总报告](../outputs/parity/summary.json)。清单中的snapshot_sha256标识本次真实测试的源码快照。
++只复跑 V2 原始对照、96 组固定扫查和边界实验：
+ 
+-| 配置 | Java/Python事件 | Java/Python决策 | Java/Python makespan | 首个调度差异 |
+-| --- | --- | --- | --- | --- |
+-| single_local | 4/4 | 1/1 | 3/3 | null，未发现 |
+-| single_local_release5 | 4/4 | 1/1 | 3/3；最终时钟8/8 | null，未发现 |
+-| chain_remote | 7/7 | 3/3 | 13/13 | null，未发现 |
+-| chain_fcfs | 7/7 | 3/3 | 17/17 | null，未发现 |
++```text
++python tools/run_v2_acceptance.py --java /path/to/jdk-17.0.16+8/bin/java
++```
+ 
+-总计22条实际事件、8次决策。两组链式的路由轮次均为[1,1,2]，第二轮后才发出后继Visit。固定E0任务时刻为A=[0,2,2,5,6]、B=[6,7,7,11,13]；FCFS为A=[0,0,0,10,10]、B=[10,11,11,15,17]，列顺序为派发、到达、开始、派生计算结束、实际完成。
++原始数值反例单独对照会返回退出码 1，这是保留的已知不等价结果，不是正常对照通过：
+ 
+-## 对照了哪些内容
++```text
++python tools/run_fixed_parity.py --config configs/v2_precision_collapse.json --output outputs/manual-precision
++```
+ 
+-- 输入文件SHA、实际配置、从两侧已构建模型读取的依赖/ID/候选顺序及UT/PT/DT。
+-- 每条事件的顺序、时间、类型、任务/资源、owner、生产设备。
+-- 事件前后任务标记、ready_time、priority、资源available_time、队列与两个缓存、完成记录、集合与完成登记。
+-- 事件内部DECISION/EMIT的真实交错顺序；每次决策的全部候选、即时评分、选择、轮次及候选/资源状态。
+-- 实际任务时间、工作流时间、计数、最终状态和makespan。
+-- Java观察到的待开始Process与Python预约按明确映射比较，Java未加入Python保护逻辑。
++DAX 解析、原 Java RNG/动态输入分布、warm-up/训练窗口、GP 表达式与演化、论文规模统计尚未执行，属于后续计划。
+ 
+-原始文件不改写；另存规范化副本。已知表示差异及映射见每个comparison.json和[适配文档](JAVA-FIXED-ADAPTER.md)。Java未完成时间0.0与PythonNone、原Java缺少pending_start属于表示差异，不能说raw逐字相同。未登记非零时间、多个Java待开始项目不会被转换规则隐藏。
+-
+-## 每个案例的原始证据
+-
+-| 案例 | Python原始轨迹 | Java原始轨迹 | 对照报告 |
+-| --- | --- | --- | --- |
+-| 本地单任务 | [Python](../outputs/parity/single_local/python-raw.json) | [Java](../outputs/parity/single_local/java-raw.json) | [报告](../outputs/parity/single_local/comparison.json) |
+-| release=5 | [Python](../outputs/parity/single_local_release5/python-raw.json) | [Java](../outputs/parity/single_local_release5/java-raw.json) | [报告](../outputs/parity/single_local_release5/comparison.json) |
+-| 固定E0链式 | [Python](../outputs/parity/chain_remote/python-raw.json) | [Java](../outputs/parity/chain_remote/java-raw.json) | [报告](../outputs/parity/chain_remote/comparison.json) |
+-| FCFS链式 | [Python](../outputs/parity/chain_fcfs/python-raw.json) | [Java](../outputs/parity/chain_fcfs/java-raw.json) | [报告](../outputs/parity/chain_fcfs/comparison.json) |
+-
+-各目录还含run-manifest、Java实际请求、进程命令和stdout/stderr。构建证据位于outputs/parity/build：两份构造补丁、overlay、Java版本、编译命令/输出、647份源码与12个依赖jar的哈希。
+-
+-[来源完整性核对](../outputs/parity/build/source-integrity.json)实际比较659个文件，与提供Java ZIP字节一致；没有改references原始源码。原依赖在JDK17下产生44条旧API/strictfp等警告，0编译错误。
+-
+-## 测试覆盖与证据边界
+-
+-| 测试组 | 实际验证 |
+-| --- | --- |
+-| 原0.1测试 | 输入、模型身份、状态、规则、事件/堆、缓存/预约、失败、日志、重跑、手算案例，113项继续通过 |
+-| tests/integration/test_v01_regression.py | 新结果去掉新增日志字段后与保存0.1轨迹完全一致，4案例 |
+-| tests/parity/test_fixed_java.py | 真正编译并运行原Java类的4案例、构造补丁范围、原件未改、日志无干扰、新JVM重复、Unicode任务ID、旧trace保护、真实轨迹故障注入 |
+-| tests/unit/test_trace_compare.py | 合成日志的错序、错误时间/评分/选择、漏第二轮、ready/预约差异、非法完成时间、字段顺序、容差、失败不能假通过、CLI报告 |
+-| 原Java组件oracle | 4,764条操作、3,797条输出仍逐行一致；属于局部方法/堆证据，独立于新增完整生命周期适配 |
+-
+-合成日志负例只证明对照器检测能力，不当作Java调度证据。完整生命周期的Java证据来自parity实际JVM输出。
+-
+-## 首差检测负例与开发修正
+-
+-复制真实chain_fcfs Java轨迹，将首次路由的首项分数从0.0改为99.0。对照器正确定位第1事件的actions[0].decision.candidates[0].priority，并报告两侧0.0/99.0。原始Java轨迹SHA保持不变。证据：[人工故障报告](../outputs/parity/fault_injection/comparison.json)、[修改副本](../outputs/parity/fault_injection/java-score-altered.json)。这是人工故障，不是4个正常配置的调度差异。
+-
+-首次完整测试144通过、1失败：漏第二轮路由负例已经找到正确事件/action，但诊断路径只到对象层。改进共同字段比较后，进一步定位到kind字段，最终145项全通过。初次XML保留在[开发记录](../outputs/development/pytest-0.2-first.xml)，没有改变调度来使测试通过。
+-
+-## 未执行与尚待验证
+-
+-- 同一单设备规模下的复杂分叉汇合、完整资源竞争、复杂同刻交错及Java/Python对照：后续0.2主验收。
+-- pending_start与原Java canAddToQueue在所有可达竞争情形的差异：尚未确认。
+-- 多设备完整集成、任意输入等价性、作者实际运行build：未证明。
+-- 原始随机/训练入口、warm-up统计、DAX/RNG/seed、GP及论文规模结果：不在本次范围，未执行。
+-- 其他Python版本及操作系统：未实际运行。
+-
+-0.1原始输出保留于outputs/v0.1，旧fogsim-0.1.0.zip不覆盖。当前结论仅为：指定参考JDK和明确固定模式适配下，这4个现有配置通过逐事件、逐决策和状态/结果对照。
+-
+-## 交付包独立验证
+-
+-已在基础Python的 `-I` 隔离进程中加载解压包内源码，使用包内647份Java源文件及随附依赖重新编译，四个固定配置再次全部对照通过。已断言导入模块、编译源目录和全部Java运行classpath条目位于解压目录；仅参考JDK可执行文件来自外部。证据：[package-smoke.json](../outputs/package-smoke.json)。
+-
+-新版安装和 `python -m fogsim --version` 已实际验证为0.2.0a1；compileall语法检查通过。交付ZIP构建时核对已验证源码哈希、压缩包CRC及每个打包文件的SHA，包内附RELEASE-FILES.json。
++0.2.1 的完整运行环境仍为上述 Temurin 17.0.16+8；增加的版本门禁单元测试验证 17.0.20.1+1 和其他厂商 17 的元数据被接受，不冒充已在用户 Windows/JDK 上真实执行。
+--- a/docs/roadmap.md
++++ b/docs/roadmap.md
+@@ -1,24 +1,11 @@
+ # 进度与后续工作
+ 
+-## 0.1 已实现
++0.1 已实现固定输入、模型、四事件、兼容堆、队列/预约、FCFS 与日志/重跑。0.2.0a1 完成 Java 固定入口及 4 个简单实例对照，历史记录保留。
+ 
+-固定输入校验、资源/工作流/任务/执行模型、状态操作、四事件与两层兼容堆、FCFS与调试固定资源、单任务及链式端到端、结果/快照、失败处理和全新对象重跑。必要组件及指定 JDK 局部 oracle 已实际运行，证据见 VALIDATION 和 outputs。
++0.2.0 完成本轮 V2-01～V2-05：14 个正式配置、96 组固定扫查；每种语言 3,469 条事件、2,021 次决策一致。新增完整 DAG、排队、三资源竞争、同刻交错、缓存残差和跨设备生产/owner 验证。0.2.1 为 286 项测试通过，0 失败/错误/跳过。证据见 VALIDATION。
+ 
+-没有修改或复用上级目录原有的“代码实现”文件夹；本次项目位于用户要求的“代码编写”下。
++pending_start 与 canAddToQueue 的方法边界不同；正常案例没有观察到不同判断。发现数值精度归零的可达反例，使原 Java Finish 安排重叠、旧 Python 串行执行。当前 Python 保留预约并明确拒绝零总占用区间。该负例未声称跨语言通过，见 ISSUES-AND-FIXES。
+ 
+-## 0.2 第一阶段已完成（0.2.0a1）
++后续进入原学习计划的实例/环境扩展：DAX、原 Java 随机采样与 RNG 调用顺序、多设备场景与训练统计、重置/seed 轮换。随后再实现十特征与固定 GP 表达式、评估机制、单/双树演化和论文规模实验。当前的 96 组固定测试输入不等于原随机生成器移植。
+ 
+-1. 原Java类固定实例入口：隔离构造采样、抑制随机生成、支持t=0、使用全部输入的完成/指标口径。
+-2. 保存双侧原始轨迹、模型参数与ID映射；按实际事件和内部动作顺序比较，输出首差字段。
+-3. 4个现有配置通过：22事件、8决策；makespan为3、3、13、17。故障注入验证首差检测器有效。
+-4. 145项测试通过，0失败/跳过；保留0.1行为基线、原始源码和构造增量补丁。
+-
+-## 0.2 后续验收
+-
+-先保持M0、E0、C0各一个，逐步加入分叉汇合DAG、多工作流竞争、多种同刻交错，并做同输入Java/Python轨迹对照。重点检查pending_start与Java原保护在可达竞争边界是否产生差异。当前4个简单配置通过不代替这些验收。
+-
+-多设备完整集成属于后续扩展，不自动作为本轮必需验收；届时继续保留规则来源及生产设备/事件owner的区别。
+-
+-## 后续阶段
+-
+-DAX、随机参数与 RNG 调用顺序，固定 GP 表达式及特征，评估与种子轮换，单/双树演化，论文配置核对及规模实验。先完成确定性行为对照，再优化规则视图扫描性能或调整调度策略。
++0.2.1 仅修正 JDK 版本要求：限定主版本 17，撤回具体更新号/厂商/源码指纹的额外限制；模拟器调度逻辑未变。
+--- a/docs/semantics.md
++++ b/docs/semantics.md
+@@ -12,4 +12,4 @@
+ 
+ 本版只支持有限固定输入、无 warm-up、非抢占、无重试、无网络排队。正常 makespan 为所有完成工作流最大完成时间减最早发布时间。领域错误为 FAILED，最终 makespan 缺失。执行计划不等于实际触发；日志不用于判断派发、就绪、开始或完成资格。
+ 
+-0.2第一阶段新增Java固定模式适配，4个现有单任务/链式配置的完整生命周期对照通过。原训练入口/统计窗口及复杂边界、任意输入等价性仍待验证。固定适配与原调度语义的边界见JAVA-FIXED-ADAPTER，组件oracle证据见JAVA-REFERENCE。
++0.2.0 已完成 V2-01～05 固定实例验收，详见 VALIDATION。接受执行计划前要求 `(start+PT)+DT > start`；否则显式 FAILED，不写入索引或预约。这是针对实际精度反例新增的边界校验，不声称原 Java 具有该保护，也不将该反例判为等价。支持严格为正的总占用区间；未对单独 PT/DT 重新运算或自动取整。
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -4,7 +4,7 @@
+ 
+ [project]
+ name = "fogsim-reproduction"
+-version = "0.2.0a1"
++version = "0.2.1"
+ description = "Fixed-instance fog workflow simulator based on Xu et al. (2023)"
+ requires-python = ">=3.11"
+ dependencies = []
+--- /dev/null
++++ b/references/INPUT-SHA256.json
+@@ -0,0 +1,7 @@
++{
++  "01-zip": "9ab607d19439cd25fe8dea60124be22651220e15e3ac34d142bd5aaaf482b42e",
++  "04-Fog-Computing-multiDeviceDebug.zip": "17a273961e66f409c4cfc8305ee31433bf7022232da3a2cbd0cc8e70e4c32c9a",
++  "05-Xu-2023-Genetic-Programming-for-Dynamic-Workflow-Scheduling-in-Fog-Computing.zh-CN.dual.pdf": "0fe716a44ca8d63013406d641e0b7dea652dc17f23614554f86c30b9937a9305",
++  "02-fogsim-0.2.0a1-verified.zip": "ab4ffddd8021338a160eb49b751977a25620b294f50043a430597e4c8866c83d",
++  "03-Fog-Computing-Java-to-Python-Study-Plan-2026-10-08.md": "221353e11d7f8493d3afd9b2aa02537f0be4f4073193b45cbe161ea839589e0a"
++}
+--- a/src/fogsim/__init__.py
++++ b/src/fogsim/__init__.py
+@@ -2,5 +2,5 @@
+ from .instances import load_fixed_instance, parse_instance, InstanceSpec
+ from .simulation.engine import create_engine, simulate
+ 
+-__version__ = "0.2.0a1"
++__version__ = "0.2.1"
+ __all__ = ["RunConfig", "InstanceSpec", "load_fixed_instance", "parse_instance", "create_engine", "simulate"]
+--- a/src/fogsim/model/execution.py
++++ b/src/fogsim/model/execution.py
+@@ -17,6 +17,14 @@
+         finish = compute + self.option.download_time
+         require(all(math.isfinite(x) and x >= 0 for x in (self.start_time, compute, finish)),
+                 f"invalid execution time for {self.option.key}")
++        # PT > 0 in the input is insufficient: binary64 addition can erase it.
++        # Zero-length executions accumulate same-resource Finish events and the
++        # original Java queue continuation can then schedule overlapping Starts.
++        # Reject before registering a plan; never weaken the reservation guard.
++        require(finish > self.start_time,
++                f"execution duration lost to floating-point precision for {self.option.key}: "
++                f"start={self.start_time!r}, PT={self.option.processing_time!r}, "
++                f"DT={self.option.download_time!r}; reduce the time origin or use higher-precision time arithmetic")
+         object.__setattr__(self, "compute_finish_time", compute)
+         object.__setattr__(self, "finish_time", finish)
+ 
+--- /dev/null
++++ b/tests/parity/test_v2_acceptance.py
+@@ -0,0 +1,187 @@
++"""Formal V2-01..V2-05, with actual JDK output and independent lifecycle checks."""
++from copy import deepcopy
++from dataclasses import replace
++import json
++from pathlib import Path
++import sys
++import pytest
++
++from fogsim import load_fixed_instance, simulate
++from fogsim.config import load_config
++from conftest import ROOT
++sys.path.insert(0, str(ROOT / "tools"))
++import run_fixed_parity as parity
++from run_v2_acceptance import run_acceptance, positive_intervals, SWEEP_SIZE
++from java_support import java_tools
++from v2_cases import V2_CASES
++
++
++@pytest.fixture(scope="module")
++def acceptance():
++    try: java_tools()
++    except RuntimeError as exc: pytest.skip(str(exc))
++    return run_acceptance()
++
++
++def raw(name, language="python"):
++    return json.loads((ROOT / f"outputs/v2/parity/{name}/{language}-raw.json").read_text())
++
++
++@pytest.mark.parametrize("name,expected", V2_CASES.items())
++def test_v2_05_named_parity(acceptance, name, expected):
++    case = next(c for c in acceptance["named_parity"]["cases"] if c["case"] == name)
++    makespan, events, decisions = expected
++    assert case["passed"] and case["first_difference"] is None
++    assert case["events"] == {"python": events, "java": events}
++    assert case["decisions"] == {"python": decisions, "java": decisions}
++    for language in ("python", "java"):
++        trace = raw(name, language); result = trace["result"]
++        assert result["makespan"] == makespan
++        assert result["status"] == "SUCCEEDED"
++        assert not positive_intervals(result)
++        ntasks = sum(len(w["tasks"]) for w in trace["input"]["workflows"])
++        assert result["processed_event_count"] == len(trace["input"]["workflows"]) + 3 * ntasks
++        for row in result["task_records"]:
++            events_for_task = [e for e in result["events"] if e["workflow_id"] == row["workflow_id"] and e["task_id"] == row["task_id"]]
++            assert sorted(e["type"] for e in events_for_task) == ["ProcessFinishEvent", "ProcessStartEvent", "TaskVisitEvent"]
++
++
++def test_v2_01_diamond_join_two_full_routing_rounds(acceptance):
++    result = raw("v2_diamond")["result"]
++    rows = {r["task_id"]: r for r in result["task_records"]}
++    assert [(t, rows[t]["resource_id"], rows[t]["start_time"], rows[t]["finish_time"]) for t in "ABCD"] == [
++        ("A", "M0", 0, 2), ("B", "E0", 2, 6), ("C", "E0", 6, 7), ("D", "C0", 8, 11)]
++    fork = [d for d in result["decisions"] if d["event_sequence"] == 4]
++    assert [(d["selected"][1], d["round"]) for d in fork] == [("B",1),("C",1),("B",2),("C",2)]
++    assert [a["kind"] for a in result["events"][3]["actions"]] == ["DECISION"]*4 + ["EMIT"]*2
++    assert rows["D"]["dispatch_time"] == max(rows[t]["finish_time"] for t in "BC") == 7
++    # Finishing B sees an empty ready query while C still has to finish.
++    after_b = next(e["after"] for e in result["events"] if e["type"] == "ProcessFinishEvent" and e["task_id"] == "B")
++    assert after_b["active_workflows"] == [0] and after_b["completed_workflows"] == []
++    registrations = [e for e in result["events"] if e["before"]["completed_workflows"] != e["after"]["completed_workflows"]]
++    assert len(registrations) == 1 and registrations[0]["task_id"] == "D"
++
++
++def test_v2_02_fcfs_release_beats_queue_arrival_and_cache_includes_upload(acceptance):
++    result = raw("v2_contention")["result"]
++    sequence = [d for d in result["decisions"] if d["kind"] == "SEQUENCING"]
++    first = sequence[0]
++    assert [c["option"][0] for c in first["candidates"]] == [2, 1]
++    assert [c["priority"] for c in first["candidates"]] == [2, 1]
++    assert [c["ready_time"] for c in first["candidate_state"]] == [2, 6]
++    assert first["selected"] == [1, "A", "E0"]
++    edge = next(r for r in first["resource_state"] if r["id"] == "E0")
++    assert len(edge["queue"]) == 2
++    assert edge["queued_processing_time"] == 3 and edge["queued_total_time"] == 10
++    assert [(r["workflow_id"], r["start_time"], r["finish_time"]) for r in result["task_records"]] == [(0,0,12),(1,12,15),(2,15,17)]
++    assert all(r["queued_processing_time"] == r["queued_total_time"] == 0
++               for r in result["events"][-1]["after"]["resources"])
++
++
++def test_v2_03_candidate_order_state_and_score(acceptance):
++    result = raw("v2_candidates")["result"]
++    route = [d for d in result["decisions"] if d["kind"] == "ROUTING"]
++    assert [d["selected"][2] for d in route] == ["M0","M0","E0","C0","M0","M0","M0"]
++    assert [[c["priority"] for c in d["candidates"]] for d in route] == [
++        [0,0,0],[0,0,0],[6,0,0],[6,6,0],[6,6,6],[6,6,6],[6,6,6]]
++    for d in route:
++        assert [c["option"][2] for c in d["candidates"]] == ["M0","E0","C0"]
++    # Queue-related source getters (NIQ/WIQ/TTIQ), and raw MRT before t=3 routing.
++    m = route[4]["resource_state"][0]
++    assert (len(m["queue"]), m["queued_processing_time"], m["queued_total_time"], m["available_time"]) == (1,4,4,6)
++    # All three Finish events at t=6; source numeric resource ordering is retained.
++    assert [e["resource_id"] for e in result["events"] if e["time"] == 6 and e["type"] == "ProcessFinishEvent"] == ["M0","E0","C0"]
++
++
++@pytest.mark.parametrize("rid", ["M0", "E0"])
++def test_v2_04_new_same_time_start_old_finish_and_future_reservation(acceptance, rid):
++    result = raw("v2_collision_" + rid.lower())["result"]
++    same_time = [e for e in result["events"] if e["time"] == 4]
++    assert [e["type"] for e in same_time] == ["JobArrivalEvent","TaskVisitEvent","ProcessStartEvent","ProcessFinishEvent"]
++    after_visit = next(r for r in same_time[1]["after"]["resources"] if r["id"] == rid)
++    assert after_visit["pending_start"] == [3,"A"] and after_visit["available_time"] == 4
++    after_finish = next(r for r in same_time[-1]["after"]["resources"] if r["id"] == rid)
++    assert after_finish["pending_start"] == [1,"A"] and after_finish["available_time"] == 5
++    planned = same_time[-1]["after"]["executions"][-1]
++    assert planned["planned_start_time"] == 5
++    # New JA at 5 sees the reservation; its TV runs only after the queued Start.
++    assert [(e["type"],e["workflow_id"]) for e in result["events"] if e["time"] == 5] == [
++        ("JobArrivalEvent",4),("ProcessStartEvent",1),("TaskVisitEvent",4),("ProcessFinishEvent",3)]
++
++
++def test_v2_04_heap_ties_are_not_fifo(acceptance):
++    result = raw("v2_equal_heap")["result"]
++    arrivals = [e["workflow_id"] for e in result["events"] if e["type"] == "JobArrivalEvent"]
++    assert arrivals == [3,7,9]
++    first_started = next(e for e in result["events"] if e["type"] == "ProcessStartEvent")
++    assert (first_started["workflow_id"],first_started["task_id"]) == (7,"B")
++
++
++def test_shared_server_emits_to_current_device_with_other_owner(acceptance):
++    events = raw("v2_shared_server")["result"]["events"]
++    cross = [e for e in events if e["owner"] != e["staging_device"]]
++    assert [(e["type"],e["owner"],e["staging_device"],e["time"]) for e in cross] == [
++        ("ProcessStartEvent","M1","M0",4),("ProcessStartEvent","M0","M1",6),("ProcessStartEvent","M1","M0",7)]
++
++
++@pytest.mark.parametrize("name", V2_CASES)
++def test_named_replay_and_logging_do_not_change_scheduling(acceptance, name, tmp_path):
++    path, config = load_config(ROOT / f"configs/{name}.json")
++    spec = load_fixed_instance(path)
++    expected = raw(name)["result"]
++    assert simulate(spec, config).to_dict() == expected
++    quiet = simulate(spec, replace(config, trace_enabled=False)).to_dict()
++    assert quiet == dict(expected, events=[], decisions=[])
++    build = json.loads((ROOT / "outputs/v2/parity/build/build-manifest.json").read_text())
++    java, _ = java_tools()
++    request = json.loads((ROOT / f"outputs/v2/parity/{name}/java-request.json").read_text())
++    original = raw(name,"java")
++    repeated = parity.run_java_request(java, build["runtime_classpath"], request, tmp_path, stem="repeat")
++    assert repeated == original
++    request["record_trace"] = False
++    quiet_java = parity.run_java_request(java, build["runtime_classpath"], request, tmp_path, stem="quiet")
++    assert quiet_java["result"] == dict(original["result"], events=[], decisions=[])
++
++
++@pytest.mark.parametrize("index", range(SWEEP_SIZE))
++def test_v2_05_generated_fixed_input_sweep(acceptance, index):
++    c = acceptance["sweep_cases"][index]
++    assert c["passed"] and c["first_difference"] is None
++    for language in ("python", "java"):
++        trace = json.loads((ROOT / f"outputs/v2/sweep/case-{index:03}/{language}-raw.json").read_text())
++        result = trace["result"]
++        assert not positive_intervals(result)
++        assert result["completed_workflow_count"] == len(trace["input"]["workflows"])
++
++
++def test_pending_guard_boundary_and_normal_run_observations(acceptance):
++    rows = acceptance["injected_boundary"]["cases"]
++    assert [(c["scenario"],c["equal"]) for c in rows] == [
++        ("empty",True),("staged_only",False),("matching_root",True),("matching_below_other_root",False)]
++    assert not any(c["reachable_run"] for c in rows)
++    obs = acceptance["reservation_checks"]
++    assert obs["canAddToQueue_calls"] > 100
++    assert obs["guard_disagreements_in_normal_runs"] == []
++
++
++def test_precision_counterexample_is_an_explicit_failure_not_false_parity(acceptance):
++    p = acceptance["precision_boundary"]
++    assert p["expected_boundary_detected"] and not p["parity_passed"]
++    assert p["python_status"] == "FAILED" and p["java_status"] == "SUCCEEDED"
++    assert p["java_overlaps"] == [{"resource_id":"M0", "first":[2,"A"], "second":[5,"A"],
++                                   "first_finish":9007199254741000.0,"second_start":9007199254740996.0}]
++    result = json.loads((ROOT / "outputs/v2/precision-collapse/python-raw.json").read_text())["result"]
++    assert result["makespan"] is None
++    failed_task = next(t for t in result["task_records"] if t["workflow_id"] == 3)
++    assert failed_task["plan"] is failed_task["start_time"] is failed_task["finish_time"] is None
++
++
++def test_empty_half_open_intervals_are_not_reported_as_overlap():
++    result = {"task_records": [
++        {"resource_id":"M0","workflow_id":1,"task_id":"A","start_time":1,"finish_time":2},
++        {"resource_id":"M0","workflow_id":2,"task_id":"A","start_time":1,"finish_time":1}]}
++    assert positive_intervals(result) == []
++
++
++def test_acceptance_gate(acceptance):
++    assert acceptance["passed"], json.dumps(acceptance, ensure_ascii=False)
+--- /dev/null
++++ b/tests/unit/test_execution_precision.py
+@@ -0,0 +1,22 @@
++import pytest
++from fogsim.errors import StateError
++from fogsim.model.execution import Execution
++
++
++@pytest.mark.parametrize("start,pt", [(1.0,1e-20),(1e9,1e-8),(float(2**53),1.0)])
++def test_positive_input_can_lose_its_whole_execution_interval(engine, start, pt):
++    option = engine.state.tasks_by_key[0,"A"].options[0]
++    option.processing_time = pt
++    assert start + pt == start
++    with pytest.raises(StateError, match="duration lost to floating-point precision"):
++        Execution(option, start)
++    assert engine.state.executions_by_task == {}
++    assert option.resource.pending_start is None
++
++
++def test_representable_total_interval_is_retained(engine):
++    option = engine.state.tasks_by_key[0,"A"].options[1]
++    option.processing_time = 1e-20
++    option.download_time = 1
++    execution = Execution(option, 1)
++    assert execution.compute_finish_time == 1 and execution.finish_time == 2
+--- /dev/null
++++ b/tests/unit/test_jdk_lock.py
+@@ -0,0 +1,59 @@
++"""JDK 17 family is required; update version/vendor/source are evidence only."""
++import hashlib
++from types import SimpleNamespace
++import sys
++import zipfile
++import pytest
++from conftest import ROOT
++sys.path.insert(0, str(ROOT / "tools"))
++import java_support
++
++
++def fake_jdk(monkeypatch, tmp_path, specification="17", runtime="17.0.20.1+1", vendor="Eclipse Adoptium"):
++    java = tmp_path / "bin/java"
++    java.parent.mkdir(parents=True)
++    java.write_bytes(b"fake executable: subprocess is mocked")
++    stderr = (f"    java.class.path = \n    java.specification.version = {specification}\n"
++              f"    java.runtime.version = {runtime}\n    java.vendor = {vendor}\n")
++    monkeypatch.setattr(java_support.subprocess, "run", lambda *a, **k: SimpleNamespace(stdout="", stderr=stderr))
++    return java
++
++
++@pytest.mark.parametrize("runtime,vendor", [
++    ("17.0.16+8", "Eclipse Adoptium"),
++    ("17.0.20.1+1", "Eclipse Adoptium"),
++    ("17.0.20+8", "Another OpenJDK vendor"),
++])
++def test_java17_update_vendor_and_source_changes_are_allowed(monkeypatch, tmp_path, runtime, vendor):
++    java = fake_jdk(monkeypatch, tmp_path, runtime=runtime, vendor=vendor)
++    source = tmp_path / "lib/src.zip"; source.parent.mkdir()
++    with zipfile.ZipFile(source, "w") as z:
++        z.writestr("java.base/java/util/PriorityQueue.java", b"different source snapshot")
++    result = java_support.reference_jdk(java)
++    assert result["runtime_version"] == runtime and result["vendor"] == vendor
++    assert result["priority_queue_source_sha256"] == hashlib.sha256(b"different source snapshot").hexdigest()
++    assert result["matches_historical_priority_queue_source"] is False
++    assert result["matches_historical_runtime"] == (runtime == "17.0.16+8" and vendor == "Eclipse Adoptium")
++
++
++@pytest.mark.parametrize("specification", ["1.8", "11", "18", "21", "unknown"])
++def test_non_java17_is_rejected(monkeypatch, tmp_path, specification):
++    java = fake_jdk(monkeypatch, tmp_path, specification=specification)
++    with pytest.raises(RuntimeError, match="require JDK 17"):
++        java_support.reference_jdk(java)
++
++
++def test_source_archive_is_optional(monkeypatch, tmp_path):
++    java = fake_jdk(monkeypatch, tmp_path)
++    result = java_support.reference_jdk(java)
++    assert result["priority_queue_source_sha256"] is None
++    assert result["priority_queue_source_status"] == "unavailable"
++    assert result["matches_historical_priority_queue_source"] is None
++
++
++def test_unreadable_source_is_reported_without_blocking_runtime_tests(monkeypatch, tmp_path):
++    java = fake_jdk(monkeypatch, tmp_path)
++    source = tmp_path / "lib/src.zip"; source.parent.mkdir(); source.write_bytes(b"invalid ZIP")
++    result = java_support.reference_jdk(java)
++    assert result["priority_queue_source_status"] == "unreadable"
++    assert "BadZipFile" in result["priority_queue_source_error"]
+--- a/tools/build_release.py
++++ b/tools/build_release.py
+@@ -15,14 +15,15 @@
+     args=parser.parse_args(argv)
+     version=tomllib.loads((ROOT/"pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+     prefix=f"fogsim-{version}"
+-    files=[ROOT/name for name in ("README.md","pyproject.toml",".gitignore")]
++    files=[ROOT/name for name in ("README.md","pyproject.toml",".gitignore","CHANGES-FROM-0.2.0a1.patch")]
+     for folder in ("src","tests","tools","configs","data","docs","references/design"):
+         files.extend(p for p in (ROOT/folder).rglob("*") if p.is_file()
+                      and "__pycache__" not in p.parts and not any(x.endswith(".egg-info") for x in p.parts))
+     files.extend(p for p in (ROOT/"outputs").glob("*") if p.is_file() and p.suffix in (".json",".xml",".txt"))
+-    for folder in ("java_oracle","parity","v0.1","development"):
++    for folder in ("java_oracle","parity","v0.1","development","v2","issues","history-0.2.0a1"):
+         files.extend(p for p in (ROOT/"outputs"/folder).rglob("*") if p.is_file() and "classes" not in p.parts)
+     jroot=ROOT/"references/java/Fog-Computing-multiDeviceDebug"
++    files.append(ROOT/"references/INPUT-SHA256.json")
+     files.append(jroot/".idea/misc.xml")
+     files.extend(p for p in (jroot/"src").rglob("*") if p.is_file() and p.suffix != ".class" and p.name != ".DS_Store")
+     files.extend(p for p in (jroot/"libraries").glob("*") if p.is_file() and "javadoc" not in p.name
+@@ -30,11 +31,19 @@
+     files=sorted(set(files))
+     if any(not p.is_file() for p in files):raise RuntimeError("missing release input")
+     manifest=json.loads((ROOT/"outputs/validation-manifest.json").read_text(encoding="utf-8"))
+-    if manifest["pytest_exit_code"] != 0 or not manifest.get("fixed_parity",{}).get("passed"):
+-        raise RuntimeError("release requires passing tests and fresh fixed-instance Java parity evidence")
++    if (not manifest.get("acceptance_passed") or manifest["pytest_exit_code"] != 0
++            or any(manifest["tests"][k] != 0 for k in ("failures","errors","skipped"))
++            or not manifest.get("fixed_parity",{}).get("passed")
++            or not manifest.get("v2_acceptance",{}).get("passed")):
++        raise RuntimeError("release requires zero-skip passing tests, JDK 17 parity and V2 acceptance")
+     for relative,expected in manifest["project_hashes"].items():
+         actual=hashlib.sha256((ROOT/relative).read_bytes()).hexdigest()
+         if actual!=expected:raise RuntimeError(f"source changed after validation: {relative}")
++    for prefix_path, relative_key in ((jroot, "files"),):
++        integrity=json.loads((ROOT/"outputs/source-integrity-v2.json").read_text())
++        for relative, expected in integrity[relative_key].items():
++            if hashlib.sha256((prefix_path/relative).read_bytes()).hexdigest()!=expected:
++                raise RuntimeError(f"original Java source/dependency changed: {relative}")
+     output=args.output.resolve() if args.output else ROOT/f"{prefix}.zip"
+     if output.suffix.lower() != ".zip":raise ValueError("release output must be a .zip file")
+     output.parent.mkdir(parents=True,exist_ok=True)
+--- a/tools/java/src/fogsim/adapter/FixedInstanceMain.java
++++ b/tools/java/src/fogsim/adapter/FixedInstanceMain.java
+@@ -35,6 +35,7 @@
+     final IdentityHashMap<Object,List<Process>> observedPending = new IdentityHashMap<>();
+     final IdentityHashMap<Task,Integer> routeRounds = new IdentityHashMap<>();
+     final List<Object> anomalies = new ArrayList<>();
++    final List<Object> reservationChecks = new ArrayList<>();
+     final Map<String,Object> request;
+     final Map<String,Object> config;
+     final boolean detailed;
+@@ -330,6 +331,22 @@
+         @Override public void generateWorkflowJob() { suppressedGenerationCalls++; }
+         @Override public void generateJob() { throw new IllegalStateException("LINKED/random generation is outside fixed DAG mode"); }
+         @Override public void addEvent(AbstractEvent event) { super.addEvent(event); emitted(event, this); }
++        @Override public boolean canAddToQueue(Process process) {
++            // Call the original method once. Everything below is output-only;
++            // no observed pending collection participates in scheduling.
++            boolean allowed = super.canAddToQueue(process);
++            if (detailed) {
++                Object target = resource(process.getTaskOption());
++                AbstractEvent root = simulation.getEventQueue().peek();
++                List<Object> pending = new ArrayList<>();
++                for (Process p : observedPending.get(target)) pending.add(taskKey(p.getTaskOption().getTask()));
++                reservationChecks.add(map("event_sequence", processed, "time", state.getClockTime(),
++                    "task", taskKey(process.getTaskOption().getTask()), "resource_id", resourceNames.get(target),
++                    "available_time", available(target), "original_allowed", allowed,
++                    "observed_pending_starts", pending, "global_root", root == null ? null : eventSnapshot(root)));
++            }
++            return allowed;
++        }
+         @Override public void completeJob(Job job) {
+             // Explicit fixed-input statistics adaptation: every completed input is recorded.
+             check(checkJobDone(job), "completeJob called for unfinished workflow");
+@@ -441,6 +458,7 @@
+             "config", request.get("config"), "loaded_model", loaded, "result", adapter.result(),
+             "observations", map("suppressed_generation_calls", adapter.suppressedGenerationCalls,
+                 "anomalies", adapter.anomalies, "pending_is_observed_only", true,
++                "reservation_checks", adapter.reservationChecks,
+                 "random_generator_is_null", adapter.simulation.randomDataGenerator == null
+                     && adapter.state.getMobileDevices().stream().allMatch(d -> d.randomDataGenerator == null)));
+         Files.writeString(Path.of(args[1]), Json.write(trace) + "\n", StandardCharsets.UTF_8);
+--- /dev/null
++++ b/tools/java/src/fogsim/adapter/ReservationBoundaryMain.java
+@@ -0,0 +1,40 @@
++package fogsim.adapter;
++
++import java.nio.charset.StandardCharsets;
++import java.nio.file.*;
++import java.util.*;
++import mengxu.simulation.event.ProcessStartEvent;
++import mengxu.taskscheduling.*;
++import mengxu.taskscheduling.Process;
++
++/** Isolated, deliberately injected states; NOT full reachable scheduling runs. */
++public final class ReservationBoundaryMain {
++    public static void main(String[] args) throws Exception {
++        Map<String,Object> request = FixedInstanceMain.obj(Json.parse(Files.readString(Path.of(args[0]), StandardCharsets.UTF_8)));
++        List<Object> rows = new ArrayList<>();
++        for (String scenario : List.of("empty", "staged_only", "matching_root", "matching_below_other_root")) {
++            FixedInstanceMain a = new FixedInstanceMain(request);
++            for (MobileDevice d : a.state.getMobileDevices()) d.eventQueue.clear();
++            a.simulation.getEventQueue().clear();
++            FixedInstanceMain.FixedDevice d = (FixedInstanceMain.FixedDevice) a.state.getMobileDevices().get(0);
++            TaskOption local = a.tasks.get(0).getTaskOptions().get(0);
++            Process pending = new Process(null, local, scenario.equals("matching_below_other_root") ? 1 : 0);
++            ProcessStartEvent start = new ProcessStartEvent(pending, d);
++            boolean hasPending = !scenario.equals("empty");
++            if (hasPending) {
++                d.addEvent(start);
++                if (!scenario.equals("staged_only")) { d.eventQueue.clear(); a.simulation.getEventQueue().offer(start); }
++                if (scenario.equals("matching_below_other_root")) {
++                    TaskOption remote = a.tasks.get(0).getTaskOptions().get(1);
++                    a.simulation.getEventQueue().offer(new ProcessStartEvent(new Process(remote.getServer(), remote, 0), d));
++                }
++            }
++            Process attempt = new Process(null, a.tasks.get(1).getTaskOptions().get(0), 0);
++            boolean original = d.canAddToQueue(attempt);
++            rows.add(FixedInstanceMain.map("scenario", scenario, "original_allowed", original,
++                "python_reservation_allows", !hasPending, "equal", original == !hasPending,
++                "reachable_run", false, "check", a.reservationChecks.get(a.reservationChecks.size()-1)));
++        }
++        Files.writeString(Path.of(args[1]), Json.write(FixedInstanceMain.map("scope", "injected component states only", "cases", rows))+"\n", StandardCharsets.UTF_8);
++    }
++}
+--- a/tools/java_support.py
++++ b/tools/java_support.py
+@@ -7,10 +7,14 @@
+ from pathlib import Path
+ import shutil
+ import subprocess
++import zipfile
+ 
+ ROOT = Path(__file__).resolve().parents[1]
+ ORIGINAL = ROOT / "references/java/Fog-Computing-multiDeviceDebug"
+ ADAPTER = ROOT / "tools/java"
++REFERENCE_RUNTIME = "17.0.16+8"
++REFERENCE_VENDOR = "Eclipse Adoptium"
++PRIORITY_QUEUE_SHA256 = "92f97c6625f4cd1994765acbd718e8a6f7c7697e5e65974a1d78d5e37e284ca8"
+ 
+ 
+ def sha(path):
+@@ -20,8 +24,9 @@
+ def java_tools(explicit=None):
+     java = explicit or os.environ.get("FOGSIM_JAVA")
+     if not java:
+-        bundled = ROOT / "references/jdk/jdk-17.0.16+8/bin/java.exe"
+-        java = str(bundled) if bundled.exists() else shutil.which("java")
++        directory = ROOT / "references/jdk/jdk-17.0.16+8/bin"
++        bundled = next((directory / name for name in ("java", "java.exe") if (directory / name).exists()), None)
++        java = str(bundled) if bundled else shutil.which("java")
+     if not java:
+         raise RuntimeError("JDK 17 missing: pass --java or set FOGSIM_JAVA")
+     java = Path(java).resolve()
+@@ -31,15 +36,46 @@
+     return java, javac
+ 
+ 
++def reference_jdk(java):
++    """Require Java 17; record update/vendor/source without pinning the user's JDK.
++
++    The historical reference identifies where earlier results were obtained.
++    Other Java 17 builds must pass the actual oracle/parity tests themselves.
++    """
++    version = subprocess.run([str(java), "-XshowSettings:properties", "-version"],
++                             capture_output=True, text=True, check=True)
++    properties = {key.strip(): value.strip() for line in version.stderr.splitlines() if " = " in line
++                  for key, value in [line.split(" = ", 1)]}
++    if properties.get("java.specification.version") != "17":
++        raise RuntimeError(f"Java reference tests require JDK 17; "
++                           f"got specification {properties.get('java.specification.version')} "
++                           f"(runtime {properties.get('java.runtime.version')})")
++    source = Path(java).resolve().parent.parent / "lib/src.zip"
++    pq_sha, source_status, source_error = None, "unavailable", None
++    if source.is_file():
++        try:
++            with zipfile.ZipFile(source) as archive:
++                pq_sha = hashlib.sha256(archive.read("java.base/java/util/PriorityQueue.java")).hexdigest()
++            source_status = "recorded"
++        except (OSError, KeyError, zipfile.BadZipFile) as exc:
++            source_status, source_error = "unreadable", f"{type(exc).__name__}: {exc}"
++    return {"version_output": version.stdout + version.stderr,
++            "specification_version": properties["java.specification.version"],
++            "runtime_version": properties.get("java.runtime.version"), "vendor": properties.get("java.vendor"),
++            "os_arch": properties.get("os.arch"), "priority_queue_source_sha256": pq_sha,
++            "priority_queue_source_status": source_status, "priority_queue_source_error": source_error,
++            "matches_historical_runtime": (properties.get("java.runtime.version") == REFERENCE_RUNTIME
++                                           and properties.get("java.vendor") == REFERENCE_VENDOR),
++            "matches_historical_priority_queue_source": None if pq_sha is None else pq_sha == PRIORITY_QUEUE_SHA256,
++            "java_sha256": sha(java)}
++
++
+ def prepare_and_compile(output, java=None):
+     output = Path(output).resolve()
+     output.mkdir(parents=True, exist_ok=True)
+     java, javac = java_tools(java)
+-    version = subprocess.run([str(java), "-XshowSettings:properties", "-version"],
+-                             capture_output=True, text=True, check=True)
+-    (output / "java-version.txt").write_text(version.stdout + version.stderr, encoding="utf-8")
+-    if "java.specification.version = 17" not in version.stderr:
+-        raise RuntimeError("Fixed-instance reference run requires JDK 17")
++    reference = reference_jdk(java)
++    (output / "java-version.txt").write_text(reference["version_output"], encoding="utf-8")
+     files = {}
+     for path in sorted((ORIGINAL / "src").rglob("*.java")):
+         files[str(path.relative_to(ORIGINAL)).replace("\\", "/")] = sha(path)
+@@ -71,7 +107,8 @@
+               "libraries": {p.name: sha(p) for p in jars},
+               "adapter_sources": {str(p.relative_to(ADAPTER)).replace("\\", "/"): sha(p)
+                                   for p in sorted(ADAPTER.rglob("*")) if p.is_file()},
+-              "java_version": version.stderr, "overlays": patches}
++              "java_version": reference["version_output"], "reference_jdk": reference,
++              "javac_sha256": sha(javac), "overlays": patches}
+     fingerprint = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode()).hexdigest()
+     # Each source snapshot has its own class directory; stale classes cannot contaminate a build.
+     classes = output / "classes" / fingerprint[:16]
+@@ -80,7 +117,7 @@
+     sourcepath = os.pathsep.join(str(p) for p in (output / "overlay", ORIGINAL / "src", ADAPTER / "src"))
+     command = [str(javac), "-J-Duser.language=en", "-J-Dfile.encoding=UTF-8", "-encoding", "UTF-8", "-d", str(classes), "-cp", classpath,
+                "-sourcepath", sourcepath, *map(str, overlays),
+-               str(ADAPTER / "src/fogsim/adapter/FixedInstanceMain.java")]
++               *map(str, sorted((ADAPTER / "src").rglob("*.java")))]
+     result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace")
+     (output / "javac-stdout.txt").write_text(result.stdout, encoding="utf-8")
+     (output / "javac-stderr.txt").write_text(result.stderr, encoding="utf-8")
+--- /dev/null
++++ b/tools/package_smoke.py
+@@ -0,0 +1,59 @@
++"""Independently unpack a release ZIP, verify all hashes, recompile and run 14 cases."""
++import argparse
++import hashlib
++import json
++from pathlib import Path
++import subprocess
++import sys
++import tempfile
++import zipfile
++
++ROOT = Path(__file__).resolve().parents[1]
++
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument("archive", type=Path); p.add_argument("--java", required=True)
++    p.add_argument("--output", type=Path, default=ROOT / "outputs/package-smoke-v2.json")
++    a = p.parse_args(); archive = a.archive.resolve()
++    with tempfile.TemporaryDirectory(prefix="package-check-", dir=ROOT.parent) as folder:
++        with zipfile.ZipFile(archive) as z:
++            for name in z.namelist():
++                if Path(name).is_absolute() or ".." in Path(name).parts: raise ValueError("unsafe ZIP path")
++            assert z.testzip() is None
++            z.extractall(folder)
++        roots = [x for x in Path(folder).iterdir() if x.is_dir()]
++        assert len(roots) == 1
++        root = roots[0]
++        manifest = json.loads((root / "RELEASE-FILES.json").read_text())
++        for relative, expected in manifest.items():
++            assert hashlib.sha256((root / relative).read_bytes()).hexdigest() == expected, relative
++        script = r'''
++import json,sys
++from pathlib import Path
++root=Path(sys.argv[1]).resolve()
++sys.path[:0]=[str(root/'src'),str(root/'tools')]
++import fogsim,run_fixed_parity,java_support
++assert Path(fogsim.__file__).resolve().is_relative_to(root)
++assert java_support.ORIGINAL.resolve().is_relative_to(root)
++summary=run_fixed_parity.run_suite(root/'outputs/package-check',sys.argv[2])
++build=json.loads((root/'outputs/package-check/build/build-manifest.json').read_text())
++import os
++for part in build['runtime_classpath'].split(os.pathsep):assert Path(part).resolve().is_relative_to(root)
++assert summary['passed'] and len(summary['cases'])==14
++print(json.dumps({'passed':True,'version':fogsim.__version__,'cases':summary['cases'],
++ 'imported_module':fogsim.__file__,'original_java':str(java_support.ORIGINAL),
++ 'all_runtime_classpath_inside_package':True,'java_build_fingerprint':build['fingerprint']}))
++'''
++        command = [sys.executable, "-I", "-c", script, str(root), str(Path(a.java).resolve())]
++        result = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=120)
++        if result.returncode: raise RuntimeError(result.stdout + result.stderr)
++        report = dict(json.loads(result.stdout), archive_sha256=hashlib.sha256(archive.read_bytes()).hexdigest(),
++                      checked_file_count=len(manifest), isolation="Python -I, fresh extraction, fresh Java compilation")
++    a.output.parent.mkdir(parents=True, exist_ok=True)
++    a.output.write_text(json.dumps(report, indent=2) + "\n")
++    print(json.dumps({"passed": report["passed"], "archive_sha256":report["archive_sha256"],
++                      "checked_file_count":report["checked_file_count"]}))
++
++
++if __name__ == "__main__": main()
+--- a/tools/run_fixed_parity.py
++++ b/tools/run_fixed_parity.py
+@@ -16,8 +16,8 @@
+ from fogsim.errors import InputError
+ from fogsim.validation.trace_compare import compare_traces, normalized_result
+ from java_support import prepare_and_compile, sha
++from v2_cases import DEFAULT_CASES
+ 
+-DEFAULT_CASES = ("single_local", "single_local_release5", "chain_remote", "chain_fcfs")
+ 
+ 
+ def write_json(path, value):
+@@ -112,13 +112,14 @@
+         cases.append({"case": name, "passed": report["passed"], "events": report["event_count"],
+                       "decisions": report["decision_count"], "first_difference": report["first_difference"],
+                       "report": f"{name}/comparison.json"})
+-    summary = {"scope": "0.2 phase 1: existing single-task and chain configurations",
++    summary = {"scope": "0.2 named fixed-instance acceptance; positive representable execution intervals",
+                "passed": all(c["passed"] for c in cases), "cases": cases,
+                "java_build_fingerprint": build["fingerprint"],
+                "first_difference": next((dict(case=c["case"], **c["first_difference"])
+                     for c in cases if c["first_difference"] is not None), None),
+-               "not_validated": ["complex DAG/contention acceptance", "full multi-device integration",
+-                                 "arbitrary-input equivalence", "random generation/GP/training statistics"]}
++               "not_validated": ["arbitrary-input equivalence", "full multi-device model extension",
++                                 "precision-collapse inputs (separate negative acceptance)",
++                                 "random generation/GP/training statistics"]}
+     write_json(output / "summary.json", summary)
+     return summary
+ 
+@@ -139,7 +140,7 @@
+ def main(argv=None):
+     parser = argparse.ArgumentParser(description=__doc__)
+     parser.add_argument("--java")
+-    parser.add_argument("--config", type=Path, action="append", help="repeat for selected cases; default four shipped configs")
++    parser.add_argument("--config", type=Path, action="append", help="repeat for selected cases; default fourteen named configs")
+     parser.add_argument("--output", type=Path, default=ROOT / "outputs/parity")
+     args = parser.parse_args(argv)
+     try:
+--- a/tools/run_java_oracle.py
++++ b/tools/run_java_oracle.py
+@@ -230,15 +230,10 @@
+     source,methods=build_java()
+     source_file=output/"ComponentOracle.java";source_file.write_text(source,encoding="utf-8")
+     lines=operation_fixture();fixture=output/"operations.txt";fixture.write_text("\n".join(lines)+"\n",encoding="utf-8")
+-    version=subprocess.run([java,"-XshowSettings:properties","-version"],capture_output=True,text=True,check=True)
+-    (output/"java-version.txt").write_text(version.stdout+version.stderr,encoding="utf-8")
+-    if "java.specification.version = 17" not in version.stderr:
+-        raise RuntimeError("Reference oracle requires JDK 17; see java-version.txt")
+-    source_zip=Path(java).resolve().parent.parent/"lib/src.zip"
+-    priority_queue_sha=None
+-    if source_zip.exists():
+-        with zipfile.ZipFile(source_zip) as archive:
+-            priority_queue_sha=hashlib.sha256(archive.read("java.base/java/util/PriorityQueue.java")).hexdigest()
++    from java_support import reference_jdk
++    reference=reference_jdk(java)
++    (output/"java-version.txt").write_text(reference["version_output"],encoding="utf-8")
++    priority_queue_sha=reference["priority_queue_source_sha256"]
+     proc=subprocess.run([java,str(source_file),str(fixture)],capture_output=True,text=True,check=True)
+     expected=python_output(lines);actual=proc.stdout.splitlines()
+     (output/"java-output.txt").write_text(proc.stdout,encoding="utf-8")
+--- /dev/null
++++ b/tools/run_v2_acceptance.py
+@@ -0,0 +1,152 @@
++"""Run named parity, deterministic input sweep and explicitly expected boundaries.
++
++The sweep generates fixed JSON inputs with Python random.Random, NOT the Java
++workload distribution or an RNG port. Both runtimes receive those same bytes.
++Known negative cases remain failed parity comparisons, never normalized away.
++"""
++from __future__ import annotations
++import argparse
++from copy import deepcopy
++from dataclasses import replace
++import json
++from pathlib import Path
++import random
++import subprocess
++import sys
++
++from run_fixed_parity import ROOT, run_suite, run_case, run_java_request, write_json, sha
++from java_support import java_tools
++from v2_cases import V2_CASES
++
++SEED = 20261029
++SWEEP_SIZE = 96
++
++
++def generated_input(index):
++    rng = random.Random(SEED + index)
++    device_count = 1 + index % 2
++    devices = [{"id": f"M{i}", "type": "MOBILE", "can_process_tasks": index % 7 != 0}
++               for i in range(device_count)]
++    servers = [{"id": "E0", "type": "EDGE"}, {"id": "C0", "type": "CLOUD"}]
++    resources = devices + servers
++    if index % 3 == 0: resources = resources[::-1]
++    workflows = []
++    for wid in rng.sample(range(-20, 40), rng.randint(2, 5)):
++        owner = rng.choice(devices)
++        tasks = []
++        for ti in range(rng.randint(1, 5)):
++            times = {}
++            candidates = ([owner] if owner["can_process_tasks"] else []) + servers
++            for r in candidates:
++                remote = r["type"] != "MOBILE"
++                fractional = index % 4 == 0
++                times[r["id"]] = {
++                    "upload_time": rng.choice([0, .1, .2, .3]) if remote and fractional else rng.randint(0, 2) if remote else 0,
++                    "processing_time": rng.choice([.1, .2, .3, .5, 1.0]) if fractional else rng.randint(1, 5),
++                    "download_time": rng.choice([0, .1, .2]) if remote and fractional else rng.randint(0, 2) if remote else 0}
++            tasks.append({"id": f"T{ti}", "execution_times": times})
++        edges = [[f"T{i}", f"T{j}"] for i in range(len(tasks)) for j in range(i+1, len(tasks)) if rng.random() < .35]
++        workflows.append({"id": wid, "owner_device_id": owner["id"],
++                          "release_time": rng.choice([0, 0, .1, .3, 1, 2, 3]),
++                          "tasks": tasks, "dependencies": edges})
++    return {"time_unit": "s", "resources": resources, "workflows": workflows}
++
++
++def positive_intervals(result):
++    by_resource = {}
++    for row in result["task_records"]:
++        if (row["start_time"] is not None and row["finish_time"] is not None
++                and row["finish_time"] > row["start_time"]):
++            by_resource.setdefault(row["resource_id"], []).append(row)
++    overlaps = []
++    for rid, rows in by_resource.items():
++        rows.sort(key=lambda r: r["start_time"])
++        for a, b in zip(rows, rows[1:]):
++            if a["finish_time"] > b["start_time"]:
++                overlaps.append({"resource_id": rid, "first": [a["workflow_id"], a["task_id"]],
++                                 "second": [b["workflow_id"], b["task_id"]],
++                                 "first_finish": a["finish_time"], "second_start": b["start_time"]})
++    return overlaps
++
++
++def run_acceptance(output=None, java=None, sweep_size=SWEEP_SIZE):
++    output = Path(output or ROOT / "outputs/v2").resolve()
++    output.mkdir(parents=True, exist_ok=True)
++    write_json(output / "summary.json", {"passed": False, "status": "RUNNING"})
++    try:
++        parity = run_suite(output / "parity", java)
++        build = json.loads((output / "parity/build/build-manifest.json").read_text())
++        java, _ = java_tools(java)
++        classpath = build["runtime_classpath"]
++        sweep = []
++        for i in range(sweep_size):
++            case = output / "sweep" / f"case-{i:03}"
++            case.mkdir(parents=True, exist_ok=True)
++            write_json(case / "input.json", generated_input(i))
++            write_json(case / "config.json", {"instance": "input.json",
++                "routing_rule": {"kind": "fcfs"} if i % 3 else {"kind": "fixed_resource", "resource_id": "E0"},
++                "sequencing_rule": {"kind": "fcfs"}})
++            report = run_case(case / "config.json", case, java, classpath, build["fingerprint"])
++            sweep.append({"index": i, "passed": report["passed"], "events": report["event_count"],
++                          "decisions": report["decision_count"], "first_difference": report["first_difference"]})
++        # Injected local states are a separate method-boundary experiment.
++        probe = output / "reservation-probe"; probe.mkdir(exist_ok=True)
++        request = json.loads((output / "parity/v2_diamond/java-request.json").read_text())
++        write_json(probe / "request.json", request)
++        command = [str(java), "-cp", classpath, "fogsim.adapter.ReservationBoundaryMain",
++                   str(probe / "request.json"), str(probe / "result.json")]
++        (probe / "result.json").unlink(missing_ok=True)
++        proc = subprocess.run(command, capture_output=True, text=True, timeout=30)
++        write_json(probe / "process.json", {"command": command, "exit_code": proc.returncode,
++                                          "stdout": proc.stdout, "stderr": proc.stderr})
++        if proc.returncode: raise RuntimeError(f"reservation probe failed: {proc.stderr}")
++        boundary = json.loads((probe / "result.json").read_text())
++        # This is a negative acceptance: Python must fail explicitly; the unmodified
++        # Java reference still overlaps, and the comparator must still report it.
++        negative = output / "precision-collapse"
++        comparison = run_case(ROOT / "configs/v2_precision_collapse.json", negative, java, classpath, build["fingerprint"])
++        py = json.loads((negative / "python-raw.json").read_text())["result"]
++        jv = json.loads((negative / "java-raw.json").read_text())["result"]
++        precision = {"parity_passed": comparison["passed"], "python_status": py["status"],
++                     "python_reason": py["reason"], "java_status": jv["status"],
++                     "java_overlaps": positive_intervals(jv), "first_difference": comparison["first_difference"]}
++        precision["expected_boundary_detected"] = (not comparison["passed"] and py["status"] == "FAILED"
++            and py["makespan"] is None and "lost to floating-point precision" in py["reason"]
++            and bool(precision["java_overlaps"]))
++        checks = []
++        for parent in [output / "parity", output / "sweep"]:
++            for raw in parent.glob("*/java-raw.json"):
++                trace = json.loads(raw.read_text())
++                for check in trace["observations"]["reservation_checks"]:
++                    checks.append({"case": raw.parent.name, **check})
++        unexpected = [c for c in checks if c["original_allowed"] != (not c["observed_pending_starts"])]
++        reservation = {"canAddToQueue_calls": len(checks), "guard_disagreements_in_normal_runs": unexpected,
++                       "note": "busy visits short-circuit canAddToQueue; all event boundaries also compare pending starts"}
++        totals = {"events_per_language": sum(c["events"]["python"] for c in parity["cases"]+sweep),
++                  "decisions_per_language": sum(c["decisions"]["python"] for c in parity["cases"]+sweep)}
++        expected_probe = [True, False, True, False]
++        probe_ok = [c["equal"] for c in boundary["cases"]] == expected_probe
++        summary = {"status": "COMPLETED", "passed": parity["passed"] and all(c["passed"] for c in sweep)
++                   and probe_ok and precision["expected_boundary_detected"] and not unexpected,
++                   "scope": "V2-01..05 fixed-input acceptance with explicit numeric domain boundary",
++                   "named_parity": parity, "sweep_seed": SEED, "sweep_cases": sweep,
++                   "totals": totals, "reservation_checks": reservation, "injected_boundary": boundary,
++                   "precision_boundary": precision, "java_build_fingerprint": build["fingerprint"],
++                   "not_validated": ["arbitrary-input equivalence", "DAX/Java RNG/workload distributions", "GP/training/paper-scale experiments"]}
++        write_json(output / "summary.json", summary)
++        return summary
++    except Exception as exc:
++        write_json(output / "summary.json", {"passed": False, "status": "ERROR", "error": f"{type(exc).__name__}: {exc}"})
++        raise
++
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument("--java"); p.add_argument("--output", type=Path)
++    a = p.parse_args()
++    result = run_acceptance(a.output, a.java)
++    print(json.dumps({k: result[k] for k in ("passed", "totals", "reservation_checks", "precision_boundary")}, indent=2))
++    return 0 if result["passed"] else 1
++
++
++if __name__ == "__main__": raise SystemExit(main())
+--- /dev/null
++++ b/tools/v2_cases.py
+@@ -0,0 +1,16 @@
++"""Named acceptance fixtures; integer outcomes derived independently by hand."""
++LEGACY_CASES = ("single_local", "single_local_release5", "chain_remote", "chain_fcfs")
++V2_CASES = {
++    # name: (makespan, event count, decision count)
++    "v2_diamond": (11, 13, 8),
++    "v2_contention": (17, 12, 5),
++    "v2_candidates": (14, 27, 10),
++    "v2_collision_m0": (11, 20, 8),
++    "v2_collision_e0": (11, 20, 8),
++    "v2_equal_heap": (12, 39, 29),
++    "v2_float_local": (1.6, 16, 7),
++    "v2_float_remote": (2.2, 16, 7),
++    "v2_shared_server": (8, 15, 8),
++    "v2_order": (4, 12, 4),
++}
++DEFAULT_CASES = (*LEGACY_CASES, *V2_CASES)
+--- a/tools/validate.py
++++ b/tools/validate.py
+@@ -12,6 +12,7 @@
+ sys.path.insert(0,str(ROOT/"src"))
+ from fogsim import load_fixed_instance, simulate, create_engine, __version__
+ from fogsim.config import load_config
++from v2_cases import DEFAULT_CASES
+ 
+ 
+ def sha(path):
+@@ -22,6 +23,7 @@
+     output=ROOT/"outputs";output.mkdir(exist_ok=True)
+     (output/"pytest-results.xml").unlink(missing_ok=True)
+     (output/"parity/summary.json").unlink(missing_ok=True)
++    (output/"v2/summary.json").unlink(missing_ok=True)
+     command=[sys.executable,"-m","pytest","-q","--junitxml=outputs/pytest-results.xml"]
+     tests=subprocess.run(command,cwd=ROOT,capture_output=True,text=True)
+     (output/"pytest-console.txt").write_text(tests.stdout+tests.stderr,encoding="utf-8")
+@@ -29,7 +31,7 @@
+     suite=ET.parse(output/"pytest-results.xml").getroot().find("testsuite")
+     summary={k:int(suite.get(k,"0")) for k in ("tests","failures","errors","skipped")}
+     runs={};mappings={}
+-    for name in ("single_local","single_local_release5","chain_remote","chain_fcfs"):
++    for name in DEFAULT_CASES:
+         path,cfg=load_config(ROOT/f"configs/{name}.json");spec=load_fixed_instance(path)
+         result=simulate(spec,cfg).to_dict();runs[name]={k:result[k] for k in ("status","makespan","final_clock_time","processed_event_count")}
+         (output/f"{name}.json").write_text(json.dumps(result,indent=2,ensure_ascii=False,allow_nan=False)+"\n",encoding="utf-8")
+@@ -39,25 +41,31 @@
+             "task_order":[list(k) for k in engine.state.tasks_by_key],
+             "candidate_order":{str(t.key):[o.resource.id for o in t.options] for t in engine.state.tasks_by_key.values()},
+             "initial_stage_order":[[w.id,w.owner_device.id,w.release_time] for w in engine.state.workflows_by_id.values()]}
+-    tracked=[ROOT/"pyproject.toml"]
+-    for folder in ("src","tests","configs","data/cases","tools"):
++    tracked=[ROOT/name for name in ("pyproject.toml","README.md","references/INPUT-SHA256.json","CHANGES-FROM-0.2.0a1.patch")]
++    for folder in ("src","tests","configs","data/cases","tools","docs","references/design"):
+         tracked.extend(p for p in (ROOT/folder).rglob("*") if p.is_file() and "__pycache__" not in p.parts
+                        and not any(part.endswith(".egg-info") for part in p.parts))
+     files={str(p.relative_to(ROOT)).replace("\\","/"):sha(p) for p in sorted(tracked)}
+     input_hashes={p.name:sha(p) for p in ROOT.parent.iterdir() if p.is_file() and p.suffix in (".zip",".pdf",".md",".txt")}
+     parity_path=output/"parity/summary.json"
+     parity=json.loads(parity_path.read_text(encoding="utf-8")) if parity_path.exists() else {"status":"NOT_EXECUTED","passed":False}
++    v2_path=output/"v2/summary.json"
++    v2=json.loads(v2_path.read_text(encoding="utf-8")) if v2_path.exists() else {"status":"NOT_EXECUTED","passed":False}
++    acceptance_passed=(tests.returncode == 0 and all(summary[k] == 0 for k in ("failures","errors","skipped"))
++                       and parity.get("passed",False) and v2.get("passed",False))
+     manifest={"implementation_version":__version__,"python":sys.version,"platform":platform.platform(),
+         "python_executable":sys.executable,"pytest_version":importlib.metadata.version("pytest"),
+         "pytest_command":command,"pytest_exit_code":tests.returncode,"tests":summary,
+         "design_versions":"00-07 v1.1.0; 08-11 v1.0.0; incremental documents take precedence",
+         "runs":runs,"order_mappings":mappings,"source_files":input_hashes,"project_hashes":files,
+         "snapshot_sha256":hashlib.sha256(json.dumps(files,sort_keys=True).encode()).hexdigest(),
+-        "fixed_parity":parity,
+-        "not_executed":["0.2 complex DAG/contention acceptance","Full multi-device integration","Arbitrary-input equivalence","DAX/RNG/GP/training/paper-scale experiments"]}
++        "fixed_parity":parity,"v2_acceptance":v2,"acceptance_passed":acceptance_passed,
++        "input_sources":json.loads((ROOT/"references/INPUT-SHA256.json").read_text(encoding="utf-8")),
++        "known_boundaries":["Zero-length binary64 execution intervals are explicitly rejected; original Java can overlap"],
++        "not_executed":["Full multi-device model extension","Arbitrary-input equivalence","DAX/RNG/GP/training/paper-scale experiments"]}
+     (output/"validation-manifest.json").write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+     print(json.dumps({"tests":summary,"runs":runs},indent=2))
+-    return tests.returncode
++    return 0 if acceptance_passed else (tests.returncode or 1)
+ 
+ 
+ if __name__=="__main__":raise SystemExit(main())

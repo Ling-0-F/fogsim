@@ -1,0 +1,231 @@
+{
+  "passed": true,
+  "status": "COMPLETED",
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.39",
+    "command": [
+      "tools/check_step7.py"
+    ]
+  },
+  "business": {
+    "passed": true,
+    "checks": {
+      "retain_release_identical": true,
+      "archive_identical": true,
+      "rng_identical": true,
+      "input_alone_replays": true,
+      "all_maps_released": true,
+      "java_reference_retain": true,
+      "java_reference_release_after_materialization": true
+    },
+    "batches": {
+      "fresh_same_seed": {
+        "status": "SUCCEEDED",
+        "completed_runs": 3,
+        "failed_runs": 0,
+        "rng_boundaries": [
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+            "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 87.416080723558,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          },
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+            "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 87.416080723558,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          },
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+            "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 87.416080723558,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          }
+        ]
+      },
+      "fresh_seed_list": {
+        "status": "SUCCEEDED",
+        "completed_runs": 3,
+        "failed_runs": 0,
+        "rng_boundaries": [
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+            "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 87.416080723558,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          },
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "6f00506fd8b42aa7abde214b8bc475a7777c9e8e3c21af16b101ef7f551e40fe",
+            "rng_final_fingerprint": "08d1c784090dd75ff88816d65c6ddb5d2c46d81fcd6691c1f8d91597451732ec",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 146.09866483832758,
+            "environment_fingerprint": "0084d7dc4a164f1aba494770c9aeafd660adf50257c90ab4adc944a31c0d7eb8"
+          },
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "f2d566a185da16eecc610737227f840a0a9cf6b01d794362d4f1bcd6cb51a6f8",
+            "rng_final_fingerprint": "bc69ce3f2271dd9bd382a4cbc65d048bf4f2e50391597f1dc91e0da3be9e09b5",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 89.28000912384447,
+            "environment_fingerprint": "90da1a8c24e2a0a0e224ec763bfe77a6fbf2d08acec241a26a7050c76cea5251"
+          }
+        ]
+      },
+      "java_rerun": {
+        "status": "SUCCEEDED",
+        "completed_runs": 3,
+        "failed_runs": 0,
+        "rng_boundaries": [
+          {
+            "run_index": 0,
+            "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+            "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "initial_cutoff_release_time": 0.0,
+            "cutoff_release_time": 87.416080723558,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          },
+          {
+            "run_index": 1,
+            "rng_start_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c",
+            "rng_final_fingerprint": "0ce56a8a97d0ddc8ad2d8843330301bf7983d3570441762516be829565bfb859",
+            "initial_cutoff_release_time": 87.416080723558,
+            "cutoff_release_time": 4.770257046258186,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          },
+          {
+            "run_index": 2,
+            "rng_start_fingerprint": "0ce56a8a97d0ddc8ad2d8843330301bf7983d3570441762516be829565bfb859",
+            "rng_final_fingerprint": "aedd4a7250dc197f8a32d886067b9ff91effa8c95716f32dc66b416954d58205",
+            "initial_cutoff_release_time": 4.770257046258186,
+            "cutoff_release_time": 199.49862063723833,
+            "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+          }
+        ]
+      }
+    }
+  },
+  "memory": {
+    "scope": "300-task chain, context/environment/generation/materialization/initialization only; no events executed; full-run performance NOT_MEASURED",
+    "measurements": [
+      {
+        "policy": "retain",
+        "elapsed_seconds": 0.07789780400025847,
+        "current_bytes": 908825,
+        "peak_bytes": 1021561,
+        "tasks": 300,
+        "remaining_runtime_mapping_entries": 598,
+        "cleanup": {
+          "workflows_released": 0,
+          "released_task_count": 0,
+          "removed_mapping_entry_count": 0
+        }
+      },
+      {
+        "policy": "release_after_materialization",
+        "elapsed_seconds": 0.11953403500001514,
+        "current_bytes": 798527,
+        "peak_bytes": 1147259,
+        "tasks": 300,
+        "remaining_runtime_mapping_entries": 0,
+        "cleanup": {
+          "workflows_released": 1,
+          "released_task_count": 300,
+          "removed_mapping_entry_count": 598
+        }
+      }
+    ],
+    "conclusion": "Measured current/peak/time only; release success does not imply full-run speedup or lower peak"
+  },
+  "cli": [
+    {
+      "case": "dynamic",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "fogsim",
+        "dynamic",
+        "--config",
+        "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/configs/examples/step5_dynamic.json",
+        "--repeat",
+        "2",
+        "--repeat-mode",
+        "java_rerun",
+        "--no-trace",
+        "--edge-data-policy",
+        "release_after_materialization",
+        "--output",
+        "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/outputs/step7/checks/dynamic.json"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "output_exists": true
+    },
+    {
+      "case": "replay",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "fogsim",
+        "replay",
+        "--config",
+        "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/configs/examples/step6_verify.json",
+        "--repeat",
+        "2",
+        "--output",
+        "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/outputs/step7/checks/replay.json"
+      ],
+      "exit_code": 0,
+      "expected_exit_code": 0,
+      "passed": true,
+      "output_exists": true
+    },
+    {
+      "case": "coverage",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "fogsim",
+        "replay",
+        "--config",
+        "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/configs/examples/step6_reuse.json",
+        "--output",
+        "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/outputs/step7/checks/coverage.json"
+      ],
+      "exit_code": 1,
+      "expected_exit_code": 1,
+      "passed": true,
+      "output_exists": true
+    },
+    {
+      "case": "invalid",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "fogsim",
+        "dynamic",
+        "--config",
+        "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/configs/examples/step5_dynamic.json",
+        "--repeat",
+        "2",
+        "--output",
+        "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/outputs/step7/checks/invalid.json"
+      ],
+      "exit_code": 2,
+      "expected_exit_code": 2,
+      "passed": true,
+      "output_exists": false
+    }
+  ]
+}

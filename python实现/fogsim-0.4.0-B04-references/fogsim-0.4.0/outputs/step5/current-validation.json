@@ -1,0 +1,287 @@
+{
+  "stage": "step5-development-snapshot",
+  "date": "2026-11-05",
+  "timezone": "America/Los_Angeles",
+  "baseline_step4_zip_sha256": "e858f1424410fef3e5180151153c86e4d04edb7238ed6ab687b5b4cd062e6b8d",
+  "design_sha256": "e47a1953e65a8b152f9e6d63b8a8702c862b5fb5518894169922b63543e92758",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.39",
+  "pytest": "9.2.0",
+  "contracts": {
+    "tests": 80,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "python_unit_integration": {
+    "tests": 670,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "checks": {
+    "passed": true,
+    "scope": "V09-V15 components and scripted dynamic business input; production replay/V17-V19 NOT_EXECUTED",
+    "cases": [
+      {
+        "case": "all_devices_rejected",
+        "passed": true,
+        "priority_guard": "production_full",
+        "trace_recorder": "oracle_without_duplicate_state_snapshots",
+        "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+        "classification": "EXPECTED_DIFFERENCE_CONFIRMED",
+        "comparisons": {
+          "generated_inputs": null,
+          "attempts": null,
+          "script_calls": null,
+          "trace_and_final": null,
+          "explicit_failure": null
+        },
+        "counts": {
+          "events": 0,
+          "decisions": 0,
+          "attempts": 2
+        },
+        "python_status": "FAILED",
+        "python_reason_code": "EVENTS_EXHAUSTED_BEFORE_TARGET"
+      },
+      {
+        "case": "arrival_rejected",
+        "passed": true,
+        "priority_guard": "production_full",
+        "trace_recorder": "oracle_without_duplicate_state_snapshots",
+        "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+        "classification": "EXPECTED_DIFFERENCE_CONFIRMED",
+        "comparisons": {
+          "generated_inputs": null,
+          "attempts": null,
+          "script_calls": null,
+          "trace_and_final": null,
+          "explicit_failure": null
+        },
+        "counts": {
+          "events": 7,
+          "decisions": 3,
+          "attempts": 2
+        },
+        "python_status": "FAILED",
+        "python_reason_code": "EVENTS_EXHAUSTED_BEFORE_TARGET"
+      },
+      {
+        "case": "first_device_rejected",
+        "passed": true,
+        "priority_guard": "production_full",
+        "trace_recorder": "oracle_without_duplicate_state_snapshots",
+        "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+        "classification": "NORMAL_PARITY_PASSED",
+        "comparisons": {
+          "generated_inputs": null,
+          "attempts": null,
+          "script_calls": null,
+          "trace_and_final": null,
+          "metrics": null
+        },
+        "counts": {
+          "events": 7,
+          "decisions": 3,
+          "attempts": 3
+        },
+        "python_status": "SUCCEEDED",
+        "python_reason_code": null
+      },
+      {
+        "case": "local_disabled",
+        "passed": true,
+        "priority_guard": "production_full",
+        "trace_recorder": "oracle_without_duplicate_state_snapshots",
+        "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+        "classification": "NORMAL_PARITY_PASSED",
+        "comparisons": {
+          "generated_inputs": null,
+          "attempts": null,
+          "script_calls": null,
+          "trace_and_final": null,
+          "metrics": null
+        },
+        "counts": {
+          "events": 63,
+          "decisions": 52,
+          "attempts": 12
+        },
+        "python_status": "SUCCEEDED",
+        "python_reason_code": null
+      },
+      {
+        "case": "minimal_chain",
+        "passed": true,
+        "priority_guard": "production_full",
+        "trace_recorder": "oracle_without_duplicate_state_snapshots",
+        "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+        "classification": "NORMAL_PARITY_PASSED",
+        "comparisons": {
+          "generated_inputs": null,
+          "attempts": null,
+          "script_calls": null,
+          "trace_and_final": null,
+          "metrics": null
+        },
+        "counts": {
+          "events": 7,
+          "decisions": 3,
+          "attempts": 2
+        },
+        "python_status": "SUCCEEDED",
+        "python_reason_code": null
+      },
+      {
+        "case": "multi_device_diamond",
+        "passed": true,
+        "priority_guard": "production_full",
+        "trace_recorder": "oracle_without_duplicate_state_snapshots",
+        "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+        "classification": "NORMAL_PARITY_PASSED",
+        "comparisons": {
+          "generated_inputs": null,
+          "attempts": null,
+          "script_calls": null,
+          "trace_and_final": null,
+          "metrics": null
+        },
+        "counts": {
+          "events": 77,
+          "decisions": 61,
+          "attempts": 14
+        },
+        "python_status": "SUCCEEDED",
+        "python_reason_code": null
+      },
+      {
+        "case": "native_multiple_types",
+        "passed": true,
+        "priority_guard": "trusted_existing_fcfs_body",
+        "trace_recorder": "oracle_without_duplicate_state_snapshots",
+        "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+        "classification": "NORMAL_PARITY_PASSED",
+        "comparisons": {
+          "generated_inputs": null,
+          "attempts": null,
+          "script_calls": null,
+          "trace_and_final": null,
+          "metrics": null
+        },
+        "counts": {
+          "events": 598,
+          "decisions": 549,
+          "attempts": 26
+        },
+        "python_status": "SUCCEEDED",
+        "python_reason_code": null
+      },
+      {
+        "case": "native_standard_dax",
+        "passed": true,
+        "priority_guard": "trusted_existing_fcfs_body",
+        "trace_recorder": "oracle_without_duplicate_state_snapshots",
+        "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+        "classification": "NORMAL_PARITY_PASSED",
+        "comparisons": {
+          "generated_inputs": null,
+          "attempts": null,
+          "script_calls": null,
+          "trace_and_final": null,
+          "metrics": null
+        },
+        "counts": {
+          "events": 362,
+          "decisions": 334,
+          "attempts": 32
+        },
+        "python_status": "SUCCEEDED",
+        "python_reason_code": null
+      },
+      {
+        "case": "pending_at_stop",
+        "passed": true,
+        "priority_guard": "production_full",
+        "trace_recorder": "oracle_without_duplicate_state_snapshots",
+        "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+        "classification": "NORMAL_PARITY_PASSED",
+        "comparisons": {
+          "generated_inputs": null,
+          "attempts": null,
+          "script_calls": null,
+          "trace_and_final": null,
+          "metrics": null
+        },
+        "counts": {
+          "events": 7,
+          "decisions": 3,
+          "attempts": 3
+        },
+        "python_status": "SUCCEEDED",
+        "python_reason_code": null
+      }
+    ],
+    "java_probes": {
+      "passed": true,
+      "checks": 50,
+      "scope": "original Java lifecycle and manually injected component probes; no Python RNG value parity"
+    },
+    "classification": "NORMAL_PARITY_PASSED"
+  },
+  "additional_equivalence": {
+    "passed": true,
+    "comparison": "all normalized events/decisions/interleaved actions/final facts",
+    "full_guard_sha256": "ea3af9f93a860aeeea6d0ecc70641760346ffed8e45504f30fdb0e9b942cf862",
+    "trusted_fcfs_sha256": "ea3af9f93a860aeeea6d0ecc70641760346ffed8e45504f30fdb0e9b942cf862",
+    "scope": "Large native_multiple_types: production full priority graph guard vs trusted-existing-FCFS test lane"
+  },
+  "integrity": {
+    "uploaded_java_sources_dependencies_matched": 659,
+    "original_fixed_configs_inputs_byte_identical": true
+  },
+  "changed_modules": [
+    "README.md",
+    "configs/examples/step5_dynamic.json",
+    "docs/IMPLEMENTATION-NOTES.md",
+    "docs/ISSUES-AND-FIXES.md",
+    "docs/STEP5-PROGRESS.md",
+    "docs/VALIDATION.md",
+    "docs/roadmap.md",
+    "docs/semantics.md",
+    "examples/step5/dax/CyberShake_30.xml",
+    "src/fogsim/__init__.py",
+    "src/fogsim/errors.py",
+    "src/fogsim/instances/source.py",
+    "src/fogsim/simulation/admission.py",
+    "src/fogsim/simulation/context.py",
+    "src/fogsim/simulation/dynamic.py",
+    "src/fogsim/simulation/dynamic_result.py",
+    "src/fogsim/simulation/engine.py",
+    "src/fogsim/simulation/event_queue.py",
+    "src/fogsim/simulation/events.py",
+    "src/fogsim/simulation/state.py",
+    "src/fogsim/simulation/statistics.py",
+    "src/fogsim/simulation/trace.py",
+    "tests/integration/test_dynamic_business_oracle.py",
+    "tests/unit/dynamic_helpers.py",
+    "tests/unit/test_dynamic_admission.py",
+    "tests/unit/test_dynamic_context.py",
+    "tests/unit/test_dynamic_statistics.py",
+    "tools/check_step5.py",
+    "tools/java/step5/fogsim/adapter/Step5Probe.java"
+  ],
+  "limitations": [
+    "Business sampler oracle is test-only, not production replay",
+    "Large existing-FCFS oracle mode excludes repeated priority graph-mutation fingerprints; production guard is unchanged",
+    "Legacy Java reference producer_device_id is explicitly mapped to event owner, not staging device",
+    "release_after_materialization execution policy is rejected until step7"
+  ],
+  "not_executed": [
+    "production replay/V17-V19",
+    "actual cleanup/V20",
+    "full CLI/batches/V21-V22",
+    "complete V01",
+    "GP/paper experiments"
+  ]
+}

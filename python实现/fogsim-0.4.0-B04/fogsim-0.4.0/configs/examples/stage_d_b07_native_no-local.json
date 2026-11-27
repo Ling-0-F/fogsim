@@ -1,0 +1,60 @@
+{
+  "format": "fogsim.experiment",
+  "schema_version": 2,
+  "mode": "dynamic",
+  "source": {
+    "seed": 7,
+    "dag_root": "../../development/b07/fixtures/chain",
+    "workflow_types": {
+      "lower": 0,
+      "upper": 0
+    },
+    "environment": {
+      "num_mobile_devices": 2,
+      "num_edge_servers": 1,
+      "num_cloud_servers": 1,
+      "can_mobile_devices_process_tasks": false
+    },
+    "samplers": {
+      "workload": {
+        "lower": 500,
+        "upper": 1500
+      },
+      "data_size": {
+        "lower": 0,
+        "upper": 1
+      },
+      "edge_data": {
+        "lower": 0,
+        "upper": 1
+      },
+      "processing_rate_device": {
+        "lower": 10,
+        "upper": 20
+      },
+      "processing_rate_edge": {
+        "lower": 20,
+        "upper": 30
+      },
+      "processing_rate_cloud": {
+        "lower": 30,
+        "upper": 40
+      }
+    }
+  },
+  "run": {
+    "num_jobs_recorded": 2,
+    "warmup_jobs": 2,
+    "max_events": 2000,
+    "trace_enabled": true,
+    "edge_data_policy": "release_after_materialization",
+    "routing_rule": {
+      "kind": "gp",
+      "expression": "(+ MRT (+ TTIQ (+ PT (+ UT DT))))"
+    },
+    "sequencing_rule": {
+      "kind": "gp",
+      "expression": "(- 0 PT)"
+    }
+  }
+}

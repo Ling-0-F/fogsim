@@ -1,0 +1,2712 @@
+{
+  "schema_version": 1,
+  "language": "python",
+  "input": {
+    "time_unit": "s",
+    "resources": [
+      {
+        "id": "M0",
+        "type": "MOBILE",
+        "can_process_tasks": true
+      },
+      {
+        "id": "E0",
+        "type": "EDGE"
+      },
+      {
+        "id": "C0",
+        "type": "CLOUD"
+      }
+    ],
+    "workflows": [
+      {
+        "id": 0,
+        "owner_device_id": "M0",
+        "release_time": 0.0,
+        "tasks": [
+          {
+            "id": "A",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 10.0,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 2.0,
+                "processing_time": 3.0,
+                "download_time": 1.0
+              },
+              "C0": {
+                "upload_time": 5.0,
+                "processing_time": 1.0,
+                "download_time": 4.0
+              }
+            }
+          },
+          {
+            "id": "B",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 12.0,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 1.0,
+                "processing_time": 4.0,
+                "download_time": 2.0
+              },
+              "C0": {
+                "upload_time": 4.0,
+                "processing_time": 2.0,
+                "download_time": 3.0
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "A",
+            "B"
+          ]
+        ]
+      }
+    ]
+  },
+  "config": {
+    "routing_kind": "fcfs",
+    "fixed_resource_id": null,
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "loaded_model": {
+    "resources": [
+      {
+        "id": "M0",
+        "type": "MOBILE",
+        "numeric_id": 0,
+        "can_process_tasks": true
+      },
+      {
+        "id": "E0",
+        "type": "EDGE",
+        "numeric_id": 0,
+        "can_process_tasks": null
+      },
+      {
+        "id": "C0",
+        "type": "CLOUD",
+        "numeric_id": 1,
+        "can_process_tasks": null
+      }
+    ],
+    "workflows": [
+      {
+        "id": 0,
+        "owner_device_id": "M0",
+        "release_time": 0.0,
+        "tasks": [
+          {
+            "id": "A",
+            "numeric_id": 0,
+            "parents": [],
+            "children": [
+              "B"
+            ],
+            "options": [
+              {
+                "resource_id": "M0",
+                "processing_time": 10.0,
+                "upload_time": 0.0,
+                "download_time": 0.0
+              },
+              {
+                "resource_id": "E0",
+                "processing_time": 3.0,
+                "upload_time": 2.0,
+                "download_time": 1.0
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 1.0,
+                "upload_time": 5.0,
+                "download_time": 4.0
+              }
+            ]
+          },
+          {
+            "id": "B",
+            "numeric_id": 1,
+            "parents": [
+              "A"
+            ],
+            "children": [],
+            "options": [
+              {
+                "resource_id": "M0",
+                "processing_time": 12.0,
+                "upload_time": 0.0,
+                "download_time": 0.0
+              },
+              {
+                "resource_id": "E0",
+                "processing_time": 4.0,
+                "upload_time": 1.0,
+                "download_time": 2.0
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 2.0,
+                "upload_time": 4.0,
+                "download_time": 3.0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "result": {
+    "status": "SUCCEEDED",
+    "reason": null,
+    "final_clock_time": 17.0,
+    "completed_workflow_count": 1,
+    "processed_event_count": 7,
+    "makespan": 17.0,
+    "workflow_records": [
+      {
+        "workflow_id": 0,
+        "owner_device_id": "M0",
+        "release_time": 0.0,
+        "completion_time": 17.0,
+        "flow_time": 17.0
+      }
+    ],
+    "task_records": [
+      {
+        "workflow_id": 0,
+        "task_id": "A",
+        "resource_id": "M0",
+        "dispatch_time": 0.0,
+        "arrival_time": 0.0,
+        "start_time": 0.0,
+        "compute_finish_time": 10.0,
+        "finish_time": 10.0,
+        "plan": {
+          "start_time": 0.0,
+          "compute_finish_time": 10.0,
+          "finish_time": 10.0
+        }
+      },
+      {
+        "workflow_id": 0,
+        "task_id": "B",
+        "resource_id": "E0",
+        "dispatch_time": 10.0,
+        "arrival_time": 11.0,
+        "start_time": 11.0,
+        "compute_finish_time": 15.0,
+        "finish_time": 17.0,
+        "plan": {
+          "start_time": 11.0,
+          "compute_finish_time": 15.0,
+          "finish_time": 17.0
+        }
+      }
+    ],
+    "events": [
+      {
+        "type": "JobArrivalEvent",
+        "time": 0.0,
+        "owner": "M0",
+        "workflow_id": 0,
+        "task_id": null,
+        "resource_id": null,
+        "sequence": 1,
+        "staging_device": "M0",
+        "before": {
+          "clock_time": 0.0,
+          "pending_arrivals": [
+            0
+          ],
+          "active_workflows": [],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": false,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": false,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": []
+            }
+          ]
+        },
+        "after": {
+          "clock_time": 0.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": false,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": []
+            }
+          ]
+        },
+        "emitted": [
+          {
+            "type": "TaskVisitEvent",
+            "time": 0.0,
+            "owner": "M0",
+            "workflow_id": 0,
+            "task_id": "A",
+            "resource_id": "M0",
+            "staging_device": "M0"
+          }
+        ],
+        "actions": [
+          {
+            "kind": "DECISION",
+            "decision": {
+              "event_sequence": 1,
+              "decision_sequence": 1,
+              "time": 0.0,
+              "kind": "ROUTING",
+              "round": 1,
+              "candidates": [
+                {
+                  "option": [
+                    0,
+                    "A",
+                    "M0"
+                  ],
+                  "priority": 0.0
+                },
+                {
+                  "option": [
+                    0,
+                    "A",
+                    "E0"
+                  ],
+                  "priority": 0.0
+                },
+                {
+                  "option": [
+                    0,
+                    "A",
+                    "C0"
+                  ],
+                  "priority": 0.0
+                }
+              ],
+              "selected": [
+                0,
+                "A",
+                "M0"
+              ],
+              "candidate_state": [
+                {
+                  "option": [
+                    0,
+                    "A",
+                    "M0"
+                  ],
+                  "ready_time": 0.0,
+                  "dispatched": false,
+                  "completed": false,
+                  "release_time": 0.0,
+                  "owner_numeric_id": 0
+                },
+                {
+                  "option": [
+                    0,
+                    "A",
+                    "E0"
+                  ],
+                  "ready_time": 0.0,
+                  "dispatched": false,
+                  "completed": false,
+                  "release_time": 0.0,
+                  "owner_numeric_id": 0
+                },
+                {
+                  "option": [
+                    0,
+                    "A",
+                    "C0"
+                  ],
+                  "ready_time": 0.0,
+                  "dispatched": false,
+                  "completed": false,
+                  "release_time": 0.0,
+                  "owner_numeric_id": 0
+                }
+              ],
+              "resource_state": [
+                {
+                  "id": "M0",
+                  "available_time": 0.0,
+                  "queue": [],
+                  "queued_processing_time": 0.0,
+                  "queued_total_time": 0.0
+                },
+                {
+                  "id": "E0",
+                  "available_time": 0.0,
+                  "queue": [],
+                  "queued_processing_time": 0.0,
+                  "queued_total_time": 0.0
+                },
+                {
+                  "id": "C0",
+                  "available_time": 0.0,
+                  "queue": [],
+                  "queued_processing_time": 0.0,
+                  "queued_total_time": 0.0
+                }
+              ]
+            }
+          },
+          {
+            "kind": "EMIT",
+            "event": {
+              "type": "TaskVisitEvent",
+              "time": 0.0,
+              "owner": "M0",
+              "workflow_id": 0,
+              "task_id": "A",
+              "resource_id": "M0",
+              "staging_device": "M0"
+            }
+          }
+        ],
+        "error": null
+      },
+      {
+        "type": "TaskVisitEvent",
+        "time": 0.0,
+        "owner": "M0",
+        "workflow_id": 0,
+        "task_id": "A",
+        "resource_id": "M0",
+        "sequence": 2,
+        "staging_device": "M0",
+        "before": {
+          "clock_time": 0.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": false,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": []
+            }
+          ]
+        },
+        "after": {
+          "clock_time": 0.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": false,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": [
+                0,
+                "A"
+              ],
+              "completed_task_count": 0
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [
+            {
+              "task": [
+                0,
+                "A"
+              ],
+              "resource_id": "M0",
+              "planned_start_time": 0.0,
+              "planned_compute_finish_time": 10.0,
+              "planned_finish_time": 10.0
+            }
+          ],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": []
+            }
+          ]
+        },
+        "emitted": [
+          {
+            "type": "ProcessStartEvent",
+            "time": 0.0,
+            "owner": "M0",
+            "workflow_id": 0,
+            "task_id": "A",
+            "resource_id": "M0",
+            "staging_device": "M0"
+          }
+        ],
+        "actions": [
+          {
+            "kind": "EMIT",
+            "event": {
+              "type": "ProcessStartEvent",
+              "time": 0.0,
+              "owner": "M0",
+              "workflow_id": 0,
+              "task_id": "A",
+              "resource_id": "M0",
+              "staging_device": "M0"
+            }
+          }
+        ],
+        "error": null
+      },
+      {
+        "type": "ProcessStartEvent",
+        "time": 0.0,
+        "owner": "M0",
+        "workflow_id": 0,
+        "task_id": "A",
+        "resource_id": "M0",
+        "sequence": 3,
+        "staging_device": "M0",
+        "before": {
+          "clock_time": 0.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": false,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": [
+                0,
+                "A"
+              ],
+              "completed_task_count": 0
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [
+            {
+              "task": [
+                0,
+                "A"
+              ],
+              "resource_id": "M0",
+              "planned_start_time": 0.0,
+              "planned_compute_finish_time": 10.0,
+              "planned_finish_time": 10.0
+            }
+          ],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": []
+            }
+          ]
+        },
+        "after": {
+          "clock_time": 0.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": false,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 10.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [
+            {
+              "task": [
+                0,
+                "A"
+              ],
+              "resource_id": "M0",
+              "planned_start_time": 0.0,
+              "planned_compute_finish_time": 10.0,
+              "planned_finish_time": 10.0
+            }
+          ],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": []
+            }
+          ]
+        },
+        "emitted": [
+          {
+            "type": "ProcessFinishEvent",
+            "time": 10.0,
+            "owner": "M0",
+            "workflow_id": 0,
+            "task_id": "A",
+            "resource_id": "M0",
+            "staging_device": "M0"
+          }
+        ],
+        "actions": [
+          {
+            "kind": "EMIT",
+            "event": {
+              "type": "ProcessFinishEvent",
+              "time": 10.0,
+              "owner": "M0",
+              "workflow_id": 0,
+              "task_id": "A",
+              "resource_id": "M0",
+              "staging_device": "M0"
+            }
+          }
+        ],
+        "error": null
+      },
+      {
+        "type": "ProcessFinishEvent",
+        "time": 10.0,
+        "owner": "M0",
+        "workflow_id": 0,
+        "task_id": "A",
+        "resource_id": "M0",
+        "sequence": 4,
+        "staging_device": "M0",
+        "before": {
+          "clock_time": 10.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": false,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 10.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [
+            {
+              "task": [
+                0,
+                "A"
+              ],
+              "resource_id": "M0",
+              "planned_start_time": 0.0,
+              "planned_compute_finish_time": 10.0,
+              "planned_finish_time": 10.0
+            }
+          ],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": []
+            }
+          ]
+        },
+        "after": {
+          "clock_time": 10.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": true,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 10.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 10.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 1
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [
+            {
+              "task": [
+                0,
+                "A"
+              ],
+              "resource_id": "M0",
+              "planned_start_time": 0.0,
+              "planned_compute_finish_time": 10.0,
+              "planned_finish_time": 10.0
+            }
+          ],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": [
+                "A"
+              ]
+            }
+          ]
+        },
+        "emitted": [
+          {
+            "type": "TaskVisitEvent",
+            "time": 11.0,
+            "owner": "M0",
+            "workflow_id": 0,
+            "task_id": "B",
+            "resource_id": "E0",
+            "staging_device": "M0"
+          }
+        ],
+        "actions": [
+          {
+            "kind": "DECISION",
+            "decision": {
+              "event_sequence": 4,
+              "decision_sequence": 2,
+              "time": 10.0,
+              "kind": "ROUTING",
+              "round": 1,
+              "candidates": [
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "M0"
+                  ],
+                  "priority": 10.0
+                },
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "E0"
+                  ],
+                  "priority": 0.0
+                },
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "C0"
+                  ],
+                  "priority": 0.0
+                }
+              ],
+              "selected": [
+                0,
+                "B",
+                "E0"
+              ],
+              "candidate_state": [
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "M0"
+                  ],
+                  "ready_time": 0.0,
+                  "dispatched": false,
+                  "completed": false,
+                  "release_time": 0.0,
+                  "owner_numeric_id": 0
+                },
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "E0"
+                  ],
+                  "ready_time": 0.0,
+                  "dispatched": false,
+                  "completed": false,
+                  "release_time": 0.0,
+                  "owner_numeric_id": 0
+                },
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "C0"
+                  ],
+                  "ready_time": 0.0,
+                  "dispatched": false,
+                  "completed": false,
+                  "release_time": 0.0,
+                  "owner_numeric_id": 0
+                }
+              ],
+              "resource_state": [
+                {
+                  "id": "M0",
+                  "available_time": 10.0,
+                  "queue": [],
+                  "queued_processing_time": 0.0,
+                  "queued_total_time": 0.0
+                },
+                {
+                  "id": "E0",
+                  "available_time": 0.0,
+                  "queue": [],
+                  "queued_processing_time": 0.0,
+                  "queued_total_time": 0.0
+                },
+                {
+                  "id": "C0",
+                  "available_time": 0.0,
+                  "queue": [],
+                  "queued_processing_time": 0.0,
+                  "queued_total_time": 0.0
+                }
+              ]
+            }
+          },
+          {
+            "kind": "DECISION",
+            "decision": {
+              "event_sequence": 4,
+              "decision_sequence": 3,
+              "time": 10.0,
+              "kind": "ROUTING",
+              "round": 2,
+              "candidates": [
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "M0"
+                  ],
+                  "priority": 10.0
+                },
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "E0"
+                  ],
+                  "priority": 0.0
+                },
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "C0"
+                  ],
+                  "priority": 0.0
+                }
+              ],
+              "selected": [
+                0,
+                "B",
+                "E0"
+              ],
+              "candidate_state": [
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "M0"
+                  ],
+                  "ready_time": 0.0,
+                  "dispatched": false,
+                  "completed": false,
+                  "release_time": 0.0,
+                  "owner_numeric_id": 0
+                },
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "E0"
+                  ],
+                  "ready_time": 0.0,
+                  "dispatched": false,
+                  "completed": false,
+                  "release_time": 0.0,
+                  "owner_numeric_id": 0
+                },
+                {
+                  "option": [
+                    0,
+                    "B",
+                    "C0"
+                  ],
+                  "ready_time": 0.0,
+                  "dispatched": false,
+                  "completed": false,
+                  "release_time": 0.0,
+                  "owner_numeric_id": 0
+                }
+              ],
+              "resource_state": [
+                {
+                  "id": "M0",
+                  "available_time": 10.0,
+                  "queue": [],
+                  "queued_processing_time": 0.0,
+                  "queued_total_time": 0.0
+                },
+                {
+                  "id": "E0",
+                  "available_time": 0.0,
+                  "queue": [],
+                  "queued_processing_time": 0.0,
+                  "queued_total_time": 0.0
+                },
+                {
+                  "id": "C0",
+                  "available_time": 0.0,
+                  "queue": [],
+                  "queued_processing_time": 0.0,
+                  "queued_total_time": 0.0
+                }
+              ]
+            }
+          },
+          {
+            "kind": "EMIT",
+            "event": {
+              "type": "TaskVisitEvent",
+              "time": 11.0,
+              "owner": "M0",
+              "workflow_id": 0,
+              "task_id": "B",
+              "resource_id": "E0",
+              "staging_device": "M0"
+            }
+          }
+        ],
+        "error": null
+      },
+      {
+        "type": "TaskVisitEvent",
+        "time": 11.0,
+        "owner": "M0",
+        "workflow_id": 0,
+        "task_id": "B",
+        "resource_id": "E0",
+        "sequence": 5,
+        "staging_device": "M0",
+        "before": {
+          "clock_time": 11.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": true,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 10.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 10.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 1
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [
+            {
+              "task": [
+                0,
+                "A"
+              ],
+              "resource_id": "M0",
+              "planned_start_time": 0.0,
+              "planned_compute_finish_time": 10.0,
+              "planned_finish_time": 10.0
+            }
+          ],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": [
+                "A"
+              ]
+            }
+          ]
+        },
+        "after": {
+          "clock_time": 11.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": true,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 10.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 11.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 10.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 1
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": [
+                0,
+                "B"
+              ],
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [
+            {
+              "task": [
+                0,
+                "A"
+              ],
+              "resource_id": "M0",
+              "planned_start_time": 0.0,
+              "planned_compute_finish_time": 10.0,
+              "planned_finish_time": 10.0
+            },
+            {
+              "task": [
+                0,
+                "B"
+              ],
+              "resource_id": "E0",
+              "planned_start_time": 11.0,
+              "planned_compute_finish_time": 15.0,
+              "planned_finish_time": 17.0
+            }
+          ],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": [
+                "A"
+              ]
+            }
+          ]
+        },
+        "emitted": [
+          {
+            "type": "ProcessStartEvent",
+            "time": 11.0,
+            "owner": "M0",
+            "workflow_id": 0,
+            "task_id": "B",
+            "resource_id": "E0",
+            "staging_device": "M0"
+          }
+        ],
+        "actions": [
+          {
+            "kind": "EMIT",
+            "event": {
+              "type": "ProcessStartEvent",
+              "time": 11.0,
+              "owner": "M0",
+              "workflow_id": 0,
+              "task_id": "B",
+              "resource_id": "E0",
+              "staging_device": "M0"
+            }
+          }
+        ],
+        "error": null
+      },
+      {
+        "type": "ProcessStartEvent",
+        "time": 11.0,
+        "owner": "M0",
+        "workflow_id": 0,
+        "task_id": "B",
+        "resource_id": "E0",
+        "sequence": 6,
+        "staging_device": "M0",
+        "before": {
+          "clock_time": 11.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": true,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 10.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 11.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 10.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 1
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": [
+                0,
+                "B"
+              ],
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [
+            {
+              "task": [
+                0,
+                "A"
+              ],
+              "resource_id": "M0",
+              "planned_start_time": 0.0,
+              "planned_compute_finish_time": 10.0,
+              "planned_finish_time": 10.0
+            },
+            {
+              "task": [
+                0,
+                "B"
+              ],
+              "resource_id": "E0",
+              "planned_start_time": 11.0,
+              "planned_compute_finish_time": 15.0,
+              "planned_finish_time": 17.0
+            }
+          ],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": [
+                "A"
+              ]
+            }
+          ]
+        },
+        "after": {
+          "clock_time": 11.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": true,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 10.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 11.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 10.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 1
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 17.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [
+            {
+              "task": [
+                0,
+                "A"
+              ],
+              "resource_id": "M0",
+              "planned_start_time": 0.0,
+              "planned_compute_finish_time": 10.0,
+              "planned_finish_time": 10.0
+            },
+            {
+              "task": [
+                0,
+                "B"
+              ],
+              "resource_id": "E0",
+              "planned_start_time": 11.0,
+              "planned_compute_finish_time": 15.0,
+              "planned_finish_time": 17.0
+            }
+          ],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": [
+                "A"
+              ]
+            }
+          ]
+        },
+        "emitted": [
+          {
+            "type": "ProcessFinishEvent",
+            "time": 17.0,
+            "owner": "M0",
+            "workflow_id": 0,
+            "task_id": "B",
+            "resource_id": "E0",
+            "staging_device": "M0"
+          }
+        ],
+        "actions": [
+          {
+            "kind": "EMIT",
+            "event": {
+              "type": "ProcessFinishEvent",
+              "time": 17.0,
+              "owner": "M0",
+              "workflow_id": 0,
+              "task_id": "B",
+              "resource_id": "E0",
+              "staging_device": "M0"
+            }
+          }
+        ],
+        "error": null
+      },
+      {
+        "type": "ProcessFinishEvent",
+        "time": 17.0,
+        "owner": "M0",
+        "workflow_id": 0,
+        "task_id": "B",
+        "resource_id": "E0",
+        "sequence": 7,
+        "staging_device": "M0",
+        "before": {
+          "clock_time": 17.0,
+          "pending_arrivals": [],
+          "active_workflows": [
+            0
+          ],
+          "completed_workflows": [],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": true,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": true,
+              "completed": false,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 10.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 11.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 10.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 1
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 17.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [
+            {
+              "task": [
+                0,
+                "A"
+              ],
+              "resource_id": "M0",
+              "planned_start_time": 0.0,
+              "planned_compute_finish_time": 10.0,
+              "planned_finish_time": 10.0
+            },
+            {
+              "task": [
+                0,
+                "B"
+              ],
+              "resource_id": "E0",
+              "planned_start_time": 11.0,
+              "planned_compute_finish_time": 15.0,
+              "planned_finish_time": 17.0
+            }
+          ],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": false,
+              "completion_time": null,
+              "completed_tasks": [
+                "A"
+              ]
+            }
+          ]
+        },
+        "after": {
+          "clock_time": 17.0,
+          "pending_arrivals": [],
+          "active_workflows": [],
+          "completed_workflows": [
+            0
+          ],
+          "tasks": [
+            {
+              "key": [
+                0,
+                "A"
+              ],
+              "dispatched": true,
+              "completed": true,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            },
+            {
+              "key": [
+                0,
+                "B"
+              ],
+              "dispatched": true,
+              "completed": true,
+              "options": [
+                {
+                  "resource_id": "M0",
+                  "ready_time": 0.0,
+                  "priority": 10.0
+                },
+                {
+                  "resource_id": "E0",
+                  "ready_time": 11.0,
+                  "priority": 0.0
+                },
+                {
+                  "resource_id": "C0",
+                  "ready_time": 0.0,
+                  "priority": 0.0
+                }
+              ]
+            }
+          ],
+          "resources": [
+            {
+              "id": "M0",
+              "numeric_id": 0,
+              "type": "MOBILE",
+              "available_time": 10.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 1
+            },
+            {
+              "id": "E0",
+              "numeric_id": 0,
+              "type": "EDGE",
+              "available_time": 17.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 1
+            },
+            {
+              "id": "C0",
+              "numeric_id": 1,
+              "type": "CLOUD",
+              "available_time": 0.0,
+              "waiting_queue": [],
+              "queued_processing_time": 0.0,
+              "queued_total_time": 0.0,
+              "pending_start": null,
+              "completed_task_count": 0
+            }
+          ],
+          "executions": [
+            {
+              "task": [
+                0,
+                "A"
+              ],
+              "resource_id": "M0",
+              "planned_start_time": 0.0,
+              "planned_compute_finish_time": 10.0,
+              "planned_finish_time": 10.0
+            },
+            {
+              "task": [
+                0,
+                "B"
+              ],
+              "resource_id": "E0",
+              "planned_start_time": 11.0,
+              "planned_compute_finish_time": 15.0,
+              "planned_finish_time": 17.0
+            }
+          ],
+          "workflows": [
+            {
+              "id": 0,
+              "completion_registered": true,
+              "completion_time": 17.0,
+              "completed_tasks": [
+                "A",
+                "B"
+              ]
+            }
+          ]
+        },
+        "emitted": [],
+        "actions": [],
+        "error": null
+      }
+    ],
+    "decisions": [
+      {
+        "event_sequence": 1,
+        "decision_sequence": 1,
+        "time": 0.0,
+        "kind": "ROUTING",
+        "round": 1,
+        "candidates": [
+          {
+            "option": [
+              0,
+              "A",
+              "M0"
+            ],
+            "priority": 0.0
+          },
+          {
+            "option": [
+              0,
+              "A",
+              "E0"
+            ],
+            "priority": 0.0
+          },
+          {
+            "option": [
+              0,
+              "A",
+              "C0"
+            ],
+            "priority": 0.0
+          }
+        ],
+        "selected": [
+          0,
+          "A",
+          "M0"
+        ],
+        "candidate_state": [
+          {
+            "option": [
+              0,
+              "A",
+              "M0"
+            ],
+            "ready_time": 0.0,
+            "dispatched": false,
+            "completed": false,
+            "release_time": 0.0,
+            "owner_numeric_id": 0
+          },
+          {
+            "option": [
+              0,
+              "A",
+              "E0"
+            ],
+            "ready_time": 0.0,
+            "dispatched": false,
+            "completed": false,
+            "release_time": 0.0,
+            "owner_numeric_id": 0
+          },
+          {
+            "option": [
+              0,
+              "A",
+              "C0"
+            ],
+            "ready_time": 0.0,
+            "dispatched": false,
+            "completed": false,
+            "release_time": 0.0,
+            "owner_numeric_id": 0
+          }
+        ],
+        "resource_state": [
+          {
+            "id": "M0",
+            "available_time": 0.0,
+            "queue": [],
+            "queued_processing_time": 0.0,
+            "queued_total_time": 0.0
+          },
+          {
+            "id": "E0",
+            "available_time": 0.0,
+            "queue": [],
+            "queued_processing_time": 0.0,
+            "queued_total_time": 0.0
+          },
+          {
+            "id": "C0",
+            "available_time": 0.0,
+            "queue": [],
+            "queued_processing_time": 0.0,
+            "queued_total_time": 0.0
+          }
+        ]
+      },
+      {
+        "event_sequence": 4,
+        "decision_sequence": 2,
+        "time": 10.0,
+        "kind": "ROUTING",
+        "round": 1,
+        "candidates": [
+          {
+            "option": [
+              0,
+              "B",
+              "M0"
+            ],
+            "priority": 10.0
+          },
+          {
+            "option": [
+              0,
+              "B",
+              "E0"
+            ],
+            "priority": 0.0
+          },
+          {
+            "option": [
+              0,
+              "B",
+              "C0"
+            ],
+            "priority": 0.0
+          }
+        ],
+        "selected": [
+          0,
+          "B",
+          "E0"
+        ],
+        "candidate_state": [
+          {
+            "option": [
+              0,
+              "B",
+              "M0"
+            ],
+            "ready_time": 0.0,
+            "dispatched": false,
+            "completed": false,
+            "release_time": 0.0,
+            "owner_numeric_id": 0
+          },
+          {
+            "option": [
+              0,
+              "B",
+              "E0"
+            ],
+            "ready_time": 0.0,
+            "dispatched": false,
+            "completed": false,
+            "release_time": 0.0,
+            "owner_numeric_id": 0
+          },
+          {
+            "option": [
+              0,
+              "B",
+              "C0"
+            ],
+            "ready_time": 0.0,
+            "dispatched": false,
+            "completed": false,
+            "release_time": 0.0,
+            "owner_numeric_id": 0
+          }
+        ],
+        "resource_state": [
+          {
+            "id": "M0",
+            "available_time": 10.0,
+            "queue": [],
+            "queued_processing_time": 0.0,
+            "queued_total_time": 0.0
+          },
+          {
+            "id": "E0",
+            "available_time": 0.0,
+            "queue": [],
+            "queued_processing_time": 0.0,
+            "queued_total_time": 0.0
+          },
+          {
+            "id": "C0",
+            "available_time": 0.0,
+            "queue": [],
+            "queued_processing_time": 0.0,
+            "queued_total_time": 0.0
+          }
+        ]
+      },
+      {
+        "event_sequence": 4,
+        "decision_sequence": 3,
+        "time": 10.0,
+        "kind": "ROUTING",
+        "round": 2,
+        "candidates": [
+          {
+            "option": [
+              0,
+              "B",
+              "M0"
+            ],
+            "priority": 10.0
+          },
+          {
+            "option": [
+              0,
+              "B",
+              "E0"
+            ],
+            "priority": 0.0
+          },
+          {
+            "option": [
+              0,
+              "B",
+              "C0"
+            ],
+            "priority": 0.0
+          }
+        ],
+        "selected": [
+          0,
+          "B",
+          "E0"
+        ],
+        "candidate_state": [
+          {
+            "option": [
+              0,
+              "B",
+              "M0"
+            ],
+            "ready_time": 0.0,
+            "dispatched": false,
+            "completed": false,
+            "release_time": 0.0,
+            "owner_numeric_id": 0
+          },
+          {
+            "option": [
+              0,
+              "B",
+              "E0"
+            ],
+            "ready_time": 0.0,
+            "dispatched": false,
+            "completed": false,
+            "release_time": 0.0,
+            "owner_numeric_id": 0
+          },
+          {
+            "option": [
+              0,
+              "B",
+              "C0"
+            ],
+            "ready_time": 0.0,
+            "dispatched": false,
+            "completed": false,
+            "release_time": 0.0,
+            "owner_numeric_id": 0
+          }
+        ],
+        "resource_state": [
+          {
+            "id": "M0",
+            "available_time": 10.0,
+            "queue": [],
+            "queued_processing_time": 0.0,
+            "queued_total_time": 0.0
+          },
+          {
+            "id": "E0",
+            "available_time": 0.0,
+            "queue": [],
+            "queued_processing_time": 0.0,
+            "queued_total_time": 0.0
+          },
+          {
+            "id": "C0",
+            "available_time": 0.0,
+            "queue": [],
+            "queued_processing_time": 0.0,
+            "queued_total_time": 0.0
+          }
+        ]
+      }
+    ]
+  }
+}

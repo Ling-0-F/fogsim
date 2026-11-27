@@ -1,0 +1,76 @@
+{
+  "time_unit": "s",
+  "resources": [
+    {
+      "id": "C0",
+      "type": "CLOUD"
+    },
+    {
+      "id": "E0",
+      "type": "EDGE"
+    },
+    {
+      "id": "M0",
+      "type": "MOBILE",
+      "can_process_tasks": true
+    }
+  ],
+  "workflows": [
+    {
+      "id": -13,
+      "owner_device_id": "M0",
+      "release_time": 1,
+      "tasks": [
+        {
+          "id": "T0",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 0.1,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 0.1,
+              "processing_time": 0.3,
+              "download_time": 0.1
+            },
+            "C0": {
+              "upload_time": 0.1,
+              "processing_time": 0.2,
+              "download_time": 0.1
+            }
+          }
+        }
+      ],
+      "dependencies": []
+    },
+    {
+      "id": 5,
+      "owner_device_id": "M0",
+      "release_time": 0.3,
+      "tasks": [
+        {
+          "id": "T0",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 0.2,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 0,
+              "processing_time": 0.3,
+              "download_time": 0
+            },
+            "C0": {
+              "upload_time": 0.3,
+              "processing_time": 0.5,
+              "download_time": 0
+            }
+          }
+        }
+      ],
+      "dependencies": []
+    }
+  ]
+}

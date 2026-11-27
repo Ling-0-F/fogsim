@@ -1,0 +1,10 @@
+{
+  "format": "fogsim.experiment",
+  "schema_version": 1,
+  "mode": "replay",
+  "source": {
+    "purpose": "reuse_inputs",
+    "input_path": "../../outputs/step4/cases/multi_device_diamond/input.json"
+  },
+  "run": {"routing_rule": {"kind": "fixed_resource", "resource_id": "E0"}}
+}

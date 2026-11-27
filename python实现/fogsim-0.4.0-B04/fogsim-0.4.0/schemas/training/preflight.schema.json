@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "closed_loop_budget",
+    "training_simulation_upper_bound",
+    "event_budgets",
+    "processed_event_upper_bound",
+    "wallclock_seconds_per_run",
+    "retention",
+    "semantics",
+    "versions",
+    "plan_ids",
+    "deferred",
+    "cost_note",
+    "format",
+    "schema_version",
+    "status",
+    "simulations_executed",
+    "mode"
+  ],
+  "properties": {
+    "closed_loop_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trials",
+        "training_per_trial",
+        "validation_upper_bound_per_trial",
+        "test_per_trial",
+        "total_upper_bound"
+      ],
+      "properties": {
+        "trials": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "training_per_trial": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "validation_upper_bound_per_trial": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "test_per_trial": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_upper_bound": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "training_simulation_upper_bound": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "event_budgets": {
+      "type": "array",
+      "items": {
+        "type": [
+          "integer",
+          "null"
+        ],
+        "minimum": 0
+      }
+    },
+    "processed_event_upper_bound": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "wallclock_seconds_per_run": {},
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trace",
+        "save_run_results",
+        "save_input_archives"
+      ],
+      "properties": {
+        "trace": {
+          "enum": [
+            "all",
+            "none",
+            "selected_cases"
+          ]
+        },
+        "save_run_results": {
+          "const": true
+        },
+        "save_input_archives": {
+          "const": true
+        }
+      }
+    },
+    "semantics": {},
+    "versions": {
+      "type": "object",
+      "required": [
+        "python",
+        "platform",
+        "dependencies"
+      ]
+    },
+    "plan_ids": {},
+    "deferred": {},
+    "cost_note": {},
+    "format": {
+      "const": "fogsim.training-preflight"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "status": {
+      "const": "PREFLIGHT_ONLY"
+    },
+    "simulations_executed": {
+      "const": 0
+    },
+    "mode": {
+      "enum": [
+        "single_routing",
+        "dual_tree"
+      ]
+    }
+  }
+}

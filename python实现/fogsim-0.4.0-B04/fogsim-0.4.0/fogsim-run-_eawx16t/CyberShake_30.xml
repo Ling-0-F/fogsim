@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Debug type-0 fixture: intentionally two tasks; standard dax/ is unchanged. -->
+<adag name="fogsim-step5-tiny-chain" jobCount="2" childCount="1">
+  <job id="Z"/>
+  <job id="a"/>
+  <child ref="a"><parent ref="Z"/></child>
+</adag>

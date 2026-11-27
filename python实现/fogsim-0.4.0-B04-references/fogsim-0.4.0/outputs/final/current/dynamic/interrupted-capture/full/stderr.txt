@@ -1,0 +1,7 @@
+Exception in thread "main" java.lang.IllegalStateException: script exhausted: inter_release_time
+	at fogsim.adapter.DynamicCapture.sample(DynamicCapture.java:317)
+	at fogsim.adapter.DynamicCapture$Real.next(DynamicCapture.java:333)
+	at mengxu.taskscheduling.MobileDevice.generateWorkflowJob(MobileDevice.java:366)
+	at mengxu.simulation.DynamicSimulation.setup(DynamicSimulation.java:265)
+	at mengxu.simulation.DynamicSimulation.<init>(DynamicSimulation.java:169)
+	at fogsim.adapter.DynamicExportMain.main(DynamicExportMain.java:61)

@@ -1,0 +1,308 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fogsim.local/schema/training/config.schema.json",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "fogsim.training-config"
+    },
+    "schema_version": {
+      "const": 1,
+      "type": "integer"
+    },
+    "mode": {
+      "enum": [
+        "single_routing",
+        "dual_tree"
+      ]
+    },
+    "plans": {
+      "type": "object",
+      "properties": {
+        "training": {
+          "type": "string",
+          "minLength": 1
+        },
+        "validation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "test": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "training",
+        "validation",
+        "test"
+      ],
+      "additionalProperties": false
+    },
+    "trials": {
+      "type": "object",
+      "properties": {
+        "evolution_seeds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": -9223372036854775808,
+            "maximum": 9223372036854775807
+          }
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "evolution": {
+      "type": "object",
+      "properties": {
+        "population_size": {
+          "type": "integer",
+          "default": 12,
+          "minimum": 1
+        },
+        "generations": {
+          "type": "integer",
+          "default": 4,
+          "minimum": 1
+        },
+        "elite_count": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 0
+        },
+        "tournament_size": {
+          "type": "integer",
+          "default": 3,
+          "minimum": 1
+        },
+        "variation_policy": {
+          "type": "string",
+          "default": "exclusive_choice_v1",
+          "const": "exclusive_choice_v1"
+        },
+        "operator_weights": {
+          "type": "object",
+          "properties": {
+            "crossover": {
+              "type": "number",
+              "default": 0.8,
+              "minimum": 0
+            },
+            "mutation": {
+              "type": "number",
+              "default": 0.15,
+              "minimum": 0
+            },
+            "reproduction": {
+              "type": "number",
+              "default": 0.05,
+              "minimum": 0
+            }
+          },
+          "required": [
+            "crossover",
+            "mutation",
+            "reproduction"
+          ],
+          "additionalProperties": false
+        },
+        "tournament_tie_break": {
+          "type": "string",
+          "default": "first_sampled",
+          "const": "first_sampled"
+        },
+        "crossover_attempts": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 1
+        },
+        "mutation_attempts": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 1
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "trees": {
+      "type": "object",
+      "properties": {
+        "init_min_height": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 0,
+          "maximum": 7
+        },
+        "init_max_height": {
+          "type": "integer",
+          "default": 3,
+          "minimum": 0,
+          "maximum": 7
+        },
+        "init_full_probability": {
+          "type": "number",
+          "default": 0.5,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "grow_policy": {
+          "type": "string",
+          "default": "java_terminal_entry_v1",
+          "const": "java_terminal_entry_v1"
+        },
+        "node_nonterminal_probability": {
+          "type": "number",
+          "default": 0.9,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "mutation_max_height": {
+          "type": "integer",
+          "default": 3,
+          "minimum": 0,
+          "maximum": 7
+        },
+        "max_height": {
+          "type": "integer",
+          "default": 7,
+          "minimum": 0,
+          "maximum": 7
+        },
+        "max_nodes": {
+          "type": "integer",
+          "default": 255,
+          "minimum": 1,
+          "maximum": 255
+        },
+        "numeric_erc": {
+          "type": "boolean",
+          "default": false,
+          "const": false
+        },
+        "initialization_attempts": {
+          "type": "integer",
+          "default": 100,
+          "minimum": 1
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "evaluation": {
+      "type": "object",
+      "properties": {
+        "objective": {
+          "type": "string",
+          "default": "makespan",
+          "const": "makespan"
+        },
+        "aggregation": {
+          "type": "string",
+          "default": "run_equal_mean",
+          "const": "run_equal_mean"
+        },
+        "failure_policy": {
+          "type": "string",
+          "default": "all_success_feasible_v1",
+          "const": "all_success_feasible_v1"
+        },
+        "lifecycle": {
+          "type": "string",
+          "default": "fresh_dynamic_same_plan",
+          "const": "fresh_dynamic_same_plan"
+        },
+        "rotation_period": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 1
+        },
+        "seed_rotation_step": {
+          "type": "integer",
+          "default": 10000,
+          "const": 10000
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "wallclock_seconds_per_run": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          ]
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "output": {
+      "type": "object",
+      "properties": {
+        "trace": {
+          "type": "string",
+          "default": "selected_cases",
+          "enum": [
+            "selected_cases",
+            "all",
+            "none"
+          ]
+        },
+        "save_run_results": {
+          "type": "boolean",
+          "default": true,
+          "const": true
+        },
+        "save_input_archives": {
+          "type": "boolean",
+          "default": true,
+          "const": true
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "semantics": {
+      "type": "object",
+      "properties": {
+        "language_version": {
+          "const": "fogsim-gp-lisp-v1"
+        },
+        "feature_semantics_version": {
+          "const": "fogsim-features-java-v1"
+        },
+        "numeric_semantics_version": {
+          "const": "fogsim-gp-f64-dual-zero-v1"
+        },
+        "selection_policy_version": {
+          "const": "fogsim-selection-java-v1"
+        },
+        "identity_encoding_version": {
+          "const": "fogsim-rule-identity-v1"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "format",
+    "schema_version",
+    "mode",
+    "plans"
+  ],
+  "additionalProperties": false,
+  "description": "Parser additionally checks finite weights, tolerance 1e-12, height/node compatibility, signed64 seeds, and policy constraints. Resolved config adds resolution_root."
+}

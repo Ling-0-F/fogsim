@@ -1,0 +1,1589 @@
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,8 @@
+ # 雾计算工作流调度复现：0.2.1 固定实例验收版
+ 
+-> 当前为 **step3 开发快照**：环境采样、两遍完整输入生成及 TaskOption 建图已实现；新增 74 项及 Python 单元/集成共 517 项通过，7 个原 Java 脚本输入业务案例通过。API、证据和接纳边界见 [第 3 步记录](docs/STEP3-PROGRESS.md)。完整动态事件/统计、Java 输入导出和重放仍按后续步骤推进。
++> 当前为 **step4 开发快照**：Java 原动态输入导出与 V16 已完成。9 个案例通过观察无干扰/完整性检查，另有中断拒绝检查；新增 73 项和 Python 单元/集成共 590 项通过。详见 [第 4 步记录](docs/STEP4-PROGRESS.md)。第 5 步 Python 动态接入、第 6 步重放及完整 V01 尚未完成；下方 step1–3/0.2.1 为历史记录。
++
++> step3 历史快照：环境采样、两遍完整输入生成及 TaskOption 建图已实现；新增 74 项及 Python 单元/集成共 517 项通过，7 个原 Java 脚本输入业务案例通过。API、证据和接纳边界见 [第 3 步记录](docs/STEP3-PROGRESS.md)。完整动态事件/统计、Java 输入导出和重放仍按后续步骤推进。
+ 
+ > step2 历史记录：DAX 目录/解析、sampler 和输入流准备的实现及当时测试见 [第 2 步记录](docs/STEP2-PROGRESS.md)。当前进度以上方 step3 为准；下方完整跨语言调度结果属于原 0.2.1 历史证据。
+ 
+--- /dev/null
++++ b/configs/examples/step4_java_export.json
+@@ -0,0 +1,11 @@
++{
++  "seed": 7,
++  "N": 2,
++  "W": 2,
++  "devices": 2,
++  "edges": 1,
++  "clouds": 1,
++  "local": true,
++  "min_type": 0,
++  "max_type": 0
++}
+--- a/docs/IMPLEMENTATION-NOTES.md
++++ b/docs/IMPLEMENTATION-NOTES.md
+@@ -230,3 +230,8 @@
+ ## N30：第 3 步环境、完整候选和运行图（2026-11-04）
+ 
+ 保留原资源/事件内核，新增环境采样/快照建图、两遍完整输入生成、纯 release gate 和脱离索引的运行图建造。候选公式/累计/调用顺序按 Java 源码和冻结设计；未知程序异常传播，非法派生值独立抛 NumericDerivationError。动态建图要求实际物理参数，旧固定模型的 None 仍受支持。7 个脚本数值案例实际运行原 Java 构造/setup/generate，未触发事件、无 source overlay；它不是完整输入导出器。生产 G/B/Arrival、prepare 失败结果封装和生命周期仍由第 5 步负责。当前边映射保留，清理服务在第 7 步必做。详见 [STEP3-PROGRESS](STEP3-PROGRESS.md)。
++
++
++## N31：第 4 步 Java 动态输入导出（2026-11-05）
++
++独立原动态入口配合五处追加观察，不使用固定构造 overlay。先复制第二遍完成的完整候选，再记录真实接纳；输入、参考和来源哈希分开。纯原入口与审计基线、最小观察与完整记录分层核对；零间隔业务脚本显式标记。没有更改原 sampler/规则/比较器/停止算法。自包含契约、capture 中断规则、真实计数与适用边界见 [STEP4-PROGRESS](STEP4-PROGRESS.md)。生产 Python 动态服务、重放、清理与完整 CLI 仍在后续步骤。
+--- a/docs/ISSUES-AND-FIXES.md
++++ b/docs/ISSUES-AND-FIXES.md
+@@ -114,3 +114,8 @@
+ | `configs/v2_*.json`、`data/cases/v2_*.json` | 10 个正式输入与 1 个明确数值边界反例 |
+ 
+ 完整相对原 0.2.0a1 的文本变更另附 `CHANGES-FROM-0.2.0a1.patch`。所有新证据与原始 Java 参考文件均在修订包中。
++
++
++## 第 4 步导出工具校验修正（2026-11-05）
++
++观察补丁生成最初用子串匹配，命中了原源码历史注释中的相同 trigger 行。已改为完整行或明确 couldAdd 分支唯一匹配；测试可移除全部追加观察调用并精确还原原源文。新增契约测试还发现设备未知字段先落到 dataclass TypeError，现先校验结构并报 InputError。两处均是新工具实现错误，未修改原 Java/Python 调度行为，也未调整测试预期。V16 原生未达标案例单独记录，不伪装为正常成功。
+--- /dev/null
++++ b/docs/STEP4-PROGRESS.md
+@@ -0,0 +1,109 @@
++# 冻结设计实施记录：第 4 步（V16）
++
++日期：2026-11-05（America/Los_Angeles）。开发基线为当前附件 `fogsim-0.2.1-step3.zip`，SHA-256 `6fbb34ffd6c11489a69892583441d068aa26d14c6c84dd65085b21b87fe86c4e`；解压到独立工作副本。上传 ZIP 未修改。冻结设计 §§5、10–12、15、19 的语义保持不变。
++
++## 已实现与范围
++
++| 模块 | 实际作用 |
++| --- | --- |
++| `tools/java/step4/fogsim/adapter/DynamicExportMain.java` | 独立 fresh 入口，执行原 DynamicSimulation 构造、setup、run 与原生指标；预先用真实 Java WorkflowParser 和 XML 校验映射 |
++| `tools/java/step4/fogsim/adapter/DynamicCapture.java` | 清图前复制完整候选、接纳返回后补全 attempt；保存拒绝者、未到达者及未完成者；记录实际事件、评分选择、交错 DECISION/EMIT、触发后状态和原生结果 |
++| `tools/java_dynamic_support.py` | 核对 659 份原源码/依赖；独立编译无 overlay 基线与仅增加五处观察调用的版本；保存源字节哈希、源码差异、JDK/编译器指纹及完整命令 |
++| `tools/export_java_dynamic.py` | 导出一个指定 fresh 运行，执行无干扰比较；分开写 input/reference/manifest；拒绝覆盖非空案例目录 |
++| `tools/dynamic_export_contract.py` | 利用 step1–3 不可变契约审计导出；检查版本、未知字段、精确整数、有限 binary64、引用顺序及公式；核对清单。它不是第 6 步生产重放加载器 |
++| `tools/check_step4.py`、测试与示例 | 9 个真实 Java 案例、故意中断检查、73 项 Python 契约测试、独立 CLI 请求示例及自包含最小输入 |
++
++Python `src/` 生产文件与 step3 逐字节相同；没有提前实现第 5 步集中登记、动态事件或统计生命周期，也没有实现第 6 步重放引擎/固定投影和第 7 步清理/完整 CLI。旧固定配置、规则、事件堆与公开接口保持原样。
++
++## 源码事实、实现选择与验证界限
++
++原 Java `MobileDevice.generateWorkflowJob` 在两遍任务/候选构造完成后，先创建 Job、清空每个 Task 的两张边映射，再调用 `SystemState.addJobToSystem`。接纳只在 release>clock 时成功；失败仍已消耗完整本次输入，且不占正式 ID。setup 按设备顺序继续尝试；DAG Arrival 派发全部入口后继续生成。原 DynamicSimulation.run 在下一次循环条件中先归并设备暂存事件，再判断 R。
++
++观察 overlay 的全部变化保存在 `outputs/step4/build/observed/MobileDevice.patch` 和 `DynamicSimulation.patch`：
++
++1. 第二遍结束、任何 mapClear 前，复制完整候选。
++2. addJobToSystem 返回后，记录真实接纳结果。
++3. 成功候选的 Arrival 已入设备堆后，记录 EMIT。
++4. 原 addEvent 入堆后，记录其他 EMIT。
++5. 原 trigger 返回后，记录状态，位置在原 run 的保护判定之前。
++
++没有删除或改写原语句，没有新增构造捷径、修改比较器、替换优先级计算或停止条件。记录决策的 FCFS 子类只调用一次 super 的原 nextTaskOption/priorTask，再读取已有 priority；不再次评分。AuditQueue.poll 只调用一次原 PriorityQueue.poll，再读出结果；容量初值、比较器、offer/poll 顺序不变。记录 sampler 装饰器只调用一次原 next。所有原始 Java 源文件和依赖仍保存在 references 中。
++
++无干扰验证分层执行：
++
++- `plain`：完全原 sampler、FCFS、PriorityQueue，且无源码 overlay。原生随机案例比较环境、RNG 序列化末态 SHA、G/B/R、原生指标等，核对审计包装本身不改变运行。
++- `baseline`：无源码 overlay；只使用单次委托的 sampler/规则/堆审计包装，获得实际抽样、事件顺序、决策及最终状态。
++- `minimal`：相同原动态路径加五处观察；候选/attempt/状态仅留摘要，不写完整输入。
++- `full`：相同观察调用，另保留独立副本并写文件。与 baseline 比较逐项样本、事件、决策、最终状态和 RNG 末态；与 minimal 比较全部候选、attempt、交错动作和触发后状态摘要。
++
++边界 fixture 显式带 `origin.fixture_kind=scripted_boundary`：装饰器先消费一次真实 sampler 再用预先给定的间隔覆盖业务返回值。它用于构造精确 0 间隔和极远的未来到达，不称为原指数分布自然抽到这些值，也不与无替换的 plain 模式混比。其余 5 个案例直接消费原 Java 随机采样，无业务覆盖。
++
++原始 Java 22 份 DAX 的既有来源记录仍保留；本轮再次将 647 份 Java 源码和 12 个非 javadoc 依赖，与当前上传 Java ZIP 逐文件核对，共 659 份一致。没有联网查找或读取项目之外的私人文件。单独的实施顺序 PNG 当前未提供，实施顺序采用用户本轮给出的表格；不影响 V16。
++
++## 文件契约与最小案例
++
++每个正常捕获案例有以下独立文件：
++
++| 文件 | 内容及边界 |
++| --- | --- |
++| `input.json` | format=`fogsim.dynamic-replay`，schema_version=1；origin、fresh 初始 B/seed/run_index、有效配置、单位、有序环境/模板/候选/attempt、capture；不含停止时间、完成 ID 或参考决策 |
++| `reference.json` | 独立版本参考：事件顺序、已有评分/选择、实际 DECISION/EMIT 交错、每次 trigger 后状态、最终状态和 Java 原生结果；不参与输入来源决策 |
++| `manifest.json` | 输入、参考、请求、原始输出、DAX、副本及构建来源的 SHA；仅排除自身，避免循环哈希 |
++| `sources/` | 实际使用的 XML 副本和构建来源清单，便于完整复核；执行输入建图本身不需要它们 |
++| `plain/`、`baseline/`、`minimal/`、`full/` | 当次命令、stdout/stderr、审计/观察原始结果；plain 仅在未覆盖业务输入的案例存在 |
++
++`tests/fixtures/dynamic_v1/input.json` 是来自最小链案例的独立输入；测试将它单独放到空目录，仅凭本文件建立完整 InputArchive 并审计，不读取 Java、XML 或 reference。输入含所有任务、边值、累计量、选项时长和原 XML ID。单独输入的实际调度执行属于第 6 步，当前不冒称已执行。
++
++全量案例和原始证据在 `outputs/step4/cases/`。最小链有 2 次尝试、7 条事件、3 次决策；停止时第二个工作流仍未到达。`pending_at_stop` 刻意保留两个未到达者；拒绝案例也保存了完整候选及边值。参考检查核对所有 EMIT 数量等于已处理事件加最终待处理事件，每个 after_arrival 指向真实 Arrival，最终 Java 的边映射为空而完整输入归档仍有原值。
++
++JSON 不截断小数，不输出 NaN/Infinity 字面量。公开 Java seed 使用精确 signed64 JSON 整数；不经浮点中转。Double.toString 到 Python JSON 的 binary64 值保持不变。导出后的 environment.fingerprint 仅将哈希序列化规范化为现有 EnvironmentSnapshot 算法；原始 Java 文件保留于 full/input.json，不改任何资源参数、边值、累计或 PT/UT/DT。公式审计不会回写时长。
++
++未达到统计目标时，reference 原生返回将正无穷编码为 `POSITIVE_INFINITY`、Double.MAX_VALUE 编码为 `DOUBLE_MAX_VALUE`，保留 java_text 和适用的有限 value；不把它们写入输入或伪造 Python 成功指标。capture.complete 只指捕获完整，不代表目标达成或无限输入流。
++
++full 每次完成接纳观察后原子更新 `capture.complete=false` 的检查点。进程或构造中断时可留部分输入；完整验收明确拒绝。reference/audit 写成功且原 run 返回后才写 complete=true；完整清单最后生成。没有完整清单、写出失败或部分文件不构成完整验收通过。
++
++本工具当前开放原 standardFull 的有效 sampler 参数、类型范围、设备/服务器数、local、N/W、signed64 seed 和 fresh 操作。任意 sampler 配置、其他规则、reset/rerun/rotate 的导出录制不是本轮已验证范围；后续扩展需显式增加契约。该约束不改变既有设计语义。
++
++## 实际运行与结果
++
++本次为 CPython 3.12.14、pytest 9.2.0、Ubuntu OpenJDK 17.0.20+8。运行环境的 java 需要显式库路径；常规 JDK 17 可直接使用 --java 或 FOGSIM_JAVA。无独立 javac 时使用现有 jdk.compiler 模块，实际命令及模块字节哈希均在构建清单。
++
++在项目根执行的最终命令：
++
++```bash
++PYTHONPATH=../../test-deps:src python -m pytest -q tests/unit/test_dynamic_export.py --junitxml=outputs/step4/contracts.xml
++PYTHONPATH=../../test-deps:src python -m pytest -q tests/unit tests/integration --junitxml=outputs/step4/python-regression.xml
++LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib:/usr/lib/jvm/java-17-openjdk-amd64/lib/server python tools/check_step4.py --output outputs/step4
++```
++
++临时 test-deps 位于交付工程外，不作为运行依赖打包。常规环境安装 `.[test]` 后可省略 PYTHONPATH。
++
++| 检查 | 结果 |
++| --- | --- |
++| 新增 Python 契约 | 73 passed，0 failed/errors/skipped |
++| Python 单元及集成 | 590 passed，0 failed/errors/skipped；含旧 CLI/repeat、14 个固定配置完整结果和轨迹 |
++| V16 Java | 9 案例无干扰及完整性检查通过：7 个达标运行、2 个原生未达标边界；后两者标 EXPECTED_DIFFERENCE_CONFIRMED，不计正常轨迹通过 |
++| 每种观察模式实际总量 | 96 次尝试，92 次接纳，4 次拒绝；1,128 条已处理事件，1,008 次决策，6,660 次 sampler 返回 |
++| plain 原入口对照 | 5 个原生随机案例通过；包含真实标准 DAX、多类型、signed64 两端点 |
++| 故意中断 | 第二台设备初始化时脚本耗尽，留 1 次完整尝试；complete=false，完整门禁拒绝，无伪造 reference；EXPECTED_DIFFERENCE_CONFIRMED |
++| 来源完整性 | 当前上传 Java ZIP 的 659 个源码/依赖字节一致；Python src 与 step3 字节一致 |
++
++开发时修正了观察 anchor 匹配到历史注释的问题，现要求完整行/明确分支唯一匹配，保存并核对仅追加观察的 diff。首次新增负例发现设备未知字段在字段校验前落到 dataclass TypeError，已将字段检查前移，保持 InputError 预期。未改测试预期或原调度语义。
++
++单例导出（选择新的输出目录）：
++
++```bash
++python tools/export_java_dynamic.py --java /path/to/jdk17/bin/java \
++  --request configs/examples/step4_java_export.json --dax-root dax --output outputs/my-java-input
++python tools/check_step4.py --java /path/to/jdk17/bin/java --output outputs/step4-rerun
++```
++
++案例目录要求为空，避免把旧 input/reference 与新一次失败输出混合。复跑应给新目录；最终正式 Python CLI 仍待第 7 步。
++
++## 继续开发
++
++没有发现必须调整冻结设计的问题。本轮格式字段的具体拼写和工具入口是既有契约的实现具体化。当前证据只证明这组 Java 原动态路径的完整导出与观察无干扰，**不是 Java/Python 动态调度一致性**，不是任意规则/边界的普遍证明，也没有测量观察器性能收益。
++
++第 5 步继续复用 step3 的 prepare_random_input、sample_environment、generate_workflow_input、materialize_workflow，接入集中接纳、Arrival、G/B/R 统计与 Context 生命周期，落实 V09–V15。随后第 6 步消费本轮自包含 input，逐调用核对来源位置、事件内动作与原生统计，并实现覆盖不足诊断及固定投影（V17–V19）。显式边清理、完整 CLI/批次及完整 V01 留到第 7 步，未标为已实现或已验证。
++
++当前开发快照文件指纹为 `STEP4-FILES.json` 和 `outputs/step4/current-files.json`；本轮验证汇总为 `outputs/step4/current-validation.json`，相对 step3 的文本补丁为 `CHANGES-STEP4.patch`。旧 RELEASE/STEP1–3 清单保留为各阶段历史证据。当前包未走正式 release 门禁，不能称为最终完整验收版。
+--- a/docs/VALIDATION.md
++++ b/docs/VALIDATION.md
+@@ -1,4 +1,6 @@
+ # 0.2 固定实例完整验收记录
++
++> step4 真实证据见 [STEP4-PROGRESS](STEP4-PROGRESS.md)、`outputs/step4/`：73 项新增及 590 项 Python 测试通过，9 个 Java V16 案例和一次故意中断检查通过。比较是 Java 观察无干扰；Python 动态重放、固定投影及完整 V01 未执行。
+ 
+ > step3 的真实验证另见 [STEP3-PROGRESS](STEP3-PROGRESS.md) 和 `outputs/step3/`。本轮 Java 对照范围为脚本数值驱动的原构造/生成，不是完整动态调度或 V16 导出；旧完整验收记录保持为历史证据。
+ 
+--- a/docs/roadmap.md
++++ b/docs/roadmap.md
+@@ -1,4 +1,6 @@
+ # 进度与后续工作
++
++2026-11-05（step4）：Java 动态输入完整导出、分离参考/清单、9 案例 V16 无干扰及中断检查完成；Python 共 590 项通过。当前待第 5 步集中接纳/Arrival/统计/生命周期；不是 Python 动态重放已完成。详见 [STEP4-PROGRESS](STEP4-PROGRESS.md)。
+ 
+ 2026-11-04（step3）：环境采样/运行资源、完整两遍候选、TaskOption 与独立运行图已实现并验证。下一步按原顺序推进 Java 动态输入导出（第 4 步），然后集中接纳/Arrival/统计/生命周期（第 5 步）。详见 [STEP3-PROGRESS](STEP3-PROGRESS.md)；以下保留各阶段历史证据。
+ 
+--- a/docs/semantics.md
++++ b/docs/semantics.md
+@@ -1,4 +1,6 @@
+ # 当前语义基线
++
++第 4 步只增加 Java 导出开发工具；Python 生产语义未变。输入捕获与原生参考分离，拒绝/未到达/未完成候选均保存。capture.complete 不等于统计达标或输入无限覆盖；第 6 步才能验证 Python 动态重放。具体格式和观察边界见 [STEP4-PROGRESS](STEP4-PROGRESS.md)。
+ 
+ 第 3 步环境、输入生成和运行建图契约见 [STEP3-PROGRESS](STEP3-PROGRESS.md)。生成只推进共享输入流；建图不发布索引，不更新 G/B 或安排 Arrival；release gate 的通过不等于正式接纳。运行边映射默认保留且与不可变输入独立。以下固定内核语义继续保持。
+ 
+--- /dev/null
++++ b/tests/fixtures/dynamic_v1/input.json
+@@ -0,0 +1,257 @@
++{
++  "format": "fogsim.dynamic-replay",
++  "schema_version": 1,
++  "origin": {
++    "language": "Java",
++    "implementation_version": "multiDeviceDebug+fogsim-v16-observer-v1",
++    "code_dependency_fingerprint": "c45109a5473bdfb8d48302ca565c7cb60039a164df4d84fb792ea8efb3cc4057",
++    "rules": {
++      "sequencing": "FCFS",
++      "routing": "FCFS"
++    },
++    "operation": "fresh",
++    "fixture_kind": "native_random",
++    "label": "minimal_chain"
++  },
++  "initial_state": {
++    "B": 0.0,
++    "public_seed": 7,
++    "seed_encoding_version": "java-signed64-v1",
++    "run_index": 0
++  },
++  "effective_config": {
++    "num_jobs_recorded": 1,
++    "warmup_jobs": 1,
++    "statistics_policy": "java_jobsCompleted",
++    "sequencing_rule": "FCFS",
++    "routing_rule": "FCFS",
++    "exception_policy": "java_original",
++    "event_order": "java_two_level_priority_queue",
++    "guards": {
++      "resource_queue_greater_than": 400,
++      "stagnation_greater_than": 400000,
++      "generated_greater_than_multiplier": 500
++    },
++    "samplers": {
++      "workload": [
++        5000.0,
++        15000.0
++      ],
++      "data_size": [
++        5120.0,
++        20480.0
++      ],
++      "edge_data": [
++        100.0,
++        200.0
++      ],
++      "inter_release_time": {
++        "family": "java_exponential",
++        "effective_mean": 100.0
++      },
++      "weight": "java_TwoSixTwo",
++      "upload_bandwidth_edge": "java_BandwidthEdge",
++      "download_bandwidth_edge": "java_BandwidthEdge",
++      "upload_bandwidth_cloud": "java_BandwidthCloud",
++      "download_bandwidth_cloud": "java_BandwidthCloud",
++      "processing_rate_device": [
++        125.0,
++        250.0
++      ],
++      "processing_rate_edge": [
++        250.0,
++        500.0
++      ],
++      "processing_rate_cloud": [
++        500.0,
++        1000.0
++      ],
++      "workflow_type": [
++        0,
++        0
++      ]
++    },
++    "additional_budget": null
++  },
++  "units": {
++    "time": "s",
++    "workload": "model_workload",
++    "data": "model_data"
++  },
++  "environment": {
++    "devices": [
++      {
++        "id": "M0",
++        "numeric_id": 0,
++        "processing_rate": 131.54413394346219,
++        "can_process_tasks": true
++      }
++    ],
++    "servers": [],
++    "parameter_source": "java-recorded",
++    "fingerprint": "8f65f6b11895aa67dabc95466a0a061270df4086ae06a3d55713e5d9638fa3e1"
++  },
++  "templates": [
++    {
++      "dag_type_id": 0,
++      "source_name": "CyberShake_30.xml",
++      "source_sha256": "1b109879b8ff853fed1ae937be824ddc494070c185f6c1670eb8e88b16b42628",
++      "tasks": [
++        {
++          "xml_id": "Z",
++          "java_index": 0
++        },
++        {
++          "xml_id": "a",
++          "java_index": 1
++        }
++      ],
++      "dependencies": [
++        [
++          "Z",
++          "a"
++        ]
++      ],
++      "diagnostics": []
++    }
++  ],
++  "candidates": [
++    {
++      "record_id": "1",
++      "workflow_input": {
++        "candidate_id": 0,
++        "owner_device_id": "M0",
++        "template_ref": {
++          "dag_type_id": 0,
++          "source_sha256": "1b109879b8ff853fed1ae937be824ddc494070c185f6c1670eb8e88b16b42628"
++        },
++        "release_time": 111.1692439540546,
++        "inter_release_time": 111.1692439540546,
++        "weight": 2.0,
++        "tasks": [
++          {
++            "id": "Z",
++            "workload": 9549.734645853323,
++            "data_size": 19537.788591532273,
++            "total_input_data": 0.0,
++            "total_output_data": 108.14864411084253,
++            "options": [
++              {
++                "resource_id": "M0",
++                "processing_time": 72.59719122068803,
++                "upload_time": 0.0,
++                "download_time": 0.0
++              }
++            ]
++          },
++          {
++            "id": "a",
++            "workload": 11822.097086849259,
++            "data_size": 8179.378835120341,
++            "total_input_data": 108.14864411084253,
++            "total_output_data": 0.0,
++            "options": [
++              {
++                "resource_id": "M0",
++                "processing_time": 89.87171630116482,
++                "upload_time": 0.0,
++                "download_time": 0.0
++              }
++            ]
++          }
++        ],
++        "edges": [
++          {
++            "parent_id": "Z",
++            "child_id": "a",
++            "data_size": 108.14864411084253
++          }
++        ]
++      }
++    },
++    {
++      "record_id": "2",
++      "workflow_input": {
++        "candidate_id": 1,
++        "owner_device_id": "M0",
++        "template_ref": {
++          "dag_type_id": 0,
++          "source_sha256": "1b109879b8ff853fed1ae937be824ddc494070c185f6c1670eb8e88b16b42628"
++        },
++        "release_time": 283.2082568125313,
++        "inter_release_time": 172.03901285847675,
++        "weight": 4.0,
++        "tasks": [
++          {
++            "id": "Z",
++            "workload": 7194.420625249208,
++            "data_size": 18291.952501480577,
++            "total_input_data": 0.0,
++            "total_output_data": 129.2049055297378,
++            "options": [
++              {
++                "resource_id": "M0",
++                "processing_time": 54.69206729006538,
++                "upload_time": 0.0,
++                "download_time": 0.0
++              }
++            ]
++          },
++          {
++            "id": "a",
++            "workload": 6106.452643105719,
++            "data_size": 16269.229298322487,
++            "total_input_data": 129.2049055297378,
++            "total_output_data": 0.0,
++            "options": [
++              {
++                "resource_id": "M0",
++                "processing_time": 46.42132233528771,
++                "upload_time": 0.0,
++                "download_time": 0.0
++              }
++            ]
++          }
++        ],
++        "edges": [
++          {
++            "parent_id": "Z",
++            "child_id": "a",
++            "data_size": 129.2049055297378
++          }
++        ]
++      }
++    }
++  ],
++  "generation_attempts": [
++    {
++      "attempt_sequence": 1,
++      "phase": "initialize",
++      "owner_device_id": "M0",
++      "generation_clock_time": 0.0,
++      "causing_workflow_id": null,
++      "event_sequence": null,
++      "candidate_ref": "1",
++      "observed_acceptance": true,
++      "rejection_reason": null
++    },
++    {
++      "attempt_sequence": 2,
++      "phase": "after_arrival",
++      "owner_device_id": "M0",
++      "generation_clock_time": 111.1692439540546,
++      "causing_workflow_id": 0,
++      "event_sequence": 1,
++      "candidate_ref": "2",
++      "observed_acceptance": true,
++      "rejection_reason": null
++    }
++  ],
++  "capture": {
++    "complete": true,
++    "complete_attempt_count": 2,
++    "write_interrupted": false,
++    "process_interrupted": false,
++    "termination": "JAVA_RUN_RETURNED"
++  }
++}
+--- /dev/null
++++ b/tests/unit/test_dynamic_export.py
+@@ -0,0 +1,146 @@
++"""V16 writer/audit contracts; the Java runtime gate is tools/check_step4.py."""
++from copy import deepcopy
++from pathlib import Path
++import json
++import sys
++import pytest
++
++ROOT = Path(__file__).resolve().parents[2]
++sys.path.insert(0,str(ROOT/'tools'))
++from dynamic_export_contract import (read_json,audit_input,write_json,write_manifest,verify_manifest)
++from export_java_dynamic import validate_request
++from java_dynamic_support import EDITS, observation_overlay, ORIGINAL
++from check_step3 import first_difference
++from fogsim.errors import InputError
++
++
++@pytest.fixture
++def data():
++    return read_json(ROOT/'tests/fixtures/dynamic_v1/input.json')
++
++
++def test_input_is_self_contained_and_maps_retain_after_java_clear(data,tmp_path):
++    write_json(tmp_path/'input.json',data)
++    archive = audit_input(read_json(tmp_path/'input.json'))
++    assert archive.candidates[0].workflow_input.tasks[0].id == 'Z'
++    assert archive.candidates[0].workflow_input.edges[0].data_size > 0
++    assert archive.candidates[1].workflow_input.release_time > 0
++    assert not (tmp_path/'reference.json').exists()
++    assert not (tmp_path/'dax').exists()
++
++
++@pytest.mark.parametrize('version', [True,0,2,'1',None])
++def test_unknown_version_is_rejected(data,version):
++    data['schema_version'] = version
++    with pytest.raises(InputError): audit_input(data)
++
++
++@pytest.mark.parametrize('location', ['root','origin','rules','units','config','guards','samplers','capture','environment',
++    'device','template','template_task','candidate','workflow','template_ref','task','option','edge','attempt','initial_state'])
++def test_unknown_fields_rejected(data,location):
++    w = data['candidates'][0]['workflow_input']
++    target = {'root':data,'origin':data['origin'],'rules':data['origin']['rules'],'units':data['units'],
++        'config':data['effective_config'],'guards':data['effective_config']['guards'],'samplers':data['effective_config']['samplers'],
++        'capture':data['capture'],'environment':data['environment'],'device':data['environment']['devices'][0],
++        'template':data['templates'][0],'template_task':data['templates'][0]['tasks'][0],
++        'candidate':data['candidates'][0],'workflow':w,'template_ref':w['template_ref'],
++        'task':w['tasks'][0],'option':w['tasks'][0]['options'][0],'edge':w['edges'][0],
++        'attempt':data['generation_attempts'][0],'initial_state':data['initial_state']}[location]
++    target['unexpected'] = 1
++    with pytest.raises(InputError): audit_input(data)
++
++
++@pytest.mark.parametrize('mutation', ['missing_edge','missing_task','missing_option','wrong_total','wrong_duration','bad_acceptance',
++    'record_order','wrong_template_hash','wrong_candidate_id','missing_candidate','missing_attempt','extra_candidate',
++    'bad_count','missing_initialization','wrong_release','wrong_owner','bad_fingerprint','incomplete','interrupted'])
++def test_corrupt_records_fail(data,mutation):
++    w = data['candidates'][0]['workflow_input']
++    if mutation=='missing_edge': w['edges'].clear()
++    elif mutation=='missing_task': w['tasks'].pop()
++    elif mutation=='missing_option': w['tasks'][0]['options'].clear()
++    elif mutation=='wrong_total': w['tasks'][0]['total_output_data'] += 1
++    elif mutation=='wrong_duration': w['tasks'][0]['options'][0]['processing_time'] += 1
++    elif mutation=='bad_acceptance': data['generation_attempts'][0]['observed_acceptance'] = False
++    elif mutation=='record_order': data['generation_attempts'].reverse()
++    elif mutation=='wrong_template_hash': w['template_ref']['source_sha256'] = 'a'*64
++    elif mutation=='wrong_candidate_id': w['candidate_id'] = 1
++    elif mutation=='missing_candidate': data['candidates'].pop()
++    elif mutation=='missing_attempt': data['generation_attempts'].pop()
++    elif mutation=='extra_candidate': data['candidates'].append(deepcopy(data['candidates'][0]))
++    elif mutation=='bad_count': data['capture']['complete_attempt_count'] += 1
++    elif mutation=='missing_initialization':
++        data['generation_attempts'].clear(); data['candidates'].clear(); data['capture']['complete_attempt_count'] = 0
++    elif mutation=='wrong_release': w['release_time'] += 1
++    elif mutation=='wrong_owner': w['owner_device_id'] = 'M99'
++    elif mutation=='bad_fingerprint': data['environment']['fingerprint'] = '0'*64
++    elif mutation=='incomplete': data['capture']['complete'] = False
++    elif mutation=='interrupted': data['capture']['write_interrupted'] = True
++    with pytest.raises(InputError): audit_input(data)
++
++
++@pytest.mark.parametrize('seed', [-(1<<63),(1<<63)-1,-1,0])
++def test_exact_signed_seed(data,seed,tmp_path):
++    data['initial_state']['public_seed'] = seed
++    write_json(tmp_path/'input.json',data)
++    loaded = read_json(tmp_path/'input.json')
++    assert type(loaded['initial_state']['public_seed']) is int
++    assert loaded['initial_state']['public_seed'] == seed
++    audit_input(loaded)
++
++
++@pytest.mark.parametrize('seed', [-(1<<63)-1,1<<63,True,1.0])
++def test_bad_seed(data,seed):
++    data['initial_state']['public_seed'] = seed
++    with pytest.raises(InputError): audit_input(data)
++
++
++@pytest.mark.parametrize('raw', ['{"x":1,"x":2}','{"x":NaN}','{"x":Infinity}','{"x":-Infinity}','{"x":1e999}'])
++def test_strict_json(tmp_path,raw):
++    path = tmp_path/'bad.json'; path.write_text(raw)
++    with pytest.raises(InputError): read_json(path)
++
++
++def test_partial_capture_cannot_pass_full_gate(data):
++    data['capture'].update(complete=False,process_interrupted=True)
++    audit_input(data,require_complete=False)
++    with pytest.raises(InputError,match='incomplete'): audit_input(data)
++
++
++def test_input_audit_is_pure_and_duration_preserving(data):
++    original = deepcopy(data); audit_input(data); assert data == original
++
++
++def test_manifest_detects_modified_missing_and_extra_files(tmp_path):
++    (tmp_path/'input.json').write_text('{}'); (tmp_path/'reference.json').write_text('{}')
++    write_manifest(tmp_path,{'sources':{'x':'a'*64}}); verify_manifest(tmp_path)
++    (tmp_path/'input.json').write_text('{"x":1}')
++    with pytest.raises(InputError,match='hash'): verify_manifest(tmp_path)
++    write_manifest(tmp_path,{})
++    (tmp_path/'extra.txt').write_text('extra')
++    with pytest.raises(InputError,match='coverage'): verify_manifest(tmp_path)
++    (tmp_path/'extra.txt').unlink(); (tmp_path/'reference.json').unlink()
++    with pytest.raises(InputError,match='coverage'): verify_manifest(tmp_path)
++
++
++@pytest.mark.parametrize('relative',list(EDITS))
++def test_overlay_adds_only_observation_calls(relative):
++    source = (ORIGINAL/'src'/relative).read_text()
++    overlay = observation_overlay(relative,source)
++    for anchor,addition in EDITS[relative]: overlay = overlay.replace(addition,'',1)
++    assert overlay == source
++    with pytest.raises(RuntimeError): observation_overlay(relative,'')
++
++
++def test_noninterference_comparator_detects_extra_sample_and_bit_change():
++    original = {'samples':[{'role':'workload','value':1.0}],'rng':'state'}
++    changed = deepcopy(original); changed['samples'].append({'role':'workload','value':1.0})
++    assert first_difference(original,changed)['path'] == '$.samples'
++    assert first_difference({'x':0.0},{'x':-0.0})['path'] == '$.x'
++
++
++@pytest.mark.parametrize('change', [{'seed':1<<63},{'N':0},{'W':-1},{'devices':False},{'max_type':20},
++    {'min_type':5,'max_type':4},{'local':False,'edges':0,'clouds':0},{'N':2**31-1,'W':1},{'unexpected':0}])
++def test_export_request_fails_before_compilation(change):
++    request = dict(seed=1,N=1,W=1,devices=1,edges=0,clouds=0,local=True,min_type=0,max_type=0)
++    request.update(change)
++    with pytest.raises(InputError): validate_request(request)
+--- /dev/null
++++ b/tools/check_step4.py
+@@ -0,0 +1,93 @@
++"""Run V16 native random and explicitly scripted boundary fixtures, three modes."""
++from pathlib import Path
++import argparse
++import json
++import sys
++import tempfile
++import subprocess
++from export_java_dynamic import ROOT, export_case, compile_dynamic, prepare_request
++from dynamic_export_contract import write_json, read_json, audit_input, normalize_environment, write_manifest, verify_manifest
++from fogsim.errors import InputError
++
++CHAIN = '<adag><job id="Z"/><job id="a"/><child ref="a"><parent ref="Z"/></child></adag>'
++DIAMOND = '<adag><job id="root"/><job id="left"/><job id="right"/><job id="join"/>' + \
++    '<child ref="join"><parent ref="right"/><parent ref="left"/></child>' + \
++    '<child ref="right"><parent ref="root"/></child><child ref="left"><parent ref="root"/></child></adag>'
++
++
++def cases():
++    common = dict(seed=7,N=2,W=2,devices=2,edges=1,clouds=1,local=True,min_type=0,max_type=0)
++    return [
++        ('minimal_chain',dict(common,N=1,W=1,devices=1,edges=0,clouds=0),CHAIN,None),
++        ('multi_device_diamond',common,DIAMOND,None),
++        ('local_disabled',dict(common,local=False,edges=2,clouds=2),DIAMOND,None),
++        ('first_device_rejected',dict(common,N=1,W=1),CHAIN,{'inter_release_time':[0.0,10.0,200.0,200.0,200.0]}),
++        ('all_devices_rejected',common,DIAMOND,{'inter_release_time':[0.0,0.0]}),
++        ('arrival_rejected',dict(common,N=1,W=0,devices=1,edges=0,clouds=0),CHAIN,{'inter_release_time':[2.0,0.0]}),
++        ('pending_at_stop',dict(common,N=1,W=1),CHAIN,{'inter_release_time':[1.0,10000.0,10000.0]}),
++        ('native_standard_dax',dict(common,seed=-9223372036854775808,N=2,W=2,local=False),None,None),
++        ('native_multiple_types',dict(common,seed=9223372036854775807,max_type=4,N=2,W=2),None,None),
++    ]
++
++
++def check_interruption(output,java,build):
++    directory = output/'interrupted-capture'
++    request = dict(seed=7,N=1,W=1,devices=2,edges=0,clouds=0,local=True,min_type=0,max_type=0)
++    with tempfile.TemporaryDirectory(prefix='v16-interrupted-') as temporary:
++        dax = Path(temporary); (dax/'CyberShake_30.xml').write_text(CHAIN)
++        prepare_request(request,dax,directory,build,scripted_values={'inter_release_time':[1.0]},label='interrupted_capture')
++    folder = directory/'full'; (folder/'dax').mkdir(parents=True)
++    import shutil
++    shutil.copyfile(directory/'sources/dax/CyberShake_30.xml',folder/'dax/CyberShake_30.xml')
++    command = [str(java),'-cp',build['builds']['observed']['classpath'],'fogsim.adapter.DynamicExportMain',
++               str(directory/'request.json'),'full',str(folder)]
++    run = subprocess.run(command,cwd=folder,capture_output=True,text=True,timeout=60)
++    (folder/'stdout.txt').write_text(run.stdout); (folder/'stderr.txt').write_text(run.stderr)
++    write_json(folder/'run.json',{'command':command,'exit_code':run.returncode})
++    value = read_json(folder/'input.json'); normalize_environment(value)
++    archive = audit_input(value,require_complete=False)
++    rejected = False
++    try: audit_input(value)
++    except InputError: rejected = True
++    passed = (run.returncode != 0 and 'script exhausted' in run.stderr and rejected and
++              not value['capture']['complete'] and len(archive.generation_attempts)==1 and
++              not (folder/'reference.json').exists())
++    write_json(directory/'partial-input.json',value)
++    result = {'passed':passed,'classification':'EXPECTED_DIFFERENCE_CONFIRMED' if passed else 'FAILED',
++              'reason':'forced sampler script exhaustion during second initialization; full gate rejects partial capture',
++              'complete_attempts':len(archive.generation_attempts),'full_audit_rejected':rejected}
++    write_json(directory/'comparison.json',result); write_manifest(directory,{'build_fingerprint':build['fingerprint']})
++    verify_manifest(directory)
++    return result
++
++
++def main(argv=None):
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--java'); p.add_argument('--output',type=Path,default=ROOT/'outputs/step4')
++    a = p.parse_args(argv); output = a.output.resolve(); output.mkdir(parents=True,exist_ok=True)
++    report = {'scope':'V16 Java export only; V17/V19/complete V01 NOT_EXECUTED','passed':False,'cases':[]}
++    try:
++        java, build = compile_dynamic(output/'build',a.java)
++        for name,request,xml,scripts in cases():
++            with tempfile.TemporaryDirectory(prefix='v16-dax-') as temporary:
++                dax = Path(temporary)
++                if xml is None:
++                    dax = ROOT/'dax'
++                else:
++                    (dax/'CyberShake_30.xml').write_text(xml)
++                result = export_case(request,dax,output/'cases'/name,java,build,
++                                     scripted_values=scripts,label=name)
++                report['cases'].append(result)
++                print(f"{name}: {result['classification']} ({result['counts']})",flush=True)
++        report['interruption_check'] = check_interruption(output,java,build)
++        report['passed'] = all(x['passed'] for x in report['cases']) and report['interruption_check']['passed']
++        report['classification'] = 'NORMAL_PARITY_PASSED' if report['passed'] else 'FAILED'
++    except (OSError,ValueError,RuntimeError,subprocess.SubprocessError) as ex:
++        report.update(classification='INFRASTRUCTURE_ERROR',error=f'{type(ex).__name__}: {ex}')
++    write_json(output/'checks.json',report)
++    print(json.dumps({'passed':report['passed'],'classification':report['classification'],
++                      'error':report.get('error'),'cases':len(report['cases'])},indent=2))
++    return 0 if report['passed'] else 1
++
++
++if __name__ == '__main__': raise SystemExit(main())
+--- /dev/null
++++ b/tools/dynamic_export_contract.py
+@@ -0,0 +1,197 @@
++"""V16 export audits against existing immutable contracts (not a replay engine).
++
++Recorded PT/UT/DT remain untouched. Formula and cumulative-value checks report
++errors here; nothing recalculates values for use by the scheduler.
++"""
++from dataclasses import asdict
++import hashlib
++import json
++import math
++from pathlib import Path
++import struct
++from fogsim.environment.spec import DeviceSnapshot, ServerSnapshot, EnvironmentSnapshot
++from fogsim.errors import InputError
++from fogsim.input_validation import integer, finite, text
++from fogsim.instances.generated import (TaskInput, EdgeInput, WorkflowInput, GenerationCause,
++    GenerationAttempt, CandidateRecord, AdmissionMapping, InputArchive)
++from fogsim.instances.templates import DagTaskSpec, DagDiagnostic, DagTemplate, TemplateRef
++from fogsim.instances.spec import OptionSpec
++
++TOP = {'format','schema_version','origin','initial_state','effective_config','units','environment',
++       'templates','candidates','generation_attempts','capture'}
++
++
++def read_json(path):
++    def pairs(items):
++        result = {}
++        for key, value in items:
++            if key in result:
++                raise InputError(f'duplicate JSON field: {key}')
++            result[key] = value
++        return result
++    def reject(value):
++        raise InputError(f'non-finite JSON literal: {value}')
++    try:
++        result = json.loads(Path(path).read_text(encoding='utf-8'), object_pairs_hook=pairs, parse_constant=reject)
++    except (ValueError, OSError) as exc:
++        raise InputError(f'cannot read export: {exc}') from exc
++    def finite(value):
++        if isinstance(value, float) and not math.isfinite(value):
++            raise InputError('non-finite JSON number')
++        if isinstance(value, dict):
++            for item in value.values(): finite(item)
++        elif isinstance(value, list):
++            for item in value: finite(item)
++    finite(result)
++    return result
++
++
++def keys(value, required, label, optional=()):
++    if not isinstance(value, dict) or set(value) - set(required) - set(optional) or set(required) - set(value):
++        raise InputError(f'{label}: incorrect fields')
++
++
++def same(a, b, label):
++    if struct.pack('>d', a) != struct.pack('>d', b):
++        raise InputError(f'{label}: binary64 mismatch: {a!r} != {b!r}')
++
++
++def audit_input(value, *, require_complete=True):
++    keys(value, TOP, 'input', ('diagnostics',))
++    if value['format'] != 'fogsim.dynamic-replay' or type(value['schema_version']) is not int or value['schema_version'] != 1:
++        raise InputError('unsupported export format/version')
++    origin = value['origin']
++    keys(origin, {'language','implementation_version','code_dependency_fingerprint','rules','operation','fixture_kind','label'}, 'origin')
++    keys(origin['rules'], {'sequencing','routing'}, 'origin.rules')
++    if origin['language'] != 'Java' or origin['operation'] != 'fresh' or origin['fixture_kind'] not in ('native_random','scripted_boundary'):
++        raise InputError('unsupported V16 Java origin')
++    if origin['rules'] != {'sequencing':'FCFS','routing':'FCFS'}:
++        raise InputError('V16 tool supports FCFS rules only')
++    keys(value['units'], {'time','workload','data'}, 'units')
++    cfg = value['effective_config']
++    keys(cfg, {'num_jobs_recorded','warmup_jobs','statistics_policy','sequencing_rule','routing_rule',
++               'exception_policy','event_order','guards','samplers','additional_budget'}, 'effective_config')
++    integer(cfg['num_jobs_recorded'],'N',1,2**31-1); integer(cfg['warmup_jobs'],'W',0,2**31-1)
++    if cfg['num_jobs_recorded']+cfg['warmup_jobs'] > 2**31-1:
++        raise InputError('N+W overflow')
++    keys(cfg['guards'], {'resource_queue_greater_than','stagnation_greater_than','generated_greater_than_multiplier'}, 'guards')
++    keys(cfg['samplers'], {'workload','data_size','edge_data','inter_release_time','weight',
++        'upload_bandwidth_edge','download_bandwidth_edge','upload_bandwidth_cloud','download_bandwidth_cloud',
++        'processing_rate_device','processing_rate_edge','processing_rate_cloud','workflow_type'}, 'samplers')
++    keys(cfg['samplers']['inter_release_time'], {'family','effective_mean'}, 'inter_release_time')
++    capture = value['capture']
++    keys(capture, {'complete','complete_attempt_count','write_interrupted','process_interrupted','termination'}, 'capture')
++    if any(type(capture[k]) is not bool for k in ('complete','write_interrupted','process_interrupted')):
++        raise InputError('capture flags must be boolean')
++    if (type(capture['complete_attempt_count']) is not int or
++            capture['complete_attempt_count'] != len(value['generation_attempts'])):
++        raise InputError('capture attempt count mismatch')
++    if require_complete and (not capture['complete'] or capture['write_interrupted'] or capture['process_interrupted']):
++        raise InputError('capture is incomplete')
++    if capture['complete'] and (capture['write_interrupted'] or capture['process_interrupted']):
++        raise InputError('complete capture has interruption flag')
++    initial = value['initial_state']
++    keys(initial, {'B','public_seed','seed_encoding_version','run_index'}, 'initial_state')
++    if type(initial['public_seed']) is not int or not -(1 << 63) <= initial['public_seed'] < 1 << 63:
++        raise InputError('public seed must be signed64')
++    integer(initial['run_index'],'run_index',0); finite(initial['B'],'B')
++    if initial['seed_encoding_version'] != 'java-signed64-v1' or initial['run_index'] != 0 or initial['B'] != 0:
++        raise InputError('V16 fresh exporter requires Java seed version, run_index=0, B=0')
++    env = value['environment']
++    keys(env, {'devices','servers','parameter_source','fingerprint'}, 'environment')
++    for d in env['devices']:
++        keys(d, {'id','numeric_id','processing_rate','can_process_tasks'}, 'device')
++    for r in env['servers']:
++        keys(r, {'id','numeric_id','type','processing_rate','upload_bandwidth','download_bandwidth'}, 'server')
++    environment = EnvironmentSnapshot(tuple(DeviceSnapshot(**d) for d in env['devices']),
++        tuple(ServerSnapshot(**s) for s in env['servers']), env['parameter_source'])
++    # Exporter canonicalizes this to the existing Python snapshot fingerprint.
++    if env['fingerprint'] != environment.fingerprint:
++        raise InputError('environment fingerprint mismatch')
++    templates = []
++    for t in value['templates']:
++        keys(t, {'dag_type_id','source_name','source_sha256','tasks','dependencies','diagnostics'}, 'template')
++        for task in t['tasks']: keys(task, {'xml_id','java_index'}, 'template.task')
++        for d in t['diagnostics']: keys(d, {'code','attribute','declared_value','actual_count'}, 'diagnostic')
++        templates.append(DagTemplate(t['dag_type_id'],t['source_name'],t['source_sha256'],
++            tuple(DagTaskSpec(**x) for x in t['tasks']), tuple(tuple(x) for x in t['dependencies']),
++            tuple(DagDiagnostic(**d) for d in t['diagnostics'])))
++    candidates = []
++    for c in value['candidates']:
++        keys(c, {'record_id','workflow_input'}, 'candidate')
++        w = c['workflow_input']
++        keys(w, {'candidate_id','owner_device_id','template_ref','release_time','inter_release_time','weight','tasks','edges'}, 'workflow_input')
++        keys(w['template_ref'], {'dag_type_id','source_sha256'}, 'template_ref')
++        tasks = []
++        for t in w['tasks']:
++            keys(t, {'id','workload','data_size','total_input_data','total_output_data','options'}, 'task')
++            for o in t['options']:
++                keys(o, {'resource_id','processing_time','upload_time','download_time'}, 'option')
++            tasks.append(TaskInput(**dict(t, options=tuple(OptionSpec(**o) for o in t['options']))))
++        for e in w['edges']: keys(e, {'parent_id','child_id','data_size'}, 'edge')
++        candidates.append(CandidateRecord(c['record_id'], WorkflowInput(**dict(w,
++            template_ref=TemplateRef(**w['template_ref']),tasks=tuple(tasks),edges=tuple(EdgeInput(**e) for e in w['edges'])))))
++    attempts = []
++    for a in value['generation_attempts']:
++        keys(a, {'attempt_sequence','phase','owner_device_id','generation_clock_time','causing_workflow_id',
++                 'event_sequence','candidate_ref','observed_acceptance','rejection_reason'}, 'attempt')
++        cause = GenerationCause(a['phase'], a['owner_device_id'], a['generation_clock_time'],
++                                a['causing_workflow_id'], a['event_sequence'])
++        attempts.append(GenerationAttempt(a['attempt_sequence'], cause, a['candidate_ref'],
++                                         a['observed_acceptance'], a['rejection_reason']))
++    admissions = tuple(AdmissionMapping(c.record_id,c.workflow_input.candidate_id)
++                       for c,a in zip(candidates,attempts) if a.observed_acceptance)
++    archive = InputArchive(tuple(templates),environment,tuple(candidates),tuple(attempts),admissions)
++    if capture['complete'] and sum(a.cause.phase == 'initialize' for a in attempts) != len(environment.devices):
++        raise InputError('complete capture missing initialization attempts')
++    resources = {r.id:r for r in (*environment.devices,*environment.servers)}
++    by_ref = {t.ref:t for t in templates}
++    for c in candidates:
++        w = c.workflow_input; parents, children = by_ref[w.template_ref].adjacency()
++        edges = {(e.parent_id,e.child_id):e.data_size for e in w.edges}
++        for task in w.tasks:
++            ti = to = 0.0
++            for parent in parents[task.id]: ti += edges[parent,task.id]
++            for child in children[task.id]: to += edges[task.id,child]
++            same(task.total_input_data,ti,'total_input_data'); same(task.total_output_data,to,'total_output_data')
++            for o in task.options:
++                r = resources[o.resource_id]
++                same(o.processing_time,task.workload / r.processing_rate,'PT')
++                same(o.upload_time,0.0 if isinstance(r,DeviceSnapshot) else (task.data_size+ti)/r.upload_bandwidth,'UT')
++                same(o.download_time,0.0 if isinstance(r,DeviceSnapshot) else (task.data_size+to)/r.download_bandwidth,'DT')
++    return archive
++
++
++def normalize_environment(input_value):
++    """Serialization-only normalization; no input number or duration is changed."""
++    e = input_value['environment']
++    e['fingerprint'] = EnvironmentSnapshot(tuple(DeviceSnapshot(**d) for d in e['devices']),
++        tuple(ServerSnapshot(**s) for s in e['servers']),e['parameter_source']).fingerprint
++
++
++def write_json(path, value):
++    Path(path).write_text(json.dumps(value,ensure_ascii=False,indent=2,allow_nan=False)+'\n',encoding='utf-8')
++
++
++def write_manifest(directory, provenance):
++    directory = Path(directory)
++    records = {p.relative_to(directory).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()
++               for p in sorted(directory.rglob('*')) if p.is_file() and p.relative_to(directory).as_posix() != 'manifest.json'}
++    manifest = {'format':'fogsim.dynamic-manifest','schema_version':1,
++                'files':records,'provenance':provenance,'scope':'V16 Java capture; Python replay NOT_EXECUTED'}
++    write_json(directory/'manifest.json',manifest)
++    return manifest
++
++
++def verify_manifest(directory):
++    directory = Path(directory); m = read_json(directory/'manifest.json')
++    if m['format'] != 'fogsim.dynamic-manifest' or m['schema_version'] != 1:
++        raise InputError('manifest version mismatch')
++    actual = {p.relative_to(directory).as_posix() for p in directory.rglob('*') if p.is_file() and p.relative_to(directory).as_posix() != 'manifest.json'}
++    if actual != set(m['files']):
++        raise InputError('manifest file coverage mismatch')
++    for name, expected in m['files'].items():
++        p = directory/name
++        if not p.resolve().is_relative_to(directory.resolve()) or hashlib.sha256(p.read_bytes()).hexdigest() != expected:
++            raise InputError(f'manifest hash mismatch: {name}')
++    return m
+--- /dev/null
++++ b/tools/export_java_dynamic.py
+@@ -0,0 +1,161 @@
++"""Export one fresh Java dynamic run and its independent V16 observations.
++
++Requires JDK 17; only FCFS/FCFS and the original standardFull sampler parameters
++are offered in this stage. This is a development tool, not the final Python CLI.
++"""
++from pathlib import Path
++import argparse
++from dataclasses import asdict
++import json
++import shutil
++import subprocess
++import sys
++
++ROOT = Path(__file__).resolve().parents[1]
++sys.path.insert(0,str(ROOT/'src'))
++from fogsim.errors import InputError
++from fogsim.instances.dax import parse_dax
++from fogsim.instances.catalog import STANDARD_DAX_FILES
++from fogsim.input_validation import integer, boolean
++from java_support import sha
++from java_dynamic_support import compile_dynamic
++from dynamic_export_contract import (audit_input,normalize_environment,read_json,write_json,
++                                     write_manifest,verify_manifest)
++from check_step3 import first_difference
++
++
++def validate_request(r):
++    required = {'seed','N','W','devices','edges','clouds','local','min_type','max_type'}
++    if not isinstance(r,dict) or set(r) != required:
++        raise InputError(f'request fields must be exactly {sorted(required)}')
++    integer(r['seed'],'seed',-(1 << 63),(1 << 63)-1)
++    for key in ('N','devices'): integer(r[key],key,1,2**31-1)
++    for key in ('W','edges','clouds'): integer(r[key],key,0,2**31-1)
++    if r['N']+r['W']>2**31-1: raise InputError('N+W overflows signed32')
++    integer(r['min_type'],'min_type',0,19); integer(r['max_type'],'max_type',r['min_type'],19)
++    boolean(r['local'],'local')
++    if not r['local'] and r['edges']+r['clouds']==0:
++        raise InputError('no eligible resource')
++    return r
++
++
++def prepare_request(request,dax_root,directory,build,*,scripted_values=None,label='user_request'):
++    r = dict(validate_request(request)); directory = Path(directory)
++    if directory.exists() and any(directory.iterdir()):
++        raise InputError(f'output directory is not empty: {directory}')
++    (directory/'sources/dax').mkdir(parents=True)
++    templates = []
++    for i in range(r['min_type'],r['max_type']+1):
++        source = Path(dax_root)/STANDARD_DAX_FILES[i]
++        template = parse_dax(source,dag_type_id=i)
++        shutil.copyfile(source,directory/'sources/dax'/source.name)
++        templates.append(asdict(template))
++    # JSON arrays, never unordered dictionaries, encode topology and attempt order.
++    r['templates'] = templates
++    r['origin'] = {'language':'Java','implementation_version':'multiDeviceDebug+fogsim-v16-observer-v1',
++        'code_dependency_fingerprint':build['fingerprint'],'rules':{'sequencing':'FCFS','routing':'FCFS'},
++        'operation':'fresh','fixture_kind':'scripted_boundary' if scripted_values else 'native_random',
++        'label':label}
++    r['initial_state'] = {'B':0.0,'public_seed':r['seed'],'seed_encoding_version':'java-signed64-v1','run_index':0}
++    r['effective_config'] = {'num_jobs_recorded':r['N'],'warmup_jobs':r['W'],
++        'statistics_policy':'java_jobsCompleted','sequencing_rule':'FCFS','routing_rule':'FCFS',
++        'exception_policy':'java_original','event_order':'java_two_level_priority_queue',
++        'guards':{'resource_queue_greater_than':400,'stagnation_greater_than':400000,
++                  'generated_greater_than_multiplier':500},
++        'samplers':{'workload':[5000.0,15000.0],'data_size':[5120.0,20480.0], 'edge_data':[100.0,200.0],
++            'inter_release_time':{'family':'java_exponential','effective_mean':100.0},'weight':'java_TwoSixTwo',
++            'upload_bandwidth_edge':'java_BandwidthEdge','download_bandwidth_edge':'java_BandwidthEdge',
++            'upload_bandwidth_cloud':'java_BandwidthCloud','download_bandwidth_cloud':'java_BandwidthCloud',
++            'processing_rate_device':[125.0,250.0],'processing_rate_edge':[250.0,500.0],
++            'processing_rate_cloud':[500.0,1000.0],'workflow_type':[r['min_type'],r['max_type']]},
++        'additional_budget':None}
++    if scripted_values: r['scripted_values'] = scripted_values
++    write_json(directory/'request.json',r)
++    write_json(directory/'sources/build-provenance.json',build)
++    return r
++
++
++def export_case(request,dax_root,directory,java,build,*,scripted_values=None,label='user_request'):
++    directory = Path(directory).resolve()
++    r = prepare_request(request,dax_root,directory,build,scripted_values=scripted_values,label=label)
++    raws = {}; observations = {}
++    for mode in (('baseline','minimal','full') if scripted_values else ('plain','baseline','minimal','full')):
++        folder = directory/mode; (folder/'dax').mkdir(parents=True)
++        for xml in (directory/'sources/dax').iterdir(): shutil.copyfile(xml,folder/'dax'/xml.name)
++        classpath = build['builds']['baseline' if mode in ('baseline','plain') else 'observed']['classpath']
++        command = [str(java),'-cp',classpath,'fogsim.adapter.DynamicExportMain',str(directory/'request.json'),mode,str(folder)]
++        run = subprocess.run(command,cwd=folder,capture_output=True,text=True,timeout=60)
++        (folder/'stdout.txt').write_text(run.stdout); (folder/'stderr.txt').write_text(run.stderr)
++        write_json(folder/'run.json',{'command':command,'cwd':str(folder),'exit_code':run.returncode})
++        if run.returncode:
++            raise RuntimeError(f'{label}/{mode}: Java failed; see {folder}/stderr.txt (partial capture retained)')
++        raws[mode] = read_json(folder/'audit.json')
++        observations[mode] = read_json(folder/'observation.json')
++    comparisons = {}
++    if 'plain' in raws:
++        def native_summary(raw):
++            return {key:raw[key] for key in ('rng_final_state_sha256','environment')} | {
++                'native_result':{k:v for k,v in raw['native_result'].items() if k not in (
++                    'completed_workflow_ids','not_arrived_workflow_ids','unfinished_workflow_ids')}}
++        comparisons['plain_vs_audited_baseline'] = first_difference(native_summary(raws['plain']),native_summary(raws['baseline']))
++    for mode in ('minimal','full'):
++        comparisons[f'baseline_vs_{mode}'] = first_difference(raws['baseline'],raws[mode])
++    comparisons['minimal_vs_full_capture'] = first_difference(
++        {k:v for k,v in observations['minimal'].items() if k!='mode'},
++        {k:v for k,v in observations['full'].items() if k!='mode'})
++    # Java Double.toString and Python JSON both roundtrip the original binary64.
++    # Only the environment fingerprint encoding is normalized to the existing
++    # Python snapshot algorithm; the raw Java file remains available under full/.
++    value = read_json(directory/'full/input.json'); normalize_environment(value)
++    archive = audit_input(value)
++    write_json(directory/'input.json',value)
++    shutil.copyfile(directory/'full/reference.json',directory/'reference.json')
++    # Prove the one file alone contains everything needed to instantiate inputs.
++    accepted = sum(a.observed_acceptance for a in archive.generation_attempts)
++    reference = read_json(directory/'reference.json')
++    actions = reference['actions']; emitted = [x for x in actions if x['kind']=='EMIT']
++    expected_emitted = (len(reference['events']) + reference['native_result']['pending_global_events'] +
++                        sum(r.get('staged_events',0) for r in reference['final_state']['resources']))
++    reference_checks = {
++        'emitted_events_accounted_for':len(emitted)==expected_emitted,
++        'decisions_accounted_for':sum(x['kind']=='DECISION' for x in actions)==len(reference['decisions']),
++        'event_sequences_contiguous':[x['event_sequence'] for x in reference['events']]==list(range(1,len(reference['events'])+1)),
++        'java_maps_cleared_but_export_edges_retained':all(t['edge_maps_cleared'] for w in reference['final_state']['workflows'] for t in w['tasks']),
++        'attempts_link_to_actual_arrivals':all(
++            reference['events'][a.cause.event_sequence-1]['kind']=='JobArrivalEvent' and
++            reference['events'][a.cause.event_sequence-1]['workflow_id']==a.cause.causing_workflow_id and
++            reference['events'][a.cause.event_sequence-1]['time']==a.cause.clock_time
++            for a in archive.generation_attempts if a.cause.phase=='after_arrival'),
++    }
++    report = {'case':label,'scope':'V16 Java observation noninterference and complete input; no Python dynamic replay',
++        'passed':all(x is None for x in comparisons.values()) and all(reference_checks.values()),
++        'first_differences':comparisons,'reference_checks':reference_checks,
++        'counts':{'attempts':len(archive.generation_attempts),'accepted':accepted,
++            'rejected':len(archive.generation_attempts)-accepted,
++            'events':len(raws['full']['events']),'decisions':len(raws['full']['decisions']),
++            'samples':len(raws['full']['samples']),'templates':len(archive.templates)},
++        'java_native_result':raws['full']['native_result'],
++        'python_dynamic_parity':'NOT_EXECUTED'}
++    report['classification'] = ('NORMAL_PARITY_PASSED' if report['java_native_result']['target_reached']
++                                else 'EXPECTED_DIFFERENCE_CONFIRMED') if report['passed'] else 'FAILED'
++    report['observation_noninterference_passed'] = report['passed']
++    write_json(directory/'comparison.json',report)
++    provenance = {'build_fingerprint':build['fingerprint'],'source_DAX':{t['source_name']:t['source_sha256'] for t in r['templates']},
++                  'original_sources':build['inputs'],'request_sha256':sha(directory/'request.json')}
++    write_manifest(directory,provenance); verify_manifest(directory)
++    return report
++
++
++def main(argv=None):
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument('--java'); p.add_argument('--request',type=Path,required=True)
++    p.add_argument('--dax-root',type=Path,default=ROOT/'dax')
++    p.add_argument('--output',type=Path,required=True)
++    a = p.parse_args(argv)
++    request = validate_request(read_json(a.request)) # fail before Java compilation/RNG
++    java,build = compile_dynamic(a.output.resolve().parent/(a.output.name+'-build'))
++    report = export_case(request,a.dax_root,a.output,java,build)
++    print(json.dumps(report,ensure_ascii=False,indent=2)); return 0 if report['passed'] else 1
++
++
++if __name__ == '__main__': raise SystemExit(main())
+--- /dev/null
++++ b/tools/java/step4/fogsim/adapter/DynamicCapture.java
+@@ -0,0 +1,345 @@
++package fogsim.adapter;
++
++import java.io.*;
++import java.lang.reflect.Field;
++import java.nio.file.*;
++import java.security.MessageDigest;
++import java.util.*;
++import mengxu.algorithm.FCFS;
++import mengxu.rule.RuleType;
++import mengxu.simulation.*;
++import mengxu.simulation.event.*;
++import mengxu.simulation.state.SystemState;
++import mengxu.taskscheduling.*;
++import mengxu.taskscheduling.Process;
++import mengxu.util.random.*;
++import org.apache.commons.math3.random.RandomDataGenerator;
++
++/** Read-only observations. Never calls a sampler, comparator or rule to observe it.
++ * Baseline uses only delegating sampler/rule/heap audit wrappers, with original
++ * source bytes. Minimal hashes complete observations; full also retains copies.
++ */
++public final class DynamicCapture {
++    static DynamicCapture current;
++    final String mode;
++    final Map<String,Object> request;
++    final Path directory;
++    final List<Object> samples = new ArrayList<>(), events = new ArrayList<>(), decisions = new ArrayList<>();
++    final List<Object> actions = new ArrayList<>();
++    final List<Object> candidates = new ArrayList<>(), attempts = new ArrayList<>(), boundaries = new ArrayList<>();
++    final List<String> candidateHashes = new ArrayList<>(), attemptHashes = new ArrayList<>(), boundaryHashes = new ArrayList<>();
++    final Map<Integer,Job> jobs = new LinkedHashMap<>();
++    final Set<Integer> arrived = new LinkedHashSet<>();
++    final Map<String,Integer> positions = new LinkedHashMap<>();
++    Map<String,Object> pending;
++    AbstractEvent activeEvent;
++    RandomDataGenerator shared;
++    double lastInterval;
++    long eventSequence;
++
++    DynamicCapture(String mode, Map<String,Object> request, Path directory) {
++        this.mode=mode; this.request=request; this.directory=directory;
++    }
++    static Map<String,Object> row(Object... values) {
++        Map<String,Object> out=new LinkedHashMap<>();
++        for(int i=0;i<values.length;i+=2) out.put((String)values[i],values[i+1]);
++        return out;
++    }
++    static Object field(Object object, String name) {
++        try {
++            Class<?> cls=object.getClass();
++            while(cls!=null) {
++                try { Field f=cls.getDeclaredField(name); f.setAccessible(true); return f.get(object); }
++                catch(NoSuchFieldException ex) { cls=cls.getSuperclass(); }
++            }
++            throw new NoSuchFieldException(name);
++        } catch(ReflectiveOperationException ex) { throw new IllegalStateException(ex); }
++    }
++    static String hash(byte[] bytes) {
++        try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)); }
++        catch(Exception ex) { throw new IllegalStateException(ex); }
++    }
++    static String digest(Object value) { return hash(Json.write(value).getBytes(java.nio.charset.StandardCharsets.UTF_8)); }
++    static void save(Path path, Object value) {
++        try {
++            Path temporary=path.resolveSibling(path.getFileName()+".tmp");
++            Files.writeString(temporary,Json.write(value)+"\n");
++            try { Files.move(temporary,path,StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE); }
++            catch(AtomicMoveNotSupportedException ex) { Files.move(temporary,path,StandardCopyOption.REPLACE_EXISTING); }
++        } catch(IOException ex) { throw new UncheckedIOException(ex); }
++    }
++    static String resource(TaskOption option) {
++        if(option.getServer()==null) return "M"+option.getMobileDevice().getId();
++        return serverID(option.getServer(),option.getTask().getJob().getMobileDevice().getSystemState());
++    }
++    static String serverID(Server server, SystemState state) {
++        int index=0;
++        for(Server s:state.getServers()) {
++            if(s==server) return (s.getType()==ServerType.EDGE?"E":"C")+index;
++            if(s.getType()==server.getType()) index++;
++        }
++        throw new IllegalStateException("foreign server");
++    }
++    static Map<String,Object> environment(SystemState state) {
++        List<Object> devices=new ArrayList<>(), servers=new ArrayList<>();
++        for(MobileDevice d:state.getMobileDevices()) devices.add(row("id","M"+d.getId(),"numeric_id",d.getId(),
++            "processing_rate",d.getProcessingRate(),"can_process_tasks",d.isCanProcessTask()));
++        for(Server s:state.getServers()) servers.add(row("id",serverID(s,state),"numeric_id",s.getId(),
++            "type",s.getType().toString(),"processing_rate",s.getProcessingRate(),
++            "upload_bandwidth",s.getUploadBandwidth(),"download_bandwidth",s.getDownloadBandwidth()));
++        return row("devices",devices,"servers",servers,"parameter_source","java-recorded",
++                   "fingerprint",digest(row("devices",devices,"servers",servers)));
++    }
++    @SuppressWarnings("unchecked")
++    Map<String,Object> template(int type) {
++        for(Object item:(List<?>)request.get("templates")) {
++            Map<String,Object> t=(Map<String,Object>)item;
++            if(((Number)t.get("dag_type_id")).intValue()==type) return t;
++        }
++        throw new IllegalStateException("template metadata missing: "+type);
++    }
++    @SuppressWarnings("unchecked")
++    static String xmlID(Map<String,Object> template, int index) {
++        return (String)((Map<String,Object>)((List<?>)template.get("tasks")).get(index)).get("xml_id");
++    }
++    public static void beforeClear(MobileDevice device, int type, String path,
++                                   double release, double weight, List<Task> taskList) {
++        DynamicCapture c=current;
++        if(c.pending!=null) throw new IllegalStateException("unclosed candidate");
++        Map<String,Object> template=c.template(type);
++        List<Object> tasks=new ArrayList<>(), edges=new ArrayList<>();
++        for(Task t:taskList) {
++            String id=xmlID(template,t.getId());
++            List<Object> options=new ArrayList<>();
++            for(TaskOption o:t.getTaskOptions()) options.add(row("resource_id",o.getServer()==null?"M"+device.getId():serverID(o.getServer(),device.getSystemState()),
++                "processing_time",o.getProcTime(),"upload_time",o.getUploadDelay(),"download_time",o.getDownloadDelay()));
++            tasks.add(row("id",id,"workload",t.getWorkload(),"data_size",t.getData(),
++                "total_input_data",t.getAllInputDataTotal(),"total_output_data",t.getAllOutputDataTotal(),"options",options));
++            for(Task child:t.getChildTaskList()) edges.add(row("parent_id",id,"child_id",xmlID(template,child.getId()),
++                "data_size",t.getChildOutputData(child.getId())));
++        }
++        Map<String,Object> input=row("candidate_id",device.getSystemState().getAllNumJobsReleased(),
++            "owner_device_id","M"+device.getId(),"template_ref",row("dag_type_id",type,"source_sha256",template.get("source_sha256")),
++            "release_time",release,"inter_release_time",c.lastInterval,"weight",weight,"tasks",tasks,"edges",edges);
++        c.pending=row("record_id",Integer.toString(c.candidateHashes.size()+1),"workflow_input",input);
++        c.candidateHashes.add(digest(c.pending));
++    }
++    public static void afterAdmission(MobileDevice device, Job job, boolean accepted) {
++        DynamicCapture c=current;
++        if(c.pending==null) throw new IllegalStateException("missing pre-clear candidate");
++        Object cause=null;
++        if(c.activeEvent!=null) {
++            if(!(c.activeEvent instanceof JobArrivalEvent)) throw new IllegalStateException("generation outside Arrival");
++            cause=((Job)field(c.activeEvent,"job")).getId();
++        }
++        Map<String,Object> attempt=row("attempt_sequence",c.attemptHashes.size()+1,
++            "phase",cause==null?"initialize":"after_arrival","owner_device_id","M"+device.getId(),
++            "generation_clock_time",device.getSystemState().getClockTime(),"causing_workflow_id",cause,
++            "event_sequence",cause==null?null:c.eventSequence,"candidate_ref",c.pending.get("record_id"),
++            "observed_acceptance",accepted,"rejection_reason",accepted?null:"REJECTED_RELEASE_NOT_FUTURE");
++        c.attemptHashes.add(digest(attempt));
++        if(accepted) c.jobs.put(job.getId(),job);
++        if(c.mode.equals("full")) {
++            c.candidates.add(c.pending); c.attempts.add(attempt);
++            c.saveInput(device.getSystemState(),false,"RUN_IN_PROGRESS");
++        }
++        c.pending=null;
++    }
++    public static void afterEvent(DynamicSimulation sim) {
++        DynamicCapture c=current;
++        Map<String,Object> boundary=row("event_sequence",c.eventSequence,"state",c.state(sim.getSystemState()));
++        c.boundaryHashes.add(digest(boundary));
++        if(c.mode.equals("full")) c.boundaries.add(boundary);
++    }
++    Map<String,Object> event(AbstractEvent e) {
++        Job job; TaskOption option=null; Process process=null;
++        if(e instanceof JobArrivalEvent) job=(Job)field(e,"job");
++        else {
++            if(e instanceof TaskVisitEvent) option=(TaskOption)field(e,"taskOption");
++            else { process=(Process)field(e,"process"); option=process.getTaskOption(); }
++            job=option.getTask().getJob();
++        }
++        jobs.putIfAbsent(job.getId(),job);
++        return row("kind",e.getClass().getSimpleName(),"time",e.getTime(),"producer_device_id","M"+e.getMobileDevice().getId(),
++            "workflow_id",job.getId(),"task_java_index",option==null?null:option.getTask().getId(),
++            "resource_id",option==null?null:resource(option),"start_time",process==null?null:process.getStartTime(),
++            "finish_time",process==null?null:process.getFinishTime());
++    }
++    static Map<String,Object> option(TaskOption o) {
++        return row("workflow_id",o.getTask().getJob().getId(),"task_java_index",o.getTask().getId(),
++            "resource_id",resource(o),"ready_time",o.getReadyTime(),"priority",o.getPriority());
++    }
++    void decision(String kind,List<TaskOption> queue,TaskOption selected,SystemState state) {
++        List<Object> options=new ArrayList<>();
++        for(TaskOption o:queue) options.add(option(o));
++        Map<String,Object> record=row("event_sequence",eventSequence,"clock_time",state.getClockTime(),
++            "kind",kind,"options",options,"selected",option(selected));
++        decisions.add(record);
++        if(mode.equals("full")||mode.equals("minimal")) actions.add(row("event_sequence",eventSequence,"kind","DECISION","decision",record));
++    }
++    public static void afterStage(MobileDevice device, AbstractEvent event) {
++        DynamicCapture c=current;
++        c.actions.add(row("event_sequence",c.activeEvent==null?null:c.eventSequence,"kind","EMIT","event",c.event(event)));
++    }
++    public static void afterGeneratedArrival(MobileDevice device, Job job) {
++        DynamicCapture c=current;
++        c.actions.add(row("event_sequence",c.activeEvent==null?null:c.eventSequence,"kind","EMIT",
++            "event",row("kind","JobArrivalEvent","time",job.getReleaseTime(),"producer_device_id","M"+device.getId(),
++                "workflow_id",job.getId(),"task_java_index",null,"resource_id",null,"start_time",null,"finish_time",null)));
++    }
++    static List<Integer> ids(List<Job> values) {
++        List<Integer> out=new ArrayList<>(); for(Job j:values) out.add(j.getId()); return out;
++    }
++    Map<String,Object> state(SystemState state) {
++        List<Object> resources=new ArrayList<>(), all=new ArrayList<>();
++        for(MobileDevice d:state.getMobileDevices()) {
++            List<Object> queue=new ArrayList<>(); for(TaskOption o:d.getQueue()) queue.add(option(o));
++            resources.add(row("id","M"+d.getId(),"available_time",d.getReadyTime(),"queue",queue,
++                "total_processing",d.totalProcTimeInQueue(),"total_occupancy",d.totalProcTimeAndUpLoadAndDownLoadTimeInQueue(),
++                "tasks_completed",d.getNumTasksCompleted(),"staged_events",d.eventQueue.size()));
++        }
++        for(Server s:state.getServers()) {
++            List<Object> queue=new ArrayList<>(); for(TaskOption o:s.getQueue()) queue.add(option(o));
++            resources.add(row("id",serverID(s,state),"available_time",s.getReadyTime(),"queue",queue,
++                "total_processing",s.totalProcTimeInQueue(),"total_occupancy",s.totalProcTimeAndUpLoadAndDownLoadTimeInQueue(),
++                "tasks_completed",s.getNumTasksCompleted()));
++        }
++        for(Job j:jobs.values()) {
++            List<Object> tasks=new ArrayList<>();
++            for(Task t:j.getTaskList()) {
++                List<Object> options=new ArrayList<>(); for(TaskOption o:t.getTaskOptions()) options.add(option(o));
++                tasks.add(row("java_index",t.getId(),"dispatched",t.isDispatch(),"completed",t.isComplete(),"options",options,
++                    "edge_maps_cleared",((Map<?,?>)field(t,"inputDateMap")).isEmpty() && ((Map<?,?>)field(t,"outputDateMap")).isEmpty()));
++            }
++            all.add(row("id",j.getId(),"completion_time",j.getCompletionTime(),"tasks",tasks));
++        }
++        return row("clock_time",state.getClockTime(),"G",state.getAllNumJobsReleased(),
++            "B",state.getFirstArriveJobRecordedTime(),"statistical_workflow_ids",ids(state.getJobsCompleted()),
++            "active_workflow_ids",ids(state.getJobsInSystem()),"resources",resources,"workflows",all);
++    }
++    static Map<String,Object> nativeNumber(double value) {
++        return row("kind",Double.isInfinite(value)?(value>0?"POSITIVE_INFINITY":"NEGATIVE_INFINITY"):
++                   Double.isNaN(value)?"NAN":value==Double.MAX_VALUE?"DOUBLE_MAX_VALUE":"FINITE",
++                   "value",Double.isFinite(value)?value:null,"java_text",Double.toString(value));
++    }
++    Map<String,Object> nativeResult(DynamicSimulation sim) {
++        SystemState state=sim.getSystemState();
++        List<Integer> completed=new ArrayList<>(), notArrived=new ArrayList<>(), unfinished=new ArrayList<>();
++        for(Job j:jobs.values()) {
++            if(j.isDone()) completed.add(j.getId()); else unfinished.add(j.getId());
++            if(!arrived.contains(j.getId())) notArrived.add(j.getId());
++        }
++        return row("target_reached",sim.getCurrentCompletedJobsNum()>=((Number)request.get("N")).intValue(),
++            "clock_time",state.getClockTime(),"G",state.getAllNumJobsReleased(),"B",state.getFirstArriveJobRecordedTime(),
++            "R",sim.getCurrentCompletedJobsNum(),"completed_workflow_ids",completed,
++            "statistical_workflow_ids",ids(state.getJobsCompleted()),"not_arrived_workflow_ids",notArrived,
++            "unfinished_workflow_ids",unfinished,"pending_global_events",sim.getEventQueue().size(),
++            "makespan",nativeNumber(sim.makespan()),"mean_flowtime",nativeNumber(sim.meanFlowtime()));
++    }
++    String rngState(RandomDataGenerator rng) {
++        try {
++            ByteArrayOutputStream bytes=new ByteArrayOutputStream();
++            new ObjectOutputStream(bytes).writeObject(rng.getRandomGenerator());
++            return hash(bytes.toByteArray());
++        } catch(IOException ex) { throw new UncheckedIOException(ex); }
++    }
++    void saveInput(SystemState state,boolean complete,String termination) {
++        Map<String,Object> input=row("format","fogsim.dynamic-replay","schema_version",1,
++            "origin",request.get("origin"),"initial_state",request.get("initial_state"),
++            "effective_config",request.get("effective_config"),"units",row("time","s","workload","model_workload","data","model_data"),
++            "environment",environment(state),"templates",request.get("templates"),"candidates",candidates,
++            "generation_attempts",attempts,"capture",row("complete",complete,"complete_attempt_count",attempts.size(),
++            "write_interrupted",false,"process_interrupted",!complete,"termination",termination));
++        save(directory.resolve("input.json"),input);
++    }
++    void finish(DynamicSimulation sim,boolean complete,String termination) {
++        Map<String,Object> result=nativeResult(sim);
++        // Baseline knows all accepted jobs via actual arrivals and final pending queues.
++        // Pending initialization arrivals may not have been polled at early stop.
++        for(AbstractEvent e:sim.getEventQueue()) if(e instanceof JobArrivalEvent) {
++            Job j=(Job)field(e,"job"); jobs.putIfAbsent(j.getId(),j);
++        }
++        for(MobileDevice d:sim.getSystemState().getMobileDevices())
++            for(AbstractEvent e:d.eventQueue) if(e instanceof JobArrivalEvent) {
++                Job j=(Job)field(e,"job"); jobs.putIfAbsent(j.getId(),j);
++            }
++        // Normalize workflow observation order to accepted ID for baseline/full agreement.
++        List<Integer> keys=new ArrayList<>(jobs.keySet()); Collections.sort(keys);
++        Map<Integer,Job> sorted=new LinkedHashMap<>(); for(int key:keys) sorted.put(key,jobs.get(key));
++        jobs.clear(); jobs.putAll(sorted); result=nativeResult(sim);
++        Map<String,Object> audit=row("samples",samples,"events",events,"decisions",decisions,
++            "rng_final_state_sha256",rngState(sim.getRandomDataGenerator()),"native_result",result,
++            "final_state",state(sim.getSystemState()),"environment",environment(sim.getSystemState()));
++        save(directory.resolve("audit.json"),audit);
++        save(directory.resolve("observation.json"),row("mode",mode,"candidate_sha256",candidateHashes,
++            "attempt_sha256",attemptHashes,"post_trigger_sha256",boundaryHashes,"interleaved_actions_sha256",mode.equals("baseline")||mode.equals("plain")?null:digest(actions)));
++        if(mode.equals("full")) {
++            save(directory.resolve("reference.json"),row("format","fogsim.dynamic-reference","schema_version",1,
++                "events",events,"decisions",decisions,"actions",actions,"post_trigger_states",boundaries,
++                "native_result",result,"final_state",state(sim.getSystemState()),
++                "diagnostics",row("rng_final_state_sha256",audit.get("rng_final_state_sha256"),
++                "post_trigger_boundary","immediately after trigger, before Java run guards; final state is after loop merge")));
++            saveInput(sim.getSystemState(),complete,termination);
++        }
++    }
++    double sample(String role,AbstractRealSampler delegate,RandomDataGenerator rng) {
++        checkRng(rng); double value=delegate.next(rng);
++        Map<?,?> scripted=(Map<?,?>)request.get("scripted_values");
++        if(scripted!=null && scripted.containsKey(role)) {
++            List<?> values=(List<?>)scripted.get(role); int at=positions.getOrDefault(role,0);
++            if(at>=values.size()) throw new IllegalStateException("script exhausted: "+role);
++            value=((Number)values.get(at)).doubleValue(); positions.put(role,at+1);
++        }
++        // Script boundary fixtures still consume the original draw, then substitute
++        // a frozen business input. These fixtures are explicitly tagged in origin.
++        samples.add(row("role",role,"value",value));
++        if(role.equals("inter_release_time")) lastInterval=value;
++        return value;
++    }
++    void checkRng(RandomDataGenerator rng) {
++        if(shared==null) shared=rng;
++        if(shared!=rng) throw new IllegalStateException("input RNG not shared");
++    }
++    static final class Real extends AbstractRealSampler {
++        final String role; final AbstractRealSampler delegate;
++        Real(String role,AbstractRealSampler delegate) {this.role=role; this.delegate=delegate;}
++        public double next(RandomDataGenerator rng) {return current.sample(role,delegate,rng);}
++        public void setLower(double v) {delegate.setLower(v);} public void setUpper(double v) {delegate.setUpper(v);}
++        public void setMean(double v) {delegate.setMean(v);} public double getMean() {return delegate.getMean();}
++        public AbstractRealSampler clone() {return new Real(role,delegate.clone());}
++    }
++    static final class IntegerSampler extends AbstractIntegerSampler {
++        final AbstractIntegerSampler delegate;
++        IntegerSampler(AbstractIntegerSampler delegate) {this.delegate=delegate;}
++        public int next(RandomDataGenerator rng) {
++            current.checkRng(rng); int value=delegate.next(rng);
++            current.samples.add(row("role","workflow_type","value",value)); return value;
++        }
++        public void setLower(int v) {delegate.setLower(v);} public void setUpper(int v) {delegate.setUpper(v);}
++        public void setMean(double v) {delegate.setMean(v);} public double getMean() {return delegate.getMean();}
++        public AbstractIntegerSampler clone() {return new IntegerSampler(delegate.clone());}
++    }
++    static final class AuditFCFS extends FCFS {
++        AuditFCFS(RuleType type) {super(type);}
++        public TaskOption nextTaskOption(RoutingDecisionSituation situation) {
++            TaskOption chosen=super.nextTaskOption(situation);
++            current.decision("routing",situation.getQueue(),chosen,situation.getSystemState()); return chosen;
++        }
++        public TaskOption priorTask(SequencingDecisionSituation situation) {
++            TaskOption chosen=super.priorTask(situation);
++            current.decision("sequencing",situation.getQueue(),chosen,situation.getSystemState()); return chosen;
++        }
++    }
++    static final class AuditQueue extends PriorityQueue<AbstractEvent> {
++        public AbstractEvent poll() {
++            AbstractEvent e=super.poll();
++            if(e!=null) {
++                current.activeEvent=e; current.eventSequence++;
++                Map<String,Object> record=current.event(e); record.put("event_sequence",current.eventSequence);
++                current.events.add(record);
++                if(e instanceof JobArrivalEvent) current.arrived.add(((Job)field(e,"job")).getId());
++            }
++            return e;
++        }
++    }
++}
+--- /dev/null
++++ b/tools/java/step4/fogsim/adapter/DynamicExportMain.java
+@@ -0,0 +1,74 @@
++package fogsim.adapter;
++
++import java.lang.reflect.Field;
++import java.nio.file.*;
++import java.util.*;
++import mengxu.rule.RuleType;
++import mengxu.simulation.DynamicSimulation;
++import mengxu.util.random.*;
++
++/** Separate fresh-run entry to ORIGINAL constructor/setup/run and native metrics. */
++public final class DynamicExportMain {
++    static AbstractRealSampler real(String role,AbstractRealSampler delegate) {
++        return DynamicCapture.current.mode.equals("plain")?delegate:new DynamicCapture.Real(role,delegate);
++    }
++    static AbstractIntegerSampler workflow(Map<String,Object> r,String mode) {
++        AbstractIntegerSampler sampler=new UniformIntegerSampler(((Number)r.get("min_type")).intValue(),((Number)r.get("max_type")).intValue());
++        return mode.equals("plain")?sampler:new DynamicCapture.IntegerSampler(sampler);
++    }
++    @SuppressWarnings("unchecked")
++    public static void main(String[] args) throws Exception {
++        Map<String,Object> r=(Map<String,Object>)Json.parse(Files.readString(Path.of(args[0])));
++        String mode=args[1]; Path directory=Path.of(args[2]); Files.createDirectories(directory);
++        if(!List.of("plain","baseline","minimal","full").contains(mode)) throw new IllegalArgumentException("unknown mode");
++        DynamicCapture c=new DynamicCapture(mode,r,directory); DynamicCapture.current=c;
++        // Verify supplied metadata from actual XML and the original Java parser;
++        // the capture never guesses IDs from numeric suffixes.
++        for(Object item:(List<?>)r.get("templates")) {
++            Map<String,Object> t=(Map<String,Object>)item;
++            Path xml=Path.of("dax",(String)t.get("source_name"));
++            if(!DynamicCapture.hash(Files.readAllBytes(xml)).equals(t.get("source_sha256")))
++                throw new IllegalArgumentException("DAX fingerprint mismatch");
++            List<String> names=new ArrayList<>();
++            for(org.jdom2.Element node:new org.jdom2.input.SAXBuilder().build(xml.toFile()).getRootElement().getChildren())
++                if(node.getName().equalsIgnoreCase("job")) names.add(node.getAttributeValue("id"));
++            List<mengxu.taskscheduling.Task> tasks=new mengxu.taskscheduling.WorkflowParser(xml.toString()).getTaskList();
++            if(tasks.size()!=((List<?>)t.get("tasks")).size()) throw new IllegalArgumentException("task count mismatch");
++            List<List<String>> dependencies=new ArrayList<>();
++            for(Object edge:(List<?>)t.get("dependencies")) dependencies.add((List<String>)edge);
++            for(int i=0;i<tasks.size();i++) {
++                if(!names.get(i).equals(DynamicCapture.xmlID(t,i))) throw new IllegalArgumentException("XML ID mapping mismatch");
++                List<String> parents=new ArrayList<>(),children=new ArrayList<>(),expectedParents=new ArrayList<>(),expectedChildren=new ArrayList<>();
++                for(mengxu.taskscheduling.Task p:tasks.get(i).getParentTaskList()) parents.add(names.get(p.getId()));
++                for(mengxu.taskscheduling.Task child:tasks.get(i).getChildTaskList()) children.add(names.get(child.getId()));
++                for(List<String> edge:dependencies) {
++                    if(edge.get(0).equals(names.get(i))) expectedChildren.add(edge.get(1));
++                    if(edge.get(1).equals(names.get(i))) expectedParents.add(edge.get(0));
++                }
++                if(!parents.equals(expectedParents)||!children.equals(expectedChildren)) throw new IllegalArgumentException("Java adjacency mapping mismatch");
++            }
++        }
++        long seed=((Number)r.get("seed")).longValue();
++        DynamicSimulation sim=new DynamicSimulation(seed,mode.equals("plain")?new mengxu.algorithm.FCFS(RuleType.SEQUENCING):new DynamicCapture.AuditFCFS(RuleType.SEQUENCING),
++            mode.equals("plain")?new mengxu.algorithm.FCFS(RuleType.ROUTING):new DynamicCapture.AuditFCFS(RuleType.ROUTING),((Number)r.get("N")).intValue(),((Number)r.get("W")).intValue(),
++            ((Number)r.get("devices")).intValue(),((Number)r.get("edges")).intValue(),((Number)r.get("clouds")).intValue(),
++            real("workload",new UniformSampler(5000,15000)),real("data_size",new UniformSampler(5120,20480)),
++            real("edge_data",new UniformSampler(100,200)),real("inter_release_time",new ExponentialSampler()),
++            real("weight",new TwoSixTwoSampler()),real("upload_bandwidth_cloud",new BandwidthCloudSampler()),
++            real("download_bandwidth_cloud",new BandwidthCloudSampler()),real("upload_bandwidth_edge",new BandwidthEdgeSampler()),
++            real("download_bandwidth_edge",new BandwidthEdgeSampler()),real("processing_rate_cloud",new UniformSampler(500,1000)),
++            real("processing_rate_edge",new UniformSampler(250,500)),real("processing_rate_device",new UniformSampler(125,250)),
++            workflow(r,mode),(Boolean)r.get("local"));
++        // Global queue is empty until original run() performs its first merge.
++        // AuditQueue delegates poll once to PriorityQueue and does not change
++        // comparator, insertion, iteration, capacity behavior or event objects.
++        if(!sim.getEventQueue().isEmpty()) throw new IllegalStateException("unexpected pre-run global events");
++        Field queue=DynamicSimulation.class.getDeclaredField("eventQueue"); queue.setAccessible(true);
++        if(!mode.equals("plain")) queue.set(sim,new DynamicCapture.AuditQueue());
++        try {
++            sim.run(); c.finish(sim,true,"JAVA_RUN_RETURNED");
++        } catch(Exception | Error ex) {
++            c.finish(sim,false,ex.getClass().getName()); throw ex;
++        }
++    }
++}
+--- /dev/null
++++ b/tools/java_dynamic_support.py
+@@ -0,0 +1,105 @@
++"""Build the original dynamic path with strictly additive observation calls.
++
++Unlike the fixed adapter, no constructor, comparator, sampler formula, event
++trigger, admission condition or stop condition is replaced. Baseline has no
++source overlay. Each edit is anchored exactly once and a unified diff is saved.
++"""
++from pathlib import Path
++import difflib
++import hashlib
++import json
++import os
++import shutil
++import subprocess
++from java_support import ROOT, ORIGINAL, reference_jdk, sha
++
++
++EDITS = {
++    'mengxu/taskscheduling/MobileDevice.java': [
++        ('        int jobID = systemState.getAllNumJobsReleased();',
++         '        fogsim.adapter.DynamicCapture.beforeClear(this, DAGTypeID, daxpath, releaseTime, weight, taskList);\n'),
++        ('        boolean couldAdd = systemState.addJobToSystem(job);',
++         '\n        fogsim.adapter.DynamicCapture.afterAdmission(this, job, couldAdd);'),
++        ('            eventQueue.add(new JobArrivalEvent(job,this));',
++         '\n            fogsim.adapter.DynamicCapture.afterGeneratedArrival(this, job);'),
++        ('        this.eventQueue.add(event);',
++         '\n        fogsim.adapter.DynamicCapture.afterStage(this, event);'),
++    ],
++    'mengxu/simulation/DynamicSimulation.java': [
++        ('            nextEvent.trigger(nextEvent.getMobileDevice()); //nextEvent includes many different types of events',
++         '\n            fogsim.adapter.DynamicCapture.afterEvent(this);'),
++    ],
++}
++
++
++def observation_overlay(relative, original):
++    result = original
++    for anchor, addition in EDITS[relative]:
++        anchored = '\n' + anchor + '\n'
++        if 'afterGeneratedArrival' in addition:
++            anchored = '        if(couldAdd){\n            numJobsReleased++;\n//        this.systemState.addAllNumJobsReleased();\n' + anchor + '\n'
++        if result.count(anchored) != 1:
++            raise RuntimeError(f'expected one observation anchor in {relative}: {anchor}')
++        replacement = addition + anchor if 'beforeClear' in addition else anchor + addition
++        if 'afterGeneratedArrival' in addition:
++            result = result.replace(anchored, anchored.rstrip('\n') + addition + '\n', 1)
++        else:
++            result = result.replace(anchored, '\n' + replacement + '\n', 1)
++    return result
++
++
++def compile_dynamic(output, explicit=None):
++    output = Path(output).resolve(); output.mkdir(parents=True, exist_ok=True)
++    executable = explicit or os.environ.get('FOGSIM_JAVA') or shutil.which('java')
++    if not executable:
++        raise RuntimeError('JDK 17 missing: pass --java or set FOGSIM_JAVA')
++    java = Path(executable).resolve()
++    version = reference_jdk(java)
++    integrity = json.loads((ROOT / 'outputs/source-integrity-v2.json').read_text())['files']
++    for relative, expected in integrity.items():
++        if sha(ORIGINAL / relative) != expected:
++            raise RuntimeError(f'original source changed: {relative}')
++    mains = sorted((ROOT / 'tools/java/step4').rglob('*.java'))
++    codec = ROOT / 'tools/java/src/fogsim/adapter/Json.java'
++    jars = sorted(p for p in (ORIGINAL / 'libraries').glob('*.jar') if 'javadoc' not in p.name)
++    hashes = {str(p.relative_to(ROOT)): sha(p) for p in
++              [*sorted((ORIGINAL / 'src').rglob('*.java')), *jars, *mains, codec,
++               ROOT / 'tools/java_dynamic_support.py', ROOT / 'tools/export_java_dynamic.py',
++               ROOT / 'tools/dynamic_export_contract.py']}
++    fingerprint = hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
++    javac = java.with_name('javac.exe' if java.suffix == '.exe' else 'javac')
++    compiler = [str(javac)] if javac.is_file() else [str(java), '-m', 'jdk.compiler/com.sun.tools.javac.Main']
++    classpath = os.pathsep.join(str(p) for p in jars)
++    builds = {}
++    for kind in ('baseline', 'observed'):
++        folder = output / kind; folder.mkdir(exist_ok=True)
++        overlay = folder / 'overlay'; patches = []
++        if kind == 'observed':
++            for relative in EDITS:
++                source = ORIGINAL / 'src' / relative
++                original = source.read_text(encoding='utf-8')
++                modified = observation_overlay(relative, original)
++                target = overlay / relative; target.parent.mkdir(parents=True, exist_ok=True)
++                target.write_text(modified, encoding='utf-8')
++                diff = ''.join(difflib.unified_diff(original.splitlines(True), modified.splitlines(True),
++                               fromfile=f'original/{relative}', tofile=f'overlay/{relative}'))
++                patch = folder / (source.stem + '.patch'); patch.write_text(diff, encoding='utf-8')
++                patches.append({'source': relative, 'original_sha256': sha(source),
++                                'overlay_sha256': sha(target), 'patch_sha256': sha(patch)})
++        classes = folder / 'classes' / fingerprint[:16]; classes.mkdir(parents=True, exist_ok=True)
++        sourcepath = os.pathsep.join(map(str, [overlay, ORIGINAL / 'src', ROOT / 'tools/java/step4']))
++        command = [*compiler, '-encoding', 'UTF-8', '-cp', classpath, '-sourcepath', sourcepath,
++                   '-d', str(classes), *map(str, mains), str(codec)]
++        result = subprocess.run(command, capture_output=True, text=True, timeout=60)
++        (folder / 'javac-stdout.txt').write_text(result.stdout)
++        (folder / 'javac-stderr.txt').write_text(result.stderr)
++        builds[kind] = {'command': command, 'exit_code': result.returncode, 'patches': patches,
++                        'classpath': os.pathsep.join([str(classes), classpath])}
++        if result.returncode:
++            raise RuntimeError(f'{kind} compilation failed: see {folder}/javac-stderr.txt')
++    manifest = {'fingerprint': fingerprint, 'reference_jdk': version, 'inputs': hashes,
++                'compiler_executable_sha256': sha(javac if javac.is_file() else java),
++                'compiler_modules_sha256': sha(java.parent.parent / 'lib/modules') if not javac.is_file() else None,
++                'original_integrity_files': len(integrity), 'builds': builds}
++    (output / 'build-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
++    return java, manifest

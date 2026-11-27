@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "schema_version",
+    "trial_id",
+    "evolution_seed",
+    "training_status",
+    "validation_status",
+    "test_status",
+    "status"
+  ],
+  "properties": {
+    "format": {
+      "const": "fogsim.evolution-result"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "implementation": {
+      "type": "string"
+    },
+    "trial_id": {
+      "type": "string"
+    },
+    "mode": {
+      "type": "string"
+    },
+    "training_status": {
+      "type": "string"
+    },
+    "validation_status": {
+      "type": "string"
+    },
+    "test_status": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "evolution_rng_id": {
+      "type": "string"
+    },
+    "evolution_seed": {
+      "type": "integer"
+    },
+    "generations_evaluated": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "completed_simulations": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "attempted_simulations": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "candidate_archive_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "selected_rule_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "interruption": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "INCOMPLETE"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "interruption"
+        ]
+      },
+      "else": {
+        "required": [
+          "format",
+          "schema_version",
+          "implementation",
+          "trial_id",
+          "mode",
+          "training_status",
+          "validation_status",
+          "test_status",
+          "status",
+          "evolution_rng_id",
+          "evolution_seed",
+          "generations_evaluated",
+          "completed_simulations",
+          "attempted_simulations",
+          "candidate_archive_ref",
+          "selected_rule_ref"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "instance_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/data/cases/chain_remote.json",
+  "instance_sha256": "4ed329d7af7b39cf39c4c5f9b31f56fe502807350dab25b15050415e937e33d4",
+  "config_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/configs/chain_fcfs.json",
+  "config_file_sha256": "7aedf10b7187472c28cff9a77f0387eebe66a098e52f40f4c565c441bf643a78",
+  "effective_config": {
+    "routing_kind": "fcfs",
+    "fixed_resource_id": null,
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "java_build_fingerprint": "a69f3c65cce9eae3111d7c15f95c3aeac49946d2308df8c02d594ec8b189b921",
+  "resource_ids": [
+    [
+      "M0",
+      "MOBILE",
+      0
+    ],
+    [
+      "E0",
+      "EDGE",
+      0
+    ],
+    [
+      "C0",
+      "CLOUD",
+      1
+    ]
+  ],
+  "devices": [
+    "M0"
+  ],
+  "task_ids": [
+    {
+      "workflow_id": 0,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 0,
+      "string_id": "B",
+      "java_numeric_id": 1,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    }
+  ],
+  "initial_stage_order": [
+    [
+      0,
+      "M0",
+      0.0
+    ]
+  ],
+  "raw_trace_sha256": {
+    "python-raw.json": "aea47366aab66cbb2607e412bc3afaa20a8c5493623c074a89bf167b21369804",
+    "java-raw.json": "56eb05586e3b27842d7d3005956b6aad67e30caea2bd4403fdaacd090ff43f98"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "schema_version",
+    "trial_id",
+    "candidate_archive_id",
+    "selection_policy",
+    "validation_plan_id",
+    "validation_evaluation_id",
+    "rule_pair_id",
+    "selected_rule_id",
+    "candidate_index",
+    "validation_fitness",
+    "rules",
+    "rule_manifest",
+    "trees"
+  ],
+  "properties": {
+    "format": {
+      "const": "fogsim.selected-rule"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "trial_id": {
+      "type": "string"
+    },
+    "candidate_archive_id": {
+      "type": "string"
+    },
+    "selection_policy": {
+      "type": "string"
+    },
+    "validation_plan_id": {
+      "type": "string"
+    },
+    "validation_evaluation_id": {
+      "type": "string"
+    },
+    "rule_pair_id": {
+      "type": "string"
+    },
+    "selected_rule_id": {
+      "type": "string"
+    },
+    "candidate_index": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "validation_fitness": {
+      "type": "number",
+      "minimum": 0
+    },
+    "rules": {
+      "type": "object"
+    },
+    "rule_manifest": {
+      "type": "object"
+    },
+    "trees": {
+      "type": "object"
+    }
+  }
+}

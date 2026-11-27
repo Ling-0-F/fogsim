@@ -1,0 +1,126 @@
+{
+  "time_unit": "s",
+  "resources": [
+    {
+      "id": "M0",
+      "type": "MOBILE",
+      "can_process_tasks": true
+    },
+    {
+      "id": "E0",
+      "type": "EDGE"
+    },
+    {
+      "id": "C0",
+      "type": "CLOUD"
+    }
+  ],
+  "workflows": [
+    {
+      "id": 0,
+      "owner_device_id": "M0",
+      "release_time": 87.416080723558,
+      "tasks": [
+        {
+          "id": "Z",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0.0,
+              "processing_time": 43.18963541747555,
+              "download_time": 0.0
+            },
+            "E0": {
+              "upload_time": 6.289208505337575,
+              "processing_time": 24.84072446777626,
+              "download_time": 6.427701879494876
+            },
+            "C0": {
+              "upload_time": 12.57841701067515,
+              "processing_time": 9.30668083656964,
+              "download_time": 25.710807517979504
+            }
+          }
+        },
+        {
+          "id": "a",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0.0,
+              "processing_time": 44.75870486377442,
+              "download_time": 0.0
+            },
+            "E0": {
+              "upload_time": 13.404202181028088,
+              "processing_time": 25.743182231301287,
+              "download_time": 13.265708806870787
+            },
+            "C0": {
+              "upload_time": 26.808404362056176,
+              "processing_time": 9.644790394707007,
+              "download_time": 53.06283522748315
+            }
+          }
+        }
+      ],
+      "dependencies": [
+        [
+          "Z",
+          "a"
+        ]
+      ]
+    },
+    {
+      "id": 1,
+      "owner_device_id": "M0",
+      "release_time": 262.7770086146495,
+      "tasks": [
+        {
+          "id": "Z",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0.0,
+              "processing_time": 43.70576005183927,
+              "download_time": 0.0
+            },
+            "E0": {
+              "upload_time": 14.41149833608384,
+              "processing_time": 25.137576008877094,
+              "download_time": 14.601704287495657
+            },
+            "C0": {
+              "upload_time": 28.82299667216768,
+              "processing_time": 9.417897502269271,
+              "download_time": 58.40681714998263
+            }
+          }
+        },
+        {
+          "id": "a",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0.0,
+              "processing_time": 65.08997071111119,
+              "download_time": 0.0
+            },
+            "E0": {
+              "upload_time": 11.140413071173521,
+              "processing_time": 37.43680659541087,
+              "download_time": 10.950207119761703
+            },
+            "C0": {
+              "upload_time": 22.280826142347042,
+              "processing_time": 14.025855444588172,
+              "download_time": 43.800828479046814
+            }
+          }
+        }
+      ],
+      "dependencies": [
+        [
+          "Z",
+          "a"
+        ]
+      ]
+    }
+  ]
+}

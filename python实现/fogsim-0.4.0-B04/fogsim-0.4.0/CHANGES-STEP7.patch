@@ -1,0 +1,1556 @@
+diff --git a/README.md b/README.md
+index 206f8b8..f5361a3 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,8 @@
+-# 雾计算工作流调度复现：0.2.1 step6 开发快照
++# 雾计算工作流调度复现：0.2.1 step7 开发快照
+ 
+-> **step6 当前状态**：生产动态重放、严格输入校验、参考/复用模式限制、覆盖诊断及旧固定投影已实现；复用第5步真实动态内核。127项新增、Python单元/集成共797项通过。本轮V17–V19逐例结果、Java实际执行范围、命令及边界见[第6步记录](docs/STEP6-PROGRESS.md)和`outputs/step6/current-validation.json`。实际边清理、完整CLI/批次和完整V01留第7步。
++> **step7 当前状态**：工作流级实际边映射清理、三种动态重复模式与重放独立游标、完整新CLI及Python独立输入导出已实现。V20/V21及完整V01的本轮实际结果见 [第7步记录](docs/STEP7-PROGRESS.md) 与 `outputs/step7/current-validation.json`。旧固定API/CLI/repeat、冻结调度及RNG语义保持。
++
++> step6 历史快照：生产动态重放、严格输入校验、参考/复用模式限制、覆盖诊断及旧固定投影已实现；复用第5步真实动态内核。127项新增、Python单元/集成共797项通过。本轮V17–V19逐例结果、Java实际执行范围、命令及边界见[第6步记录](docs/STEP6-PROGRESS.md)和`outputs/step6/current-validation.json`。实际边清理、完整CLI/批次和完整V01留第7步。
+ 
+ > step5 历史快照：集中接纳、动态 Arrival、Java 兼容统计、明确失败和 Context 生命周期已实现。80 项新增及 Python 共 670 项通过；50 项原 Java 探针、9 个受控业务案例通过。API、诊断保护的验证范围和参考字段勘误见 [第 5 步记录](docs/STEP5-PROGRESS.md)。其后续实现与当前状态以第6步记录为准。
+ 
+diff --git a/configs/examples/step7_dynamic_rerun.json b/configs/examples/step7_dynamic_rerun.json
+new file mode 100644
+index 0000000..93c3f3e
+--- /dev/null
++++ b/configs/examples/step7_dynamic_rerun.json
+@@ -0,0 +1,34 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 1,
++  "mode": "dynamic",
++  "source": {
++    "seed": 7,
++    "dag_root": "../../examples/step5/dax",
++    "workflow_types": {
++      "lower": 0,
++      "upper": 0
++    },
++    "environment": {
++      "num_mobile_devices": 1,
++      "num_edge_servers": 1,
++      "num_cloud_servers": 1,
++      "can_mobile_devices_process_tasks": true
++    }
++  },
++  "run": {
++    "num_jobs_recorded": 1,
++    "warmup_jobs": 1,
++    "max_events": 1000,
++    "check_invariants": true,
++    "trace_enabled": true,
++    "edge_data_policy": "release_after_materialization"
++  },
++  "repeat": {
++    "count": 3,
++    "mode": "java_rerun"
++  },
++  "output": {
++    "dataset_role": "debug"
++  }
++}
+diff --git a/configs/examples/step7_dynamic_seeds.json b/configs/examples/step7_dynamic_seeds.json
+new file mode 100644
+index 0000000..f241346
+--- /dev/null
++++ b/configs/examples/step7_dynamic_seeds.json
+@@ -0,0 +1,38 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 1,
++  "mode": "dynamic",
++  "source": {
++    "dag_root": "../../examples/step5/dax",
++    "workflow_types": {
++      "lower": 0,
++      "upper": 0
++    },
++    "environment": {
++      "num_mobile_devices": 1,
++      "num_edge_servers": 1,
++      "num_cloud_servers": 1,
++      "can_mobile_devices_process_tasks": true
++    }
++  },
++  "run": {
++    "num_jobs_recorded": 1,
++    "warmup_jobs": 1,
++    "max_events": 1000,
++    "check_invariants": true,
++    "trace_enabled": true,
++    "edge_data_policy": "release_after_materialization"
++  },
++  "repeat": {
++    "count": 3,
++    "mode": "fresh_seed_list",
++    "seeds": [
++      7,
++      -1,
++      42
++    ]
++  },
++  "output": {
++    "dataset_role": "debug"
++  }
++}
+diff --git a/configs/examples/step7_replay_repeat.json b/configs/examples/step7_replay_repeat.json
+new file mode 100644
+index 0000000..c25fe0d
+--- /dev/null
++++ b/configs/examples/step7_replay_repeat.json
+@@ -0,0 +1,16 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 1,
++  "mode": "replay",
++  "source": {
++    "purpose": "verify_reference",
++    "input_path": "../../outputs/step4/cases/minimal_chain/input.json",
++    "reference_path": "../../outputs/step4/cases/minimal_chain/reference.json"
++  },
++  "run": {
++    "edge_data_policy": "release_after_materialization"
++  },
++  "repeat": {
++    "count": 2
++  }
++}
+diff --git a/docs/IMPLEMENTATION-NOTES.md b/docs/IMPLEMENTATION-NOTES.md
+index 03fd75f..9de75ae 100644
+--- a/docs/IMPLEMENTATION-NOTES.md
++++ b/docs/IMPLEMENTATION-NOTES.md
+@@ -245,3 +245,8 @@
+ ## N33：第6步生产重放与固定投影（2026-11-05）
+ 
+ 输入加载独立于tools，元数据用不可变JSON文本保存并返回脱离副本；已验证的结构解码通过生产dataclass再次约束。Option时长显式转换binary64，不重算公式。参考只在引擎结束后读取；原manifest绑定完整验收。新的ReplayEngine仅扩展观察快照/结果，循环仍继承DynamicEngine。固定投影标记单独存清单，保持旧严格JSON。详见 [STEP6-PROGRESS](STEP6-PROGRESS.md)。
++
++
++## N34：第7步清理、批次与CLI（2026-11-05）
++
++完整工作流预检后一次性释放运行映射；归档中保留完整记录。批次不持有旧运行图，保存脱离的结果和不可变输入；显式RNG/B延续、失败分母与完整检查点。Python分布标识与Java分别校验，不假称同一算法。完整V01采用现有真实Java适配器/组件oracle，能力检查仅补足已有compiler模块；不改变调度预期。详见 [STEP7-PROGRESS](STEP7-PROGRESS.md)。
+diff --git a/docs/ISSUES-AND-FIXES.md b/docs/ISSUES-AND-FIXES.md
+index 8382fc5..200dfe9 100644
+--- a/docs/ISSUES-AND-FIXES.md
++++ b/docs/ISSUES-AND-FIXES.md
+@@ -129,3 +129,10 @@ require(finish > self.start_time,
+ ## 第6步：来源失败与比较范围（2026-11-05）
+ 
+ 读取游标、成功核对attempt数、正式接纳G分别保留；失败时不得将它们混为同一计数。换规则后的有限输入不足明确诊断，不能补采样或判定为调度错误。完整捕获不表示无限覆盖。延续第5步producer字段owner映射，不修改历史参考；V16没有pre-trigger/staging数据，报告明确限制。空成功接纳集无法进入旧非空固定格式，导出报错并单列表示边界。新测试初轮的未知dataclass参数异常预期错误已修正为正式配置入口测试；旧预期未改。详见 [STEP6-PROGRESS](STEP6-PROGRESS.md)。
++
++
++## 第7步：正式开放清理与输出完整性（2026-11-05）
++
++两项历史“未实现清理应拒绝”预期随本轮能力开放更新，未改调度数值/参考。固定CLI导出开发试运行的重复schema_version关键字已修正，完整CLI链路已测试。程序异常不沿用旧成功输出，新批次保留INCOMPLETE检查点。清理预检实测会增加峰值和耗时，不把释放成功描述为加速。详见 [STEP7-PROGRESS](STEP7-PROGRESS.md)。
++
++完整V01首轮发现结果采集新增清理诊断访问了旧统计测试替身不存在的config；修正为仅在提供cleanup_totals时采集。原测试及统计数值预期未改，首次失败XML/控制台保留于outputs/step7/v01-first。
+diff --git a/docs/STEP7-PROGRESS.md b/docs/STEP7-PROGRESS.md
+new file mode 100644
+index 0000000..ed008d3
+--- /dev/null
++++ b/docs/STEP7-PROGRESS.md
+@@ -0,0 +1,82 @@
++# 冻结设计实施记录：第 7 步
++
++日期：2026-11-05，America/Los_Angeles。直接基线为本对话交付的 `fogsim-0.2.1-step6.zip`，SHA-256 `0c419cc5623a6166be4c2b104322ccc6c573448de96e1990b0fd633fa47909ab`。在独立工作副本实施，保留第6步ZIP及原8份来源；未搜索其他私人文件。冻结设计按确认状态执行。
++
++## 范围与实际改动
++
++| 模块 | 实际作用 |
++| --- | --- |
++| `simulation/cleanup.py` | 工作流级原子预检；仅释放两张运行时边映射，返回首次任务数、映射条目数和幂等/不可用状态 |
++| `simulation/admission.py`、`dynamic.py`、`dynamic_result.py` | 候选/接纳完整归档后、发出Arrival前执行显式清理策略；保存清理计数；原事件/调度/保护次序不变 |
++| `simulation/context.py`、`replay/engine.py` | 开放已配置的release_after_materialization；随机、重放均可使用；默认retain保留 |
++| `experiments/runner.py` | fresh_same_seed、fresh_seed_list、java_rerun及重放same_input；结果快照、失败分母、均值/标准差和未完成检查点 |
++| `replay/export_input.py`、`replay/loader.py` | Python完整观察输入导出为独立schema-v1；明确Python分布标识，支持单独重放；不把Python采样器标作Java采样器 |
++| `cli.py`、`io.py` | dynamic/replay/export-fixed、显式覆盖、独立输入文件、原子结果/检查点；旧固定入口和repeat输出格式保留 |
++| `tools/java_support.py`、`validate.py` | V01能力检查认可本机已有jdk.compiler；缺失XML/失败运行不能沿用旧成功清单；Java原方法不变 |
++| 测试、`tools/check_step7.py`、配置示例 | V20/V21、实际CLI进程、跨语言清理等价、准备阶段内存/时间测量和完整V01证据 |
++
++旧四事件、两层堆、规则比较、共享RNG、signed64 seed、B延续、拒绝不重抽、物理/统计完成集合及预算/保护顺序未改。不实现GP或论文训练。
++
++## 边数据释放（V20）
++
++`release_edge_data(workflow, archive)`在任何写入前核验整张工作流：独立完整候选与成功接纳、身份/顺序、父子规范引用、全部选项及物理字段、两端边数据值和顺序、映射不别名。预检末任务失败时，前面任务的映射也不改变。清理仅将input_data_by_parent/output_data_by_child置None并标RELEASED；保留任务、选项、拓扑、总量、执行和完成记录。固定UNAVAILABLE跳过；重复调用不重复计数。`task.edge_data()`对RELEASED明确报错。
++
++自动策略在本工作流完整记录入档后执行，不要求整轮capture完成。随机及重放同样走集中接纳；不抽数、不推进时钟、不增加事件。retain/release的全部调度事实、完整trace、统计、归档及RNG末态已做等价检查；独立Java diamond参考在两种策略、各两轮下均核对。
++
++内存测量仅覆盖300任务链的新建/生成/建图/初始化，不运行事件。实际current/peak/elapsed数值见`outputs/step7/checks/checks.json`。运行映射条目由598变0；这不意味着整图/归档/trace被回收，也不表示全程加速或峰值下降。本轮观察到释放模式当前占用降低，但预检带来的峰值和耗时增加。完整运行性能未测量。
++
++## 批次与汇总（V21）
++
++```python
++from fogsim import load_experiment_config, run_experiment
++batch = run_experiment(load_experiment_config("configs/examples/step7_dynamic_rerun.json"))
++print(batch.status, batch.succeeded_runs, batch.failed_runs, batch.all_runs_mean)
++```
++
++- fresh_same_seed每轮新建上下文，属于可重复性检查，不是独立随机重复。
++- fresh_seed_list严格使用完整signed64列表，每轮重新采环境；不使用seed+序号。
++- java_rerun首次fresh，随后同上下文继续RNG/B、复用环境数值并重建对象；最后一轮后不额外reset、prepare或rotate。
++- 重放每轮独立Engine/游标，从同一不可变记录起点开始；完整原记录保留，实际消费位置逐轮单列。
++
++输入/配置错误在采样前拒绝。准备/运行领域失败归一化为FAILED并继续既定下一轮；java_rerun保留实际失败位置的流/B，不宣称对应Java异常尾部。未知程序异常原样传播并中止。`on_progress`提供INCOMPLETE前缀和最终快照；CLI未知异常留下batch_complete=false、原异常类型及空all_runs_mean，不遗留旧成功。
++
++每轮保存公开seed、实际环境指纹、初始B、RNG边界指纹、来源消费/覆盖、场景指纹及状态。动态输入导出只读完整归档，包含拒绝/未到达/未完成者；关闭trace仍保留任务事实和完整输入。没有完整环境的准备失败不能伪造独立input，inputs相应位置为空并保留失败原因；部分生成的捕获complete=false，完整加载器拒绝。
++
++运行结果的SUCCEEDED/FAILED保留模拟器事实。verify_reference比较在运行结束后进行；参考缺失轨迹/溯源/首差会另外记录verification_failures，批次返回失败，不修改原运行指标冒充调度失败。只有计划全部完成、全部正常、所需参考验证通过且场景兼容时才提供all_runs_mean。mean_over_successes同时给成功分母；failure_rate分母为已取得完整结果的运行数；not_run表示尚无完整结果的计划位置，中断信息另列。成功数不足2不提供样本标准差。若跨fresh轮次的DAX内容改变，禁止混合汇总，明确aggregation_compatible=false。
++
++## 命令入口
++
++```bash
++python -m fogsim dynamic --config configs/examples/step7_dynamic_rerun.json --output outputs/my-batch.json --archive-dir outputs/my-inputs
++python -m fogsim dynamic --config configs/examples/step7_dynamic_seeds.json --no-trace --output outputs/my-seeds.json
++python -m fogsim replay --config configs/examples/step7_replay_repeat.json --output outputs/my-verified.json
++python -m fogsim replay --input outputs/my-inputs/run-000000.input.json --repeat 2 --output outputs/my-replay.json
++python -m fogsim export-fixed --input outputs/my-inputs/run-000000.input.json --output outputs/my-fixed.json
++python -m fogsim --instance outputs/my-fixed.json --repeat 2 --output outputs/my-fixed-results.json
++```
++
++旧`--instance`/`--config`仍只接受旧固定格式，输出及identical判断保留。新命令不猜配置mode。dynamic允许显式seed覆盖；replay不接受seed/N/W/环境覆盖。dynamic多轮没有显式repeat.mode时在采样前报错，CLI也不把单轮默认模式暗中扩成多轮。规则覆盖仍受verify_reference/reuse_inputs限制。
++
++配置内路径相对配置文件，直接CLI路径相对cwd。输出不能覆盖输入、配置、参考及DAX源目录。结果和独立输入原子写入；archive-dir的batch-manifest列明本批实际文件，不能将旧的未列文件算作本批。固定导出附独立.projection.json，明确fixed_projection、损失、完整状态和哈希；原固定JSON没有新增字段。退出码0正常、1运行/批次或要求的参考验证失败、2输入/配置错误；未知程序异常传播。
++
++## 实际验证与命令
++
++最终逐项结果为`outputs/step7/current-validation.json`。针对性首轮198项通过，补充场景兼容和源目录保护后200项通过，0失败/错误/跳过；其中第7步新增37项。完整测试计数以正式XML为准。
++
++```bash
++PYTHONPATH=../../test-deps:src python -m pytest -q tests/unit/test_step7.py tests/unit/test_dynamic_context.py tests/unit/test_replay.py --junitxml=outputs/step7/targeted-final.xml
++LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib:/usr/lib/jvm/java-17-openjdk-amd64/lib/server PYTHONPATH=src python tools/check_step7.py
++LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib:/usr/lib/jvm/java-17-openjdk-amd64/lib/server PYTHONPATH=../../test-deps:src python tools/validate.py
++```
++
++当前环境为CPython3.12.14、pytest9.2.0、Ubuntu OpenJDK17.0.20+8；无javac launcher，实际使用jdk.compiler。常规JDK17可省略上述库路径，安装`.[test]`后可省略外部test-deps。完整JDK/源码/JAR/编译命令/原始输出指纹见本轮构建清单。
++
++V01正式结果在`outputs/pytest-results.xml`、`outputs/validation-manifest.json`、`outputs/parity/`、`outputs/v2/`及`outputs/java_oracle/`。旧同名证据在重跑前复制至`outputs/history-step6-before-v01/`，第4步参考原件不改。正常跨语言通过、预期精度差异及基础设施/未执行分别报告；原精度反例不得改成正常通过。
++
++仅更新了两处旧测试中“清理尚未实现应拒绝”的阶段性预期：现在检查已开放的能力；所有旧调度数值、轨迹、固定输入和Java参考预期保留。开发端到端试运行发现固定导出元数据合并重复schema_version导致TypeError，已修复为明确字典合并并增加端到端CLI检查。完整V01首轮971通过/1失败：新增清理诊断要求旧统计测试替身不存在的config字段；已仅在Engine提供清理诊断时采集，未改原统计预期。首轮原始报告保存在outputs/step7/v01-first；没有修改调度或参考数据。
++
++## 交付与边界
++
++相对第6步的补丁为`CHANGES-STEP7.patch`，文件清单为`STEP7-FILES.json`。独立应用补丁/ZIP导入和动态→重放→固定入口的可继续开发检查随包保存。
++
++未发现必须调整冻结设计的冲突。现有Java固定适配器仍仅FCFS/fixed_resource和物理占位；本轮完整V01不扩大为任意输入、GP或论文实验等价。第6步两个大型固定投影仍未执行，本轮不为完成V01重复展开它们；完整运行性能也未测量。
+diff --git a/docs/VALIDATION.md b/docs/VALIDATION.md
+index 36d0f11..7ce2374 100644
+--- a/docs/VALIDATION.md
++++ b/docs/VALIDATION.md
+@@ -1,5 +1,7 @@
+ # 0.2 固定实例完整验收记录
+ 
++> step7 当前验证见 [STEP7-PROGRESS](STEP7-PROGRESS.md)、`outputs/step7/current-validation.json`及本轮V01正式XML/清单。历史同名固定证据重跑前另存outputs/history-step6-before-v01；不覆盖第4步动态参考。
++
+ > step6当前证据见 [STEP6-PROGRESS](STEP6-PROGRESS.md) 和 `outputs/step6/`：127项新增、Python单元/集成797项通过；生产重放和同投影Java固定入口的逐例结果见current-validation.json。以下旧阶段结果保留原范围。
+ 
+ > step5 真实证据见 [STEP5-PROGRESS](STEP5-PROGRESS.md)、`outputs/step5/` 和 `outputs/step5-final/`。80 项新增及 Python 共 670 项通过；50 项新运行原 Java 探针、9 案例受控 sampler 业务对照通过。大型 FCFS 对照使用经等价检查的诊断模式，未声称完整生产重放/任意规则保护或完整 V01 通过。
+diff --git a/docs/roadmap.md b/docs/roadmap.md
+index 323c6f3..7bce725 100644
+--- a/docs/roadmap.md
++++ b/docs/roadmap.md
+@@ -1,5 +1,7 @@
+ # 进度与后续工作
+ 
++2026-11-05（step7）：实际边清理、Python输入导出、完整CLI与显式批次编排已实施，V20/V21与完整V01结果见 [STEP7-PROGRESS](STEP7-PROGRESS.md)。GP/论文实验及两个大型固定投影不在本轮范围。
++
+ 2026-11-05（step6）：生产重放、严格输入/模式/覆盖诊断、固定投影及V17–V19对照已接入。当前结果与第7步衔接见 [STEP6-PROGRESS](STEP6-PROGRESS.md)。下一步实际边清理、完整CLI/批次及完整V01；不进入GP。
+ 
+ 2026-11-05（step5）：动态集中接纳、Arrival、物理/Java 统计集合分离、停止/保护、Context 生命周期已实现。80 项新增及 Python 共 670 项通过；50 项原 Java 组件/生命周期、9 案例受控业务对照通过。具体诊断模式和参考字段映射见 [STEP5-PROGRESS](STEP5-PROGRESS.md)。下一步第 6 步为生产重放、覆盖不足和固定投影；实际清理/CLI/批次/完整 V01 留到第 7 步。
+diff --git a/docs/semantics.md b/docs/semantics.md
+index 39f223d..14b9041 100644
+--- a/docs/semantics.md
++++ b/docs/semantics.md
+@@ -1,5 +1,7 @@
+ # 当前语义基线
+ 
++第7步开放显式release_after_materialization：完整归档后、Arrival前释放两张运行映射，调度事实和RNG不变。批次fresh_same_seed/fresh_seed_list/java_rerun及重放独立游标已编排；新命令与旧固定入口显式区分。完整合同见 [STEP7-PROGRESS](STEP7-PROGRESS.md)。
++
+ 第6步重放复用动态集中接纳和原事件循环；逐次读取全局attempt、重算release gate，再核对观察值；不采样、不依赖参考输出。正常停止可留尾记录；参考比较在执行结束后进行。固定投影只保留成功接纳记录，固定全集指标独立于动态统计窗口。范围与错误合同见 [STEP6-PROGRESS](STEP6-PROGRESS.md)。
+ 
+ 第 5 步动态语义已接入：集中接纳、每 Arrival 一次后续尝试、物理 completed 与 Java recorded 集合分离、B 赋值可下降、事件后保护与最后一次归并、保留环境/B 的 reset/rerun/rotate_seed。固定路径仍保留旧语义。API、失败合同、实际验证边界及旧参考 producer 字段勘误见 [STEP5-PROGRESS](STEP5-PROGRESS.md)。
+diff --git a/references/java/Fog-Computing-multiDeviceDebug/.idea/misc.xml b/references/java/Fog-Computing-multiDeviceDebug/.idea/misc.xml
+new file mode 100644
+index 0000000..9e76e6f
+--- /dev/null
++++ b/references/java/Fog-Computing-multiDeviceDebug/.idea/misc.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="openjdk-17" project-jdk-type="JavaSDK">
++    <output url="file://$PROJECT_DIR$/out" />
++  </component>
++</project>
+\ No newline at end of file
+diff --git a/src/fogsim/__init__.py b/src/fogsim/__init__.py
+index 5875b7d..dfdd509 100644
+--- a/src/fogsim/__init__.py
++++ b/src/fogsim/__init__.py
+@@ -27,3 +27,12 @@ from .replay import (ReplayInput, ReplayInputError, load_replay_input, parse_rep
+ __all__ += ["ReplayInput", "ReplayInputError", "load_replay_input", "parse_replay_input",
+     "create_replay_engine", "simulate_replay", "simulate_replay_config", "export_fixed_instance",
+     "fixed_projection_metadata", "audit_formulas"]
++
++from .simulation.cleanup import release_edge_data, CleanupReport
++__all__ += ["release_edge_data", "CleanupReport"]
++
++from .replay.export_input import export_replay_input
++__all__ += ["export_replay_input"]
++
++from .experiments import ExperimentResult, run_experiment
++__all__ += ["ExperimentResult", "run_experiment"]
+diff --git a/src/fogsim/cli.py b/src/fogsim/cli.py
+index 5d876c3..6784665 100644
+--- a/src/fogsim/cli.py
++++ b/src/fogsim/cli.py
+@@ -5,10 +5,12 @@ from pathlib import Path
+ from fogsim import RunConfig, load_fixed_instance, simulate, __version__
+ from fogsim.config import load_config
+ from fogsim.errors import InputError
++from fogsim.io import write_json_atomic
+ 
+ 
+-def main(argv=None):
+-    parser = argparse.ArgumentParser(description=f"Fog workflow simulator {__version__}")
++def _fixed_main(argv=None):
++    parser = argparse.ArgumentParser(description=f"Fog workflow simulator {__version__}",
++                                     epilog="New commands: dynamic --help; replay --help; export-fixed --help")
+     parser.add_argument("--version", action="version", version=__version__)
+     group = parser.add_mutually_exclusive_group(required=True)
+     group.add_argument("--config", type=Path)
+@@ -18,7 +20,12 @@ def main(argv=None):
+     parser.add_argument("--output", type=Path)
+     parser.add_argument("--repeat", type=int, default=1, help="fresh object graph on every run")
+     args = parser.parse_args(argv)
++    protected = {p.resolve() for p in (args.config,args.instance) if p is not None}
+     try:
++        if args.output is not None and args.output.resolve() in protected:
++            raise InputError("output must not overwrite an input/config file")
++        if args.config is not None:
++            _protect_config_sources(args.config,protected,experiment=False)
+         if args.repeat < 1:
+             raise InputError("repeat must be positive")
+         path, config = load_config(args.config) if args.config else (args.instance, RunConfig())
+@@ -26,17 +33,184 @@ def main(argv=None):
+             config = replace(config, routing_kind="fixed_resource", fixed_resource_id=args.fixed_resource)
+         if args.no_trace:
+             config = replace(config, trace_enabled=False)
++        protected.add(path.resolve())
++        _clear_output(args.output,protected)
+         spec = load_fixed_instance(path)
+         results = [simulate(spec, config).to_dict() for _ in range(args.repeat)]
+         output = results[0] if args.repeat == 1 else {"runs": results, "identical": all(r == results[0] for r in results)}
+         text = json.dumps(output, ensure_ascii=False, indent=2, allow_nan=False)
+         if args.output:
+-            args.output.parent.mkdir(parents=True, exist_ok=True)
+-            args.output.write_text(text + "\n", encoding="utf-8")
++            write_json_atomic(args.output,output)
+             print(json.dumps({"output": str(args.output), "status": results[-1]["status"],
+                               "makespan": results[-1]["makespan"], "runs": args.repeat}, ensure_ascii=False))
+         else:
+             print(text)
+         return 0 if all(r["status"] == "SUCCEEDED" for r in results) else 1
+     except InputError as exc:
++        _clear_output(args.output,protected,allow_protected=True)
+         parser.exit(2, f"input error: {exc}\n")
++    except BaseException:
++        _clear_output(args.output,protected,allow_protected=True)
++        raise
++
++
++def _clear_output(path, protected, *, allow_protected=False):
++    if path is None: return
++    if _is_protected(path,protected):
++        if allow_protected: return
++        raise InputError("output must not overwrite an input/config/reference file")
++    if path.is_file() or path.is_symlink(): path.unlink()
++
++
++def _config_from_args(args):
++    from .instances.fixed import read_json
++    from .experiment_config import parse_experiment_config
++    if args.config is not None:
++        raw = read_json(args.config)
++        base = args.config.resolve().parent
++    else:
++        purpose = args.purpose or ('verify_reference' if args.reference is not None else 'reuse_inputs')
++        raw = dict(format='fogsim.experiment',schema_version=1,mode='replay',
++                   source=dict(input_path=str(args.input.resolve()),purpose=purpose))
++        if args.reference is not None:raw['source']['reference_path']=str(args.reference.resolve())
++        base = Path.cwd()
++    if not isinstance(raw,dict) or raw.get('mode')!=args.command:
++        raise InputError('configuration mode must match the explicit command')
++    # Modify the JSON before parsing, retaining the distinction between an
++    # explicit repeat mode and a single-run default expanded by the parser.
++    from copy import deepcopy
++    raw = deepcopy(raw)
++    if not isinstance(raw.get('source'),dict): raise InputError('source must be an object')
++    raw.setdefault('run',{});raw.setdefault('repeat',{});raw.setdefault('output',{})
++    if not all(isinstance(raw[k],dict) for k in ('run','repeat','output')):
++        raise InputError('run/repeat/output must be objects')
++    if getattr(args,'seed',None) is not None:raw['source']['seed']=args.seed
++    if getattr(args,'purpose',None) is not None:raw['source']['purpose']=args.purpose
++    if getattr(args,'reference',None) is not None:raw['source']['reference_path']=str(args.reference.resolve())
++    for name,key in (('repeat','count'),('repeat_mode','mode'),('seeds','seeds')):
++        value=getattr(args,name,None)
++        if value is not None:raw['repeat'][key]=value
++    if args.no_trace:raw['run']['trace_enabled']=False
++    if args.max_events is not None:raw['run']['max_events']=args.max_events
++    if args.edge_data_policy is not None:raw['run']['edge_data_policy']=args.edge_data_policy
++    if args.fixed_resource is not None:raw['run']['routing_rule']=dict(kind='fixed_resource',resource_id=args.fixed_resource)
++    if args.dataset_role is not None:raw['output']['dataset_role']=args.dataset_role
++    return parse_experiment_config(raw,base_dir=base)
++
++
++def _new_parser(command):
++    parser=argparse.ArgumentParser(prog='fogsim '+command,description='Versioned '+command+' entry')
++    if command=='export-fixed':
++        parser.add_argument('--input',required=True,type=Path)
++        parser.add_argument('--output',required=True,type=Path)
++        parser.add_argument('--manifest',type=Path,help='default: OUTPUT stem + .projection.json')
++        return parser
++    if command=='dynamic':parser.add_argument('--config',required=True,type=Path)
++    else:
++        source=parser.add_mutually_exclusive_group(required=True)
++        source.add_argument('--config',type=Path);source.add_argument('--input',type=Path)
++        parser.add_argument('--reference',type=Path)
++        parser.add_argument('--purpose',choices=('verify_reference','reuse_inputs'))
++    if command=='dynamic':
++        parser.add_argument('--seed',type=int)
++        parser.add_argument('--repeat-mode',choices=('fresh_same_seed','fresh_seed_list','java_rerun'))
++        parser.add_argument('--seeds',type=int,nargs='+')
++    parser.add_argument('--repeat',type=int)
++    parser.add_argument('--no-trace',action='store_true')
++    parser.add_argument('--max-events',type=int)
++    parser.add_argument('--edge-data-policy',choices=('retain','release_after_materialization'))
++    parser.add_argument('--fixed-resource')
++    parser.add_argument('--dataset-role',choices=('debug','train','test'))
++    parser.add_argument('--output',type=Path)
++    parser.add_argument('--archive-dir',type=Path,help='also save each standalone input.json')
++    return parser
++
++
++def _new_main(command, argv):
++    from .experiments import run_experiment
++    from .replay import load_replay_input,export_fixed_instance,fixed_projection_metadata
++    import hashlib
++    parser=_new_parser(command);args=parser.parse_args(argv);args.command=command
++    protected={p.resolve() for p in (getattr(args,'config',None),getattr(args,'input',None),getattr(args,'reference',None)) if p is not None}
++    latest=None
++    try:
++        if command=='export-fixed':
++            manifest=args.manifest or args.output.with_suffix('.projection.json')
++            if manifest.resolve()==args.output.resolve():raise InputError('manifest and fixed output must differ')
++            _clear_output(args.output,protected);_clear_output(manifest,protected)
++            inp=load_replay_input(args.input);spec=export_fixed_instance(inp)
++            meta=fixed_projection_metadata(inp) | dict(format='fogsim.fixed-projection',schema_version=1,complete=False,
++                      source_input_sha256=hashlib.sha256(args.input.read_bytes()).hexdigest())
++            write_json_atomic(manifest,meta);write_json_atomic(args.output,spec.to_dict())
++            meta.update(complete=True,fixed_input_sha256=hashlib.sha256(args.output.read_bytes()).hexdigest())
++            write_json_atomic(manifest,meta)
++            print(json.dumps(dict(status='SUCCEEDED',kind='fixed_projection',output=str(args.output),manifest=str(manifest))))
++            return 0
++        if args.config is not None:
++            _protect_config_sources(args.config,protected,experiment=True)
++        config=_config_from_args(args)
++        if config.mode=='replay':
++            protected.add(config.source.input_path.resolve())
++            if config.source.reference_path is not None:protected.add(config.source.reference_path.resolve())
++        _clear_output(args.output,protected)
++        def checkpoint(result):
++            nonlocal latest
++            latest=result.to_dict()
++            if args.archive_dir is not None:
++                for i,inp in enumerate(result.input_archives):
++                    if inp is None:continue
++                    path=args.archive_dir/f'run-{i:06d}.input.json'
++                    if _is_protected(path,protected):raise InputError('archive output would overwrite source input')
++                    if args.output is not None and path.resolve()==args.output.resolve():raise InputError('archive/result output collision')
++                    write_json_atomic(path,inp.to_dict())
++            if args.archive_dir is not None:
++                manifest=args.archive_dir/'batch-manifest.json'
++                if _is_protected(manifest,protected) or (args.output is not None and manifest.resolve()==args.output.resolve()):
++                    raise InputError('archive manifest would overwrite input/result')
++                write_json_atomic(manifest,dict(format='fogsim.batch-input-manifest',schema_version=1,
++                    batch_complete=result.batch_complete,planned_runs=result.planned_runs,
++                    files=[f'run-{i:06d}.input.json' for i,inp in enumerate(result.input_archives) if inp is not None]))
++            if args.output is not None:write_json_atomic(args.output,latest)
++        try:
++            result=run_experiment(config,on_progress=checkpoint)
++        except BaseException as exc:
++            if latest is not None and args.output is not None:
++                latest.update(batch_complete=False,status='INCOMPLETE',all_runs_mean=None,
++                              interruption=dict(type=type(exc).__name__,message=str(exc)))
++                write_json_atomic(args.output,latest)
++            raise
++        if args.output is None:print(json.dumps(result.to_dict(),ensure_ascii=False,indent=2,allow_nan=False))
++        else:print(json.dumps(dict(output=str(args.output),status=result.status,runs=len(result.runs),
++                                   succeeded_runs=result.succeeded_runs,failed_runs=result.failed_runs,not_run=result.not_run)))
++        return 0 if result.status=='SUCCEEDED' else 1
++    except InputError as exc:
++        if latest is None:_clear_output(args.output,protected,allow_protected=True)
++        parser.exit(2,f'input error: {exc}\n')
++    except BaseException:
++        if latest is None:_clear_output(args.output,protected,allow_protected=True)
++        raise
++
++
++def main(argv=None):
++    import sys
++    args=list(sys.argv[1:] if argv is None else argv)
++    if args and args[0] in ('dynamic','replay','export-fixed'):
++        return _new_main(args[0],args[1:])
++    return _fixed_main(args)
++
++
++def _protect_config_sources(path, protected, *, experiment):
++    from .instances.fixed import read_json
++    raw=read_json(path)
++    if not isinstance(raw,dict):return
++    source=raw.get('source') if experiment else raw
++    if not isinstance(source,dict):return
++    for key in ('input_path','reference_path','dag_root') if experiment else ('instance',):
++        value=source.get(key)
++        if isinstance(value,str) and value:
++            protected.add((path.resolve().parent/value).resolve())
++
++
++def _is_protected(path, protected):
++    resolved=path.resolve()
++    return any(resolved==source or (source.is_dir() and resolved.is_relative_to(source)) for source in protected)
+diff --git a/src/fogsim/experiment_config.py b/src/fogsim/experiment_config.py
+index 63de1b8..7fc068b 100644
+--- a/src/fogsim/experiment_config.py
++++ b/src/fogsim/experiment_config.py
+@@ -327,7 +327,7 @@ class ExperimentConfig:
+         return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+ 
+     def single_run(self, index=0):
+-        """Expand a seed-list row only; context lifecycle is not implemented here."""
++        """Expand one plan row; experiments.runner owns lifecycle orchestration."""
+         integer(index, "run index", 0, self.repeat.count - 1)
+         if self.mode == "replay":
+             return replace(self, repeat=RepeatConfig(mode="same_input"))
+diff --git a/src/fogsim/experiments/__init__.py b/src/fogsim/experiments/__init__.py
+new file mode 100644
+index 0000000..1f32569
+--- /dev/null
++++ b/src/fogsim/experiments/__init__.py
+@@ -0,0 +1,3 @@
++from .runner import ExperimentResult, run_experiment
++
++__all__ = ['ExperimentResult', 'run_experiment']
+diff --git a/src/fogsim/experiments/runner.py b/src/fogsim/experiments/runner.py
+new file mode 100644
+index 0000000..1edf27a
+--- /dev/null
++++ b/src/fogsim/experiments/runner.py
+@@ -0,0 +1,146 @@
++"""Explicit independent/fresh-seed/continuing-stream experiment orchestration."""
++from copy import deepcopy
++from dataclasses import dataclass
++import statistics
++import hashlib
++import json
++from dataclasses import asdict
++from fogsim.errors import InputError, PreparationError
++from fogsim.experiment_config import ExperimentConfig
++from fogsim.simulation.context import create_dynamic_context
++from fogsim.replay.loader import load_replay_input
++from fogsim.replay.engine import simulate_replay_config
++from fogsim.replay.export_input import export_replay_input
++
++METRICS = ('makespan', 'mean_flow_time')
++
++
++@dataclass(frozen=True)
++class ExperimentResult:
++    runs: tuple
++    input_archives: tuple
++    run_metadata: tuple
++    planned_runs: int
++    repeat_mode: str
++    config_fingerprint: str
++    effective_config: dict
++    batch_complete: bool
++    verification_required: bool = False
++
++    @property
++    def succeeded_runs(self):
++        return sum(r.status == 'SUCCEEDED' for r in self.runs)
++
++    @property
++    def failed_runs(self):
++        return sum(r.status == 'FAILED' for r in self.runs)
++
++    @property
++    def not_run(self):
++        return self.planned_runs - len(self.runs)
++
++    @property
++    def verification_failures(self):
++        if not self.verification_required:
++            return []
++        return [dict(run_index=i,classification=r.diagnostics.get('comparison_status','NOT_COMPARED'))
++                for i,r in enumerate(self.runs) if r.diagnostics.get('comparison_status')!='NORMAL_PARITY_PASSED']
++
++    @property
++    def aggregation_compatible(self):
++        return len({r['scene_fingerprint'] for r in self.run_metadata}) <= 1
++
++    @property
++    def status(self):
++        if not self.batch_complete: return 'INCOMPLETE'
++        return 'SUCCEEDED' if not self.not_run and not self.failed_runs and not self.verification_failures and self.aggregation_compatible else 'FAILED'
++
++    @property
++    def failure_reasons(self):
++        return [dict(run_index=i,reason_code=r.reason_code,reason=r.reason)
++                for i,r in enumerate(self.runs) if r.status=='FAILED']
++
++    def _metrics(self, function, minimum=1):
++        if not self.aggregation_compatible: return None
++        successful = [r for r in self.runs if r.status=='SUCCEEDED']
++        if len(successful)<minimum: return None
++        return {key:function(getattr(r,key) for r in successful) for key in METRICS}
++
++    @property
++    def all_runs_mean(self):
++        return self._metrics(statistics.mean) if self.status=='SUCCEEDED' else None
++
++    @property
++    def mean_over_successes(self):
++        return self._metrics(statistics.mean)
++
++    @property
++    def sample_stddev(self):
++        return self._metrics(statistics.stdev,2)
++
++    def to_dict(self):
++        return dict(format='fogsim.experiment-result',schema_version=1,status=self.status,batch_complete=self.batch_complete,
++            planned_runs=self.planned_runs,completed_runs=len(self.runs),succeeded_runs=self.succeeded_runs,
++            failed_runs=self.failed_runs,not_run=self.not_run,repeat_mode=self.repeat_mode,
++            config_fingerprint=self.config_fingerprint,aggregation_compatible=self.aggregation_compatible,effective_config=deepcopy(self.effective_config),
++            runs=[r.to_dict() for r in self.runs],inputs=[a.to_dict() if a is not None else None for a in self.input_archives],
++            run_metadata=deepcopy(list(self.run_metadata)),failure_reasons=self.failure_reasons,
++            verification_required=self.verification_required,verification_failures=self.verification_failures,
++            all_runs_mean=self.all_runs_mean,mean_over_successes=self.mean_over_successes,
++            success_denominator=self.succeeded_runs,sample_stddev_over_successes=self.sample_stddev,
++            failure_rate=self.failed_runs/len(self.runs) if self.runs else None,
++            failure_rate_denominator=len(self.runs),not_run_fraction=self.not_run/self.planned_runs,
++            aggregation_scope='same configured scene/statistics/rules; allowed seeds vary by explicit mode; successes are runtime successes')
++
++
++def run_experiment(config, *, on_progress=None):
++    """Run the validated plan; domain failures continue, unknown bugs propagate.
++
++    on_progress receives detached INCOMPLETE checkpoints and a final result.
++    No reset/rotation/preparation happens after the final planned run.
++    """
++    if type(config) is not ExperimentConfig:
++        raise InputError('run_experiment requires ExperimentConfig')
++    replay_input = load_replay_input(config.source.input_path) if config.mode=='replay' else None
++    if config.mode=='replay' and config.source.purpose=='verify_reference' and not config.source.reference_path.is_file():
++        raise InputError('reference file is missing')
++    runs, inputs, metadata = [], [], []
++    context = None
++    verification = config.mode=='replay' and config.source.purpose=='verify_reference'
++    def snapshot(complete=False):
++        return ExperimentResult(tuple(runs),tuple(inputs),tuple(deepcopy(metadata)),config.repeat.count,
++            config.repeat.mode,config.fingerprint,deepcopy(config.effective_parameters()),complete,verification)
++    if on_progress is not None: on_progress(snapshot())
++    for index in range(config.repeat.count):
++        single = config.single_run(index)
++        if config.mode=='replay':
++            result = simulate_replay_config(single,replay_input=replay_input)
++            archive = replay_input
++        else:
++            if config.repeat.mode=='java_rerun' and context is not None:
++                result = context.rerun()
++            else:
++                try:
++                    context = create_dynamic_context(single)
++                    result = context.run()
++                except PreparationError as exc:
++                    context, result = exc.context, exc.result
++            engine = context.engine
++            archive = (export_replay_input(engine,single.source,dataset_role=config.output.dataset_role)
++                       if engine.environment is not None and engine.admission is not None else None)
++        # result/archives contain no runtime object graph; later rounds cannot
++        # change earlier facts, RNG fingerprints, B or source cursor snapshots.
++        runs.append(result);inputs.append(archive)
++        templates = (replay_input.archive.templates if config.mode=='replay' else context.inputs.catalog.templates)
++        scene = dict(config_fingerprint=config.fingerprint,templates=[asdict(t) for t in templates])
++        scene_fingerprint = hashlib.sha256(json.dumps(scene,sort_keys=True).encode()).hexdigest()
++        metadata.append(dict(scene_fingerprint=scene_fingerprint,experiment_run_index=index,engine_run_index=result.diagnostics['run_index'],
++            public_seed=result.diagnostics['public_seed'],environment_fingerprint=result.diagnostics['environment_fingerprint'],
++            initial_B=result.diagnostics['initial_cutoff_release_time'],status=result.status,
++            source_summary=deepcopy(result.source_summary),dataset_role=config.output.dataset_role,
++            input_role='original_recorded_stream' if config.mode=='replay' else 'observed_python_round',
++            single_run_config_fingerprint=single.fingerprint))
++        if on_progress is not None: on_progress(snapshot())
++    result = snapshot(True)
++    if on_progress is not None: on_progress(result)
++    return result
+diff --git a/src/fogsim/io.py b/src/fogsim/io.py
+new file mode 100644
+index 0000000..52d5aa8
+--- /dev/null
++++ b/src/fogsim/io.py
+@@ -0,0 +1,20 @@
++"""Atomic JSON publication for CLI results and incomplete batch checkpoints."""
++import json
++import os
++from pathlib import Path
++import tempfile
++
++
++def write_json_atomic(path, value):
++    path = Path(path)
++    path.parent.mkdir(parents=True,exist_ok=True)
++    temporary = None
++    try:
++        with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',dir=path.parent,
++                                         prefix='.'+path.name+'.',suffix='.tmp',delete=False) as stream:
++            temporary = Path(stream.name)
++            json.dump(value,stream,ensure_ascii=False,indent=2,allow_nan=False)
++            stream.write('\n');stream.flush();os.fsync(stream.fileno())
++        os.replace(temporary,path)
++    finally:
++        if temporary is not None: temporary.unlink(missing_ok=True)
+diff --git a/src/fogsim/replay/__init__.py b/src/fogsim/replay/__init__.py
+index dd4c794..ef4039f 100644
+--- a/src/fogsim/replay/__init__.py
++++ b/src/fogsim/replay/__init__.py
+@@ -7,3 +7,6 @@ from .audit import audit_formulas
+ __all__ = ['ReplayInput', 'ReplayInputError', 'load_replay_input', 'parse_replay_input',
+            'create_replay_engine', 'simulate_replay', 'simulate_replay_config',
+            'export_fixed_instance', 'fixed_projection_metadata', 'audit_formulas']
++
++from .export_input import export_replay_input
++__all__ += ["export_replay_input"]
+diff --git a/src/fogsim/replay/engine.py b/src/fogsim/replay/engine.py
+index 2a269bd..7d25d57 100644
+--- a/src/fogsim/replay/engine.py
++++ b/src/fogsim/replay/engine.py
+@@ -36,7 +36,6 @@ def create_replay_engine(replay_input, options=None, *, purpose='verify_referenc
+     choice(purpose, ('verify_reference', 'reuse_inputs'), 'purpose')
+     options = ReplayRunOptions() if options is None else options
+     if type(options) is not ReplayRunOptions: raise InputError('expected ReplayRunOptions')
+-    if options.edge_data_policy != 'retain': raise InputError('edge release runtime service is deferred to step7')
+     original = replay_input.run_config
+     if purpose == 'verify_reference' and (options.routing_rule is not None or options.sequencing_rule is not None):
+         if ((options.routing_rule or original.routing_rule) != original.routing_rule or
+@@ -76,11 +75,12 @@ def simulate_replay(replay_input, options=None, *, purpose='verify_reference'):
+         return exc.result
+ 
+ 
+-def simulate_replay_config(config):
++def simulate_replay_config(config, *, replay_input=None):
+     """Single-run config adapter; comparison is explicitly post-execution."""
+     if type(config) is not ExperimentConfig or config.mode != 'replay' or config.repeat.count != 1:
+         raise InputError('expected a single-run replay ExperimentConfig')
+-    inp = load_replay_input(config.source.input_path)
++    inp = load_replay_input(config.source.input_path) if replay_input is None else replay_input
++    if type(inp) is not ReplayInput: raise InputError("expected ReplayInput")
+     try:
+         engine = create_replay_engine(inp, config.run, purpose=config.source.purpose)
+         result = engine.run()
+diff --git a/src/fogsim/replay/export_input.py b/src/fogsim/replay/export_input.py
+new file mode 100644
+index 0000000..f450d78
+--- /dev/null
++++ b/src/fogsim/replay/export_input.py
+@@ -0,0 +1,70 @@
++"""Export Python's complete observed input stream, independently of trace/results."""
++from dataclasses import asdict
++from functools import lru_cache
++import hashlib
++import json
++from pathlib import Path
++import platform
++from fogsim.errors import InputError
++from fogsim.seed import SEED_ENCODING, encode_seed
++from .loader import parse_replay_input
++
++
++@lru_cache(maxsize=1)
++def implementation_fingerprint():
++    root = Path(__file__).resolve().parents[1]
++    files = {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
++             for p in sorted(root.rglob('*.py'))}
++    payload = dict(files=files, python=platform.python_version(), implementation=platform.python_implementation())
++    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
++
++
++def export_replay_input(engine, source_config, *, dataset_role='debug'):
++    """Only a terminated Python random round is exported; no sampling occurs.
++
++    Preparation failures without an environment cannot form a standalone input.
++    An unfinished generation is explicitly an incomplete capture, usable only
++    for diagnosis. A normal domain failure after complete attempts may still
++    have a complete (finite) capture.
++    """
++    if engine.run_status not in ('SUCCEEDED', 'FAILED') or engine.admission is None or engine.environment is None:
++        raise InputError('input export requires a terminated round and complete environment')
++    archive = engine.admission.archive
++    samplers = source_config.samplers
++    parameters = {k: [getattr(samplers, k).lower, getattr(samplers, k).upper] for k in
++                  ('workload','data_size','edge_data','processing_rate_device','processing_rate_edge','processing_rate_cloud')}
++    parameters.update(inter_release_time=dict(family='python_exponential', effective_mean=samplers.inter_release_mean),
++        weight='python_two_six_two', upload_bandwidth_edge='constant_1024', download_bandwidth_edge='constant_1024',
++        upload_bandwidth_cloud='python_bandwidth_cloud', download_bandwidth_cloud='python_bandwidth_cloud',
++        workflow_type=[source_config.workflow_types.lower, source_config.workflow_types.upper])
++    cfg = engine.config
++    interrupted = engine.run_status == 'FAILED' and engine.reason_code is None
++    complete = engine.initialization_complete and not engine.admission.incomplete_attempt and not interrupted
++    value = dict(format='fogsim.dynamic-replay', schema_version=1,
++        origin=dict(language='Python',implementation_version='fogsim-0.2.1-step7',
++            code_dependency_fingerprint=implementation_fingerprint(),
++            rules=dict(sequencing=asdict(cfg.sequencing_rule) if cfg.sequencing_rule.kind!='fcfs' else 'FCFS',
++                       routing=asdict(cfg.routing_rule) if cfg.routing_rule.kind!='fcfs' else 'FCFS'),
++            operation=engine.operation, fixture_kind='native_random', label='python-observed-input'),
++        initial_state=dict(B=engine.initial_cutoff, public_seed=engine.public_seed, seed_encoding_version=SEED_ENCODING,
++            rng_seed_decimal=str(encode_seed(engine.public_seed)), run_index=engine.run_index),
++        effective_config=dict(num_jobs_recorded=cfg.num_jobs_recorded,warmup_jobs=cfg.warmup_jobs,
++            statistics_policy=cfg.statistics_policy,sequencing_rule=asdict(cfg.sequencing_rule),routing_rule=asdict(cfg.routing_rule),
++            exception_policy=cfg.failure_policy,event_order=cfg.event_policy,
++            guards=dict(resource_queue_greater_than=400,stagnation_greater_than=400000,generated_greater_than_multiplier=500),
++            samplers=parameters,additional_budget=cfg.max_events),
++        units=dict(time='s',workload='model_workload',data='model_data'),
++        environment=asdict(archive.environment) | dict(fingerprint=archive.environment.fingerprint),
++        templates=[asdict(t) for t in archive.templates],candidates=[asdict(c) for c in archive.candidates],
++        generation_attempts=[dict(attempt_sequence=a.attempt_sequence,phase=a.cause.phase,owner_device_id=a.cause.owner_device_id,
++            generation_clock_time=a.cause.clock_time,causing_workflow_id=a.cause.causing_workflow_id,event_sequence=a.cause.event_sequence,
++            candidate_ref=a.workflow_input_ref,observed_acceptance=a.observed_acceptance,rejection_reason=a.rejection_reason)
++            for a in archive.generation_attempts],
++        capture=dict(complete=complete,complete_attempt_count=len(archive.generation_attempts),write_interrupted=False,
++            process_interrupted=interrupted,termination='PYTHON_RUN_RETURNED' if complete else 'PARTIAL_GENERATION_FAILURE'),
++        diagnostics=dict(dataset_role=dataset_role,edge_data_policy=cfg.edge_data_policy,
++            rng_start_fingerprint=engine.rng_start.fingerprint if engine.rng_start else None,
++            rng_final_fingerprint=engine.rng_final.fingerprint if engine.rng_final else None))
++    # JSON round trip converts ordered tuples into schema arrays. Validation is
++    # identical to imported inputs; no XML, Java or reference is read here.
++    return parse_replay_input(json.loads(json.dumps(value,allow_nan=False)),require_complete=False)
+diff --git a/src/fogsim/replay/loader.py b/src/fogsim/replay/loader.py
+index 664c1d0..ec4c019 100644
+--- a/src/fogsim/replay/loader.py
++++ b/src/fogsim/replay/loader.py
+@@ -75,10 +75,14 @@ def _config(value, origin):
+         else:
+             lo, hi = [finite(x, key, key not in ('data_size', 'edge_data')) for x in pair]
+             if lo >= hi: raise InputError(f'{key}: lower must be less than upper')
++    if origin['language'] == 'Python':
++        profiles = dict(weight='python_two_six_two', upload_bandwidth_edge='constant_1024',
++            download_bandwidth_edge='constant_1024',upload_bandwidth_cloud='python_bandwidth_cloud',
++            download_bandwidth_cloud='python_bandwidth_cloud')
+     for key, v in profiles.items(): choice(samplers[key], (v,), key)
+     interval = samplers['inter_release_time']
+     object_fields(interval, ('family', 'effective_mean'), where='inter_release_time')
+-    choice(interval['family'], ('java_exponential',), 'inter_release_time.family')
++    choice(interval['family'], ('python_exponential',) if origin['language']=='Python' else ('java_exponential',), 'inter_release_time.family')
+     if finite(interval['effective_mean'], 'effective_mean', True) != 100:
+         raise InputError('unsupported inter-release mean')
+     config = DynamicRunConfig(value['num_jobs_recorded'], value['warmup_jobs'],
+diff --git a/src/fogsim/simulation/admission.py b/src/fogsim/simulation/admission.py
+index ed4ea0e..aecd41d 100644
+--- a/src/fogsim/simulation/admission.py
++++ b/src/fogsim/simulation/admission.py
+@@ -66,6 +66,13 @@ class AdmissionService:
+         self.incomplete_attempt = False
+         self.partial_candidate = None
+         if reason is None:
++            # Release only after the complete candidate/admission is archived.
++            if engine.config.edge_data_policy == "release_after_materialization":
++                from .cleanup import release_edge_data
++                report = release_edge_data(workflow, self.archive)
++                engine.cleanup_totals["workflows_released"] += 1
++                engine.cleanup_totals["released_task_count"] += report.released_task_count
++                engine.cleanup_totals["removed_mapping_entry_count"] += report.removed_mapping_entry_count
+             # Archive is complete before an event can make the workflow visible.
+             ctx.emit(JobArrivalEvent(workflow))
+             return workflow
+diff --git a/src/fogsim/simulation/cleanup.py b/src/fogsim/simulation/cleanup.py
+new file mode 100644
+index 0000000..dfce16e
+--- /dev/null
++++ b/src/fogsim/simulation/cleanup.py
+@@ -0,0 +1,85 @@
++"""Workflow-level edge-map release. Validate the entire graph before any writes."""
++from dataclasses import dataclass
++from fogsim.errors import InputError, require
++from fogsim.instances.generated import InputArchive
++from fogsim.model.workflow import Workflow
++from fogsim.model.task import EdgeDataState
++
++
++@dataclass(frozen=True)
++class CleanupReport:
++    workflow_id: int
++    status: str
++    released_task_count: int = 0
++    removed_mapping_entry_count: int = 0
++    already_released_task_count: int = 0
++    unavailable_task_count: int = 0
++
++
++def release_edge_data(workflow, archive):
++    """Release only runtime maps; immutable archive, topology and durations survive.
++
++    A complete per-workflow record suffices; the run need not have terminated.
++    Legacy fixed UNAVAILABLE graphs are skipped without requiring an archive.
++    """
++    if type(workflow) is not Workflow:
++        raise InputError('release_edge_data requires Workflow')
++    require(bool(workflow.tasks), 'cannot release an incomplete empty workflow')
++    for task in workflow.tasks:
++        task.validate_edge_data()
++    if all(t.edge_data_state == EdgeDataState.UNAVAILABLE for t in workflow.tasks):
++        return CleanupReport(workflow.id, 'UNAVAILABLE', unavailable_task_count=len(workflow.tasks))
++    if type(archive) is not InputArchive:
++        raise InputError('release_edge_data requires independent InputArchive')
++    require(workflow.input_record_id is not None, 'workflow has no archived input record')
++    records = {r.record_id: r.workflow_input for r in archive.candidates}
++    candidate = records.get(workflow.input_record_id)
++    require(candidate is not None, 'complete workflow input is missing from archive')
++    require(any(a.record_id == workflow.input_record_id and a.workflow_id == workflow.id for a in archive.admissions),
++            'workflow has no matching successful admission in archive')
++    require((workflow.id, workflow.owner_device.id, workflow.release_time, workflow.weight,
++             workflow.dag_type_id, workflow.template_hash) ==
++            (candidate.candidate_id, candidate.owner_device_id, candidate.release_time, candidate.weight,
++             candidate.template_ref.dag_type_id, candidate.template_ref.source_sha256), 'workflow/archive identity mismatch')
++    template = next(t for t in archive.templates if t.ref == candidate.template_ref)
++    require(tuple(t.id for t in workflow.tasks) == tuple(t.id for t in candidate.tasks),
++            'runtime/archive task order mismatch')
++    parents, children = template.adjacency()
++    by_id = {t.id: t for t in workflow.tasks}
++    edges = {(e.parent_id, e.child_id): e.data_size for e in candidate.edges}
++    maps_seen = set()
++    resources = {}
++    releasing = []
++    already = 0
++    entries = 0
++    for task, spec, template_task in zip(workflow.tasks, candidate.tasks, template.tasks):
++        require(task.workflow is workflow and task.java_index == template_task.java_index, 'noncanonical task identity')
++        require(tuple(task.parents) == tuple(by_id[p] for p in parents[task.id]) and
++                tuple(task.children) == tuple(by_id[c] for c in children[task.id]), 'runtime topology mismatch')
++        require((task.workload, task.data_size, task.total_input_data, task.total_output_data) ==
++                (spec.workload, spec.data_size, spec.total_input_data, spec.total_output_data), 'incomplete task physical fields')
++        require(len(task.options) == len(spec.options) and bool(task.options), 'incomplete candidate options')
++        for option, saved in zip(task.options, spec.options):
++            require(option.task is task and (option.resource.id, option.processing_time, option.upload_time, option.download_time) ==
++                    (saved.resource_id, saved.processing_time, saved.upload_time, saved.download_time), 'candidate option mismatch')
++            previous = resources.setdefault(option.resource.id, option.resource)
++            require(previous is option.resource, 'noncanonical shared resource')
++        if task.edge_data_state == EdgeDataState.RELEASED:
++            already += 1
++            continue
++        require(task.edge_data_state == EdgeDataState.RETAINED, 'mixed UNAVAILABLE and dynamic edge states')
++        wanted_input = {p: edges[p, task.id] for p in parents[task.id]}
++        wanted_output = {c: edges[task.id, c] for c in children[task.id]}
++        for mapping, wanted in ((task.input_data_by_parent, wanted_input), (task.output_data_by_child, wanted_output)):
++            require(id(mapping) not in maps_seen, 'edge dictionaries must not alias')
++            maps_seen.add(id(mapping))
++            require(list(mapping.items()) == list(wanted.items()), 'runtime edge values/order differ from archive')
++            entries += len(mapping)
++        releasing.append(task)
++    # No task was changed above. This commit does not invoke callbacks or RNGs.
++    for task in releasing:
++        task.input_data_by_parent = None
++        task.output_data_by_child = None
++        task.edge_data_state = EdgeDataState.RELEASED
++    return CleanupReport(workflow.id, 'RELEASED' if releasing else 'ALREADY_RELEASED',
++                         len(releasing), entries, already)
+diff --git a/src/fogsim/simulation/context.py b/src/fogsim/simulation/context.py
+index a44894b..58d0dd0 100644
+--- a/src/fogsim/simulation/context.py
++++ b/src/fogsim/simulation/context.py
+@@ -18,8 +18,6 @@ class SimulationContext:
+             raise InputError("create_dynamic_context requires dynamic ExperimentConfig")
+         if config.repeat.count != 1 or config.source.seed is None:
+             raise InputError("context requires expanded single-run config; call single_run(index)")
+-        if config.run.edge_data_policy != "retain":
+-            raise InputError("release_after_materialization runtime policy is deferred to step7; use retain")
+         self._config = config
+         payload = dict(environment=asdict(config.source.environment), samplers=config.source.samplers.effective_parameters())
+         self._parameter_fingerprint = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+diff --git a/src/fogsim/simulation/dynamic.py b/src/fogsim/simulation/dynamic.py
+index 9b0adec..0f2db5d 100644
+--- a/src/fogsim/simulation/dynamic.py
++++ b/src/fogsim/simulation/dynamic.py
+@@ -30,6 +30,7 @@ class DynamicEngine(Engine):
+         self.initialization_actions = []
+         self.reason_code = None
+         self.failure_hits = []
++        self.cleanup_totals = dict(workflows_released=0, released_task_count=0, removed_mapping_entry_count=0)
+ 
+     def initialize(self):
+         if self.run_status != "READY" or self.initialization_complete or self.admission is None:
+diff --git a/src/fogsim/simulation/dynamic_result.py b/src/fogsim/simulation/dynamic_result.py
+index 17eab74..df28b9c 100644
+--- a/src/fogsim/simulation/dynamic_result.py
++++ b/src/fogsim/simulation/dynamic_result.py
+@@ -50,6 +50,8 @@ def collect_dynamic_result(engine):
+                        guard_hits=deepcopy(engine.failure_hits), initialization_complete=engine.initialization_complete,
+                        initialization_actions=deepcopy(engine.initialization_actions),
+                        environment_fingerprint=engine.environment.fingerprint if engine.environment is not None else None)
++    if hasattr(engine, "cleanup_totals"):
++        diagnostics["edge_data_cleanup"] = dict(policy=engine.config.edge_data_policy, **engine.cleanup_totals)
+     # Full native state, version and Python provenance are retained on Engine;
+     # result diagnostics contain their stable identifiers, not a second RNG.
+     for name in ("rng_start", "rng_ready", "rng_final"):
+diff --git a/tests/unit/test_dynamic_context.py b/tests/unit/test_dynamic_context.py
+index 67e928d..31583ca 100644
+--- a/tests/unit/test_dynamic_context.py
++++ b/tests/unit/test_dynamic_context.py
+@@ -156,12 +156,11 @@ def test_unknown_programming_exception_propagates(tmp_path,monkeypatch,stage):
+         assert ctx.engine.run_status=='FAILED' and ctx.engine.rng_final is not None
+ 
+ 
+-def test_release_policy_and_unexpanded_repeat_rejected_before_rng(tmp_path,monkeypatch):
++def test_unexpanded_repeat_rejected_before_rng(tmp_path,monkeypatch):
+     cfg=config(tmp_path)
+     import fogsim.simulation.context as module
+     def wrong(*args):raise AssertionError('must validate before RNG')
+     monkeypatch.setattr(module,'prepare_random_input',wrong)
+-    with pytest.raises(InputError):create_dynamic_context(replace(cfg,run=replace(cfg.run,edge_data_policy='release_after_materialization')))
+     from fogsim.experiment_config import RepeatConfig
+     with pytest.raises(InputError):create_dynamic_context(replace(cfg,repeat=RepeatConfig(2,'fresh_same_seed')))
+ 
+diff --git a/tests/unit/test_replay.py b/tests/unit/test_replay.py
+index c6d8d0f..1bb0f77 100644
+--- a/tests/unit/test_replay.py
++++ b/tests/unit/test_replay.py
+@@ -198,7 +198,8 @@ def test_initial_B_and_immutable_behavior_config(data):
+     data['initial_state']['B']=12
+     inp=parse_replay_input(data);e=create_replay_engine(inp)
+     assert e.initial_cutoff==12
+-    with pytest.raises(InputError):create_replay_engine(inp,ReplayRunOptions(edge_data_policy='release_after_materialization'))
++    released=create_replay_engine(inp,ReplayRunOptions(edge_data_policy='release_after_materialization'))
++    assert all(t.edge_data_state.value=='RELEASED' for t in released.state.tasks_by_key.values())
+     r=simulate_replay(inp,ReplayRunOptions(max_events=1,trace_enabled=False))
+     assert r.reason_code=='MAX_EVENTS_EXCEEDED' and not r.events
+     from fogsim.experiment_config import parse_experiment_config
+diff --git a/tests/unit/test_step7.py b/tests/unit/test_step7.py
+new file mode 100644
+index 0000000..e45e5a5
+--- /dev/null
++++ b/tests/unit/test_step7.py
+@@ -0,0 +1,311 @@
++"""V20/V21: cleanup transactions, explicit experiments, archival and CLI contracts."""
++from copy import deepcopy
++from dataclasses import asdict, replace
++from pathlib import Path
++import hashlib
++import json
++import pytest
++from conftest import ROOT
++from fogsim import (load_experiment_config,create_dynamic_context,load_replay_input,create_replay_engine,
++    simulate_replay,export_replay_input,release_edge_data,run_experiment,load_fixed_instance,create_engine)
++from fogsim.experiment_config import RepeatConfig,parse_experiment_config
++from fogsim.errors import InputError,StateError,NumericDerivationError
++from fogsim.model.task import EdgeDataState
++from fogsim.cli import main
++
++
++def config():
++    return load_experiment_config(ROOT/'configs/examples/step5_dynamic.json')
++
++
++def workflow():
++    ctx=create_dynamic_context(config())
++    return ctx,ctx.engine.state.workflows_by_id[0]
++
++
++def replay_config(count=1,purpose='reuse_inputs'):
++    source=dict(input_path=str(ROOT/'outputs/step4/cases/minimal_chain/input.json'),purpose=purpose)
++    if purpose=='verify_reference':source['reference_path']=str(ROOT/'outputs/step4/cases/minimal_chain/reference.json')
++    return parse_experiment_config(dict(format='fogsim.experiment',schema_version=1,mode='replay',source=source,repeat=dict(count=count)))
++
++
++def test_cleanup_is_atomic_idempotent_and_archive_independent():
++    ctx,w=workflow();archive=ctx.input_archive;before=asdict(archive);rng=ctx.snapshot_rng()
++    options=tuple(o for t in w.tasks for o in t.options);topology=[(tuple(t.parents),tuple(t.children)) for t in w.tasks]
++    events=len(ctx.engine.event_queue.staging_heaps[w.owner_device]);clock=ctx.engine.state.clock_time
++    report=release_edge_data(w,archive)
++    assert report.released_task_count==2 and report.removed_mapping_entry_count==2
++    assert all(t.edge_data_state==EdgeDataState.RELEASED for t in w.tasks)
++    for t in w.tasks:
++        with pytest.raises(StateError,match='RELEASED'):t.edge_data()
++    assert asdict(archive)==before and ctx.snapshot_rng()==rng and ctx.engine.state.clock_time==clock
++    assert tuple(o for t in w.tasks for o in t.options)==options
++    assert [(tuple(t.parents),tuple(t.children)) for t in w.tasks]==topology
++    assert len(ctx.engine.event_queue.staging_heaps[w.owner_device])==events
++    again=release_edge_data(w,archive)
++    assert again.released_task_count==again.removed_mapping_entry_count==0 and again.already_released_task_count==2
++    assert ctx.run().status=='SUCCEEDED'
++
++
++@pytest.mark.parametrize('corruption',['option','edge_value','task_owner','topology','total','mixed','aliased_maps','missing_archive'])
++def test_cleanup_preflights_entire_workflow_before_any_mutation(corruption):
++    ctx,w=workflow();archive=ctx.input_archive;first=w.tasks[0];last=w.tasks[-1]
++    if corruption=='option':last.options.clear()
++    elif corruption=='edge_value':last.input_data_by_parent[first.id]+=1
++    elif corruption=='task_owner':last.workflow=deepcopy(w)
++    elif corruption=='topology':last.parents.clear()
++    elif corruption=='total':last.total_input_data+=1
++    elif corruption=='mixed':last.edge_data_state=EdgeDataState.UNAVAILABLE;last.input_data_by_parent=last.output_data_by_child=None
++    elif corruption=='aliased_maps':last.output_data_by_child=first.input_data_by_parent
++    elif corruption=='missing_archive':archive=replace(archive,candidates=(),generation_attempts=(),admissions=())
++    first_map=first.output_data_by_child
++    with pytest.raises(StateError):release_edge_data(w,archive)
++    assert first.output_data_by_child is first_map and first.edge_data_state==EdgeDataState.RETAINED
++
++
++def test_fixed_unavailable_is_skipped_and_unknown_archive_rejected():
++    e=create_engine(load_fixed_instance(ROOT/'data/cases/chain_remote.json'))
++    report=release_edge_data(e.state.workflows_by_id[0],None)
++    assert report.status=='UNAVAILABLE' and report.unavailable_task_count==2
++    ctx,w=workflow()
++    with pytest.raises(InputError):release_edge_data(w,None)
++    with pytest.raises(InputError):release_edge_data(None,ctx.input_archive)
++
++
++def comparable(result):
++    value=result.to_dict();value['diagnostics'].pop('edge_data_cleanup')
++    return value
++
++
++def test_random_release_preserves_all_facts_trace_statistics_and_rng():
++    c=config();a=create_dynamic_context(c);b=create_dynamic_context(replace(c,run=replace(c.run,edge_data_policy='release_after_materialization')))
++    assert a.input_archive==b.input_archive and a.snapshot_rng()==b.snapshot_rng()
++    left=a.run();right=b.run()
++    assert comparable(left)==comparable(right)
++    assert a.input_archive==b.input_archive and a.snapshot_rng()==b.snapshot_rng()
++    assert all(t.edge_data_state==EdgeDataState.RELEASED for t in b.engine.state.tasks_by_key.values())
++    assert right.diagnostics['edge_data_cleanup']['released_task_count']==len(b.engine.state.tasks_by_key)
++    assert len(b.engine.state.workflows_by_id)==right.generated_workflow_count
++
++
++def test_replay_release_preserves_exact_trace_and_reference_verdict():
++    c=replay_config(purpose='verify_reference')
++    left=run_experiment(c);right=run_experiment(replace(c,run=replace(c.run,edge_data_policy='release_after_materialization')))
++    assert left.status==right.status=='SUCCEEDED'
++    assert comparable(left.runs[0])==comparable(right.runs[0])
++    assert right.runs[0].diagnostics['comparison_status']=='NORMAL_PARITY_PASSED'
++
++
++@pytest.mark.parametrize('policy',['retain','release_after_materialization'])
++def test_python_input_export_alone_replays_recorded_durations_and_events(policy,tmp_path):
++    c=config();ctx=create_dynamic_context(replace(c,run=replace(c.run,edge_data_policy=policy)))
++    r=ctx.run();rng=ctx.snapshot_rng();inp=export_replay_input(ctx.engine,c.source,dataset_role='test')
++    p=tmp_path/'input.json';p.write_text(json.dumps(inp.to_dict()))
++    e=create_replay_engine(load_replay_input(p));replay=e.run()
++    assert ctx.snapshot_rng()==rng and replay.status==r.status=='SUCCEEDED'
++    assert (r.makespan,r.mean_flow_time)==(replay.makespan,replay.mean_flow_time)
++    assert r.workflow_records==replay.workflow_records and r.task_records==replay.task_records and r.decisions==replay.decisions
++    original=deepcopy(r.events);actual=deepcopy(replay.events)
++    for event in actual:
++        for boundary in ('before','after'):event[boundary].pop('staged_event_counts')
++    assert original==actual
++    assert inp.to_dict()['origin']['language']=='Python' and inp.to_dict()['diagnostics']['dataset_role']=='test'
++    assert list(tmp_path.iterdir())==[p]
++
++
++def test_fresh_same_seed_results_and_inputs_are_identical_but_graphs_fresh():
++    c=replace(config(),repeat=RepeatConfig(3,'fresh_same_seed'));snapshots=[]
++    out=run_experiment(c,on_progress=lambda x:snapshots.append(x.to_dict()))
++    assert out.status=='SUCCEEDED' and out.succeeded_runs==3 and out.not_run==out.failed_runs==0
++    assert all(r.to_dict()==out.runs[0].to_dict() for r in out.runs)
++    assert out.runs[0] is not out.runs[1] and out.runs[0].task_records is not out.runs[1].task_records
++    assert all(a.to_dict()==out.input_archives[0].to_dict() for a in out.input_archives)
++    assert snapshots[0]['runs']==[] and not snapshots[0]['batch_complete']
++    assert len(snapshots[1]['runs'])==1 and snapshots[1]['all_runs_mean'] is None
++    assert snapshots[-1]['batch_complete'] and out.sample_stddev==dict(makespan=0.0,mean_flow_time=0.0)
++    assert out.all_runs_mean==out.mean_over_successes
++
++
++def test_seed_list_uses_exact_signed64_seeds_and_new_environments():
++    c=config();c=replace(c,source=replace(c.source,seed=None),repeat=RepeatConfig(2,'fresh_seed_list',(-(1<<63),(1<<63)-1)))
++    out=run_experiment(c)
++    assert [r.diagnostics['public_seed'] for r in out.runs]==[-(1<<63),(1<<63)-1]
++    assert out.run_metadata[0]['environment_fingerprint']!=out.run_metadata[1]['environment_fingerprint']
++    assert all(r.diagnostics['run_index']==0 for r in out.runs)
++
++
++def test_java_rerun_matches_manual_lifecycle_without_extra_reset_or_rotation(monkeypatch):
++    c=replace(config(),repeat=RepeatConfig(3,'java_rerun'))
++    from fogsim.simulation.context import SimulationContext
++    def forbidden(*a,**k):raise AssertionError('unrequested lifecycle call')
++    monkeypatch.setattr(SimulationContext,'reset',forbidden);monkeypatch.setattr(SimulationContext,'rotate_seed',forbidden)
++    out=run_experiment(c);manual=create_dynamic_context(c.single_run(0));expected=[manual.run(),manual.rerun(),manual.rerun()]
++    assert [r.to_dict() for r in out.runs]==[r.to_dict() for r in expected]
++    for previous,current in zip(out.runs,out.runs[1:]):
++        assert current.diagnostics['rng_start_fingerprint']==previous.diagnostics['rng_final_fingerprint']
++        assert current.diagnostics['initial_cutoff_release_time']==previous.diagnostics['cutoff_release_time']
++        assert current.diagnostics['environment_fingerprint']==previous.diagnostics['environment_fingerprint']
++    assert manual.engine.run_index==2
++
++
++@pytest.mark.parametrize('mode',['fresh_same_seed','java_rerun'])
++def test_domain_preparation_failure_continues_with_partial_input_and_honest_means(monkeypatch,mode):
++    import fogsim.instances.source as source
++    original=source.generate_workflow_input;calls=0
++    def first_failure(*a,**kw):
++        nonlocal calls
++        calls+=1
++        if calls==1:raise NumericDerivationError('injected generation overflow',float('inf'))
++        return original(*a,**kw)
++    monkeypatch.setattr(source,'generate_workflow_input',first_failure)
++    out=run_experiment(replace(config(),repeat=RepeatConfig(3,mode)))
++    assert out.failed_runs==1 and out.succeeded_runs==2 and out.not_run==0 and out.status=='FAILED'
++    assert out.all_runs_mean is None and out.mean_over_successes is not None and out.sample_stddev is not None
++    assert not out.input_archives[0].capture.complete
++    assert out.to_dict()['failure_rate']==1/3 and out.to_dict()['success_denominator']==2
++    assert out.runs[0].reason_code=='NUMERIC_DERIVATION_ERROR'
++
++
++def test_all_failed_and_single_success_statistics():
++    c=config();failed=run_experiment(replace(c,run=replace(c.run,max_events=1),repeat=RepeatConfig(2,'fresh_same_seed')))
++    assert failed.status=='FAILED' and failed.mean_over_successes is None and failed.sample_stddev is None
++    single=run_experiment(c)
++    assert single.status=='SUCCEEDED' and single.sample_stddev is None
++    assert failed.to_dict()['failure_rate']==1
++
++
++def test_replay_repeat_resets_cursor_and_verification_is_post_execution():
++    out=run_experiment(replay_config(3,'verify_reference'))
++    assert out.status=='SUCCEEDED' and all(r.diagnostics['comparison_status']=='NORMAL_PARITY_PASSED' for r in out.runs)
++    assert all(r.source_summary['consumed_record_count']==2 for r in out.runs)
++    assert out.runs[0].events is not out.runs[1].events
++
++
++def test_unknown_exception_propagates_and_checkpoint_remains_incomplete(monkeypatch):
++    import fogsim.experiments.runner as runner
++    original=runner.simulate_replay_config;count=0;snapshots=[]
++    def bug(*a,**kw):
++        nonlocal count
++        count+=1
++        if count==2:raise TypeError('injected programming defect')
++        return original(*a,**kw)
++    monkeypatch.setattr(runner,'simulate_replay_config',bug)
++    with pytest.raises(TypeError,match='programming defect'):
++        run_experiment(replay_config(3),on_progress=lambda r:snapshots.append(r.to_dict()))
++    assert snapshots[-1]['completed_runs']==1 and snapshots[-1]['not_run']==2
++    assert not snapshots[-1]['batch_complete'] and snapshots[-1]['all_runs_mean'] is None
++
++
++def test_cli_dynamic_archive_replay_projection_and_old_repeat(tmp_path,monkeypatch):
++    monkeypatch.chdir(tmp_path)
++    path=tmp_path/'batch.json';archive=tmp_path/'inputs'
++    assert main(['dynamic','--config',str(ROOT/'configs/examples/step5_dynamic.json'),'--repeat','2','--repeat-mode','fresh_same_seed',
++                 '--seed','-1','--no-trace','--edge-data-policy','release_after_materialization','--output',str(path),'--archive-dir',str(archive)])==0
++    value=json.loads(path.read_text());assert value['batch_complete'] and value['succeeded_runs']==2 and value['inputs']
++    assert all(not r['events'] and r['task_records'] for r in value['runs'])
++    assert json.loads((archive/'batch-manifest.json').read_text())['files']==['run-000000.input.json','run-000001.input.json']
++    p=archive/'run-000000.input.json';replay=tmp_path/'replay.json'
++    assert main(['replay','--input',str(p),'--repeat','2','--output',str(replay)])==0
++    assert json.loads(replay.read_text())['succeeded_runs']==2
++    fixed=tmp_path/'fixed.json'
++    assert main(['export-fixed','--input',str(p),'--output',str(fixed)])==0
++    meta=json.loads(fixed.with_suffix('.projection.json').read_text())
++    assert meta['kind']=='fixed_projection' and meta['complete']
++    assert meta['fixed_input_sha256']==hashlib.sha256(fixed.read_bytes()).hexdigest()
++    assert main(['--instance',str(fixed),'--repeat','2','--output',str(tmp_path/'old.json')])==0
++    old=json.loads((tmp_path/'old.json').read_text());assert old['identical'] and 'batch_complete' not in old
++
++
++@pytest.mark.parametrize('args',[
++    ['dynamic','--config','configs/examples/step5_dynamic.json','--repeat','2'],
++    ['dynamic','--config','configs/examples/step5_dynamic.json','--seed',str(1<<63)],
++    ['dynamic','--config','configs/examples/step5_dynamic.json','--repeat','0'],
++    ['dynamic','--config','configs/examples/step5_dynamic.json','--repeat-mode','fresh_seed_list','--repeat','2','--seeds','1'],
++    ['dynamic','--config','configs/examples/step6_verify.json'],
++    ['replay','--config','configs/examples/step5_dynamic.json'],
++])
++def test_cli_bad_config_exits_two_before_rng(args,tmp_path,monkeypatch):
++    import fogsim.simulation.context as context
++    def forbidden(*a,**kw):raise AssertionError('invalid config reached sampling')
++    monkeypatch.setattr(context,'prepare_random_input',forbidden)
++    args=[str(ROOT/x) if x.startswith('configs/') else x for x in args]
++    out=tmp_path/'result.json';out.write_text('{"status":"SUCCEEDED"}')
++    with pytest.raises(SystemExit) as exc:main([*args,'--output',str(out)])
++    assert exc.value.code==2 and not out.exists()
++
++
++def test_cli_replay_cannot_override_seed_or_statistics():
++    for flag,value in [('--seed','1'),('--num-jobs-recorded','2'),('--warmup-jobs','2')]:
++        with pytest.raises(SystemExit) as exc:main(['replay','--input',str(ROOT/'tests/fixtures/dynamic_v1/input.json'),flag,value])
++        assert exc.value.code==2
++
++
++def test_cli_domain_failure_returns_one_and_full_failure_denominator(tmp_path):
++    p=tmp_path/'failed.json'
++    code=main(['dynamic','--config',str(ROOT/'configs/examples/step5_dynamic.json'),'--repeat','2','--repeat-mode','java_rerun',
++               '--max-events','1','--output',str(p)])
++    value=json.loads(p.read_text())
++    assert code==1 and value['batch_complete'] and value['failed_runs']==2 and value['not_run']==0
++    assert value['all_runs_mean'] is None and value['mean_over_successes'] is None
++
++
++def test_cli_programming_exception_replaces_stale_success_with_incomplete_batch(tmp_path,monkeypatch):
++    import fogsim.experiments.runner as runner
++    def bug(*a,**kw):raise RuntimeError('injected original bug')
++    monkeypatch.setattr(runner,'create_dynamic_context',bug)
++    p=tmp_path/'result.json';p.write_text('{"status":"SUCCEEDED"}')
++    with pytest.raises(RuntimeError,match='original bug'):
++        main(['dynamic','--config',str(ROOT/'configs/examples/step5_dynamic.json'),'--output',str(p)])
++    value=json.loads(p.read_text())
++    assert value['status']=='INCOMPLETE' and not value['batch_complete'] and value['all_runs_mean'] is None
++    assert value['interruption']['type']=='RuntimeError' and value['not_run']==1
++
++
++def test_old_cli_programming_bug_removes_stale_success(tmp_path,monkeypatch):
++    import fogsim.cli as cli
++    def bug(*a,**kw):raise TypeError('fixed bug')
++    monkeypatch.setattr(cli,'simulate',bug)
++    p=tmp_path/'result.json';p.write_text('{"status":"SUCCEEDED"}')
++    with pytest.raises(TypeError):main(['--instance',str(ROOT/'data/cases/single_local.json'),'--output',str(p)])
++    assert not p.exists()
++
++
++def test_cli_does_not_overwrite_input_config_or_reference(tmp_path):
++    p=tmp_path/'input.json';p.write_text((ROOT/'tests/fixtures/dynamic_v1/input.json').read_text());before=p.read_bytes()
++    with pytest.raises(SystemExit) as exc:main(['replay','--input',str(p),'--output',str(p)])
++    assert exc.value.code==2 and p.read_bytes()==before
++    c=tmp_path/'cfg.json';raw=dict(format='fogsim.experiment',schema_version=1,mode='replay',source=dict(input_path='input.json',purpose='reuse_inputs'),run=dict(unknown=1))
++    c.write_text(json.dumps(raw))
++    with pytest.raises(SystemExit):main(['replay','--config',str(c),'--output',str(p)])
++    assert p.read_bytes()==before
++
++
++def test_verify_reference_without_trace_is_not_reported_as_passed(tmp_path):
++    p=tmp_path/'result.json'
++    assert main(['replay','--config',str(ROOT/'configs/examples/step6_verify.json'),'--no-trace','--output',str(p)])==1
++    value=json.loads(p.read_text())
++    assert value['runs'][0]['status']=='SUCCEEDED' and value['status']=='FAILED' and value['verification_failures']
++    assert value['all_runs_mean'] is None and value['succeeded_runs']==1 and value['failed_runs']==0
++
++
++def test_changed_template_between_fresh_rounds_disables_aggregation(tmp_path):
++    directory=tmp_path/'dax';directory.mkdir()
++    p=directory/'CyberShake_30.xml';p.write_text((ROOT/'examples/step5/dax/CyberShake_30.xml').read_text())
++    c=config();c=replace(c,source=replace(c.source,dag_root=directory),repeat=RepeatConfig(2,'fresh_same_seed'))
++    changed=False
++    def progress(result):
++        nonlocal changed
++        if len(result.runs)==1 and not changed:
++            p.write_text(p.read_text()+'\n<!-- different source version -->\n');changed=True
++    out=run_experiment(c,on_progress=progress)
++    assert out.succeeded_runs==2 and not out.aggregation_compatible and out.status=='FAILED'
++    assert out.all_runs_mean is None and out.mean_over_successes is None and out.sample_stddev is None
++
++
++def test_cli_protects_source_dax_directory(tmp_path):
++    directory=tmp_path/'dax';directory.mkdir();xml=directory/'CyberShake_30.xml'
++    xml.write_text((ROOT/'examples/step5/dax/CyberShake_30.xml').read_text());before=xml.read_bytes()
++    c=config().to_dict();c['source']['dag_root']=str(directory)
++    path=tmp_path/'config.json';path.write_text(json.dumps(c))
++    with pytest.raises(SystemExit) as exc:main(['dynamic','--config',str(path),'--output',str(xml)])
++    assert exc.value.code==2 and xml.read_bytes()==before
+diff --git a/tools/build_release.py b/tools/build_release.py
+index 46d14f1..0d88e58 100644
+--- a/tools/build_release.py
++++ b/tools/build_release.py
+@@ -16,7 +16,7 @@ def main(argv=None):
+     version=tomllib.loads((ROOT/"pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+     prefix=f"fogsim-{version}"
+     files=[ROOT/name for name in ("README.md","pyproject.toml",".gitignore","CHANGES-FROM-0.2.0a1.patch")]
+-    for folder in ("src","tests","tools","configs","data","docs","references/design"):
++    for folder in ("src","tests","tools","configs","data","docs","references/design","examples","dax"):
+         files.extend(p for p in (ROOT/folder).rglob("*") if p.is_file()
+                      and "__pycache__" not in p.parts and not any(x.endswith(".egg-info") for x in p.parts))
+     files.extend(p for p in (ROOT/"outputs").glob("*") if p.is_file() and p.suffix in (".json",".xml",".txt"))
+@@ -28,6 +28,10 @@ def main(argv=None):
+     files.extend(p for p in (jroot/"src").rglob("*") if p.is_file() and p.suffix != ".class" and p.name != ".DS_Store")
+     files.extend(p for p in (jroot/"libraries").glob("*") if p.is_file() and "javadoc" not in p.name
+                  and (p.suffix==".jar" or p.name=="README"))
++    files.extend(p for pattern in ("CHANGES-STEP*.patch", "STEP*-FILES.json") for p in ROOT.glob(pattern) if p.is_file())
++    for folder in ("step1","step2","step3","step4","step5","step5-final","step6","step7","history-step6-before-v01"):
++        files.extend(p for p in (ROOT/"outputs"/folder).rglob("*") if p.is_file() and
++                     "classes" not in p.parts and "tmp" not in p.parts and not any(x.startswith(".") for x in p.relative_to(ROOT).parts))
+     files=sorted(set(files))
+     if any(not p.is_file() for p in files):raise RuntimeError("missing release input")
+     manifest=json.loads((ROOT/"outputs/validation-manifest.json").read_text(encoding="utf-8"))
+@@ -36,6 +40,10 @@ def main(argv=None):
+             or not manifest.get("fixed_parity",{}).get("passed")
+             or not manifest.get("v2_acceptance",{}).get("passed")):
+         raise RuntimeError("release requires zero-skip passing tests, JDK 17 parity and V2 acceptance")
++    if (ROOT/"src/fogsim/simulation/cleanup.py").is_file():
++        extended_path=ROOT/"outputs/step7/current-validation.json"
++        if not extended_path.is_file() or not json.loads(extended_path.read_text()).get("planned_checks_passed"):
++            raise RuntimeError("step7 release also requires V20/V21 and the current validation summary")
+     for relative,expected in manifest["project_hashes"].items():
+         actual=hashlib.sha256((ROOT/relative).read_bytes()).hexdigest()
+         if actual!=expected:raise RuntimeError(f"source changed after validation: {relative}")
+diff --git a/tools/check_step7.py b/tools/check_step7.py
+new file mode 100644
+index 0000000..5d2c1be
+--- /dev/null
++++ b/tools/check_step7.py
+@@ -0,0 +1,107 @@
++"""V20/V21 real cleanup/experiment/CLI checks and preparation memory measurement."""
++from dataclasses import asdict,replace
++import gc
++import json
++import os
++from pathlib import Path
++import platform
++import subprocess
++import sys
++import tempfile
++import time
++import tracemalloc
++
++ROOT=Path(__file__).resolve().parents[1]
++sys.path.insert(0,str(ROOT/'src'))
++from fogsim import (load_experiment_config,create_dynamic_context,run_experiment,export_replay_input,
++    simulate_replay,load_replay_input,create_replay_engine)
++from fogsim.experiment_config import RepeatConfig,parse_experiment_config
++from fogsim.model.task import EdgeDataState
++from fogsim.io import write_json_atomic
++
++
++def business(output):
++    cfg=load_experiment_config(ROOT/'configs/examples/step5_dynamic.json')
++    retained=create_dynamic_context(cfg)
++    released=create_dynamic_context(replace(cfg,run=replace(cfg.run,edge_data_policy='release_after_materialization')))
++    a,b=retained.run(),released.run()
++    def comparable(result):
++        value=result.to_dict();value['diagnostics'].pop('edge_data_cleanup');return value
++    inp=export_replay_input(released.engine,cfg.source)
++    write_json_atomic(output/'python-input.json',inp.to_dict())
++    replay=simulate_replay(load_replay_input(output/'python-input.json'))
++    write_json_atomic(output/'retain-result.json',a.to_dict());write_json_atomic(output/'release-result.json',b.to_dict())
++    write_json_atomic(output/'replay-result.json',replay.to_dict())
++    checks=dict(retain_release_identical=comparable(a)==comparable(b),
++        archive_identical=retained.input_archive==released.input_archive,rng_identical=retained.snapshot_rng()==released.snapshot_rng(),
++        input_alone_replays=replay.status==b.status=='SUCCEEDED' and replay.task_records==b.task_records and replay.workflow_records==b.workflow_records,
++        all_maps_released=all(t.edge_data_state==EdgeDataState.RELEASED for t in released.engine.state.tasks_by_key.values()))
++    batches={}
++    for mode in ('fresh_same_seed','fresh_seed_list','java_rerun'):
++        c=replace(cfg,source=replace(cfg.source,seed=None) if mode=='fresh_seed_list' else cfg.source,
++            repeat=RepeatConfig(3,mode,(7,-1,42) if mode=='fresh_seed_list' else None))
++        result=run_experiment(c);write_json_atomic(output/(mode+'.json'),result.to_dict())
++        batches[mode]=dict(status=result.status,completed_runs=len(result.runs),failed_runs=result.failed_runs,
++            rng_boundaries=[{k:r.diagnostics[k] for k in ('run_index','rng_start_fingerprint','rng_final_fingerprint','initial_cutoff_release_time','cutoff_release_time','environment_fingerprint')} for r in result.runs])
++    for policy in ('retain','release_after_materialization'):
++        c=load_experiment_config(ROOT/'configs/examples/step6_verify.json')
++        c=replace(c,source=replace(c.source,input_path=(ROOT/'outputs/step4/cases/multi_device_diamond/input.json'),
++            reference_path=(ROOT/'outputs/step4/cases/multi_device_diamond/reference.json')),
++            run=replace(c.run,edge_data_policy=policy),repeat=RepeatConfig(2,'same_input'))
++        result=run_experiment(c);write_json_atomic(output/('java-reference-'+policy+'.json'),result.to_dict())
++        checks['java_reference_'+policy]=result.status=='SUCCEEDED' and all(r.diagnostics['comparison_status']=='NORMAL_PARITY_PASSED' for r in result.runs)
++    return dict(passed=all(checks.values()) and all(b['status']=='SUCCEEDED' for b in batches.values()),checks=checks,batches=batches)
++
++
++def memory_measurement(output):
++    """Measure preparation only; no claim about complete-run speed or memory."""
++    with tempfile.TemporaryDirectory(prefix='step7-memory-',dir=output) as temp:
++        directory=Path(temp);n=300
++        xml='<adag>'+''.join(f'<job id="T{i}"/>' for i in range(n))+''.join(
++            f'<child ref="T{i}"><parent ref="T{i-1}"/></child>' for i in range(1,n))+'</adag>'
++        (directory/'CyberShake_30.xml').write_text(xml)
++        cfg=load_experiment_config(ROOT/'configs/examples/step5_dynamic.json')
++        cfg=replace(cfg,source=replace(cfg.source,dag_root=directory.resolve()))
++        rows=[]
++        for policy in ('retain','release_after_materialization'):
++            gc.collect();tracemalloc.start();start=time.perf_counter()
++            ctx=create_dynamic_context(replace(cfg,run=replace(cfg.run,edge_data_policy=policy,trace_enabled=False)))
++            elapsed=time.perf_counter()-start;gc.collect();current,peak=tracemalloc.get_traced_memory();tracemalloc.stop()
++            entries=sum(len(m) for t in ctx.engine.state.tasks_by_key.values()
++                        for m in (t.input_data_by_parent,t.output_data_by_child) if m is not None)
++            rows.append(dict(policy=policy,elapsed_seconds=elapsed,current_bytes=current,peak_bytes=peak,
++                tasks=len(ctx.engine.state.tasks_by_key),remaining_runtime_mapping_entries=entries,
++                cleanup=ctx.engine.cleanup_totals))
++            del ctx
++        return dict(scope='300-task chain, context/environment/generation/materialization/initialization only; no events executed; full-run performance NOT_MEASURED',
++            measurements=rows,conclusion='Measured current/peak/time only; release success does not imply full-run speedup or lower peak')
++
++
++def cli_checks(output):
++    cases=[('dynamic',['dynamic','--config',str(ROOT/'configs/examples/step5_dynamic.json'),'--repeat','2','--repeat-mode','java_rerun','--no-trace','--edge-data-policy','release_after_materialization'],0),
++        ('replay',['replay','--config',str(ROOT/'configs/examples/step6_verify.json'),'--repeat','2'],0),
++        ('coverage',['replay','--config',str(ROOT/'configs/examples/step6_reuse.json')],1),
++        ('invalid',['dynamic','--config',str(ROOT/'configs/examples/step5_dynamic.json'),'--repeat','2'],2)]
++    rows=[]
++    for name,args,expected in cases:
++        path=output/(name+'.json');command=[sys.executable,'-m','fogsim',*args,'--output',str(path)]
++        proc=subprocess.run(command,cwd=ROOT,capture_output=True,text=True,timeout=60)
++        (output/(name+'-stdout.txt')).write_text(proc.stdout);(output/(name+'-stderr.txt')).write_text(proc.stderr)
++        rows.append(dict(case=name,command=command,exit_code=proc.returncode,expected_exit_code=expected,
++            passed=proc.returncode==expected,output_exists=path.exists()))
++    return rows
++
++
++def main():
++    output=ROOT/'outputs/step7/checks';output.mkdir(parents=True,exist_ok=True)
++    report=dict(passed=False,status='RUNNING',environment=dict(python=sys.version,platform=platform.platform(),command=sys.argv))
++    write_json_atomic(output/'checks.json',report)
++    report['business']=business(output)
++    report['memory']=memory_measurement(output)
++    report['cli']=cli_checks(output)
++    report.update(status='COMPLETED',passed=report['business']['passed'] and all(r['passed'] for r in report['cli']))
++    write_json_atomic(output/'checks.json',report)
++    print(json.dumps(dict(passed=report['passed'],business=report['business']['checks'],memory=report['memory']),indent=2))
++    return 0 if report['passed'] else 1
++
++if __name__=='__main__':raise SystemExit(main())
+diff --git a/tools/java_support.py b/tools/java_support.py
+index 1672413..c2291f7 100644
+--- a/tools/java_support.py
++++ b/tools/java_support.py
+@@ -21,7 +21,7 @@ def sha(path):
+     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+ 
+ 
+-def java_tools(explicit=None, *, allow_compiler_module=False):
++def java_tools(explicit=None, *, allow_compiler_module=True):
+     java = explicit or os.environ.get("FOGSIM_JAVA")
+     if not java:
+         directory = ROOT / "references/jdk/jdk-17.0.16+8/bin"
+diff --git a/tools/validate.py b/tools/validate.py
+index e397dac..5921038 100644
+--- a/tools/validate.py
++++ b/tools/validate.py
+@@ -21,6 +21,7 @@ def sha(path):
+ 
+ def main():
+     output=ROOT/"outputs";output.mkdir(exist_ok=True)
++    (output/"validation-manifest.json").write_text(json.dumps({"status":"RUNNING","acceptance_passed":False})+"\n")
+     (output/"pytest-results.xml").unlink(missing_ok=True)
+     (output/"parity/summary.json").unlink(missing_ok=True)
+     (output/"v2/summary.json").unlink(missing_ok=True)
+@@ -28,6 +29,11 @@ def main():
+     tests=subprocess.run(command,cwd=ROOT,capture_output=True,text=True)
+     (output/"pytest-console.txt").write_text(tests.stdout+tests.stderr,encoding="utf-8")
+     print(tests.stdout,end="")
++    if not (output/"pytest-results.xml").is_file():
++        (output/"validation-manifest.json").write_text(json.dumps({"status":"INFRASTRUCTURE_ERROR",
++            "acceptance_passed":False,"pytest_command":command,"pytest_exit_code":tests.returncode,
++            "reason":"pytest produced no XML; see pytest-console.txt"},indent=2)+"\n")
++        return tests.returncode or 1
+     suite=ET.parse(output/"pytest-results.xml").getroot().find("testsuite")
+     summary={k:int(suite.get(k,"0")) for k in ("tests","failures","errors","skipped")}
+     runs={};mappings={}
+@@ -53,7 +59,8 @@ def main():
+     v2=json.loads(v2_path.read_text(encoding="utf-8")) if v2_path.exists() else {"status":"NOT_EXECUTED","passed":False}
+     acceptance_passed=(tests.returncode == 0 and all(summary[k] == 0 for k in ("failures","errors","skipped"))
+                        and parity.get("passed",False) and v2.get("passed",False))
+-    manifest={"implementation_version":__version__,"python":sys.version,"platform":platform.platform(),
++    manifest={"status":"COMPLETED","scope":"V01 fixed regression, 14 named cases, 96 sweeps, component oracle and precision boundary; extended V20/V21 evidence is separate",
++        "implementation_version":__version__,"python":sys.version,"platform":platform.platform(),
+         "python_executable":sys.executable,"pytest_version":importlib.metadata.version("pytest"),
+         "pytest_command":command,"pytest_exit_code":tests.returncode,"tests":summary,
+         "design_versions":"00-07 v1.1.0; 08-11 v1.0.0; incremental documents take precedence",
+@@ -62,7 +69,7 @@ def main():
+         "fixed_parity":parity,"v2_acceptance":v2,"acceptance_passed":acceptance_passed,
+         "input_sources":json.loads((ROOT/"references/INPUT-SHA256.json").read_text(encoding="utf-8")),
+         "known_boundaries":["Zero-length binary64 execution intervals are explicitly rejected; original Java can overlap"],
+-        "not_executed":["Full multi-device model extension","Arbitrary-input equivalence","DAX/RNG/GP/training/paper-scale experiments"]}
++        "not_executed":["Arbitrary-input equivalence","Full prior-stage Java dynamic export/sampler oracle reruns","GP/training/paper-scale experiments"]}
+     (output/"validation-manifest.json").write_text(json.dumps(manifest,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+     print(json.dumps({"tests":summary,"runs":runs},indent=2))
+     return 0 if acceptance_passed else (tests.returncode or 1)

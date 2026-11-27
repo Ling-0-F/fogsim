@@ -1,0 +1,56 @@
+{
+  "status": "FAILED",
+  "reason": "events exhausted before statistical target",
+  "final_clock_time": 0.0,
+  "completed_workflow_count": 0,
+  "processed_event_count": 0,
+  "makespan": null,
+  "workflow_records": [],
+  "task_records": [],
+  "events": [],
+  "decisions": [],
+  "reason_code": "EVENTS_EXHAUSTED_BEFORE_TARGET",
+  "generated_workflow_count": 0,
+  "arrived_workflow_count": 0,
+  "recorded_workflow_count": 0,
+  "mean_flow_time": null,
+  "device_statistics": [
+    {
+      "device_id": "M0",
+      "generated_workflow_count": 0,
+      "completed_workflow_count": 0,
+      "recorded_workflow_count": 0
+    },
+    {
+      "device_id": "M1",
+      "generated_workflow_count": 0,
+      "completed_workflow_count": 0,
+      "recorded_workflow_count": 0
+    }
+  ],
+  "source_summary": {
+    "kind": "random",
+    "generation_call_count": 2,
+    "attempt_count": 2,
+    "rejected_count": 2,
+    "consumed_attempt_count": 2,
+    "incomplete_attempt": false,
+    "capture_complete": true,
+    "coverage": "observed_generation_calls_only"
+  },
+  "diagnostics": {
+    "run_index": 0,
+    "operation": "fresh",
+    "public_seed": 7,
+    "initial_cutoff_release_time": 0.0,
+    "cutoff_release_time": 0.0,
+    "legacy_nonrecording_events": 0,
+    "guard_hits": [],
+    "initialization_complete": true,
+    "initialization_actions": [],
+    "environment_fingerprint": "56e0e54e173309e55f471b1e397c996cc5d7bac52466d00ec7835cc70725b6b7",
+    "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+    "rng_ready_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+    "rng_final_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8"
+  }
+}

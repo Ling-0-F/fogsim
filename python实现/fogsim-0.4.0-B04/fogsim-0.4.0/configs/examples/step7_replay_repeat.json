@@ -1,0 +1,16 @@
+{
+  "format": "fogsim.experiment",
+  "schema_version": 1,
+  "mode": "replay",
+  "source": {
+    "purpose": "verify_reference",
+    "input_path": "../../outputs/step4/cases/minimal_chain/input.json",
+    "reference_path": "../../outputs/step4/cases/minimal_chain/reference.json"
+  },
+  "run": {
+    "edge_data_policy": "release_after_materialization"
+  },
+  "repeat": {
+    "count": 2
+  }
+}

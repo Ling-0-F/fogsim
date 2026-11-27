@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "input": {
+    "time_unit": "s",
+    "resources": [
+      {
+        "id": "M0",
+        "type": "MOBILE",
+        "can_process_tasks": true
+      },
+      {
+        "id": "M1",
+        "type": "MOBILE",
+        "can_process_tasks": true
+      },
+      {
+        "id": "E0",
+        "type": "EDGE"
+      },
+      {
+        "id": "C0",
+        "type": "CLOUD"
+      }
+    ],
+    "workflows": [
+      {
+        "id": 0,
+        "owner_device_id": "M1",
+        "release_time": 10.0,
+        "tasks": [
+          {
+            "id": "Z",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 52.20427254722805,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 8.251693636994277,
+                "processing_time": 25.258033241159243,
+                "download_time": 8.407616210437471
+              },
+              "C0": {
+                "upload_time": 16.503387273988555,
+                "processing_time": 9.95455329828316,
+                "download_time": 16.815232420874942
+              }
+            }
+          },
+          {
+            "id": "a",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 38.35186145377843,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 13.252937832180832,
+                "processing_time": 18.555810553312753,
+                "download_time": 13.097015258737638
+              },
+              "C0": {
+                "upload_time": 26.505875664361664,
+                "processing_time": 7.313111174657686,
+                "download_time": 26.194030517475277
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "Z",
+            "a"
+          ]
+        ]
+      },
+      {
+        "id": 1,
+        "owner_device_id": "M1",
+        "release_time": 210.0,
+        "tasks": [
+          {
+            "id": "Z",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 80.33897759974803,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 15.054718891807322,
+                "processing_time": 38.87046917356059,
+                "download_time": 15.19710340111887
+              },
+              "C0": {
+                "upload_time": 30.109437783614645,
+                "processing_time": 15.319409608145826,
+                "download_time": 30.39420680223774
+              }
+            }
+          },
+          {
+            "id": "a",
+            "execution_times": {
+              "M1": {
+                "upload_time": 0.0,
+                "processing_time": 74.98297790978684,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 19.32737394868154,
+                "processing_time": 36.279071734082976,
+                "download_time": 19.184989439369993
+              },
+              "C0": {
+                "upload_time": 38.65474789736308,
+                "processing_time": 14.298102696320313,
+                "download_time": 38.369978878739985
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "Z",
+            "a"
+          ]
+        ]
+      }
+    ]
+  },
+  "config": {
+    "routing_kind": "fcfs",
+    "fixed_resource_id": null,
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "record_trace": true
+}

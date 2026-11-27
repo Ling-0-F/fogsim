@@ -1,0 +1,45 @@
+{
+  "time_unit": "s",
+  "resources": [
+    {
+      "id": "M0",
+      "type": "MOBILE",
+      "can_process_tasks": true
+    }
+  ],
+  "workflows": [
+    {
+      "id": 0,
+      "owner_device_id": "M0",
+      "release_time": 2.0,
+      "tasks": [
+        {
+          "id": "Z",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0.0,
+              "processing_time": 72.59719122068803,
+              "download_time": 0.0
+            }
+          }
+        },
+        {
+          "id": "a",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0.0,
+              "processing_time": 89.87171630116482,
+              "download_time": 0.0
+            }
+          }
+        }
+      ],
+      "dependencies": [
+        [
+          "Z",
+          "a"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,225 @@
+[
+  {
+    "name": "distribution-integrity",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "tools/build_source_distribution.py",
+      "verify"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 0.5943223570002374
+  },
+  {
+    "name": "unhydrated-status",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "tools/restore_sources.py",
+      "verify"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 1,
+    "expected_exit_code": 1,
+    "seconds": 0.2176284009997289
+  },
+  {
+    "name": "base-version",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "fogsim",
+      "--version"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 0.11239276899959805
+  },
+  {
+    "name": "base-fixed",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-c",
+      "import json,importlib.util; from fogsim import RunConfig,simulate,load_fixed_instance; assert importlib.util.find_spec('deap') is None; r=simulate(load_fixed_instance('data/cases/single_local.json'),RunConfig()); assert r.status=='SUCCEEDED'; print(json.dumps(r.to_dict()))"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 0.10775777200024095
+  },
+  {
+    "name": "base-preflight",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "fogsim.training.cli",
+      "validate",
+      "--config",
+      "configs/training/B01.json",
+      "--output",
+      "/workspace/scratch/f4794ed59667/evidence/candidate-3/preflight"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 0.12943174000020008
+  },
+  {
+    "name": "evaluation",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "fogsim.training.cli",
+      "evaluate",
+      "--rules",
+      "configs/training/rules.json",
+      "--plan",
+      "/workspace/scratch/f4794ed59667/evidence/candidate-3/preflight/plans/train-0000.json",
+      "--output",
+      "/workspace/scratch/f4794ed59667/evidence/candidate-3/evaluation"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 0.42443367999976545
+  },
+  {
+    "name": "evaluation-repeat",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "fogsim.training.cli",
+      "evaluate",
+      "--rules",
+      "configs/training/rules.json",
+      "--plan",
+      "/workspace/scratch/f4794ed59667/evidence/candidate-3/preflight/plans/train-0000.json",
+      "--output",
+      "/workspace/scratch/f4794ed59667/evidence/candidate-3/evaluation-repeat"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 0.41971140600026047
+  },
+  {
+    "name": "unhydrated-components",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "pytest",
+      "tests/packaging",
+      "tests/training",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp=/workspace/scratch/f4794ed59667/evidence/candidate-3/component-cases",
+      "--junitxml=/workspace/scratch/f4794ed59667/evidence/candidate-3/components.xml"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 8.330371087999993
+  },
+  {
+    "name": "restore-dry-run",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "tools/restore_sources.py",
+      "restore",
+      "--source-dir",
+      "/workspace/scratch/f4794ed59667/project_sources",
+      "--dry-run"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 1.1806594530003167
+  },
+  {
+    "name": "restore",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "tools/restore_sources.py",
+      "restore",
+      "--source-dir",
+      "/workspace/scratch/f4794ed59667/project_sources"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 1.822521967999819
+  },
+  {
+    "name": "restored-status",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "tools/restore_sources.py",
+      "verify"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 0.6855878900000789
+  },
+  {
+    "name": "restore-idempotent",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "tools/restore_sources.py",
+      "restore",
+      "--source-dir",
+      "/workspace/scratch/f4794ed59667/project_sources"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 0.7054734739999731
+  },
+  {
+    "name": "b08-byte-audit",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-c",
+      "import json;from accept_s9_b01 import audit;r=audit();print(json.dumps(r));assert r['passed']"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.0208035790001304
+  },
+  {
+    "name": "java-lifecycle",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "tools/check_s9_lifecycle.py",
+      "--java",
+      "/workspace/scratch/f4794ed59667/runtime/jdk-17.0.21+9/bin/java",
+      "--output",
+      "/workspace/scratch/f4794ed59667/evidence/candidate-3/lifecycle"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 2.5381397020000804
+  },
+  {
+    "name": "full-regression",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+      "-m",
+      "pytest",
+      "tests",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp=/workspace/scratch/f4794ed59667/evidence/candidate-3/regression-cases",
+      "--junitxml=/workspace/scratch/f4794ed59667/evidence/candidate-3/regression.xml"
+    ],
+    "cwd": "/workspace/scratch/f4794ed59667/evidence/candidate-3/unpacked/fogsim-0.4.0",
+    "exit_code": 0,
+    "expected_exit_code": 0,
+    "seconds": 106.32726891599987
+  }
+]

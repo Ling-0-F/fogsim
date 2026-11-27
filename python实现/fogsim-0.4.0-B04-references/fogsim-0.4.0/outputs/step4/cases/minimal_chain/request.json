@@ -1,0 +1,107 @@
+{
+  "seed": 7,
+  "N": 1,
+  "W": 1,
+  "devices": 1,
+  "edges": 0,
+  "clouds": 0,
+  "local": true,
+  "min_type": 0,
+  "max_type": 0,
+  "templates": [
+    {
+      "dag_type_id": 0,
+      "source_name": "CyberShake_30.xml",
+      "source_sha256": "1b109879b8ff853fed1ae937be824ddc494070c185f6c1670eb8e88b16b42628",
+      "tasks": [
+        {
+          "xml_id": "Z",
+          "java_index": 0
+        },
+        {
+          "xml_id": "a",
+          "java_index": 1
+        }
+      ],
+      "dependencies": [
+        [
+          "Z",
+          "a"
+        ]
+      ],
+      "diagnostics": []
+    }
+  ],
+  "origin": {
+    "language": "Java",
+    "implementation_version": "multiDeviceDebug+fogsim-v16-observer-v1",
+    "code_dependency_fingerprint": "c45109a5473bdfb8d48302ca565c7cb60039a164df4d84fb792ea8efb3cc4057",
+    "rules": {
+      "sequencing": "FCFS",
+      "routing": "FCFS"
+    },
+    "operation": "fresh",
+    "fixture_kind": "native_random",
+    "label": "minimal_chain"
+  },
+  "initial_state": {
+    "B": 0.0,
+    "public_seed": 7,
+    "seed_encoding_version": "java-signed64-v1",
+    "run_index": 0
+  },
+  "effective_config": {
+    "num_jobs_recorded": 1,
+    "warmup_jobs": 1,
+    "statistics_policy": "java_jobsCompleted",
+    "sequencing_rule": "FCFS",
+    "routing_rule": "FCFS",
+    "exception_policy": "java_original",
+    "event_order": "java_two_level_priority_queue",
+    "guards": {
+      "resource_queue_greater_than": 400,
+      "stagnation_greater_than": 400000,
+      "generated_greater_than_multiplier": 500
+    },
+    "samplers": {
+      "workload": [
+        5000.0,
+        15000.0
+      ],
+      "data_size": [
+        5120.0,
+        20480.0
+      ],
+      "edge_data": [
+        100.0,
+        200.0
+      ],
+      "inter_release_time": {
+        "family": "java_exponential",
+        "effective_mean": 100.0
+      },
+      "weight": "java_TwoSixTwo",
+      "upload_bandwidth_edge": "java_BandwidthEdge",
+      "download_bandwidth_edge": "java_BandwidthEdge",
+      "upload_bandwidth_cloud": "java_BandwidthCloud",
+      "download_bandwidth_cloud": "java_BandwidthCloud",
+      "processing_rate_device": [
+        125.0,
+        250.0
+      ],
+      "processing_rate_edge": [
+        250.0,
+        500.0
+      ],
+      "processing_rate_cloud": [
+        500.0,
+        1000.0
+      ],
+      "workflow_type": [
+        0,
+        0
+      ]
+    },
+    "additional_budget": null
+  }
+}

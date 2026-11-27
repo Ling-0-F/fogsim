@@ -1,0 +1,19 @@
+{
+  "format": "fogsim.experiment",
+  "schema_version": 1,
+  "mode": "dynamic",
+  "source": {
+    "seed": -1,
+    "dag_root": "../../dax",
+    "workflow_types": {"lower": 0, "upper": 19},
+    "environment": {
+      "num_mobile_devices": 2,
+      "num_edge_servers": 1,
+      "num_cloud_servers": 1,
+      "can_mobile_devices_process_tasks": true
+    }
+  },
+  "run": {"num_jobs_recorded": 10, "warmup_jobs": 0},
+  "repeat": {"count": 1},
+  "output": {"dataset_role": "debug"}
+}

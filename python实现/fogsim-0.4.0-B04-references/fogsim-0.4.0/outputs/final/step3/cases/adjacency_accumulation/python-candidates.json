@@ -1,0 +1,560 @@
+[
+  {
+    "candidate_id": 0,
+    "owner_device_id": "M0",
+    "template_ref": {
+      "dag_type_id": 0,
+      "source_sha256": "b5593e04e862c42e09b0553f995d0cb162f6bd438128c67b0608b8578cf796dc"
+    },
+    "release_time": 2.0,
+    "inter_release_time": 2.0,
+    "weight": 4.0,
+    "tasks": [
+      {
+        "id": "p0",
+        "workload": 5000.0,
+        "data_size": 5120.0,
+        "total_input_data": 0.0,
+        "total_output_data": 1e+16,
+        "options": [
+          {
+            "resource_id": "M0",
+            "upload_time": 0.0,
+            "processing_time": 40.0,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 5.0,
+            "processing_time": 20.0,
+            "download_time": 9765625000005.0
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 5.0,
+            "processing_time": 16.666666666666668,
+            "download_time": 9765625000005.0
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 20.0,
+            "processing_time": 10.0,
+            "download_time": 78125000000040.0
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 10.0,
+            "processing_time": 8.333333333333334,
+            "download_time": 39062500000020.0
+          }
+        ]
+      },
+      {
+        "id": "p1",
+        "workload": 5137.0,
+        "data_size": 5137.0,
+        "total_input_data": 0.0,
+        "total_output_data": 1.0,
+        "options": [
+          {
+            "resource_id": "M0",
+            "upload_time": 0.0,
+            "processing_time": 41.096,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 5.0166015625,
+            "processing_time": 20.548,
+            "download_time": 5.017578125
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 5.0166015625,
+            "processing_time": 17.123333333333335,
+            "download_time": 5.017578125
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 20.06640625,
+            "processing_time": 10.274,
+            "download_time": 40.140625
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 10.033203125,
+            "processing_time": 8.561666666666667,
+            "download_time": 20.0703125
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "workload": 5274.0,
+        "data_size": 5154.0,
+        "total_input_data": 0.0,
+        "total_output_data": 1.0,
+        "options": [
+          {
+            "resource_id": "M0",
+            "upload_time": 0.0,
+            "processing_time": 42.192,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 5.033203125,
+            "processing_time": 21.096,
+            "download_time": 5.0341796875
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 5.033203125,
+            "processing_time": 17.58,
+            "download_time": 5.0341796875
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 20.1328125,
+            "processing_time": 10.548,
+            "download_time": 40.2734375
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 10.06640625,
+            "processing_time": 8.79,
+            "download_time": 20.13671875
+          }
+        ]
+      },
+      {
+        "id": "J",
+        "workload": 5411.0,
+        "data_size": 5171.0,
+        "total_input_data": 1.0000000000000002e+16,
+        "total_output_data": 5.0,
+        "options": [
+          {
+            "resource_id": "M0",
+            "upload_time": 0.0,
+            "processing_time": 43.288,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 9765625000005.05,
+            "processing_time": 21.644,
+            "download_time": 5.0546875
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 9765625000005.05,
+            "processing_time": 18.036666666666665,
+            "download_time": 5.0546875
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 39062500000020.2,
+            "processing_time": 10.822,
+            "download_time": 40.4375
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 19531250000010.1,
+            "processing_time": 9.018333333333333,
+            "download_time": 20.21875
+          }
+        ]
+      },
+      {
+        "id": "X",
+        "workload": 5548.0,
+        "data_size": 5188.0,
+        "total_input_data": 6.0,
+        "total_output_data": 0.0,
+        "options": [
+          {
+            "resource_id": "M0",
+            "upload_time": 0.0,
+            "processing_time": 44.384,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 5.072265625,
+            "processing_time": 22.192,
+            "download_time": 5.06640625
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 5.072265625,
+            "processing_time": 18.493333333333332,
+            "download_time": 5.06640625
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 20.2890625,
+            "processing_time": 11.096,
+            "download_time": 40.53125
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 10.14453125,
+            "processing_time": 9.246666666666666,
+            "download_time": 20.265625
+          }
+        ]
+      },
+      {
+        "id": "Y",
+        "workload": 5685.0,
+        "data_size": 5205.0,
+        "total_input_data": 1.0,
+        "total_output_data": 0.0,
+        "options": [
+          {
+            "resource_id": "M0",
+            "upload_time": 0.0,
+            "processing_time": 45.48,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 5.083984375,
+            "processing_time": 22.74,
+            "download_time": 5.0830078125
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 5.083984375,
+            "processing_time": 18.95,
+            "download_time": 5.0830078125
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 20.3359375,
+            "processing_time": 11.37,
+            "download_time": 40.6640625
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 10.16796875,
+            "processing_time": 9.475,
+            "download_time": 20.33203125
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "parent_id": "p0",
+        "child_id": "J",
+        "data_size": 1e+16
+      },
+      {
+        "parent_id": "p0",
+        "child_id": "X",
+        "data_size": 1.0
+      },
+      {
+        "parent_id": "p0",
+        "child_id": "Y",
+        "data_size": 1.0
+      },
+      {
+        "parent_id": "p1",
+        "child_id": "J",
+        "data_size": 1.0
+      },
+      {
+        "parent_id": "p2",
+        "child_id": "J",
+        "data_size": 1.0
+      },
+      {
+        "parent_id": "J",
+        "child_id": "X",
+        "data_size": 5.0
+      }
+    ]
+  },
+  {
+    "candidate_id": 1,
+    "owner_device_id": "M1",
+    "template_ref": {
+      "dag_type_id": 0,
+      "source_sha256": "b5593e04e862c42e09b0553f995d0cb162f6bd438128c67b0608b8578cf796dc"
+    },
+    "release_time": 3.0,
+    "inter_release_time": 3.0,
+    "weight": 2.0,
+    "tasks": [
+      {
+        "id": "p0",
+        "workload": 5822.0,
+        "data_size": 5222.0,
+        "total_input_data": 0.0,
+        "total_output_data": 1e+16,
+        "options": [
+          {
+            "resource_id": "M1",
+            "upload_time": 0.0,
+            "processing_time": 38.81333333333333,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 5.099609375,
+            "processing_time": 23.288,
+            "download_time": 9765625000005.1
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 5.099609375,
+            "processing_time": 19.406666666666666,
+            "download_time": 9765625000005.1
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 20.3984375,
+            "processing_time": 11.644,
+            "download_time": 78125000000040.8
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 10.19921875,
+            "processing_time": 9.703333333333333,
+            "download_time": 39062500000020.4
+          }
+        ]
+      },
+      {
+        "id": "p1",
+        "workload": 5959.0,
+        "data_size": 5239.0,
+        "total_input_data": 0.0,
+        "total_output_data": 1.0,
+        "options": [
+          {
+            "resource_id": "M1",
+            "upload_time": 0.0,
+            "processing_time": 39.72666666666667,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 5.1162109375,
+            "processing_time": 23.836,
+            "download_time": 5.1171875
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 5.1162109375,
+            "processing_time": 19.863333333333333,
+            "download_time": 5.1171875
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 20.46484375,
+            "processing_time": 11.918,
+            "download_time": 40.9375
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 10.232421875,
+            "processing_time": 9.931666666666667,
+            "download_time": 20.46875
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "workload": 6096.0,
+        "data_size": 5256.0,
+        "total_input_data": 0.0,
+        "total_output_data": 1.0,
+        "options": [
+          {
+            "resource_id": "M1",
+            "upload_time": 0.0,
+            "processing_time": 40.64,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 5.1328125,
+            "processing_time": 24.384,
+            "download_time": 5.1337890625
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 5.1328125,
+            "processing_time": 20.32,
+            "download_time": 5.1337890625
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 20.53125,
+            "processing_time": 12.192,
+            "download_time": 41.0703125
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 10.265625,
+            "processing_time": 10.16,
+            "download_time": 20.53515625
+          }
+        ]
+      },
+      {
+        "id": "J",
+        "workload": 6233.0,
+        "data_size": 5273.0,
+        "total_input_data": 1.0000000000000002e+16,
+        "total_output_data": 5.0,
+        "options": [
+          {
+            "resource_id": "M1",
+            "upload_time": 0.0,
+            "processing_time": 41.553333333333335,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 9765625000005.152,
+            "processing_time": 24.932,
+            "download_time": 5.154296875
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 9765625000005.152,
+            "processing_time": 20.776666666666667,
+            "download_time": 5.154296875
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 39062500000020.61,
+            "processing_time": 12.466,
+            "download_time": 41.234375
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 19531250000010.305,
+            "processing_time": 10.388333333333334,
+            "download_time": 20.6171875
+          }
+        ]
+      },
+      {
+        "id": "X",
+        "workload": 6370.0,
+        "data_size": 5290.0,
+        "total_input_data": 6.0,
+        "total_output_data": 0.0,
+        "options": [
+          {
+            "resource_id": "M1",
+            "upload_time": 0.0,
+            "processing_time": 42.46666666666667,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 5.171875,
+            "processing_time": 25.48,
+            "download_time": 5.166015625
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 5.171875,
+            "processing_time": 21.233333333333334,
+            "download_time": 5.166015625
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 20.6875,
+            "processing_time": 12.74,
+            "download_time": 41.328125
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 10.34375,
+            "processing_time": 10.616666666666667,
+            "download_time": 20.6640625
+          }
+        ]
+      },
+      {
+        "id": "Y",
+        "workload": 6507.0,
+        "data_size": 5307.0,
+        "total_input_data": 1.0,
+        "total_output_data": 0.0,
+        "options": [
+          {
+            "resource_id": "M1",
+            "upload_time": 0.0,
+            "processing_time": 43.38,
+            "download_time": 0.0
+          },
+          {
+            "resource_id": "E0",
+            "upload_time": 5.18359375,
+            "processing_time": 26.028,
+            "download_time": 5.1826171875
+          },
+          {
+            "resource_id": "E1",
+            "upload_time": 5.18359375,
+            "processing_time": 21.69,
+            "download_time": 5.1826171875
+          },
+          {
+            "resource_id": "C0",
+            "upload_time": 20.734375,
+            "processing_time": 13.014,
+            "download_time": 41.4609375
+          },
+          {
+            "resource_id": "C1",
+            "upload_time": 10.3671875,
+            "processing_time": 10.845,
+            "download_time": 20.73046875
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "parent_id": "p0",
+        "child_id": "J",
+        "data_size": 1e+16
+      },
+      {
+        "parent_id": "p0",
+        "child_id": "X",
+        "data_size": 1.0
+      },
+      {
+        "parent_id": "p0",
+        "child_id": "Y",
+        "data_size": 1.0
+      },
+      {
+        "parent_id": "p1",
+        "child_id": "J",
+        "data_size": 1.0
+      },
+      {
+        "parent_id": "p2",
+        "child_id": "J",
+        "data_size": 1.0
+      },
+      {
+        "parent_id": "J",
+        "child_id": "X",
+        "data_size": 5.0
+      }
+    ]
+  }
+]

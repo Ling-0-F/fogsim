@@ -1,0 +1,1136 @@
+{
+  "format": "fogsim.experiment-result",
+  "schema_version": 1,
+  "status": "SUCCEEDED",
+  "batch_complete": true,
+  "planned_runs": 2,
+  "completed_runs": 2,
+  "succeeded_runs": 2,
+  "failed_runs": 0,
+  "not_run": 0,
+  "repeat_mode": "fresh_same_seed",
+  "config_fingerprint": "7b4c38055cf36db33ff8ba03aa5d3445b2d39a89d6b46b02d86f8d568eaa1571",
+  "effective_config": {
+    "mode": "dynamic",
+    "source": {
+      "dag_root": "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/examples/step5/dax",
+      "workflow_types": {
+        "lower": 0,
+        "upper": 0
+      },
+      "environment": {
+        "num_mobile_devices": 1,
+        "num_edge_servers": 1,
+        "num_cloud_servers": 1,
+        "can_mobile_devices_process_tasks": true
+      },
+      "seed": 7,
+      "samplers": {
+        "workload": {
+          "lower": 5000.0,
+          "upper": 15000.0
+        },
+        "data_size": {
+          "lower": 5120.0,
+          "upper": 20480.0
+        },
+        "edge_data": {
+          "lower": 100.0,
+          "upper": 200.0
+        },
+        "processing_rate_device": {
+          "lower": 125.0,
+          "upper": 250.0
+        },
+        "processing_rate_edge": {
+          "lower": 250.0,
+          "upper": 500.0
+        },
+        "processing_rate_cloud": {
+          "lower": 500.0,
+          "upper": 1000.0
+        },
+        "inter_release_mean": 100.0,
+        "weight_profile": "two_six_two",
+        "cloud_bandwidth_profile": "bandwidth_cloud",
+        "edge_bandwidth": 1024.0,
+        "distributions": {
+          "real_uniform": "reject-zero-java-scaling-v1",
+          "workflow_type": "randint-inclusive",
+          "inter_release": {
+            "family": "exponential",
+            "mean": 100.0
+          },
+          "weight": {
+            "values": [
+              4,
+              2,
+              1
+            ],
+            "thresholds": [
+              0.2,
+              0.8
+            ]
+          },
+          "cloud_bandwidth": {
+            "values": [
+              256,
+              512,
+              128
+            ],
+            "thresholds": [
+              0.2,
+              0.8
+            ]
+          },
+          "edge_bandwidth": {
+            "family": "constant",
+            "value": 1024.0
+          }
+        }
+      }
+    },
+    "run": {
+      "num_jobs_recorded": 1,
+      "warmup_jobs": 1,
+      "statistics_policy": "java_legacy",
+      "failure_policy": "explicit_failure",
+      "event_policy": "java_compatible",
+      "routing_rule": {
+        "kind": "fcfs",
+        "resource_id": null
+      },
+      "sequencing_rule": {
+        "kind": "fcfs",
+        "resource_id": null
+      },
+      "max_events": 1000,
+      "check_invariants": true,
+      "trace_enabled": false,
+      "edge_data_policy": "release_after_materialization"
+    },
+    "repeat": {
+      "count": 2,
+      "mode": "fresh_same_seed"
+    },
+    "output": {
+      "dataset_role": "debug"
+    },
+    "format": "fogsim.experiment",
+    "schema_version": 1
+  },
+  "runs": [
+    {
+      "status": "SUCCEEDED",
+      "reason": null,
+      "final_clock_time": 183.01880936023372,
+      "completed_workflow_count": 1,
+      "processed_event_count": 7,
+      "makespan": 95.60272863667572,
+      "workflow_records": [
+        {
+          "workflow_id": 0,
+          "owner_device_id": "M0",
+          "release_time": 87.416080723558,
+          "completion_time": 183.01880936023372,
+          "flow_time": 95.60272863667572,
+          "recorded": true,
+          "weight": 1.0,
+          "dag_type_id": 0,
+          "template_hash": "c79483b688beddfc5ebb2acee2ed245b6ad1a7b15bc2636e1626a57a08023dc3",
+          "input_record_id": "1"
+        },
+        {
+          "workflow_id": 1,
+          "owner_device_id": "M0",
+          "release_time": 262.7770086146495,
+          "completion_time": null,
+          "flow_time": null,
+          "recorded": false,
+          "weight": 4.0,
+          "dag_type_id": 0,
+          "template_hash": "c79483b688beddfc5ebb2acee2ed245b6ad1a7b15bc2636e1626a57a08023dc3",
+          "input_record_id": "2"
+        }
+      ],
+      "task_records": [
+        {
+          "workflow_id": 0,
+          "task_id": "Z",
+          "resource_id": "M0",
+          "dispatch_time": 87.416080723558,
+          "arrival_time": 87.416080723558,
+          "start_time": 87.416080723558,
+          "compute_finish_time": 130.60571614103355,
+          "finish_time": 130.60571614103355,
+          "plan": {
+            "start_time": 87.416080723558,
+            "compute_finish_time": 130.60571614103355,
+            "finish_time": 130.60571614103355
+          },
+          "java_index": 0
+        },
+        {
+          "workflow_id": 0,
+          "task_id": "a",
+          "resource_id": "E0",
+          "dispatch_time": 130.60571614103355,
+          "arrival_time": 144.00991832206165,
+          "start_time": 144.00991832206165,
+          "compute_finish_time": 169.75310055336294,
+          "finish_time": 183.01880936023372,
+          "plan": {
+            "start_time": 144.00991832206165,
+            "compute_finish_time": 169.75310055336294,
+            "finish_time": 183.01880936023372
+          },
+          "java_index": 1
+        },
+        {
+          "workflow_id": 1,
+          "task_id": "Z",
+          "resource_id": null,
+          "dispatch_time": null,
+          "arrival_time": null,
+          "start_time": null,
+          "compute_finish_time": null,
+          "finish_time": null,
+          "plan": null,
+          "java_index": 0
+        },
+        {
+          "workflow_id": 1,
+          "task_id": "a",
+          "resource_id": null,
+          "dispatch_time": null,
+          "arrival_time": null,
+          "start_time": null,
+          "compute_finish_time": null,
+          "finish_time": null,
+          "plan": null,
+          "java_index": 1
+        }
+      ],
+      "events": [],
+      "decisions": [],
+      "reason_code": null,
+      "generated_workflow_count": 2,
+      "arrived_workflow_count": 1,
+      "recorded_workflow_count": 1,
+      "mean_flow_time": 95.60272863667572,
+      "device_statistics": [
+        {
+          "device_id": "M0",
+          "generated_workflow_count": 2,
+          "completed_workflow_count": 1,
+          "recorded_workflow_count": 1
+        }
+      ],
+      "source_summary": {
+        "kind": "random",
+        "generation_call_count": 2,
+        "attempt_count": 2,
+        "rejected_count": 0,
+        "consumed_attempt_count": 2,
+        "incomplete_attempt": false,
+        "capture_complete": true,
+        "coverage": "observed_generation_calls_only"
+      },
+      "diagnostics": {
+        "run_index": 0,
+        "operation": "fresh",
+        "public_seed": 7,
+        "initial_cutoff_release_time": 0.0,
+        "cutoff_release_time": 87.416080723558,
+        "legacy_nonrecording_events": 0,
+        "guard_hits": [],
+        "initialization_complete": true,
+        "initialization_actions": [],
+        "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451",
+        "edge_data_cleanup": {
+          "policy": "release_after_materialization",
+          "workflows_released": 2,
+          "released_task_count": 4,
+          "removed_mapping_entry_count": 4
+        },
+        "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+        "rng_ready_fingerprint": "a4574d4e8eb7f814eaa450e2cbef534bb90e98f5fe408cfb1bb5d71d41eb5b4c",
+        "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c"
+      }
+    },
+    {
+      "status": "SUCCEEDED",
+      "reason": null,
+      "final_clock_time": 183.01880936023372,
+      "completed_workflow_count": 1,
+      "processed_event_count": 7,
+      "makespan": 95.60272863667572,
+      "workflow_records": [
+        {
+          "workflow_id": 0,
+          "owner_device_id": "M0",
+          "release_time": 87.416080723558,
+          "completion_time": 183.01880936023372,
+          "flow_time": 95.60272863667572,
+          "recorded": true,
+          "weight": 1.0,
+          "dag_type_id": 0,
+          "template_hash": "c79483b688beddfc5ebb2acee2ed245b6ad1a7b15bc2636e1626a57a08023dc3",
+          "input_record_id": "1"
+        },
+        {
+          "workflow_id": 1,
+          "owner_device_id": "M0",
+          "release_time": 262.7770086146495,
+          "completion_time": null,
+          "flow_time": null,
+          "recorded": false,
+          "weight": 4.0,
+          "dag_type_id": 0,
+          "template_hash": "c79483b688beddfc5ebb2acee2ed245b6ad1a7b15bc2636e1626a57a08023dc3",
+          "input_record_id": "2"
+        }
+      ],
+      "task_records": [
+        {
+          "workflow_id": 0,
+          "task_id": "Z",
+          "resource_id": "M0",
+          "dispatch_time": 87.416080723558,
+          "arrival_time": 87.416080723558,
+          "start_time": 87.416080723558,
+          "compute_finish_time": 130.60571614103355,
+          "finish_time": 130.60571614103355,
+          "plan": {
+            "start_time": 87.416080723558,
+            "compute_finish_time": 130.60571614103355,
+            "finish_time": 130.60571614103355
+          },
+          "java_index": 0
+        },
+        {
+          "workflow_id": 0,
+          "task_id": "a",
+          "resource_id": "E0",
+          "dispatch_time": 130.60571614103355,
+          "arrival_time": 144.00991832206165,
+          "start_time": 144.00991832206165,
+          "compute_finish_time": 169.75310055336294,
+          "finish_time": 183.01880936023372,
+          "plan": {
+            "start_time": 144.00991832206165,
+            "compute_finish_time": 169.75310055336294,
+            "finish_time": 183.01880936023372
+          },
+          "java_index": 1
+        },
+        {
+          "workflow_id": 1,
+          "task_id": "Z",
+          "resource_id": null,
+          "dispatch_time": null,
+          "arrival_time": null,
+          "start_time": null,
+          "compute_finish_time": null,
+          "finish_time": null,
+          "plan": null,
+          "java_index": 0
+        },
+        {
+          "workflow_id": 1,
+          "task_id": "a",
+          "resource_id": null,
+          "dispatch_time": null,
+          "arrival_time": null,
+          "start_time": null,
+          "compute_finish_time": null,
+          "finish_time": null,
+          "plan": null,
+          "java_index": 1
+        }
+      ],
+      "events": [],
+      "decisions": [],
+      "reason_code": null,
+      "generated_workflow_count": 2,
+      "arrived_workflow_count": 1,
+      "recorded_workflow_count": 1,
+      "mean_flow_time": 95.60272863667572,
+      "device_statistics": [
+        {
+          "device_id": "M0",
+          "generated_workflow_count": 2,
+          "completed_workflow_count": 1,
+          "recorded_workflow_count": 1
+        }
+      ],
+      "source_summary": {
+        "kind": "random",
+        "generation_call_count": 2,
+        "attempt_count": 2,
+        "rejected_count": 0,
+        "consumed_attempt_count": 2,
+        "incomplete_attempt": false,
+        "capture_complete": true,
+        "coverage": "observed_generation_calls_only"
+      },
+      "diagnostics": {
+        "run_index": 0,
+        "operation": "fresh",
+        "public_seed": 7,
+        "initial_cutoff_release_time": 0.0,
+        "cutoff_release_time": 87.416080723558,
+        "legacy_nonrecording_events": 0,
+        "guard_hits": [],
+        "initialization_complete": true,
+        "initialization_actions": [],
+        "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451",
+        "edge_data_cleanup": {
+          "policy": "release_after_materialization",
+          "workflows_released": 2,
+          "released_task_count": 4,
+          "removed_mapping_entry_count": 4
+        },
+        "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+        "rng_ready_fingerprint": "a4574d4e8eb7f814eaa450e2cbef534bb90e98f5fe408cfb1bb5d71d41eb5b4c",
+        "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "format": "fogsim.dynamic-replay",
+      "schema_version": 1,
+      "origin": {
+        "language": "Python",
+        "implementation_version": "fogsim-0.2.1-step7",
+        "code_dependency_fingerprint": "b823f8899299c9df229a2625551d24f858ae9e950646a927bdae67946202d759",
+        "rules": {
+          "sequencing": "FCFS",
+          "routing": "FCFS"
+        },
+        "operation": "fresh",
+        "fixture_kind": "native_random",
+        "label": "python-observed-input"
+      },
+      "initial_state": {
+        "B": 0.0,
+        "public_seed": 7,
+        "seed_encoding_version": "signed64-bits-v1",
+        "rng_seed_decimal": "7",
+        "run_index": 0
+      },
+      "effective_config": {
+        "num_jobs_recorded": 1,
+        "warmup_jobs": 1,
+        "statistics_policy": "java_legacy",
+        "sequencing_rule": {
+          "kind": "fcfs",
+          "resource_id": null
+        },
+        "routing_rule": {
+          "kind": "fcfs",
+          "resource_id": null
+        },
+        "exception_policy": "explicit_failure",
+        "event_order": "java_compatible",
+        "guards": {
+          "resource_queue_greater_than": 400,
+          "stagnation_greater_than": 400000,
+          "generated_greater_than_multiplier": 500
+        },
+        "samplers": {
+          "workload": [
+            5000.0,
+            15000.0
+          ],
+          "data_size": [
+            5120.0,
+            20480.0
+          ],
+          "edge_data": [
+            100.0,
+            200.0
+          ],
+          "processing_rate_device": [
+            125.0,
+            250.0
+          ],
+          "processing_rate_edge": [
+            250.0,
+            500.0
+          ],
+          "processing_rate_cloud": [
+            500.0,
+            1000.0
+          ],
+          "inter_release_time": {
+            "family": "python_exponential",
+            "effective_mean": 100.0
+          },
+          "weight": "python_two_six_two",
+          "upload_bandwidth_edge": "constant_1024",
+          "download_bandwidth_edge": "constant_1024",
+          "upload_bandwidth_cloud": "python_bandwidth_cloud",
+          "download_bandwidth_cloud": "python_bandwidth_cloud",
+          "workflow_type": [
+            0,
+            0
+          ]
+        },
+        "additional_budget": 1000
+      },
+      "units": {
+        "time": "s",
+        "workload": "model_workload",
+        "data": "model_data"
+      },
+      "environment": {
+        "devices": [
+          {
+            "id": "M0",
+            "numeric_id": 0,
+            "processing_rate": 165.4790956041453,
+            "can_process_tasks": true
+          }
+        ],
+        "servers": [
+          {
+            "id": "E0",
+            "numeric_id": 0,
+            "type": "EDGE",
+            "processing_rate": 287.71229348112547,
+            "upload_bandwidth": 1024.0,
+            "download_bandwidth": 1024.0
+          },
+          {
+            "id": "C0",
+            "numeric_id": 1,
+            "type": "CLOUD",
+            "processing_rate": 767.9410021533446,
+            "upload_bandwidth": 512.0,
+            "download_bandwidth": 256.0
+          }
+        ],
+        "parameter_source": "2de6b26418a7e209b703cde7ac772094192659edb78f720c501da03d4bff0310",
+        "fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+      },
+      "templates": [
+        {
+          "dag_type_id": 0,
+          "source_name": "CyberShake_30.xml",
+          "source_sha256": "c79483b688beddfc5ebb2acee2ed245b6ad1a7b15bc2636e1626a57a08023dc3",
+          "tasks": [
+            {
+              "xml_id": "Z",
+              "java_index": 0
+            },
+            {
+              "xml_id": "a",
+              "java_index": 1
+            }
+          ],
+          "dependencies": [
+            [
+              "Z",
+              "a"
+            ]
+          ],
+          "diagnostics": []
+        }
+      ],
+      "candidates": [
+        {
+          "record_id": "1",
+          "workflow_input": {
+            "candidate_id": 0,
+            "owner_device_id": "M0",
+            "template_ref": {
+              "dag_type_id": 0,
+              "source_sha256": "c79483b688beddfc5ebb2acee2ed245b6ad1a7b15bc2636e1626a57a08023dc3"
+            },
+            "release_time": 87.416080723558,
+            "inter_release_time": 87.416080723558,
+            "weight": 1.0,
+            "tasks": [
+              {
+                "id": "Z",
+                "workload": 7146.981808356617,
+                "data_size": 6440.149509465677,
+                "total_input_data": 0.0,
+                "total_output_data": 141.81721513707595,
+                "options": [
+                  {
+                    "resource_id": "M0",
+                    "upload_time": 0.0,
+                    "processing_time": 43.18963541747555,
+                    "download_time": 0.0
+                  },
+                  {
+                    "resource_id": "E0",
+                    "upload_time": 6.289208505337575,
+                    "processing_time": 24.84072446777626,
+                    "download_time": 6.427701879494876
+                  },
+                  {
+                    "resource_id": "C0",
+                    "upload_time": 12.57841701067515,
+                    "processing_time": 9.30668083656964,
+                    "download_time": 25.710807517979504
+                  }
+                ]
+              },
+              {
+                "id": "a",
+                "workload": 7406.63000127025,
+                "data_size": 13584.085818235686,
+                "total_input_data": 141.81721513707595,
+                "total_output_data": 0.0,
+                "options": [
+                  {
+                    "resource_id": "M0",
+                    "upload_time": 0.0,
+                    "processing_time": 44.75870486377442,
+                    "download_time": 0.0
+                  },
+                  {
+                    "resource_id": "E0",
+                    "upload_time": 13.404202181028088,
+                    "processing_time": 25.743182231301287,
+                    "download_time": 13.265708806870787
+                  },
+                  {
+                    "resource_id": "C0",
+                    "upload_time": 26.808404362056176,
+                    "processing_time": 9.644790394707007,
+                    "download_time": 53.06283522748315
+                  }
+                ]
+              }
+            ],
+            "edges": [
+              {
+                "parent_id": "Z",
+                "child_id": "a",
+                "data_size": 141.81721513707595
+              }
+            ]
+          }
+        },
+        {
+          "record_id": "2",
+          "workflow_input": {
+            "candidate_id": 1,
+            "owner_device_id": "M0",
+            "template_ref": {
+              "dag_type_id": 0,
+              "source_sha256": "c79483b688beddfc5ebb2acee2ed245b6ad1a7b15bc2636e1626a57a08023dc3"
+            },
+            "release_time": 262.7770086146495,
+            "inter_release_time": 175.3609278910915,
+            "weight": 4.0,
+            "tasks": [
+              {
+                "id": "Z",
+                "workload": 7232.389646070145,
+                "data_size": 14757.374296149852,
+                "total_input_data": 0.0,
+                "total_output_data": 194.77089424570056,
+                "options": [
+                  {
+                    "resource_id": "M0",
+                    "upload_time": 0.0,
+                    "processing_time": 43.70576005183927,
+                    "download_time": 0.0
+                  },
+                  {
+                    "resource_id": "E0",
+                    "upload_time": 14.41149833608384,
+                    "processing_time": 25.137576008877094,
+                    "download_time": 14.601704287495657
+                  },
+                  {
+                    "resource_id": "C0",
+                    "upload_time": 28.82299667216768,
+                    "processing_time": 9.417897502269271,
+                    "download_time": 58.40681714998263
+                  }
+                ]
+              },
+              {
+                "id": "a",
+                "workload": 10771.029486174986,
+                "data_size": 11213.012090635984,
+                "total_input_data": 194.77089424570056,
+                "total_output_data": 0.0,
+                "options": [
+                  {
+                    "resource_id": "M0",
+                    "upload_time": 0.0,
+                    "processing_time": 65.08997071111119,
+                    "download_time": 0.0
+                  },
+                  {
+                    "resource_id": "E0",
+                    "upload_time": 11.140413071173521,
+                    "processing_time": 37.43680659541087,
+                    "download_time": 10.950207119761703
+                  },
+                  {
+                    "resource_id": "C0",
+                    "upload_time": 22.280826142347042,
+                    "processing_time": 14.025855444588172,
+                    "download_time": 43.800828479046814
+                  }
+                ]
+              }
+            ],
+            "edges": [
+              {
+                "parent_id": "Z",
+                "child_id": "a",
+                "data_size": 194.77089424570056
+              }
+            ]
+          }
+        }
+      ],
+      "generation_attempts": [
+        {
+          "attempt_sequence": 1,
+          "phase": "initialize",
+          "owner_device_id": "M0",
+          "generation_clock_time": 0.0,
+          "causing_workflow_id": null,
+          "event_sequence": null,
+          "candidate_ref": "1",
+          "observed_acceptance": true,
+          "rejection_reason": null
+        },
+        {
+          "attempt_sequence": 2,
+          "phase": "after_arrival",
+          "owner_device_id": "M0",
+          "generation_clock_time": 87.416080723558,
+          "causing_workflow_id": 0,
+          "event_sequence": 1,
+          "candidate_ref": "2",
+          "observed_acceptance": true,
+          "rejection_reason": null
+        }
+      ],
+      "capture": {
+        "complete": true,
+        "complete_attempt_count": 2,
+        "write_interrupted": false,
+        "process_interrupted": false,
+        "termination": "PYTHON_RUN_RETURNED"
+      },
+      "diagnostics": {
+        "dataset_role": "debug",
+        "edge_data_policy": "release_after_materialization",
+        "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+        "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c"
+      }
+    },
+    {
+      "format": "fogsim.dynamic-replay",
+      "schema_version": 1,
+      "origin": {
+        "language": "Python",
+        "implementation_version": "fogsim-0.2.1-step7",
+        "code_dependency_fingerprint": "b823f8899299c9df229a2625551d24f858ae9e950646a927bdae67946202d759",
+        "rules": {
+          "sequencing": "FCFS",
+          "routing": "FCFS"
+        },
+        "operation": "fresh",
+        "fixture_kind": "native_random",
+        "label": "python-observed-input"
+      },
+      "initial_state": {
+        "B": 0.0,
+        "public_seed": 7,
+        "seed_encoding_version": "signed64-bits-v1",
+        "rng_seed_decimal": "7",
+        "run_index": 0
+      },
+      "effective_config": {
+        "num_jobs_recorded": 1,
+        "warmup_jobs": 1,
+        "statistics_policy": "java_legacy",
+        "sequencing_rule": {
+          "kind": "fcfs",
+          "resource_id": null
+        },
+        "routing_rule": {
+          "kind": "fcfs",
+          "resource_id": null
+        },
+        "exception_policy": "explicit_failure",
+        "event_order": "java_compatible",
+        "guards": {
+          "resource_queue_greater_than": 400,
+          "stagnation_greater_than": 400000,
+          "generated_greater_than_multiplier": 500
+        },
+        "samplers": {
+          "workload": [
+            5000.0,
+            15000.0
+          ],
+          "data_size": [
+            5120.0,
+            20480.0
+          ],
+          "edge_data": [
+            100.0,
+            200.0
+          ],
+          "processing_rate_device": [
+            125.0,
+            250.0
+          ],
+          "processing_rate_edge": [
+            250.0,
+            500.0
+          ],
+          "processing_rate_cloud": [
+            500.0,
+            1000.0
+          ],
+          "inter_release_time": {
+            "family": "python_exponential",
+            "effective_mean": 100.0
+          },
+          "weight": "python_two_six_two",
+          "upload_bandwidth_edge": "constant_1024",
+          "download_bandwidth_edge": "constant_1024",
+          "upload_bandwidth_cloud": "python_bandwidth_cloud",
+          "download_bandwidth_cloud": "python_bandwidth_cloud",
+          "workflow_type": [
+            0,
+            0
+          ]
+        },
+        "additional_budget": 1000
+      },
+      "units": {
+        "time": "s",
+        "workload": "model_workload",
+        "data": "model_data"
+      },
+      "environment": {
+        "devices": [
+          {
+            "id": "M0",
+            "numeric_id": 0,
+            "processing_rate": 165.4790956041453,
+            "can_process_tasks": true
+          }
+        ],
+        "servers": [
+          {
+            "id": "E0",
+            "numeric_id": 0,
+            "type": "EDGE",
+            "processing_rate": 287.71229348112547,
+            "upload_bandwidth": 1024.0,
+            "download_bandwidth": 1024.0
+          },
+          {
+            "id": "C0",
+            "numeric_id": 1,
+            "type": "CLOUD",
+            "processing_rate": 767.9410021533446,
+            "upload_bandwidth": 512.0,
+            "download_bandwidth": 256.0
+          }
+        ],
+        "parameter_source": "2de6b26418a7e209b703cde7ac772094192659edb78f720c501da03d4bff0310",
+        "fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451"
+      },
+      "templates": [
+        {
+          "dag_type_id": 0,
+          "source_name": "CyberShake_30.xml",
+          "source_sha256": "c79483b688beddfc5ebb2acee2ed245b6ad1a7b15bc2636e1626a57a08023dc3",
+          "tasks": [
+            {
+              "xml_id": "Z",
+              "java_index": 0
+            },
+            {
+              "xml_id": "a",
+              "java_index": 1
+            }
+          ],
+          "dependencies": [
+            [
+              "Z",
+              "a"
+            ]
+          ],
+          "diagnostics": []
+        }
+      ],
+      "candidates": [
+        {
+          "record_id": "1",
+          "workflow_input": {
+            "candidate_id": 0,
+            "owner_device_id": "M0",
+            "template_ref": {
+              "dag_type_id": 0,
+              "source_sha256": "c79483b688beddfc5ebb2acee2ed245b6ad1a7b15bc2636e1626a57a08023dc3"
+            },
+            "release_time": 87.416080723558,
+            "inter_release_time": 87.416080723558,
+            "weight": 1.0,
+            "tasks": [
+              {
+                "id": "Z",
+                "workload": 7146.981808356617,
+                "data_size": 6440.149509465677,
+                "total_input_data": 0.0,
+                "total_output_data": 141.81721513707595,
+                "options": [
+                  {
+                    "resource_id": "M0",
+                    "upload_time": 0.0,
+                    "processing_time": 43.18963541747555,
+                    "download_time": 0.0
+                  },
+                  {
+                    "resource_id": "E0",
+                    "upload_time": 6.289208505337575,
+                    "processing_time": 24.84072446777626,
+                    "download_time": 6.427701879494876
+                  },
+                  {
+                    "resource_id": "C0",
+                    "upload_time": 12.57841701067515,
+                    "processing_time": 9.30668083656964,
+                    "download_time": 25.710807517979504
+                  }
+                ]
+              },
+              {
+                "id": "a",
+                "workload": 7406.63000127025,
+                "data_size": 13584.085818235686,
+                "total_input_data": 141.81721513707595,
+                "total_output_data": 0.0,
+                "options": [
+                  {
+                    "resource_id": "M0",
+                    "upload_time": 0.0,
+                    "processing_time": 44.75870486377442,
+                    "download_time": 0.0
+                  },
+                  {
+                    "resource_id": "E0",
+                    "upload_time": 13.404202181028088,
+                    "processing_time": 25.743182231301287,
+                    "download_time": 13.265708806870787
+                  },
+                  {
+                    "resource_id": "C0",
+                    "upload_time": 26.808404362056176,
+                    "processing_time": 9.644790394707007,
+                    "download_time": 53.06283522748315
+                  }
+                ]
+              }
+            ],
+            "edges": [
+              {
+                "parent_id": "Z",
+                "child_id": "a",
+                "data_size": 141.81721513707595
+              }
+            ]
+          }
+        },
+        {
+          "record_id": "2",
+          "workflow_input": {
+            "candidate_id": 1,
+            "owner_device_id": "M0",
+            "template_ref": {
+              "dag_type_id": 0,
+              "source_sha256": "c79483b688beddfc5ebb2acee2ed245b6ad1a7b15bc2636e1626a57a08023dc3"
+            },
+            "release_time": 262.7770086146495,
+            "inter_release_time": 175.3609278910915,
+            "weight": 4.0,
+            "tasks": [
+              {
+                "id": "Z",
+                "workload": 7232.389646070145,
+                "data_size": 14757.374296149852,
+                "total_input_data": 0.0,
+                "total_output_data": 194.77089424570056,
+                "options": [
+                  {
+                    "resource_id": "M0",
+                    "upload_time": 0.0,
+                    "processing_time": 43.70576005183927,
+                    "download_time": 0.0
+                  },
+                  {
+                    "resource_id": "E0",
+                    "upload_time": 14.41149833608384,
+                    "processing_time": 25.137576008877094,
+                    "download_time": 14.601704287495657
+                  },
+                  {
+                    "resource_id": "C0",
+                    "upload_time": 28.82299667216768,
+                    "processing_time": 9.417897502269271,
+                    "download_time": 58.40681714998263
+                  }
+                ]
+              },
+              {
+                "id": "a",
+                "workload": 10771.029486174986,
+                "data_size": 11213.012090635984,
+                "total_input_data": 194.77089424570056,
+                "total_output_data": 0.0,
+                "options": [
+                  {
+                    "resource_id": "M0",
+                    "upload_time": 0.0,
+                    "processing_time": 65.08997071111119,
+                    "download_time": 0.0
+                  },
+                  {
+                    "resource_id": "E0",
+                    "upload_time": 11.140413071173521,
+                    "processing_time": 37.43680659541087,
+                    "download_time": 10.950207119761703
+                  },
+                  {
+                    "resource_id": "C0",
+                    "upload_time": 22.280826142347042,
+                    "processing_time": 14.025855444588172,
+                    "download_time": 43.800828479046814
+                  }
+                ]
+              }
+            ],
+            "edges": [
+              {
+                "parent_id": "Z",
+                "child_id": "a",
+                "data_size": 194.77089424570056
+              }
+            ]
+          }
+        }
+      ],
+      "generation_attempts": [
+        {
+          "attempt_sequence": 1,
+          "phase": "initialize",
+          "owner_device_id": "M0",
+          "generation_clock_time": 0.0,
+          "causing_workflow_id": null,
+          "event_sequence": null,
+          "candidate_ref": "1",
+          "observed_acceptance": true,
+          "rejection_reason": null
+        },
+        {
+          "attempt_sequence": 2,
+          "phase": "after_arrival",
+          "owner_device_id": "M0",
+          "generation_clock_time": 87.416080723558,
+          "causing_workflow_id": 0,
+          "event_sequence": 1,
+          "candidate_ref": "2",
+          "observed_acceptance": true,
+          "rejection_reason": null
+        }
+      ],
+      "capture": {
+        "complete": true,
+        "complete_attempt_count": 2,
+        "write_interrupted": false,
+        "process_interrupted": false,
+        "termination": "PYTHON_RUN_RETURNED"
+      },
+      "diagnostics": {
+        "dataset_role": "debug",
+        "edge_data_policy": "release_after_materialization",
+        "rng_start_fingerprint": "ffca085a8ced654d3cf76540ddb04ef08cd0e95443d5ebff974803b9ceb745c8",
+        "rng_final_fingerprint": "6681e348a280fb79ed3b24b810342313b1c2df3658a304f654c9fbf396277e5c"
+      }
+    }
+  ],
+  "run_metadata": [
+    {
+      "experiment_run_index": 0,
+      "engine_run_index": 0,
+      "public_seed": 7,
+      "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451",
+      "initial_B": 0.0,
+      "status": "SUCCEEDED",
+      "source_summary": {
+        "kind": "random",
+        "generation_call_count": 2,
+        "attempt_count": 2,
+        "rejected_count": 0,
+        "consumed_attempt_count": 2,
+        "incomplete_attempt": false,
+        "capture_complete": true,
+        "coverage": "observed_generation_calls_only"
+      },
+      "dataset_role": "debug",
+      "input_role": "observed_python_round",
+      "single_run_config_fingerprint": "04db05c4b9e6842372cc19ba7c218893ea2a44e22e96812b011ff7a37269d94b"
+    },
+    {
+      "experiment_run_index": 1,
+      "engine_run_index": 0,
+      "public_seed": 7,
+      "environment_fingerprint": "9409aacaed92ff0e456173a8df0c6569f07352ec547b3b16623ba73355152451",
+      "initial_B": 0.0,
+      "status": "SUCCEEDED",
+      "source_summary": {
+        "kind": "random",
+        "generation_call_count": 2,
+        "attempt_count": 2,
+        "rejected_count": 0,
+        "consumed_attempt_count": 2,
+        "incomplete_attempt": false,
+        "capture_complete": true,
+        "coverage": "observed_generation_calls_only"
+      },
+      "dataset_role": "debug",
+      "input_role": "observed_python_round",
+      "single_run_config_fingerprint": "04db05c4b9e6842372cc19ba7c218893ea2a44e22e96812b011ff7a37269d94b"
+    }
+  ],
+  "failure_reasons": [],
+  "verification_required": false,
+  "verification_failures": [],
+  "all_runs_mean": {
+    "makespan": 95.60272863667572,
+    "mean_flow_time": 95.60272863667572
+  },
+  "mean_over_successes": {
+    "makespan": 95.60272863667572,
+    "mean_flow_time": 95.60272863667572
+  },
+  "success_denominator": 2,
+  "sample_stddev_over_successes": {
+    "makespan": 0.0,
+    "mean_flow_time": 0.0
+  },
+  "failure_rate": 0.0,
+  "failure_rate_denominator": 2,
+  "not_run_fraction": 0.0,
+  "aggregation_scope": "same configured scene/statistics/rules; allowed seeds vary by explicit mode; successes are runtime successes"
+}

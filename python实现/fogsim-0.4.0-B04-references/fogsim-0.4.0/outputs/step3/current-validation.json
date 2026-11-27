@@ -1,0 +1,115 @@
+{
+  "stage": "step3-development-snapshot",
+  "date": "2026-11-04",
+  "timezone": "America/Los_Angeles",
+  "baseline_step2_zip_sha256": "fb0384d86a4c0ffff68f75073bf2359fd74e8b23d5132bb352f907aa049f7074",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.39",
+  "pytest": "9.2.0",
+  "contracts": {
+    "tests": 74,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "python_unit_integration": {
+    "tests": 517,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "checks": {
+    "scope": "scripted original constructor/setup/generation only; no triggered events or full input export",
+    "known_differences": [
+      "Python retains edge maps; original Java clears maps",
+      "scripted test samplers replace RNG sampling only"
+    ],
+    "cases": [
+      {
+        "case": "normal",
+        "classification": "NORMAL_PARITY_PASSED",
+        "passed": true,
+        "first_difference": null
+      },
+      {
+        "case": "local_disabled",
+        "classification": "NORMAL_PARITY_PASSED",
+        "passed": true,
+        "first_difference": null
+      },
+      {
+        "case": "local_only",
+        "classification": "NORMAL_PARITY_PASSED",
+        "passed": true,
+        "first_difference": null
+      },
+      {
+        "case": "first_device_rejected",
+        "classification": "NORMAL_PARITY_PASSED",
+        "passed": true,
+        "first_difference": null
+      },
+      {
+        "case": "all_devices_rejected",
+        "classification": "NORMAL_PARITY_PASSED",
+        "passed": true,
+        "first_difference": null
+      },
+      {
+        "case": "release_rounding",
+        "classification": "NORMAL_PARITY_PASSED",
+        "passed": true,
+        "first_difference": null
+      },
+      {
+        "case": "adjacency_accumulation",
+        "classification": "NORMAL_PARITY_PASSED",
+        "passed": true,
+        "first_difference": null
+      }
+    ],
+    "passed": true
+  },
+  "changed": [
+    "README.md",
+    "docs/IMPLEMENTATION-NOTES.md",
+    "docs/SOURCES.md",
+    "docs/VALIDATION.md",
+    "docs/roadmap.md",
+    "docs/semantics.md",
+    "src/fogsim/__init__.py",
+    "src/fogsim/errors.py"
+  ],
+  "added": [
+    "docs/STEP3-PROGRESS.md",
+    "src/fogsim/environment/build.py",
+    "src/fogsim/instances/generation.py",
+    "src/fogsim/instances/materialize.py",
+    "src/fogsim/numerics.py",
+    "tests/integration/test_generated_kernel.py",
+    "tests/unit/test_environment_build.py",
+    "tests/unit/test_materialize_workflow.py",
+    "tests/unit/test_workflow_generation.py",
+    "tools/check_step3.py",
+    "tools/java/step3/fogsim/adapter/Step3Oracle.java"
+  ],
+  "source_snapshot_sha256": "cf853da8663ef0b59a9b1c947b1298595f8fd718206570484a789a8e3918a8f2",
+  "standard_generation_templates": 20,
+  "full_V01": "NOT_EXECUTED",
+  "dynamic_scheduling_parity": "NOT_EXECUTED",
+  "V16_exporter": "NOT_IMPLEMENTED",
+  "commands": [
+    "PYTHONPATH=../../.test-deps:src python -m pytest -q tests/unit/test_environment_build.py tests/unit/test_workflow_generation.py tests/unit/test_materialize_workflow.py tests/integration/test_generated_kernel.py --junitxml=outputs/step3/contracts.xml",
+    "PYTHONPATH=../../.test-deps:src python -m pytest -q tests/unit tests/integration --junitxml=outputs/step3/python-regression.xml",
+    "LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib:/usr/lib/jvm/java-17-openjdk-amd64/lib/server PYTHONPATH=../../.test-deps:src python tools/check_step3.py"
+  ],
+  "not_implemented": [
+    "production centralized admission and dynamic Arrival hooks",
+    "statistics/G/B/context lifecycle",
+    "Java complete dynamic input exporter",
+    "replay/fixed projection",
+    "edge cleanup service",
+    "new CLI/experiment runner",
+    "GP"
+  ]
+}

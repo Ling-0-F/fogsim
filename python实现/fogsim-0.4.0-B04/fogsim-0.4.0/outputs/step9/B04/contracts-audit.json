@@ -1,0 +1,3056 @@
+{
+  "format": "fogsim.contract-audit",
+  "schema_version": 1,
+  "version": "0.3.0",
+  "design": "references/design/FROZEN-0.3.0-BASELINE.md",
+  "design_sha256": "e47a1953e65a8b152f9e6d63b8a8702c862b5fb5518894169922b63543e92758",
+  "scope": "source-reviewed atomic obligations with current executed test associations; cross-language gates are separately required by final acceptance",
+  "contracts": [
+    {
+      "id": "C001",
+      "clause": "1.3",
+      "requirement": "旧固定JSON、公开API、结果字段与repeat保持兼容",
+      "implementation": [
+        "src/fogsim/instances/fixed.py",
+        "src/fogsim/simulation/engine.py",
+        "src/fogsim/simulation/events.py",
+        "src/fogsim/simulation/event_queue.py"
+      ],
+      "tests": [
+        "tests/integration/test_runs.py",
+        "tests/integration/test_v01_regression.py",
+        "tests/integration/test_step1_fixed_compatibility.py"
+      ],
+      "validation": "V01",
+      "status": "VERIFIED",
+      "executed_test_cases": 33,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C002",
+      "clause": "1.3",
+      "requirement": "四事件、两层堆、异常比较器和平分遍历顺序保留",
+      "implementation": [
+        "src/fogsim/instances/fixed.py",
+        "src/fogsim/simulation/engine.py",
+        "src/fogsim/simulation/events.py",
+        "src/fogsim/simulation/event_queue.py"
+      ],
+      "tests": [
+        "tests/integration/test_runs.py",
+        "tests/integration/test_v01_regression.py",
+        "tests/integration/test_step1_fixed_compatibility.py"
+      ],
+      "validation": "V01",
+      "status": "VERIFIED",
+      "executed_test_cases": 33,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C003",
+      "clause": "1.3",
+      "requirement": "Finish后两整轮路由、预约、计算/下载占用及缓存加减顺序保留",
+      "implementation": [
+        "src/fogsim/instances/fixed.py",
+        "src/fogsim/simulation/engine.py",
+        "src/fogsim/simulation/events.py",
+        "src/fogsim/simulation/event_queue.py"
+      ],
+      "tests": [
+        "tests/integration/test_runs.py",
+        "tests/integration/test_v01_regression.py",
+        "tests/integration/test_step1_fixed_compatibility.py"
+      ],
+      "validation": "V01",
+      "status": "VERIFIED",
+      "executed_test_cases": 33,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C004",
+      "clause": "1.3",
+      "requirement": "固定全集完成才成功，领域失败空指标，未知程序异常传播",
+      "implementation": [
+        "src/fogsim/instances/fixed.py",
+        "src/fogsim/simulation/engine.py",
+        "src/fogsim/simulation/events.py",
+        "src/fogsim/simulation/event_queue.py"
+      ],
+      "tests": [
+        "tests/integration/test_runs.py",
+        "tests/integration/test_v01_regression.py",
+        "tests/integration/test_step1_fixed_compatibility.py"
+      ],
+      "validation": "V01",
+      "status": "VERIFIED",
+      "executed_test_cases": 33,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C005",
+      "clause": "4",
+      "requirement": "输入/环境/来源→集中接纳→规范状态→原四事件；不复制调度器",
+      "implementation": [
+        "src/fogsim/instances/source.py",
+        "src/fogsim/simulation/admission.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/rules/contexts.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_model_rules.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 29,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C006",
+      "clause": "4",
+      "requirement": "日志和比较只观察；规则视图不含Context、RNG、完整归档或未来输入",
+      "implementation": [
+        "src/fogsim/instances/source.py",
+        "src/fogsim/simulation/admission.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/rules/contexts.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_model_rules.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 29,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C007",
+      "clause": "4",
+      "requirement": "资源对象不承担生成、seed轮换或批次汇总",
+      "implementation": [
+        "src/fogsim/instances/source.py",
+        "src/fogsim/simulation/admission.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/rules/contexts.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_model_rules.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 29,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C008",
+      "clause": "5.1",
+      "requirement": "模板和任务映射独立不可变；不含随机值或运行图",
+      "implementation": [
+        "src/fogsim/instances/generated.py",
+        "src/fogsim/instances/templates.py",
+        "src/fogsim/environment/spec.py",
+        "src/fogsim/model/task.py",
+        "src/fogsim/model/workflow.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_materialize_workflow.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 101,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C009",
+      "clause": "5.1",
+      "requirement": "环境保存有序实际资源数值；不含队列状态",
+      "implementation": [
+        "src/fogsim/instances/generated.py",
+        "src/fogsim/instances/templates.py",
+        "src/fogsim/environment/spec.py",
+        "src/fogsim/model/task.py",
+        "src/fogsim/model/workflow.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_materialize_workflow.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 101,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C010",
+      "clause": "5.1",
+      "requirement": "候选完整保存任务物理值、累计、边值和全部实际PT/UT/DT",
+      "implementation": [
+        "src/fogsim/instances/generated.py",
+        "src/fogsim/instances/templates.py",
+        "src/fogsim/environment/spec.py",
+        "src/fogsim/model/task.py",
+        "src/fogsim/model/workflow.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_materialize_workflow.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 101,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C011",
+      "clause": "5.1",
+      "requirement": "attempt与正式工作流ID分离；归档不共享可变边字典",
+      "implementation": [
+        "src/fogsim/instances/generated.py",
+        "src/fogsim/instances/templates.py",
+        "src/fogsim/environment/spec.py",
+        "src/fogsim/model/task.py",
+        "src/fogsim/model/workflow.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_materialize_workflow.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 101,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C012",
+      "clause": "5.2",
+      "requirement": "旧构造字段位置保留，新增可选字段后置",
+      "implementation": [
+        "src/fogsim/instances/generated.py",
+        "src/fogsim/instances/templates.py",
+        "src/fogsim/environment/spec.py",
+        "src/fogsim/model/task.py",
+        "src/fogsim/model/workflow.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_materialize_workflow.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 101,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C013",
+      "clause": "5.2",
+      "requirement": "动态Workflow元数据、Task物理数据、资源物理参数完整",
+      "implementation": [
+        "src/fogsim/instances/generated.py",
+        "src/fogsim/instances/templates.py",
+        "src/fogsim/environment/spec.py",
+        "src/fogsim/model/task.py",
+        "src/fogsim/model/workflow.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_materialize_workflow.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 101,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C014",
+      "clause": "5.2",
+      "requirement": "UNAVAILABLE/RETAINED/RELEASED及访问错误明确",
+      "implementation": [
+        "src/fogsim/instances/generated.py",
+        "src/fogsim/instances/templates.py",
+        "src/fogsim/environment/spec.py",
+        "src/fogsim/model/task.py",
+        "src/fogsim/model/workflow.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_materialize_workflow.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 101,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C015",
+      "clause": "5.2",
+      "requirement": "Task/Workflow无Context、归档或目录的反向引用",
+      "implementation": [
+        "src/fogsim/instances/generated.py",
+        "src/fogsim/instances/templates.py",
+        "src/fogsim/environment/spec.py",
+        "src/fogsim/model/task.py",
+        "src/fogsim/model/workflow.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_materialize_workflow.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 101,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C016",
+      "clause": "5.3",
+      "requirement": "动态ID为接纳前G；拒绝不占ID，固定ID不重编号",
+      "implementation": [
+        "src/fogsim/instances/identity.py",
+        "src/fogsim/instances/materialize.py",
+        "src/fogsim/simulation/state.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_dynamic_admission.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 97,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C017",
+      "clause": "5.3",
+      "requirement": "Task.id保留XML字符串，Java编号仅按任务位置映射",
+      "implementation": [
+        "src/fogsim/instances/identity.py",
+        "src/fogsim/instances/materialize.py",
+        "src/fogsim/simulation/state.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_dynamic_admission.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 97,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C018",
+      "clause": "5.3",
+      "requirement": "设备/服务器编号按资源顺序；不靠名称后缀解析",
+      "implementation": [
+        "src/fogsim/instances/identity.py",
+        "src/fogsim/instances/materialize.py",
+        "src/fogsim/simulation/state.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_dynamic_admission.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 97,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C019",
+      "clause": "5.3",
+      "requirement": "同轮规范对象唯一，跨工作流/跨轮对象图隔离",
+      "implementation": [
+        "src/fogsim/instances/identity.py",
+        "src/fogsim/instances/materialize.py",
+        "src/fogsim/simulation/state.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_dynamic_admission.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 97,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C020",
+      "clause": "5.3",
+      "requirement": "模板依赖顺序与边采样顺序分别保存，不混用",
+      "implementation": [
+        "src/fogsim/instances/identity.py",
+        "src/fogsim/instances/materialize.py",
+        "src/fogsim/simulation/state.py"
+      ],
+      "tests": [
+        "tests/unit/test_input_contracts.py",
+        "tests/unit/test_dynamic_admission.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 97,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C021",
+      "clause": "6",
+      "requirement": "G/B/R各有单一权威；recorded引用物理completed中的同一对象",
+      "implementation": [
+        "src/fogsim/simulation/state.py",
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/event_queue.py"
+      ],
+      "tests": [
+        "tests/unit/test_queue_lifecycle.py",
+        "tests/unit/test_dynamic_statistics.py",
+        "tests/unit/test_dynamic_admission.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 55,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C022",
+      "clause": "6",
+      "requirement": "pending/active/completed互斥且覆盖全部接纳工作流",
+      "implementation": [
+        "src/fogsim/simulation/state.py",
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/event_queue.py"
+      ],
+      "tests": [
+        "tests/unit/test_queue_lifecycle.py",
+        "tests/unit/test_dynamic_statistics.py",
+        "tests/unit/test_dynamic_admission.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 55,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C023",
+      "clause": "6",
+      "requirement": "各设备计数、统计子集、实际到达与物理完成关系一致",
+      "implementation": [
+        "src/fogsim/simulation/state.py",
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/event_queue.py"
+      ],
+      "tests": [
+        "tests/unit/test_queue_lifecycle.py",
+        "tests/unit/test_dynamic_statistics.py",
+        "tests/unit/test_dynamic_admission.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 55,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C024",
+      "clause": "6",
+      "requirement": "任务只派发/执行/完成一次，资源预约与Start一一对应",
+      "implementation": [
+        "src/fogsim/simulation/state.py",
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/event_queue.py"
+      ],
+      "tests": [
+        "tests/unit/test_queue_lifecycle.py",
+        "tests/unit/test_dynamic_statistics.py",
+        "tests/unit/test_dynamic_admission.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 55,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C025",
+      "clause": "6",
+      "requirement": "占用区间为正且不重叠，队列/缓存/引用/执行索引受检查",
+      "implementation": [
+        "src/fogsim/simulation/state.py",
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/event_queue.py"
+      ],
+      "tests": [
+        "tests/unit/test_queue_lifecycle.py",
+        "tests/unit/test_dynamic_statistics.py",
+        "tests/unit/test_dynamic_admission.py"
+      ],
+      "validation": "V09",
+      "status": "VERIFIED",
+      "executed_test_cases": 55,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C026",
+      "clause": "7.1",
+      "requirement": "20标准编号/文件/实际规模对应；额外图不自动编号",
+      "implementation": [
+        "src/fogsim/instances/dax.py",
+        "src/fogsim/instances/catalog.py"
+      ],
+      "tests": [
+        "tests/unit/test_dax.py"
+      ],
+      "validation": "V02",
+      "status": "VERIFIED",
+      "executed_test_cases": 52,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C027",
+      "clause": "7.1",
+      "requirement": "dag_root相对配置路径；文件名及声明计数不决定实际图",
+      "implementation": [
+        "src/fogsim/instances/dax.py",
+        "src/fogsim/instances/catalog.py"
+      ],
+      "tests": [
+        "tests/unit/test_dax.py"
+      ],
+      "validation": "V02",
+      "status": "VERIFIED",
+      "executed_test_cases": 52,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C028",
+      "clause": "7.2",
+      "requirement": "根adag、允许命名空间及结构大小写按约定识别",
+      "implementation": [
+        "src/fogsim/instances/dax.py",
+        "src/fogsim/instances/catalog.py"
+      ],
+      "tests": [
+        "tests/unit/test_dax.py"
+      ],
+      "validation": "V03",
+      "status": "VERIFIED",
+      "executed_test_cases": 52,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C029",
+      "clause": "7.2",
+      "requirement": "job/child按根直属顺序，ID/ref原样保留，uses不参与参数",
+      "implementation": [
+        "src/fogsim/instances/dax.py",
+        "src/fogsim/instances/catalog.py"
+      ],
+      "tests": [
+        "tests/unit/test_dax.py"
+      ],
+      "validation": "V03",
+      "status": "VERIFIED",
+      "executed_test_cases": 52,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C030",
+      "clause": "7.2",
+      "requirement": "前向/未知引用、重复ID/边、自环/环、空图和未知结构拒绝",
+      "implementation": [
+        "src/fogsim/instances/dax.py",
+        "src/fogsim/instances/catalog.py"
+      ],
+      "tests": [
+        "tests/unit/test_dax.py"
+      ],
+      "validation": "V03",
+      "status": "VERIFIED",
+      "executed_test_cases": 52,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C031",
+      "clause": "7.2",
+      "requirement": "不排序拓扑或加虚拟节点；允许无边/多入口出口/不连通DAG",
+      "implementation": [
+        "src/fogsim/instances/dax.py",
+        "src/fogsim/instances/catalog.py"
+      ],
+      "tests": [
+        "tests/unit/test_dax.py"
+      ],
+      "validation": "V03",
+      "status": "VERIFIED",
+      "executed_test_cases": 52,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C032",
+      "clause": "7.2",
+      "requirement": "声明数量不符仅诊断；失败含位置及相关ID/ref，无部分模板",
+      "implementation": [
+        "src/fogsim/instances/dax.py",
+        "src/fogsim/instances/catalog.py"
+      ],
+      "tests": [
+        "tests/unit/test_dax.py"
+      ],
+      "validation": "V03",
+      "status": "VERIFIED",
+      "executed_test_cases": 52,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C033",
+      "clause": "7.3",
+      "requirement": "抽样范围所有模板在RNG创建前加载、验证和冻结",
+      "implementation": [
+        "src/fogsim/instances/catalog.py",
+        "src/fogsim/randomness/state.py",
+        "src/fogsim/simulation/context.py"
+      ],
+      "tests": [
+        "tests/unit/test_random_input_state.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V05",
+      "status": "VERIFIED",
+      "executed_test_cases": 45,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C034",
+      "clause": "7.3",
+      "requirement": "reset/rerun/rotate复用模板及哈希；文件变更需新上下文",
+      "implementation": [
+        "src/fogsim/instances/catalog.py",
+        "src/fogsim/randomness/state.py",
+        "src/fogsim/simulation/context.py"
+      ],
+      "tests": [
+        "tests/unit/test_random_input_state.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V05",
+      "status": "VERIFIED",
+      "executed_test_cases": 45,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C035",
+      "clause": "8.1",
+      "requirement": "公开seed是真signed64，拒绝bool/浮点/字符串/越界",
+      "implementation": [
+        "src/fogsim/seed.py",
+        "src/fogsim/randomness/state.py",
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/simulation/context.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_random_input_state.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V15",
+      "status": "VERIFIED",
+      "executed_test_cases": 72,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C036",
+      "clause": "8.1",
+      "requirement": "内部按unsigned64位模式编码，保留版本及精确十进制",
+      "implementation": [
+        "src/fogsim/seed.py",
+        "src/fogsim/randomness/state.py",
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/simulation/context.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_random_input_state.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V15",
+      "status": "VERIFIED",
+      "executed_test_cases": 72,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C037",
+      "clause": "8.1",
+      "requirement": "rotate回绕加10000；reset(None)使用当前seed，不调用随机None种子",
+      "implementation": [
+        "src/fogsim/seed.py",
+        "src/fogsim/randomness/state.py",
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/simulation/context.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_random_input_state.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V15",
+      "status": "VERIFIED",
+      "executed_test_cases": 72,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C038",
+      "clause": "8.2",
+      "requirement": "每Context一条共享输入流，环境与所有设备共同推进",
+      "implementation": [
+        "src/fogsim/seed.py",
+        "src/fogsim/randomness/state.py",
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/simulation/context.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_random_input_state.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V05",
+      "status": "VERIFIED",
+      "executed_test_cases": 72,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C039",
+      "clause": "8.2",
+      "requirement": "sampler只持参数，构造/校验/clone/日志不抽数",
+      "implementation": [
+        "src/fogsim/seed.py",
+        "src/fogsim/randomness/state.py",
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/simulation/context.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_random_input_state.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V05",
+      "status": "VERIFIED",
+      "executed_test_cases": 72,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C040",
+      "clause": "8.2",
+      "requirement": "角色共享正确，上下行独立角色，各Context sampler独立",
+      "implementation": [
+        "src/fogsim/seed.py",
+        "src/fogsim/randomness/state.py",
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/simulation/context.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_random_input_state.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V05",
+      "status": "VERIFIED",
+      "executed_test_cases": 72,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C041",
+      "clause": "8.2",
+      "requirement": "先校验冻结有效参数；mean100冲突及不支持profile明确拒绝",
+      "implementation": [
+        "src/fogsim/seed.py",
+        "src/fogsim/randomness/state.py",
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/simulation/context.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_random_input_state.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V05",
+      "status": "VERIFIED",
+      "executed_test_cases": 72,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C042",
+      "clause": "8.3",
+      "requirement": "实数均匀拒零并按u*b+(1-u)*a；端点舍入不钳制/重抽",
+      "implementation": [
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/experiment_config.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_experiment_config.py"
+      ],
+      "validation": "V04",
+      "status": "VERIFIED",
+      "executed_test_cases": 137,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C043",
+      "clause": "8.3",
+      "requirement": "整数用包含两端randint，单点仍调用；指数按Python算法且可返回0",
+      "implementation": [
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/experiment_config.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_experiment_config.py"
+      ],
+      "validation": "V04",
+      "status": "VERIFIED",
+      "executed_test_cases": 137,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C044",
+      "clause": "8.3",
+      "requirement": "权重及云带宽0.2/0.8边界和拒零正确",
+      "implementation": [
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/experiment_config.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_experiment_config.py"
+      ],
+      "validation": "V04",
+      "status": "VERIFIED",
+      "executed_test_cases": 137,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C045",
+      "clause": "8.3",
+      "requirement": "边缘带宽1024常量不推进RNG；不移植Java指数内部算法",
+      "implementation": [
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/experiment_config.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_experiment_config.py"
+      ],
+      "validation": "V04",
+      "status": "VERIFIED",
+      "executed_test_cases": 137,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C046",
+      "clause": "8.4",
+      "requirement": "标准参数范围、概率和有效参数指纹保存",
+      "implementation": [
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/experiment_config.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_experiment_config.py"
+      ],
+      "validation": "V04",
+      "status": "VERIFIED",
+      "executed_test_cases": 137,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C047",
+      "clause": "8.4",
+      "requirement": "只使用s和模型单位，不擅加单位换算",
+      "implementation": [
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/experiment_config.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_experiment_config.py"
+      ],
+      "validation": "V04",
+      "status": "VERIFIED",
+      "executed_test_cases": 137,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C048",
+      "clause": "8.4",
+      "requirement": "复现要求代码/运行时/数据/操作一致；跨环境以实际输入为依据",
+      "implementation": [
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/experiment_config.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_experiment_config.py"
+      ],
+      "validation": "V04",
+      "status": "VERIFIED",
+      "executed_test_cases": 137,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C049",
+      "clause": "9.1",
+      "requirement": "先所有设备算力，再边缘/云各上行、下行、算力",
+      "implementation": [
+        "src/fogsim/environment/build.py",
+        "src/fogsim/environment/spec.py"
+      ],
+      "tests": [
+        "tests/unit/test_environment_build.py"
+      ],
+      "validation": "V06",
+      "status": "VERIFIED",
+      "executed_test_cases": 13,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C050",
+      "clause": "9.1",
+      "requirement": "禁用本地仍采设备算力，边缘带宽仍调用但不抽数",
+      "implementation": [
+        "src/fogsim/environment/build.py",
+        "src/fogsim/environment/spec.py"
+      ],
+      "tests": [
+        "tests/unit/test_environment_build.py"
+      ],
+      "validation": "V06",
+      "status": "VERIFIED",
+      "executed_test_cases": 13,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C051",
+      "clause": "9.1",
+      "requirement": "资源数值齐备后逐设备尝试；运行队列/缓存/预约/时钟归零",
+      "implementation": [
+        "src/fogsim/environment/build.py",
+        "src/fogsim/environment/spec.py"
+      ],
+      "tests": [
+        "tests/unit/test_environment_build.py"
+      ],
+      "validation": "V06",
+      "status": "VERIFIED",
+      "executed_test_cases": 13,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C052",
+      "clause": "9.1",
+      "requirement": "服务器全局规范共享，不按设备复制",
+      "implementation": [
+        "src/fogsim/environment/build.py",
+        "src/fogsim/environment/spec.py"
+      ],
+      "tests": [
+        "tests/unit/test_environment_build.py"
+      ],
+      "validation": "V06",
+      "status": "VERIFIED",
+      "executed_test_cases": 13,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C053",
+      "clause": "9.2",
+      "requirement": "类型→间隔→release→权重→两遍生成顺序保持",
+      "implementation": [
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/instances/materialize.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_materialize_workflow.py",
+        "tests/integration/test_generated_kernel.py"
+      ],
+      "validation": "V07",
+      "status": "VERIFIED",
+      "executed_test_cases": 61,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C054",
+      "clause": "9.2",
+      "requirement": "第一遍每任务workload/data/children交错，边只采一次",
+      "implementation": [
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/instances/materialize.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_materialize_workflow.py",
+        "tests/integration/test_generated_kernel.py"
+      ],
+      "validation": "V07",
+      "status": "VERIFIED",
+      "executed_test_cases": 61,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C055",
+      "clause": "9.2",
+      "requirement": "第二遍按parents顺序累计并创建完整候选",
+      "implementation": [
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/instances/materialize.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_materialize_workflow.py",
+        "tests/integration/test_generated_kernel.py"
+      ],
+      "validation": "V07",
+      "status": "VERIFIED",
+      "executed_test_cases": 61,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C056",
+      "clause": "9.2",
+      "requirement": "已知release不推进也完整消耗候选采样；不提前跳过",
+      "implementation": [
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/instances/materialize.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_materialize_workflow.py",
+        "tests/integration/test_generated_kernel.py"
+      ],
+      "validation": "V07",
+      "status": "VERIFIED",
+      "executed_test_cases": 61,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C057",
+      "clause": "9.3",
+      "requirement": "累计从0逐项加，不排序/fsum；总量不含基础data",
+      "implementation": [
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/instances/materialize.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_materialize_workflow.py",
+        "tests/integration/test_generated_kernel.py"
+      ],
+      "validation": "V08",
+      "status": "VERIFIED",
+      "executed_test_cases": 61,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C058",
+      "clause": "9.3",
+      "requirement": "本地PT与零UT/DT、远程PT/UT/DT公式和括号保持",
+      "implementation": [
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/instances/materialize.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_materialize_workflow.py",
+        "tests/integration/test_generated_kernel.py"
+      ],
+      "validation": "V08",
+      "status": "VERIFIED",
+      "executed_test_cases": 61,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C059",
+      "clause": "9.3",
+      "requirement": "候选为合法本地→边缘→云，其他移动设备不候选",
+      "implementation": [
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/instances/materialize.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_materialize_workflow.py",
+        "tests/integration/test_generated_kernel.py"
+      ],
+      "validation": "V08",
+      "status": "VERIFIED",
+      "executed_test_cases": 61,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C060",
+      "clause": "9.3",
+      "requirement": "无边仍传基础data，同服务器父子不免通信",
+      "implementation": [
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/instances/materialize.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_materialize_workflow.py",
+        "tests/integration/test_generated_kernel.py"
+      ],
+      "validation": "V08",
+      "status": "VERIFIED",
+      "executed_test_cases": 61,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C061",
+      "clause": "9.4",
+      "requirement": "完整生成后按finite release>clock接纳",
+      "implementation": [
+        "src/fogsim/simulation/admission.py",
+        "src/fogsim/simulation/dynamic.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V11",
+      "status": "VERIFIED",
+      "executed_test_cases": 37,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C062",
+      "clause": "9.4",
+      "requirement": "成功集中登记规范图/任务事实/pending/G/设备数/B/Arrival",
+      "implementation": [
+        "src/fogsim/simulation/admission.py",
+        "src/fogsim/simulation/dynamic.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V11",
+      "status": "VERIFIED",
+      "executed_test_cases": 37,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C063",
+      "clause": "9.4",
+      "requirement": "拒绝保留完整候选/attempt，不登记、不占ID、不改G/B、不发事件",
+      "implementation": [
+        "src/fogsim/simulation/admission.py",
+        "src/fogsim/simulation/dynamic.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V11",
+      "status": "VERIFIED",
+      "executed_test_cases": 37,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C064",
+      "clause": "9.4",
+      "requirement": "拒绝不重抽或回滚，不中断其他设备，Finish不续生",
+      "implementation": [
+        "src/fogsim/simulation/admission.py",
+        "src/fogsim/simulation/dynamic.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V11",
+      "status": "VERIFIED",
+      "executed_test_cases": 37,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C065",
+      "clause": "9.4",
+      "requirement": "非法派生值是领域失败，原始delta与release均保存",
+      "implementation": [
+        "src/fogsim/simulation/admission.py",
+        "src/fogsim/simulation/dynamic.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V11",
+      "status": "VERIFIED",
+      "executed_test_cases": 37,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C066",
+      "clause": "9.5",
+      "requirement": "workload/算力/带宽/PT正有限，data/UT/DT非负有限",
+      "implementation": [
+        "src/fogsim/numerics.py",
+        "src/fogsim/input_validation.py",
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/model/execution.py",
+        "src/fogsim/simulation/statistics.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_execution_precision.py",
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V22",
+      "status": "VERIFIED",
+      "executed_test_cases": 68,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C067",
+      "clause": "9.5",
+      "requirement": "派生加除、PT下溢及执行总区间舍零明确失败",
+      "implementation": [
+        "src/fogsim/numerics.py",
+        "src/fogsim/input_validation.py",
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/model/execution.py",
+        "src/fogsim/simulation/statistics.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_execution_precision.py",
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V22",
+      "status": "VERIFIED",
+      "executed_test_cases": 68,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C068",
+      "clause": "9.5",
+      "requirement": "N/W及N+W乘500、资源编号/G在int32边界内，不模仿计数回绕",
+      "implementation": [
+        "src/fogsim/numerics.py",
+        "src/fogsim/input_validation.py",
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/model/execution.py",
+        "src/fogsim/simulation/statistics.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_execution_precision.py",
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V22",
+      "status": "VERIFIED",
+      "executed_test_cases": 68,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C069",
+      "clause": "9.5",
+      "requirement": "W0合法；N1/W0不可达统计目标不自动修正",
+      "implementation": [
+        "src/fogsim/numerics.py",
+        "src/fogsim/input_validation.py",
+        "src/fogsim/instances/generation.py",
+        "src/fogsim/model/execution.py",
+        "src/fogsim/simulation/statistics.py"
+      ],
+      "tests": [
+        "tests/unit/test_workflow_generation.py",
+        "tests/unit/test_execution_precision.py",
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V22",
+      "status": "VERIFIED",
+      "executed_test_cases": 68,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C070",
+      "clause": "10",
+      "requirement": "固定/随机/重放共用原事件处理和真实initialize/after_arrival位置",
+      "implementation": [
+        "src/fogsim/simulation/events.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/engine.py",
+        "src/fogsim/simulation/trace.py"
+      ],
+      "tests": [
+        "tests/unit/test_events.py",
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V10",
+      "status": "VERIFIED",
+      "executed_test_cases": 67,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C071",
+      "clause": "10",
+      "requirement": "Arrival先激活并派发全部入口，再生成一次；Finish不生成",
+      "implementation": [
+        "src/fogsim/simulation/events.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/engine.py",
+        "src/fogsim/simulation/trace.py"
+      ],
+      "tests": [
+        "tests/unit/test_events.py",
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V10",
+      "status": "VERIFIED",
+      "executed_test_cases": 67,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C072",
+      "clause": "10",
+      "requirement": "不随机换设备；达到N+W仍继续生成",
+      "implementation": [
+        "src/fogsim/simulation/events.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/engine.py",
+        "src/fogsim/simulation/trace.py"
+      ],
+      "tests": [
+        "tests/unit/test_events.py",
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V10",
+      "status": "VERIFIED",
+      "executed_test_cases": 67,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C073",
+      "clause": "10",
+      "requirement": "所有新事件stage；owner和当前生产设备分离",
+      "implementation": [
+        "src/fogsim/simulation/events.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/engine.py",
+        "src/fogsim/simulation/trace.py"
+      ],
+      "tests": [
+        "tests/unit/test_events.py",
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V10",
+      "status": "VERIFIED",
+      "executed_test_cases": 67,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C074",
+      "clause": "10",
+      "requirement": "no-trace仍登记任务事实/输入；actions保留实际DECISION/EMIT交错",
+      "implementation": [
+        "src/fogsim/simulation/events.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/engine.py",
+        "src/fogsim/simulation/trace.py"
+      ],
+      "tests": [
+        "tests/unit/test_events.py",
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V10",
+      "status": "VERIFIED",
+      "executed_test_cases": 67,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C075",
+      "clause": "10",
+      "requirement": "动态每轮单次归并→目标→耗尽→预算→poll；固定pop_next保持",
+      "implementation": [
+        "src/fogsim/simulation/events.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/engine.py",
+        "src/fogsim/simulation/trace.py"
+      ],
+      "tests": [
+        "tests/unit/test_events.py",
+        "tests/unit/test_dynamic_admission.py",
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V10",
+      "status": "VERIFIED",
+      "executed_test_cases": 67,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C076",
+      "clause": "11.1–11.2",
+      "requirement": "Java字段映射G、设备生成/物理/统计数、R、B准确",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V12",
+      "status": "VERIFIED",
+      "executed_test_cases": 29,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C077",
+      "clause": "11.1–11.2",
+      "requirement": "接纳后G<N+W时B直接赋值，可下降；等号后冻结",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V12",
+      "status": "VERIFIED",
+      "executed_test_cases": 29,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C078",
+      "clause": "11.1–11.2",
+      "requirement": "完成时按当时G>W、ID非负、release<=B筛选一次",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V12",
+      "status": "VERIFIED",
+      "executed_test_cases": 29,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C079",
+      "clause": "11.1–11.2",
+      "requirement": "不增加ID窗口筛选；不补录；物理完成标志与统计资格分离",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V12",
+      "status": "VERIFIED",
+      "executed_test_cases": 29,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C080",
+      "clause": "11.3",
+      "requirement": "R达标事件完整执行，再归并停止，保留同刻剩余/pending/active",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V13",
+      "status": "VERIFIED",
+      "executed_test_cases": 29,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C081",
+      "clause": "11.3",
+      "requirement": "动态指标只用统计集合，flow按登记顺序逐项累计，不加权",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V13",
+      "status": "VERIFIED",
+      "executed_test_cases": 29,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C082",
+      "clause": "11.3",
+      "requirement": "固定指标用全集；失败指标为空，不使用成功子集填充",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py"
+      ],
+      "validation": "V13",
+      "status": "VERIFIED",
+      "executed_test_cases": 29,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C083",
+      "clause": "12",
+      "requirement": "仅在原事件后位置按原顺序检查严格>保护和全部命中",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V14",
+      "status": "VERIFIED",
+      "executed_test_cases": 65,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C084",
+      "clause": "12",
+      "requirement": "首次保护明确FAILED，保留实际时钟和队列，不执行Java异常尾部",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V14",
+      "status": "VERIFIED",
+      "executed_test_cases": 65,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C085",
+      "clause": "12",
+      "requirement": "同事件目标与保护冲突时失败优先",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V14",
+      "status": "VERIFIED",
+      "executed_test_cases": 65,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C086",
+      "clause": "12",
+      "requirement": "事件耗尽、预算、重放覆盖、数值/状态错误稳定区分",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V14",
+      "status": "VERIFIED",
+      "executed_test_cases": 65,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C087",
+      "clause": "12",
+      "requirement": "结果保留计划/实际时刻区别、物理/统计/源消费事实",
+      "implementation": [
+        "src/fogsim/simulation/statistics.py",
+        "src/fogsim/simulation/dynamic.py",
+        "src/fogsim/simulation/dynamic_result.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_statistics.py",
+        "tests/unit/test_dynamic_context.py"
+      ],
+      "validation": "V14",
+      "status": "VERIFIED",
+      "executed_test_cases": 65,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C088",
+      "clause": "13",
+      "requirement": "fresh先环境后工作流，B0；reset重设输入流且保留环境/B",
+      "implementation": [
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/randomness/state.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_random_input_state.py"
+      ],
+      "validation": "V15",
+      "status": "VERIFIED",
+      "executed_test_cases": 45,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C089",
+      "clause": "13",
+      "requirement": "rerun延续流与B；rotate只准备不运行",
+      "implementation": [
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/randomness/state.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_random_input_state.py"
+      ],
+      "validation": "V15",
+      "status": "VERIFIED",
+      "executed_test_cases": 45,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C090",
+      "clause": "13",
+      "requirement": "每轮重建对象，结果快照隔离，READY旧引擎不能再推进流",
+      "implementation": [
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/randomness/state.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_random_input_state.py"
+      ],
+      "validation": "V15",
+      "status": "VERIFIED",
+      "executed_test_cases": 45,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C091",
+      "clause": "13",
+      "requirement": "生命周期仅在轮次边界；准备失败保留诊断并可显式恢复",
+      "implementation": [
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/randomness/state.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_random_input_state.py"
+      ],
+      "validation": "V15",
+      "status": "VERIFIED",
+      "executed_test_cases": 45,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C092",
+      "clause": "13",
+      "requirement": "原生RNG边界快照含Python/state版本，不以哈希代替真实状态",
+      "implementation": [
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/randomness/state.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_random_input_state.py"
+      ],
+      "validation": "V15",
+      "status": "VERIFIED",
+      "executed_test_cases": 45,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C093",
+      "clause": "14",
+      "requirement": "默认retain；提供实际工作流级释放能力",
+      "implementation": [
+        "src/fogsim/simulation/cleanup.py",
+        "src/fogsim/simulation/admission.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_input_contracts.py"
+      ],
+      "validation": "V20",
+      "status": "VERIFIED",
+      "executed_test_cases": 120,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C094",
+      "clause": "14",
+      "requirement": "完整候选已独立归档，整张工作流预检后才修改任何映射",
+      "implementation": [
+        "src/fogsim/simulation/cleanup.py",
+        "src/fogsim/simulation/admission.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_input_contracts.py"
+      ],
+      "validation": "V20",
+      "status": "VERIFIED",
+      "executed_test_cases": 120,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C095",
+      "clause": "14",
+      "requirement": "仅两张运行映射置None/RELEASED；身份、拓扑、物理值、选项和完成记录保留",
+      "implementation": [
+        "src/fogsim/simulation/cleanup.py",
+        "src/fogsim/simulation/admission.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_input_contracts.py"
+      ],
+      "validation": "V20",
+      "status": "VERIFIED",
+      "executed_test_cases": 120,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C096",
+      "clause": "14",
+      "requirement": "固定UNAVAILABLE跳过，重复释放幂等，映射条目不误作独立边数",
+      "implementation": [
+        "src/fogsim/simulation/cleanup.py",
+        "src/fogsim/simulation/admission.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_input_contracts.py"
+      ],
+      "validation": "V20",
+      "status": "VERIFIED",
+      "executed_test_cases": 120,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C097",
+      "clause": "14",
+      "requirement": "归档/RNG/时钟/事件/候选/轨迹/统计不因开关变化",
+      "implementation": [
+        "src/fogsim/simulation/cleanup.py",
+        "src/fogsim/simulation/admission.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_input_contracts.py"
+      ],
+      "validation": "V20",
+      "status": "VERIFIED",
+      "executed_test_cases": 120,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C098",
+      "clause": "14",
+      "requirement": "测量准备和完整小型运行的current/peak/耗时，不宣称普遍加速",
+      "implementation": [
+        "src/fogsim/simulation/cleanup.py",
+        "src/fogsim/simulation/admission.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_input_contracts.py"
+      ],
+      "validation": "V20",
+      "status": "VERIFIED",
+      "executed_test_cases": 120,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C099",
+      "clause": "15.1–15.2",
+      "requirement": "独立schema-v1 input/reference/manifest分层；input单独运行",
+      "implementation": [
+        "src/fogsim/replay/loader.py",
+        "src/fogsim/replay/spec.py",
+        "src/fogsim/replay/source.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/replay/audit.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V17",
+      "status": "VERIFIED",
+      "executed_test_cases": 150,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C100",
+      "clause": "15.1–15.2",
+      "requirement": "版本、未知字段、数组、真整数、有限值、顺序/引用/候选/capture严格校验",
+      "implementation": [
+        "src/fogsim/replay/loader.py",
+        "src/fogsim/replay/spec.py",
+        "src/fogsim/replay/source.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/replay/audit.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V17",
+      "status": "VERIFIED",
+      "executed_test_cases": 150,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C101",
+      "clause": "15.1–15.2",
+      "requirement": "拒绝、未到达、未完成候选均保留；输入无参考决策/完成集/停止指标",
+      "implementation": [
+        "src/fogsim/replay/loader.py",
+        "src/fogsim/replay/spec.py",
+        "src/fogsim/replay/source.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/replay/audit.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V17",
+      "status": "VERIFIED",
+      "executed_test_cases": 150,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C102",
+      "clause": "15.1–15.2",
+      "requirement": "主调度使用记录时长，累计/公式审计独立且不回写",
+      "implementation": [
+        "src/fogsim/replay/loader.py",
+        "src/fogsim/replay/spec.py",
+        "src/fogsim/replay/source.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/replay/audit.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V17",
+      "status": "VERIFIED",
+      "executed_test_cases": 150,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C103",
+      "clause": "15.1–15.2",
+      "requirement": "capture完整不表示无限输入；不完整捕获不能完整验收",
+      "implementation": [
+        "src/fogsim/replay/loader.py",
+        "src/fogsim/replay/spec.py",
+        "src/fogsim/replay/source.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/replay/audit.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V17",
+      "status": "VERIFIED",
+      "executed_test_cases": 150,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C104",
+      "clause": "15.3",
+      "requirement": "真实原Java构造/setup/run，第二遍后mapClear前复制完整候选",
+      "implementation": [
+        "tools/java_dynamic_support.py",
+        "tools/java/step4/fogsim/adapter/DynamicCapture.java",
+        "tools/export_java_dynamic.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_export.py"
+      ],
+      "validation": "V16",
+      "status": "VERIFIED",
+      "executed_test_cases": 73,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C105",
+      "clause": "15.3",
+      "requirement": "接纳后补观察，保留初始化/Arrival拒绝及未到达候选",
+      "implementation": [
+        "tools/java_dynamic_support.py",
+        "tools/java/step4/fogsim/adapter/DynamicCapture.java",
+        "tools/export_java_dynamic.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_export.py"
+      ],
+      "validation": "V16",
+      "status": "VERIFIED",
+      "executed_test_cases": 73,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C106",
+      "clause": "15.3",
+      "requirement": "原源码不改，观察追加且不增加采样/评分/比较操作",
+      "implementation": [
+        "tools/java_dynamic_support.py",
+        "tools/java/step4/fogsim/adapter/DynamicCapture.java",
+        "tools/export_java_dynamic.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_export.py"
+      ],
+      "validation": "V16",
+      "status": "VERIFIED",
+      "executed_test_cases": 73,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C107",
+      "clause": "15.3",
+      "requirement": "plain/baseline/minimal/full验证观察无干扰，来源/依赖指纹保留",
+      "implementation": [
+        "tools/java_dynamic_support.py",
+        "tools/java/step4/fogsim/adapter/DynamicCapture.java",
+        "tools/export_java_dynamic.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_export.py"
+      ],
+      "validation": "V16",
+      "status": "VERIFIED",
+      "executed_test_cases": 73,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C108",
+      "clause": "15.4",
+      "requirement": "每次仅下一全局attempt，核对phase/owner/clock/触发workflow/拟用ID",
+      "implementation": [
+        "src/fogsim/replay/loader.py",
+        "src/fogsim/replay/spec.py",
+        "src/fogsim/replay/source.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/replay/audit.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V18",
+      "status": "VERIFIED",
+      "executed_test_cases": 150,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C109",
+      "clause": "15.4",
+      "requirement": "不搜索、不按设备重组、不用event_sequence安排调度",
+      "implementation": [
+        "src/fogsim/replay/loader.py",
+        "src/fogsim/replay/spec.py",
+        "src/fogsim/replay/source.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/replay/audit.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V18",
+      "status": "VERIFIED",
+      "executed_test_cases": 150,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C110",
+      "clause": "15.4",
+      "requirement": "Python独立release gate后核对observed acceptance",
+      "implementation": [
+        "src/fogsim/replay/loader.py",
+        "src/fogsim/replay/spec.py",
+        "src/fogsim/replay/source.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/replay/audit.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V18",
+      "status": "VERIFIED",
+      "executed_test_cases": 150,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C111",
+      "clause": "15.4",
+      "requirement": "需要更多记录时明确用尽/错位，保留位置和部分诊断，不补输入",
+      "implementation": [
+        "src/fogsim/replay/loader.py",
+        "src/fogsim/replay/spec.py",
+        "src/fogsim/replay/source.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/replay/audit.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V18",
+      "status": "VERIFIED",
+      "executed_test_cases": 150,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C112",
+      "clause": "15.4",
+      "requirement": "正常停止可有未消费尾部；换规则覆盖不足不直接判算法错误",
+      "implementation": [
+        "src/fogsim/replay/loader.py",
+        "src/fogsim/replay/spec.py",
+        "src/fogsim/replay/source.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/replay/audit.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V18",
+      "status": "VERIFIED",
+      "executed_test_cases": 150,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C113",
+      "clause": "15.4",
+      "requirement": "verify禁止行为变更；reuse仅支持的规则且关闭原轨迹结论",
+      "implementation": [
+        "src/fogsim/replay/loader.py",
+        "src/fogsim/replay/spec.py",
+        "src/fogsim/replay/source.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/replay/audit.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V18",
+      "status": "VERIFIED",
+      "executed_test_cases": 150,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C114",
+      "clause": "15.5",
+      "requirement": "只投影成功接纳，保留资源/接纳/任务/依赖/选项顺序及ID/实际时长",
+      "implementation": [
+        "src/fogsim/replay/export.py",
+        "src/fogsim/instances/fixed.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V19",
+      "status": "VERIFIED",
+      "executed_test_cases": 164,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C115",
+      "clause": "15.5",
+      "requirement": "独立标明fixed_projection、拒绝/动态位置/统计窗/物理字段损失",
+      "implementation": [
+        "src/fogsim/replay/export.py",
+        "src/fogsim/instances/fixed.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V19",
+      "status": "VERIFIED",
+      "executed_test_cases": 164,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C116",
+      "clause": "15.5",
+      "requirement": "Java和Python固定入口消费同一投影到全集完成",
+      "implementation": [
+        "src/fogsim/replay/export.py",
+        "src/fogsim/instances/fixed.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V19",
+      "status": "VERIFIED",
+      "executed_test_cases": 164,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C117",
+      "clause": "15.5",
+      "requirement": "固定结果不与原动态统计指标混比，保留Java规则/物理占位限制",
+      "implementation": [
+        "src/fogsim/replay/export.py",
+        "src/fogsim/instances/fixed.py"
+      ],
+      "tests": [
+        "tests/unit/test_replay.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V19",
+      "status": "VERIFIED",
+      "executed_test_cases": 164,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C118",
+      "clause": "16",
+      "requirement": "新实验格式/版本/mode独立，旧配置不猜模式",
+      "implementation": [
+        "src/fogsim/experiment_config.py",
+        "src/fogsim/instances/fixed.py"
+      ],
+      "tests": [
+        "tests/unit/test_experiment_config.py",
+        "tests/unit/test_input.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 193,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C119",
+      "clause": "16",
+      "requirement": "路径相对配置或直接CLI cwd，程序化相对路径要求base_dir",
+      "implementation": [
+        "src/fogsim/experiment_config.py",
+        "src/fogsim/instances/fixed.py"
+      ],
+      "tests": [
+        "tests/unit/test_experiment_config.py",
+        "tests/unit/test_input.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 193,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C120",
+      "clause": "16",
+      "requirement": "未知/重复键、bool数值、非有限/非法范围/无候选在采样前拒绝",
+      "implementation": [
+        "src/fogsim/experiment_config.py",
+        "src/fogsim/instances/fixed.py"
+      ],
+      "tests": [
+        "tests/unit/test_experiment_config.py",
+        "tests/unit/test_input.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 193,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C121",
+      "clause": "16",
+      "requirement": "固定路由对所有可能owner合法；seed列表完整且不矛盾",
+      "implementation": [
+        "src/fogsim/experiment_config.py",
+        "src/fogsim/instances/fixed.py"
+      ],
+      "tests": [
+        "tests/unit/test_experiment_config.py",
+        "tests/unit/test_input.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 193,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C122",
+      "clause": "16",
+      "requirement": "冻结配置及profile冲突拒绝；诊断选项不偷偷改变输入",
+      "implementation": [
+        "src/fogsim/experiment_config.py",
+        "src/fogsim/instances/fixed.py"
+      ],
+      "tests": [
+        "tests/unit/test_experiment_config.py",
+        "tests/unit/test_input.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 193,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C123",
+      "clause": "17.1–17.2",
+      "requirement": "保留旧固定公开接口和单次Engine.run；新API独立调用，simulate_replay支持可选运行后比较报告",
+      "implementation": [
+        "src/fogsim/__init__.py",
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/experiments/runner.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_replay.py",
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 223,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C124",
+      "clause": "17.1–17.2",
+      "requirement": "创建/reset领域失败抛带Engine/结果的PreparationError，便利入口归一化",
+      "implementation": [
+        "src/fogsim/__init__.py",
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/experiments/runner.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_replay.py",
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 223,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C125",
+      "clause": "17.1–17.2",
+      "requirement": "未知程序异常保持原类型并传播",
+      "implementation": [
+        "src/fogsim/__init__.py",
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/experiments/runner.py"
+      ],
+      "tests": [
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_replay.py",
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 223,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C126",
+      "clause": "17.3",
+      "requirement": "dynamic/replay/export-fixed显式入口；仅dynamic可覆盖seed",
+      "implementation": [
+        "src/fogsim/cli.py",
+        "src/fogsim/io.py",
+        "src/fogsim/simulation/admission.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py",
+        "tests/integration/test_runs.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 75,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C127",
+      "clause": "17.3",
+      "requirement": "CLI覆盖在创建上下文前完成并进入有效配置",
+      "implementation": [
+        "src/fogsim/cli.py",
+        "src/fogsim/io.py",
+        "src/fogsim/simulation/admission.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py",
+        "tests/integration/test_runs.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 75,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C128",
+      "clause": "17.3",
+      "requirement": "退出0/1/2、no-trace事实/输入、旧repeat/identical语义保持",
+      "implementation": [
+        "src/fogsim/cli.py",
+        "src/fogsim/io.py",
+        "src/fogsim/simulation/admission.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py",
+        "tests/integration/test_runs.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 75,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C129",
+      "clause": "17.3",
+      "requirement": "未知异常不保留旧成功文件，保存中断时batch/capture明确不完整",
+      "implementation": [
+        "src/fogsim/cli.py",
+        "src/fogsim/io.py",
+        "src/fogsim/simulation/admission.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py",
+        "tests/integration/test_runs.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 75,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C130",
+      "clause": "17.3",
+      "requirement": "集中admit返回accepted/workflow/reason_code的AdmissionResult；普通拒绝非异常",
+      "implementation": [
+        "src/fogsim/cli.py",
+        "src/fogsim/io.py",
+        "src/fogsim/simulation/admission.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py",
+        "tests/integration/test_runs.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 75,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C131",
+      "clause": "18",
+      "requirement": "多轮必须显式模式，fresh_same_seed每轮新建，seed_list仅指定seed",
+      "implementation": [
+        "src/fogsim/experiments/runner.py",
+        "src/fogsim/replay/export_input.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 60,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C132",
+      "clause": "18",
+      "requirement": "java_rerun同Context延续RNG/B和环境数值，最终无额外reset/prepare/rotate",
+      "implementation": [
+        "src/fogsim/experiments/runner.py",
+        "src/fogsim/replay/export_input.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 60,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C133",
+      "clause": "18",
+      "requirement": "重放每轮新对象/游标，不消费前轮尾部",
+      "implementation": [
+        "src/fogsim/experiments/runner.py",
+        "src/fogsim/replay/export_input.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 60,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C134",
+      "clause": "18",
+      "requirement": "每轮完整快照记录seed/环境/初始B/来源；观察回调也不能污染后续结果",
+      "implementation": [
+        "src/fogsim/experiments/runner.py",
+        "src/fogsim/replay/export_input.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 60,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C135",
+      "clause": "18",
+      "requirement": "领域失败继续；未知异常中止并标未完成，不作GP惩罚",
+      "implementation": [
+        "src/fogsim/experiments/runner.py",
+        "src/fogsim/replay/export_input.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 60,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C136",
+      "clause": "18",
+      "requirement": "完整成功才all_runs_mean，成功子集显示分母/失败率，少于2无样本std",
+      "implementation": [
+        "src/fogsim/experiments/runner.py",
+        "src/fogsim/replay/export_input.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 60,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C137",
+      "clause": "18",
+      "requirement": "仅同场景/统计/规则/策略汇总；允许显式seed差异，DAX变更禁混合",
+      "implementation": [
+        "src/fogsim/experiments/runner.py",
+        "src/fogsim/replay/export_input.py"
+      ],
+      "tests": [
+        "tests/unit/test_step7.py",
+        "tests/unit/test_final_contracts.py"
+      ],
+      "validation": "V21",
+      "status": "VERIFIED",
+      "executed_test_cases": 60,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C138",
+      "clause": "19.1",
+      "requirement": "3固定seed、每角色每seed100000样本、阈值预先固定且原始结果保留",
+      "implementation": [
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/experiment_config.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_experiment_config.py"
+      ],
+      "validation": "V04",
+      "status": "VERIFIED",
+      "executed_test_cases": 137,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C139",
+      "clause": "19.1",
+      "requirement": "两语言分别对理论分布，不要求同seed样本相等",
+      "implementation": [
+        "src/fogsim/randomness/samplers.py",
+        "src/fogsim/experiment_config.py"
+      ],
+      "tests": [
+        "tests/unit/test_samplers.py",
+        "tests/unit/test_experiment_config.py"
+      ],
+      "validation": "V04",
+      "status": "VERIFIED",
+      "executed_test_cases": 137,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C140",
+      "clause": "19.2",
+      "requirement": "先输入/配置/来源位置，再按事件序号比较头、前态、动作、后态、错误",
+      "implementation": [
+        "src/fogsim/validation/dynamic_compare.py",
+        "src/fogsim/validation/trace_compare.py"
+      ],
+      "tests": [
+        "tests/unit/test_trace_compare.py",
+        "tests/unit/test_final_contracts.py",
+        "tests/unit/test_replay.py"
+      ],
+      "validation": "V17",
+      "status": "VERIFIED",
+      "executed_test_cases": 168,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C141",
+      "clause": "19.2",
+      "requirement": "ID/计数/顺序精确，浮点abs1e-9/rel1e-12，priority区分有符号零",
+      "implementation": [
+        "src/fogsim/validation/dynamic_compare.py",
+        "src/fogsim/validation/trace_compare.py"
+      ],
+      "tests": [
+        "tests/unit/test_trace_compare.py",
+        "tests/unit/test_final_contracts.py",
+        "tests/unit/test_replay.py"
+      ],
+      "validation": "V17",
+      "status": "VERIFIED",
+      "executed_test_cases": 168,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C142",
+      "clause": "19.2",
+      "requirement": "不排序/补调用/按时间匹配/覆盖时长掩盖差异",
+      "implementation": [
+        "src/fogsim/validation/dynamic_compare.py",
+        "src/fogsim/validation/trace_compare.py"
+      ],
+      "tests": [
+        "tests/unit/test_trace_compare.py",
+        "tests/unit/test_final_contracts.py",
+        "tests/unit/test_replay.py"
+      ],
+      "validation": "V17",
+      "status": "VERIFIED",
+      "executed_test_cases": 168,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C143",
+      "clause": "19.2",
+      "requirement": "正常通过需完整捕获/覆盖/受支持条件/双边正常/清单绑定/首差空",
+      "implementation": [
+        "src/fogsim/validation/dynamic_compare.py",
+        "src/fogsim/validation/trace_compare.py"
+      ],
+      "tests": [
+        "tests/unit/test_trace_compare.py",
+        "tests/unit/test_final_contracts.py",
+        "tests/unit/test_replay.py"
+      ],
+      "validation": "V17",
+      "status": "VERIFIED",
+      "executed_test_cases": 168,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C144",
+      "clause": "19.2",
+      "requirement": "正常、预期差异、覆盖不足、失败、未执行、基础设施错误分开，无参考NOT_COMPARED",
+      "implementation": [
+        "src/fogsim/validation/dynamic_compare.py",
+        "src/fogsim/validation/trace_compare.py"
+      ],
+      "tests": [
+        "tests/unit/test_trace_compare.py",
+        "tests/unit/test_final_contracts.py",
+        "tests/unit/test_replay.py"
+      ],
+      "validation": "V17",
+      "status": "VERIFIED",
+      "executed_test_cases": 168,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C145",
+      "clause": "20–21",
+      "requirement": "Java/Python已确认差异逐项列出scope/known_differences",
+      "implementation": [
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/model/execution.py",
+        "src/fogsim/experiments/runner.py"
+      ],
+      "tests": [
+        "tests/unit/test_execution_precision.py",
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V22",
+      "status": "VERIFIED",
+      "executed_test_cases": 77,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C146",
+      "clause": "20–21",
+      "requirement": "结构/错误/统计/精度/RNG差异不泛称随机差异，失败后流尾差异明确",
+      "implementation": [
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/model/execution.py",
+        "src/fogsim/experiments/runner.py"
+      ],
+      "tests": [
+        "tests/unit/test_execution_precision.py",
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V22",
+      "status": "VERIFIED",
+      "executed_test_cases": 77,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C147",
+      "clause": "20–21",
+      "requirement": "旧物理未知值兼容，不经旧序列化静默丢物理输入",
+      "implementation": [
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/model/execution.py",
+        "src/fogsim/experiments/runner.py"
+      ],
+      "tests": [
+        "tests/unit/test_execution_precision.py",
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V22",
+      "status": "VERIFIED",
+      "executed_test_cases": 77,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C148",
+      "clause": "20–21",
+      "requirement": "只减少运行边映射，不清空工作流/执行历史或删保护以求规模",
+      "implementation": [
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/model/execution.py",
+        "src/fogsim/experiments/runner.py"
+      ],
+      "tests": [
+        "tests/unit/test_execution_precision.py",
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V22",
+      "status": "VERIFIED",
+      "executed_test_cases": 77,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    },
+    {
+      "id": "C149",
+      "clause": "20–21",
+      "requirement": "dataset_role保存为来源元数据，规则无未来数据/演化RNG",
+      "implementation": [
+        "src/fogsim/replay/engine.py",
+        "src/fogsim/simulation/context.py",
+        "src/fogsim/model/execution.py",
+        "src/fogsim/experiments/runner.py"
+      ],
+      "tests": [
+        "tests/unit/test_execution_precision.py",
+        "tests/unit/test_dynamic_context.py",
+        "tests/unit/test_step7.py"
+      ],
+      "validation": "V22",
+      "status": "VERIFIED",
+      "executed_test_cases": 77,
+      "missing_paths": [],
+      "missing_test_modules": [],
+      "failed_or_skipped_cases": 0
+    }
+  ],
+  "unresolved": [],
+  "declarative_sections": {
+    "2": "historical evidence snapshot; current evidence supersedes progress only",
+    "3": "frozen decisions D01-D19 applied; D20 paper errata/formal experiment parameters deferred by design",
+    "22": "source provenance, checked separately against delivered baseline",
+    "23": "user freeze confirmation supersedes historical draft/review labels"
+  },
+  "outside_scope": [
+    "GP/ten features/evolution/training",
+    "paper-scale result reproduction and D20 experimental parameters",
+    "network queues/preemption/failures/retries/dynamic resource membership",
+    "full DAX XSD compliance",
+    "arbitrary-input Java equivalence",
+    "two optional native large V19 fixed projections (not a frozen minimum-case gate)"
+  ]
+}

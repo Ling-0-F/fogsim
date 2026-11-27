@@ -1,0 +1,22 @@
+{
+  "case": "arrival_rejected",
+  "passed": true,
+  "priority_guard": "production_full",
+  "trace_recorder": "oracle_without_duplicate_state_snapshots",
+  "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+  "classification": "EXPECTED_DIFFERENCE_CONFIRMED",
+  "comparisons": {
+    "generated_inputs": null,
+    "attempts": null,
+    "script_calls": null,
+    "trace_and_final": null,
+    "explicit_failure": null
+  },
+  "counts": {
+    "events": 7,
+    "decisions": 3,
+    "attempts": 2
+  },
+  "python_status": "FAILED",
+  "python_reason_code": "EVENTS_EXHAUSTED_BEFORE_TARGET"
+}

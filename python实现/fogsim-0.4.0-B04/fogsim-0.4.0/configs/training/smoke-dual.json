@@ -1,0 +1,15 @@
+{
+  "format": "fogsim.training-config",
+  "schema_version": 1,
+  "mode": "dual_tree",
+  "plans": {
+    "training": "B03-train-sources.json",
+    "validation": "B03-validation-sources.json",
+    "test": "B03-test-sources.json"
+  },
+  "output": {
+    "trace": "all",
+    "save_run_results": true,
+    "save_input_archives": true
+  }
+}

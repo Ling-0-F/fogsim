@@ -1,0 +1,12 @@
+--- original/mengxu/simulation/DynamicSimulation.java
++++ overlay/mengxu/simulation/DynamicSimulation.java
+@@ -325,7 +325,9 @@
+             beforeThroughput = getCurrentCompletedJobsNum(); //save the throughput value before updated (a job finished)
+ 
+             systemState.setClockTime(nextEvent.getTime());
++            fogsim.adapter.DynamicCapture.beforeEvent(this);
+             nextEvent.trigger(nextEvent.getMobileDevice()); //nextEvent includes many different types of events
++            fogsim.adapter.DynamicCapture.afterEvent(this);
+ 
+             afterThroughput = getCurrentCompletedJobsNum(); //save the throughput value after updated (a job finished)
+ 

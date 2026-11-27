@@ -1,0 +1,48 @@
+{
+  "passed": true,
+  "runs": [
+    {
+      "mode": "single",
+      "completed_runs": 2,
+      "matched": true,
+      "result_bytes_equal": true,
+      "input_semantic_equal": true,
+      "origin_changes": [
+        {
+          "path": "/origin/code_dependency_fingerprint",
+          "historical": "fe37d06e16de3bcb51bb88100e820e4a9ad4bf96f39feb25f771b7f35266a489",
+          "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+        },
+        {
+          "path": "/origin/code_dependency_fingerprint",
+          "historical": "fe37d06e16de3bcb51bb88100e820e4a9ad4bf96f39feb25f771b7f35266a489",
+          "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+        }
+      ],
+      "source_evidence": "outputs/step9/B02/single-first/trial-0001/test",
+      "current_evidence": "outputs/step9/B04/independent-selected-single"
+    },
+    {
+      "mode": "dual",
+      "completed_runs": 2,
+      "matched": true,
+      "result_bytes_equal": true,
+      "input_semantic_equal": true,
+      "origin_changes": [
+        {
+          "path": "/origin/code_dependency_fingerprint",
+          "historical": "54109fd9b6f7795b760fd60c03f8ce529234c7cfc3e696e45a9e287bf33afc0e",
+          "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+        },
+        {
+          "path": "/origin/code_dependency_fingerprint",
+          "historical": "54109fd9b6f7795b760fd60c03f8ce529234c7cfc3e696e45a9e287bf33afc0e",
+          "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+        }
+      ],
+      "source_evidence": "outputs/step9/B03/dual-first/trial-0001/test",
+      "current_evidence": "outputs/step9/B04/independent-selected-dual"
+    }
+  ],
+  "completed_runs": 4
+}

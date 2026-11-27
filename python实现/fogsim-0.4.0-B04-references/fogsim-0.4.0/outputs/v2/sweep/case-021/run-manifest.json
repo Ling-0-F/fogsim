@@ -1,0 +1,114 @@
+{
+  "instance_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/outputs/v2/sweep/case-021/input.json",
+  "instance_sha256": "74b04ba8365e447ada8b867bd569d6bd6a8d8f993f9836dde7283ee8a42cc851",
+  "config_path": "/workspace/scratch/cdd018119651/b08_work/fogsim-stage-d-b06/outputs/v2/sweep/case-021/config.json",
+  "config_file_sha256": "2b241d4415f9fb0b66da0faa793fef1a8e2ff1e0398d05a4d64665463bb0dc3e",
+  "effective_config": {
+    "routing_kind": "fixed_resource",
+    "fixed_resource_id": "E0",
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "java_build_fingerprint": "a69f3c65cce9eae3111d7c15f95c3aeac49946d2308df8c02d594ec8b189b921",
+  "resource_ids": [
+    [
+      "C0",
+      "CLOUD",
+      1
+    ],
+    [
+      "E0",
+      "EDGE",
+      0
+    ],
+    [
+      "M1",
+      "MOBILE",
+      0
+    ],
+    [
+      "M0",
+      "MOBILE",
+      1
+    ]
+  ],
+  "devices": [
+    "M1",
+    "M0"
+  ],
+  "task_ids": [
+    {
+      "workflow_id": -6,
+      "string_id": "T0",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 39,
+      "string_id": "T0",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 39,
+      "string_id": "T1",
+      "java_numeric_id": 1,
+      "candidate_order": [
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 39,
+      "string_id": "T2",
+      "java_numeric_id": 2,
+      "candidate_order": [
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 39,
+      "string_id": "T3",
+      "java_numeric_id": 3,
+      "candidate_order": [
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 39,
+      "string_id": "T4",
+      "java_numeric_id": 4,
+      "candidate_order": [
+        "E0",
+        "C0"
+      ]
+    }
+  ],
+  "initial_stage_order": [
+    [
+      -6,
+      "M0",
+      0.1
+    ],
+    [
+      39,
+      "M1",
+      0.0
+    ]
+  ],
+  "raw_trace_sha256": {
+    "python-raw.json": "ba5da2639f9f73ee49da7ec3a126d349bb93c38143155e291deafa04415c65ca",
+    "java-raw.json": "9a06a6e52f805d97f1eccd22f41adff8863ed6f26b19344e648189f79e4312f6"
+  }
+}

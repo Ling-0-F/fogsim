@@ -1,0 +1,44 @@
+{
+  "passed": true,
+  "business": {
+    "retain_release_identical": true,
+    "archive_identical": true,
+    "rng_identical": true,
+    "input_alone_replays": true,
+    "all_maps_released": true,
+    "java_reference_retain": true,
+    "java_reference_release_after_materialization": true
+  },
+  "memory": {
+    "scope": "300-task chain, context/environment/generation/materialization/initialization only; no events executed; full-run performance NOT_MEASURED",
+    "measurements": [
+      {
+        "policy": "retain",
+        "elapsed_seconds": 0.08344511199993576,
+        "current_bytes": 908782,
+        "peak_bytes": 1021518,
+        "tasks": 300,
+        "remaining_runtime_mapping_entries": 598,
+        "cleanup": {
+          "workflows_released": 0,
+          "released_task_count": 0,
+          "removed_mapping_entry_count": 0
+        }
+      },
+      {
+        "policy": "release_after_materialization",
+        "elapsed_seconds": 0.1279162109999561,
+        "current_bytes": 798617,
+        "peak_bytes": 1147349,
+        "tasks": 300,
+        "remaining_runtime_mapping_entries": 0,
+        "cleanup": {
+          "workflows_released": 1,
+          "released_task_count": 300,
+          "removed_mapping_entry_count": 598
+        }
+      }
+    ],
+    "conclusion": "Measured current/peak/time only; release success does not imply full-run speedup or lower peak"
+  }
+}

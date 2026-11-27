@@ -1,0 +1,78 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 22%]
+........................................................................ [ 29%]
+........................................................................ [ 37%]
+...................................F.................................... [ 44%]
+........................................................................ [ 51%]
+........................................................................ [ 59%]
+........................................................................ [ 66%]
+........................................................................ [ 74%]
+........................................................................ [ 81%]
+........................................................................ [ 88%]
+........................................................................ [ 96%]
+....................................                                     [100%]
+=================================== FAILURES ===================================
+_______ test_statistical_metrics_use_recorded_subset_not_all_completions _______
+
+    def test_statistical_metrics_use_recorded_subset_not_all_completions():
+        from fogsim.simulation.dynamic_result import collect_dynamic_result
+        s=statistics(N=1,W=1,B=10)
+        def w(wid,release,finish):
+            return NS(id=wid,owner_device=NS(id='M0'),release_time=release,completion_time=finish,flow_time=finish-release,
+                weight=4,dag_type_id=0,template_hash='a'*64,input_record_id=str(wid+1))
+        early=w(0,1,20);selected=w(1,10,30);s.recorded_workflows={1:selected};s.generated_total=2
+        state=NS(clock_time=30,completed_workflows={0:early,1:selected},workflows_by_id={0:early,1:selected},
+            arrived_workflow_count=2,mobile_devices=[],tasks_by_key={})
+        engine=NS(state=state,statistics=s,run_status='SUCCEEDED',stop_reason=None,reason_code=None,admission=None,
+            trace=NS(tasks={},events=[],decisions=[]),run_index=0,operation='test',public_seed=7,initial_cutoff=0,
+            failure_hits=[],initialization_complete=True,initialization_actions=[],environment=None,processed_event_count=0)
+>       r=collect_dynamic_result(engine)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_dynamic_statistics.py:150: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+engine = namespace(state=namespace(clock_time=30, completed_workflows={0: namespace(id=0, owner_device=namespace(id='M0'), rele...0, failure_hits=[], initialization_complete=True, initialization_actions=[], environment=None, processed_event_count=0)
+
+    def collect_dynamic_result(engine):
+        state, stats = engine.state, engine.statistics
+        makespan = mean = None
+        if engine.run_status == "SUCCEEDED":
+            recorded = tuple(stats.recorded_workflows.values())
+            makespan = checked_number(max(w.completion_time for w in recorded) - min(w.release_time for w in recorded),
+                                      "statistical makespan")
+            total = 0.0
+            for w in recorded:
+                total = checked_number(total + w.flow_time, "statistical flow-time sum")
+            mean = checked_number(total / len(recorded), "mean flow time")
+        workflows = [{"workflow_id": w.id, "owner_device_id": w.owner_device.id, "release_time": w.release_time,
+                      "completion_time": w.completion_time, "flow_time": w.flow_time,
+                      "recorded": w.id in stats.recorded_workflows, "weight": w.weight,
+                      "dag_type_id": w.dag_type_id, "template_hash": w.template_hash, "input_record_id": w.input_record_id}
+                     for w in state.workflows_by_id.values()]
+        tasks = deepcopy(list(engine.trace.tasks.values()))
+        for row in tasks:
+            task = state.tasks_by_key[row["workflow_id"], row["task_id"]]
+            row["java_index"] = task.java_index
+        devices = [dict(device_id=d.id, generated_workflow_count=stats.generated_by_device[d.id],
+                        completed_workflow_count=stats.completed_by_device[d.id],
+                        recorded_workflow_count=stats.recorded_by_device[d.id]) for d in state.mobile_devices]
+        source = engine.admission.summary() if engine.admission is not None else dict(
+            kind="random", generation_call_count=0, attempt_count=0, rejected_count=0, consumed_attempt_count=0,
+            incomplete_attempt=False, capture_complete=False, coverage="environment_preparation_failed")
+        diagnostics = dict(run_index=engine.run_index, operation=engine.operation, public_seed=engine.public_seed,
+                           initial_cutoff_release_time=engine.initial_cutoff,
+                           cutoff_release_time=stats.cutoff_release_time,
+                           legacy_nonrecording_events=stats.legacy_nonrecording_events,
+                           guard_hits=deepcopy(engine.failure_hits), initialization_complete=engine.initialization_complete,
+                           initialization_actions=deepcopy(engine.initialization_actions),
+                           environment_fingerprint=engine.environment.fingerprint if engine.environment is not None else None)
+>       diagnostics["edge_data_cleanup"] = dict(policy=engine.config.edge_data_policy, **engine.cleanup_totals)
+                                                       ^^^^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'config'
+
+src/fogsim/simulation/dynamic_result.py:53: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/test_dynamic_statistics.py::test_statistical_metrics_use_recorded_subset_not_all_completions
+1 failed, 971 passed in 99.05s (0:01:39)

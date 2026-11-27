@@ -1,0 +1,86 @@
+{
+  "format": "fogsim.recorded-evaluation-counts",
+  "schema_version": 1,
+  "lanes": [
+    {
+      "lane": "cases-dev-venv",
+      "evaluations": 10,
+      "completed_runs": 16,
+      "succeeded_runs": 16,
+      "failed_runs": 0,
+      "incomplete_evaluations": 2
+    },
+    {
+      "lane": "cases-final",
+      "evaluations": 92,
+      "completed_runs": 150,
+      "succeeded_runs": 131,
+      "failed_runs": 19,
+      "incomplete_evaluations": 16
+    },
+    {
+      "lane": "cases-fixed",
+      "evaluations": 10,
+      "completed_runs": 16,
+      "succeeded_runs": 16,
+      "failed_runs": 0,
+      "incomplete_evaluations": 2
+    },
+    {
+      "lane": "delivery-dev",
+      "evaluations": 4,
+      "completed_runs": 8,
+      "succeeded_runs": 8,
+      "failed_runs": 0,
+      "incomplete_evaluations": 0
+    },
+    {
+      "lane": "independent-selected-dual",
+      "evaluations": 1,
+      "completed_runs": 2,
+      "succeeded_runs": 2,
+      "failed_runs": 0,
+      "incomplete_evaluations": 0
+    },
+    {
+      "lane": "independent-selected-single",
+      "evaluations": 1,
+      "completed_runs": 2,
+      "succeeded_runs": 2,
+      "failed_runs": 0,
+      "incomplete_evaluations": 0
+    },
+    {
+      "lane": "regression-cases",
+      "evaluations": 92,
+      "completed_runs": 150,
+      "succeeded_runs": 131,
+      "failed_runs": 19,
+      "incomplete_evaluations": 16
+    },
+    {
+      "lane": "wheel-selected-dual",
+      "evaluations": 1,
+      "completed_runs": 2,
+      "succeeded_runs": 2,
+      "failed_runs": 0,
+      "incomplete_evaluations": 0
+    },
+    {
+      "lane": "wheel-selected-single",
+      "evaluations": 1,
+      "completed_runs": 2,
+      "succeeded_runs": 2,
+      "failed_runs": 0,
+      "incomplete_evaluations": 0
+    }
+  ],
+  "scope": "Counts of persisted evaluation records, not a simulator-wide instrumentation total. Legacy runs, local in-memory component runs and Java probes are separately uninstrumented. Do not add copied audit-summary files or historical closures as new simulations.",
+  "historical_closure": {
+    "B02": 416,
+    "B03": 424,
+    "total": 840,
+    "upper_bound": 848
+  },
+  "large_template_simulations_executed": 0
+}

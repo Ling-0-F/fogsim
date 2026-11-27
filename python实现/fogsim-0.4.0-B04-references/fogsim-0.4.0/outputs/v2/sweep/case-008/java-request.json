@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "input": {
+    "time_unit": "s",
+    "resources": [
+      {
+        "id": "M0",
+        "type": "MOBILE",
+        "can_process_tasks": true
+      },
+      {
+        "id": "E0",
+        "type": "EDGE"
+      },
+      {
+        "id": "C0",
+        "type": "CLOUD"
+      }
+    ],
+    "workflows": [
+      {
+        "id": -14,
+        "owner_device_id": "M0",
+        "release_time": 2.0,
+        "tasks": [
+          {
+            "id": "T0",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 0.1,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 0.3,
+                "processing_time": 0.1,
+                "download_time": 0.1
+              },
+              "C0": {
+                "upload_time": 0.2,
+                "processing_time": 0.1,
+                "download_time": 0.2
+              }
+            }
+          },
+          {
+            "id": "T1",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 0.5,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 0.1,
+                "processing_time": 0.3,
+                "download_time": 0.1
+              },
+              "C0": {
+                "upload_time": 0.0,
+                "processing_time": 0.2,
+                "download_time": 0.2
+              }
+            }
+          }
+        ],
+        "dependencies": []
+      },
+      {
+        "id": 3,
+        "owner_device_id": "M0",
+        "release_time": 3.0,
+        "tasks": [
+          {
+            "id": "T0",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 0.1,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 0.2,
+                "processing_time": 1.0,
+                "download_time": 0.0
+              },
+              "C0": {
+                "upload_time": 0.3,
+                "processing_time": 0.2,
+                "download_time": 0.2
+              }
+            }
+          },
+          {
+            "id": "T1",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 1.0,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 0.2,
+                "processing_time": 1.0,
+                "download_time": 0.0
+              },
+              "C0": {
+                "upload_time": 0.1,
+                "processing_time": 1.0,
+                "download_time": 0.1
+              }
+            }
+          },
+          {
+            "id": "T2",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 0.5,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 0.2,
+                "processing_time": 1.0,
+                "download_time": 0.2
+              },
+              "C0": {
+                "upload_time": 0.2,
+                "processing_time": 1.0,
+                "download_time": 0.1
+              }
+            }
+          }
+        ],
+        "dependencies": []
+      },
+      {
+        "id": -17,
+        "owner_device_id": "M0",
+        "release_time": 0.0,
+        "tasks": [
+          {
+            "id": "T0",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 0.3,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 0.1,
+                "processing_time": 0.3,
+                "download_time": 0.1
+              },
+              "C0": {
+                "upload_time": 0.3,
+                "processing_time": 1.0,
+                "download_time": 0.2
+              }
+            }
+          }
+        ],
+        "dependencies": []
+      },
+      {
+        "id": 8,
+        "owner_device_id": "M0",
+        "release_time": 2.0,
+        "tasks": [
+          {
+            "id": "T0",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 0.1,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 0.1,
+                "processing_time": 1.0,
+                "download_time": 0.1
+              },
+              "C0": {
+                "upload_time": 0.0,
+                "processing_time": 0.1,
+                "download_time": 0.0
+              }
+            }
+          }
+        ],
+        "dependencies": []
+      },
+      {
+        "id": -11,
+        "owner_device_id": "M0",
+        "release_time": 3.0,
+        "tasks": [
+          {
+            "id": "T0",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 0.5,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 0.1,
+                "processing_time": 0.1,
+                "download_time": 0.0
+              },
+              "C0": {
+                "upload_time": 0.1,
+                "processing_time": 1.0,
+                "download_time": 0.2
+              }
+            }
+          },
+          {
+            "id": "T1",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 0.3,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 0.0,
+                "processing_time": 0.2,
+                "download_time": 0.2
+              },
+              "C0": {
+                "upload_time": 0.2,
+                "processing_time": 0.3,
+                "download_time": 0.1
+              }
+            }
+          },
+          {
+            "id": "T2",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 0.2,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 0.2,
+                "processing_time": 0.2,
+                "download_time": 0.2
+              },
+              "C0": {
+                "upload_time": 0.0,
+                "processing_time": 0.3,
+                "download_time": 0.1
+              }
+            }
+          },
+          {
+            "id": "T3",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 1.0,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 0.3,
+                "processing_time": 0.5,
+                "download_time": 0.2
+              },
+              "C0": {
+                "upload_time": 0.0,
+                "processing_time": 1.0,
+                "download_time": 0.2
+              }
+            }
+          }
+        ],
+        "dependencies": []
+      }
+    ]
+  },
+  "config": {
+    "routing_kind": "fcfs",
+    "fixed_resource_id": null,
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "record_trace": true
+}

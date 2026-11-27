@@ -1,0 +1,894 @@
+{
+  "passed": true,
+  "coverage_complete": true,
+  "records": [
+    {
+      "seed": 0,
+      "role": "workload",
+      "samples": 100000,
+      "statistics": {
+        "mean": 10003.312186916843,
+        "variance": 8338531.380523577,
+        "minimum": 5000.077694437322,
+        "maximum": 14999.893638345426,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "data_size",
+      "samples": 100000,
+      "statistics": {
+        "mean": 12805.08751910407,
+        "variance": 19673063.731946528,
+        "minimum": 5120.119338655726,
+        "maximum": 20479.83662849857,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "edge_data",
+      "samples": 100000,
+      "statistics": {
+        "mean": 150.03312186916878,
+        "variance": 833.8531380521235,
+        "minimum": 100.00077694437321,
+        "maximum": 199.99893638345424,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "processing_rate_device",
+      "samples": 100000,
+      "statistics": {
+        "mean": 187.54140233646243,
+        "variance": 1302.8955282056922,
+        "minimum": 125.00097118046652,
+        "maximum": 249.9986704793178,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "processing_rate_edge",
+      "samples": 100000,
+      "statistics": {
+        "mean": 375.08280467292485,
+        "variance": 5211.582112822769,
+        "minimum": 250.00194236093304,
+        "maximum": 499.9973409586356,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "processing_rate_cloud",
+      "samples": 100000,
+      "statistics": {
+        "mean": 750.1656093458497,
+        "variance": 20846.328451291076,
+        "minimum": 500.0038847218661,
+        "maximum": 999.9946819172712,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "inter_release_time",
+      "samples": 100000,
+      "statistics": {
+        "mean": 99.99235735106002,
+        "variance": 9979.965512319077,
+        "minimum": 0.0005385368017460947,
+        "maximum": 1045.4098280909675,
+        "cdf_at_100": 0.63242,
+        "counts": {}
+      },
+      "checks": {
+        "nonnegative": true,
+        "mean": true,
+        "variance": true,
+        "cdf": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "weight",
+      "samples": 100000,
+      "statistics": {
+        "mean": 2.2006,
+        "variance": 0.9625796399999995,
+        "minimum": 1.0,
+        "maximum": 4.0,
+        "cdf_at_100": 1.0,
+        "counts": {
+          "2.0": 59889,
+          "1.0": 20054,
+          "4.0": 20057
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "upload_bandwidth_cloud",
+      "samples": 100000,
+      "statistics": {
+        "mean": 383.64672,
+        "variance": 26240.817273241584,
+        "minimum": 128.0,
+        "maximum": 512.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "512.0": 59889,
+          "128.0": 20054,
+          "256.0": 20057
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "download_bandwidth_cloud",
+      "samples": 100000,
+      "statistics": {
+        "mean": 383.64672,
+        "variance": 26240.817273241584,
+        "minimum": 128.0,
+        "maximum": 512.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "512.0": 59889,
+          "128.0": 20054,
+          "256.0": 20057
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "upload_bandwidth_edge",
+      "samples": 100000,
+      "statistics": {
+        "mean": 1024.0,
+        "variance": 0.0,
+        "minimum": 1024.0,
+        "maximum": 1024.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "1024.0": 100000
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true,
+        "exact_singleton": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "download_bandwidth_edge",
+      "samples": 100000,
+      "statistics": {
+        "mean": 1024.0,
+        "variance": 0.0,
+        "minimum": 1024.0,
+        "maximum": 1024.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "1024.0": 100000
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true,
+        "exact_singleton": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "workflow_type",
+      "samples": 100000,
+      "statistics": {
+        "mean": 9.47808,
+        "variance": 33.302519513600004,
+        "minimum": 0.0,
+        "maximum": 19.0,
+        "cdf_at_100": 1.0,
+        "counts": {
+          "6.0": 5058,
+          "11.0": 5045,
+          "5.0": 5019,
+          "0.0": 5154,
+          "2.0": 5055,
+          "3.0": 5023,
+          "4.0": 5047,
+          "18.0": 4970,
+          "1.0": 4908,
+          "15.0": 5005,
+          "9.0": 5102,
+          "13.0": 4972,
+          "17.0": 4939,
+          "19.0": 4976,
+          "12.0": 4952,
+          "16.0": 4984,
+          "7.0": 4855,
+          "14.0": 5070,
+          "8.0": 4897,
+          "10.0": 4969
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 0,
+      "role": "integer_singleton",
+      "samples": 100000,
+      "statistics": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "cdf_at_100": 1.0,
+        "counts": {
+          "0.0": 100000
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true,
+        "exact_singleton": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "workload",
+      "samples": 100000,
+      "statistics": {
+        "mean": 9991.199430732704,
+        "variance": 8355003.837034404,
+        "minimum": 5000.019636889891,
+        "maximum": 14999.84602091029,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "data_size",
+      "samples": 100000,
+      "statistics": {
+        "mean": 12786.482325605575,
+        "variance": 19711927.132692218,
+        "minimum": 5120.030162262874,
+        "maximum": 20479.763488118206,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "edge_data",
+      "samples": 100000,
+      "statistics": {
+        "mean": 149.91199430732792,
+        "variance": 835.5003837034055,
+        "minimum": 100.00019636889893,
+        "maximum": 199.99846020910292,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "processing_rate_device",
+      "samples": 100000,
+      "statistics": {
+        "mean": 187.3899928841596,
+        "variance": 1305.4693495358297,
+        "minimum": 125.00024546112364,
+        "maximum": 249.99807526137863,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "processing_rate_edge",
+      "samples": 100000,
+      "statistics": {
+        "mean": 374.7799857683192,
+        "variance": 5221.877398143319,
+        "minimum": 250.00049092224728,
+        "maximum": 499.99615052275726,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "processing_rate_cloud",
+      "samples": 100000,
+      "statistics": {
+        "mean": 749.5599715366384,
+        "variance": 20887.509592573275,
+        "minimum": 500.00098184449456,
+        "maximum": 999.9923010455145,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "inter_release_time",
+      "samples": 100000,
+      "statistics": {
+        "mean": 99.9006355500014,
+        "variance": 9939.105441358748,
+        "minimum": 0.0013341024306080527,
+        "maximum": 1250.6187822844902,
+        "cdf_at_100": 0.63278,
+        "counts": {}
+      },
+      "checks": {
+        "nonnegative": true,
+        "mean": true,
+        "variance": true,
+        "cdf": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "weight",
+      "samples": 100000,
+      "statistics": {
+        "mean": 2.20079,
+        "variance": 0.9632133758999997,
+        "minimum": 1.0,
+        "maximum": 4.0,
+        "cdf_at_100": 1.0,
+        "counts": {
+          "4.0": 20072,
+          "2.0": 59863,
+          "1.0": 20065
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "upload_bandwidth_cloud",
+      "samples": 100000,
+      "statistics": {
+        "mean": 383.56608,
+        "variance": 26246.1605134336,
+        "minimum": 128.0,
+        "maximum": 512.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "256.0": 20072,
+          "512.0": 59863,
+          "128.0": 20065
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "download_bandwidth_cloud",
+      "samples": 100000,
+      "statistics": {
+        "mean": 383.56608,
+        "variance": 26246.1605134336,
+        "minimum": 128.0,
+        "maximum": 512.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "256.0": 20072,
+          "512.0": 59863,
+          "128.0": 20065
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "upload_bandwidth_edge",
+      "samples": 100000,
+      "statistics": {
+        "mean": 1024.0,
+        "variance": 0.0,
+        "minimum": 1024.0,
+        "maximum": 1024.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "1024.0": 100000
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true,
+        "exact_singleton": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "download_bandwidth_edge",
+      "samples": 100000,
+      "statistics": {
+        "mean": 1024.0,
+        "variance": 0.0,
+        "minimum": 1024.0,
+        "maximum": 1024.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "1024.0": 100000
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true,
+        "exact_singleton": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "workflow_type",
+      "samples": 100000,
+      "statistics": {
+        "mean": 9.50889,
+        "variance": 33.14116096790001,
+        "minimum": 0.0,
+        "maximum": 19.0,
+        "cdf_at_100": 1.0,
+        "counts": {
+          "17.0": 4999,
+          "5.0": 4997,
+          "10.0": 5030,
+          "7.0": 5142,
+          "11.0": 4965,
+          "8.0": 5037,
+          "0.0": 4999,
+          "9.0": 4891,
+          "19.0": 4923,
+          "1.0": 4959,
+          "15.0": 5092,
+          "3.0": 4953,
+          "6.0": 5042,
+          "2.0": 4938,
+          "14.0": 5065,
+          "12.0": 4994,
+          "18.0": 5035,
+          "16.0": 4939,
+          "4.0": 4962,
+          "13.0": 5038
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 1,
+      "role": "integer_singleton",
+      "samples": 100000,
+      "statistics": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "cdf_at_100": 1.0,
+        "counts": {
+          "0.0": 100000
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true,
+        "exact_singleton": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "workload",
+      "samples": 100000,
+      "statistics": {
+        "mean": 9989.628429030348,
+        "variance": 8324461.470440939,
+        "minimum": 5000.176284354694,
+        "maximum": 14999.690333116834,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "data_size",
+      "samples": 100000,
+      "statistics": {
+        "mean": 12784.069266990631,
+        "variance": 19639868.649364173,
+        "minimum": 5120.270772768809,
+        "maximum": 20479.524351667456,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "edge_data",
+      "samples": 100000,
+      "statistics": {
+        "mean": 149.89628429030523,
+        "variance": 832.4461470434362,
+        "minimum": 100.00176284354693,
+        "maximum": 199.99690333116837,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "processing_rate_device",
+      "samples": 100000,
+      "statistics": {
+        "mean": 187.37035536287902,
+        "variance": 1300.6971047565748,
+        "minimum": 125.00220355443366,
+        "maximum": 249.99612916396046,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "processing_rate_edge",
+      "samples": 100000,
+      "statistics": {
+        "mean": 374.74071072575805,
+        "variance": 5202.788419026299,
+        "minimum": 250.00440710886733,
+        "maximum": 499.9922583279209,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "processing_rate_cloud",
+      "samples": 100000,
+      "statistics": {
+        "mean": 749.4814214515161,
+        "variance": 20811.153676105198,
+        "minimum": 500.00881421773465,
+        "maximum": 999.9845166558418,
+        "cdf_at_100": 0.0,
+        "counts": {}
+      },
+      "checks": {
+        "range": true,
+        "mean": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "inter_release_time",
+      "samples": 100000,
+      "statistics": {
+        "mean": 100.1581751955113,
+        "variance": 9990.416610746399,
+        "minimum": 0.0017380164435327693,
+        "maximum": 1138.4692184453452,
+        "cdf_at_100": 0.63081,
+        "counts": {}
+      },
+      "checks": {
+        "nonnegative": true,
+        "mean": true,
+        "variance": true,
+        "cdf": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "weight",
+      "samples": 100000,
+      "statistics": {
+        "mean": 2.20448,
+        "variance": 0.9627079295999996,
+        "minimum": 1.0,
+        "maximum": 4.0,
+        "cdf_at_100": 1.0,
+        "counts": {
+          "1.0": 19852,
+          "2.0": 59998,
+          "4.0": 20150
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "upload_bandwidth_cloud",
+      "samples": 100000,
+      "statistics": {
+        "mean": 384.18432,
+        "variance": 26141.621066137595,
+        "minimum": 128.0,
+        "maximum": 512.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "128.0": 19852,
+          "512.0": 59998,
+          "256.0": 20150
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "download_bandwidth_cloud",
+      "samples": 100000,
+      "statistics": {
+        "mean": 384.18432,
+        "variance": 26141.621066137595,
+        "minimum": 128.0,
+        "maximum": 512.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "128.0": 19852,
+          "512.0": 59998,
+          "256.0": 20150
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "upload_bandwidth_edge",
+      "samples": 100000,
+      "statistics": {
+        "mean": 1024.0,
+        "variance": 0.0,
+        "minimum": 1024.0,
+        "maximum": 1024.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "1024.0": 100000
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true,
+        "exact_singleton": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "download_bandwidth_edge",
+      "samples": 100000,
+      "statistics": {
+        "mean": 1024.0,
+        "variance": 0.0,
+        "minimum": 1024.0,
+        "maximum": 1024.0,
+        "cdf_at_100": 0.0,
+        "counts": {
+          "1024.0": 100000
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true,
+        "exact_singleton": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "workflow_type",
+      "samples": 100000,
+      "statistics": {
+        "mean": 9.50638,
+        "variance": 33.280719295599994,
+        "minimum": 0.0,
+        "maximum": 19.0,
+        "cdf_at_100": 1.0,
+        "counts": {
+          "1.0": 5043,
+          "11.0": 4968,
+          "17.0": 4984,
+          "19.0": 5079,
+          "7.0": 4963,
+          "14.0": 4980,
+          "13.0": 4891,
+          "8.0": 4964,
+          "5.0": 4992,
+          "2.0": 5006,
+          "10.0": 4979,
+          "6.0": 5058,
+          "15.0": 5016,
+          "3.0": 5048,
+          "4.0": 5077,
+          "12.0": 4980,
+          "9.0": 5078,
+          "16.0": 4984,
+          "0.0": 4857,
+          "18.0": 5053
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true
+      },
+      "passed": true
+    },
+    {
+      "seed": 20261104,
+      "role": "integer_singleton",
+      "samples": 100000,
+      "statistics": {
+        "mean": 0.0,
+        "variance": 0.0,
+        "minimum": 0.0,
+        "maximum": 0.0,
+        "cdf_at_100": 1.0,
+        "counts": {
+          "0.0": 100000
+        }
+      },
+      "checks": {
+        "support": true,
+        "frequencies": true,
+        "exact_singleton": true
+      },
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,1543 @@
+diff --git a/README.md b/README.md
+index 6cc9c7f..206f8b8 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,8 @@
+-# 雾计算工作流调度复现：0.2.1 固定实例验收版
++# 雾计算工作流调度复现：0.2.1 step6 开发快照
+ 
+-> 当前为 **step5 开发快照**：集中接纳、动态 Arrival、Java 兼容统计、明确失败和 Context 生命周期已实现。80 项新增及 Python 共 670 项通过；50 项原 Java 探针、9 个受控业务案例通过。API、诊断保护的验证范围和参考字段勘误见 [第 5 步记录](docs/STEP5-PROGRESS.md)。生产重放/固定投影、实际清理服务、完整 CLI/批次及完整 V01 仍在后续步骤。
++> **step6 当前状态**：生产动态重放、严格输入校验、参考/复用模式限制、覆盖诊断及旧固定投影已实现；复用第5步真实动态内核。127项新增、Python单元/集成共797项通过。本轮V17–V19逐例结果、Java实际执行范围、命令及边界见[第6步记录](docs/STEP6-PROGRESS.md)和`outputs/step6/current-validation.json`。实际边清理、完整CLI/批次和完整V01留第7步。
++
++> step5 历史快照：集中接纳、动态 Arrival、Java 兼容统计、明确失败和 Context 生命周期已实现。80 项新增及 Python 共 670 项通过；50 项原 Java 探针、9 个受控业务案例通过。API、诊断保护的验证范围和参考字段勘误见 [第 5 步记录](docs/STEP5-PROGRESS.md)。其后续实现与当前状态以第6步记录为准。
+ 
+ > step4 历史快照：Java 原动态输入导出与 V16 已完成。9 个案例通过观察无干扰/完整性检查，另有中断拒绝检查；新增 73 项和 Python 单元/集成共 590 项通过。详见 [第 4 步记录](docs/STEP4-PROGRESS.md)。第 5 步 Python 动态接入、第 6 步重放及完整 V01 尚未完成；下方 step1–3/0.2.1 为历史记录。
+ 
+diff --git a/configs/examples/step6_reuse.json b/configs/examples/step6_reuse.json
+new file mode 100644
+index 0000000..aef1b73
+--- /dev/null
++++ b/configs/examples/step6_reuse.json
+@@ -0,0 +1,10 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 1,
++  "mode": "replay",
++  "source": {
++    "purpose": "reuse_inputs",
++    "input_path": "../../outputs/step4/cases/multi_device_diamond/input.json"
++  },
++  "run": {"routing_rule": {"kind": "fixed_resource", "resource_id": "E0"}}
++}
+diff --git a/configs/examples/step6_verify.json b/configs/examples/step6_verify.json
+new file mode 100644
+index 0000000..48edbbb
+--- /dev/null
++++ b/configs/examples/step6_verify.json
+@@ -0,0 +1,10 @@
++{
++  "format": "fogsim.experiment",
++  "schema_version": 1,
++  "mode": "replay",
++  "source": {
++    "purpose": "verify_reference",
++    "input_path": "../../outputs/step4/cases/minimal_chain/input.json",
++    "reference_path": "../../outputs/step4/cases/minimal_chain/reference.json"
++  }
++}
+diff --git a/docs/IMPLEMENTATION-NOTES.md b/docs/IMPLEMENTATION-NOTES.md
+index 14dd91a..03fd75f 100644
+--- a/docs/IMPLEMENTATION-NOTES.md
++++ b/docs/IMPLEMENTATION-NOTES.md
+@@ -240,3 +240,8 @@
+ ## N32：第 5 步动态服务和生命周期（2026-11-05）
+ 
+ 新增单一 AdmissionService、RandomWorkflowSource、独立 DynamicStatistics/DynamicRunResult 和 Context；四事件只加来源/首次完成回调，原堆归并提取但顺序不变。参数来源指纹只含物理参数和 sampler，不能因 trace/max_events 改变。Context 不自动保留旧轮运行图，旧 READY 标记 SUPERSEDED；缺完整环境的准备失败允许显式重试。完整合同、验证范围、test-only FCFS 诊断模式及第4步 producer 字段的真实 owner 映射见 [STEP5-PROGRESS](STEP5-PROGRESS.md)。生产重放、实际清理及完整 CLI 未提前实现。
++
++
++## N33：第6步生产重放与固定投影（2026-11-05）
++
++输入加载独立于tools，元数据用不可变JSON文本保存并返回脱离副本；已验证的结构解码通过生产dataclass再次约束。Option时长显式转换binary64，不重算公式。参考只在引擎结束后读取；原manifest绑定完整验收。新的ReplayEngine仅扩展观察快照/结果，循环仍继承DynamicEngine。固定投影标记单独存清单，保持旧严格JSON。详见 [STEP6-PROGRESS](STEP6-PROGRESS.md)。
+diff --git a/docs/ISSUES-AND-FIXES.md b/docs/ISSUES-AND-FIXES.md
+index 1bad213..8382fc5 100644
+--- a/docs/ISSUES-AND-FIXES.md
++++ b/docs/ISSUES-AND-FIXES.md
+@@ -124,3 +124,8 @@ require(finish > self.start_time,
+ ## 第 5 步：诊断指纹和参考元数据（2026-11-05）
+ 
+ 首次新测试发现环境 parameter_source 使用整个实验指纹，使 trace 开关改变归档元数据；现仅对环境及 sampler 有效参数取指纹，调度/采样数值不变。第4步 Java 参考 producer_device_id 实际来自 event.getMobileDevice，即事件 owner，不能当作写堆设备。本轮明示映射，并新运行原 PF 续接探针验证 M0 staging / M1 owner；历史参考字节未改，完整说明见 [STEP5-PROGRESS](STEP5-PROGRESS.md)。既有全图 priority 只读检查和详细状态快照在大图核对中开销明显；仅调整 test-only 核对方式并作等价检查，未修改生产保护或声称生产性能验收。
++
++
++## 第6步：来源失败与比较范围（2026-11-05）
++
++读取游标、成功核对attempt数、正式接纳G分别保留；失败时不得将它们混为同一计数。换规则后的有限输入不足明确诊断，不能补采样或判定为调度错误。完整捕获不表示无限覆盖。延续第5步producer字段owner映射，不修改历史参考；V16没有pre-trigger/staging数据，报告明确限制。空成功接纳集无法进入旧非空固定格式，导出报错并单列表示边界。新测试初轮的未知dataclass参数异常预期错误已修正为正式配置入口测试；旧预期未改。详见 [STEP6-PROGRESS](STEP6-PROGRESS.md)。
+diff --git a/docs/STEP6-PROGRESS.md b/docs/STEP6-PROGRESS.md
+new file mode 100644
+index 0000000..b260038
+--- /dev/null
++++ b/docs/STEP6-PROGRESS.md
+@@ -0,0 +1,75 @@
++# 冻结设计实施记录：第 6 步（V17–V19）
++
++日期：2026-11-05，America/Los_Angeles。直接基线为本轮提供的 `fogsim-0.2.1-step5.zip`，SHA-256 `e441aa5cd2e0767532260ab2b9d280896c437ff03772151ffe347a284083592b`。在独立副本开发，原 ZIP、原 Java 源码及 step4 input/reference/manifest 均不覆盖。冻结设计按用户确认执行，历史“初稿”文字不影响冻结状态。
++
++本轮实际可访问来源共8份：step5、step4、verified、Java源码ZIP、冻结设计MD、原设计ZIP、学习计划及论文PDF。仅使用这些来源；step5内已包含所需第4步案例，无需从其他私人文件补全。659份Java源码/依赖与上传Java ZIP逐字节一致，见 `outputs/step6/source-audit.json`。
++
++## 实际改动
++
++| 模块 | 作用 |
++| --- | --- |
++| `replay/spec.py`、`loader.py`、`_decode.py` | 生产 schema-v1 加载；不可变归档/初态/capture/配置；严格字段、JSON数组、整数、有限数值、顺序、引用、候选完整性、capture校验；无 tools 运行依赖 |
++| `replay/source.py` | 单一全局attempt游标；真实生成调用核对phase/owner/触发工作流/clock/拟用ID；记录读取位置、通过核对位置及失败详情；不搜索、不采样 |
++| `replay/engine.py`、`simulation/admission.py` | 复用DynamicEngine原事件循环及集中接纳；release判定后、提交前核对observed acceptance；准备失败保留Engine/部分结果；仅新增输出快照的暂存事件计数 |
++| `replay/audit.py` | 独立累计/公式binary64审计；差异报告不覆盖记录PT/UT/DT |
++| `replay/export.py` | 成功接纳记录→旧InstanceSpec/JSON；独立fixed_projection语义损失清单 |
++| `validation/dynamic_compare.py` | 执行结束后核对消费、事件、决策、交错动作、每个post-trigger状态、最终状态/统计/正常指标；绑定独立参考与原manifest哈希 |
++| `tools/check_step6.py`、测试、示例配置 | V17–V19验证工具、原始结果和负例；不替代正式CLI/实验编排 |
++| `tools/java_support.py` | 保留现有javac路径；固定编译入口另支持现有jdk.compiler模块（无javac launcher环境），记录模块SHA和命令；原Java方法/适配语义不变 |
++
++`WorkflowSource.generate`、旧固定入口和随机Context生命周期保留。AdmissionService仅增加可选的提交前来源核对钩子，RandomWorkflowSource未改。ReplayEngine继承动态循环，只扩展诊断快照/结果，未另写调度器。共享RNG、seed/reset/rerun/rotate、B、原事件/保护次序未改。
++
++## 使用与模式
++
++```python
++from fogsim import (load_replay_input, create_replay_engine, simulate_replay,
++                    export_fixed_instance, load_experiment_config, simulate_replay_config)
++
++inp = load_replay_input("input.json")
++result = simulate_replay(inp)             # 只执行input；比较为NOT_COMPARED
++engine = create_replay_engine(inp)         # 新对象图、来源位置从0开始，READY
++result = engine.run()                      # 当前Engine只能run一次
++fixed = export_fixed_instance(inp)         # fixed.to_dict()为旧JSON，损失标记另存清单
++checked = simulate_replay_config(load_experiment_config("configs/examples/step6_verify.json"))
++reused = simulate_replay_config(load_experiment_config("configs/examples/step6_reuse.json"))
++```
++
++单独input API默认按录制行为运行，允许没有reference；此时绝不报告轨迹通过。现有experiment配置的verify_reference仍要求reference_path；`simulate_replay_config`先执行、再读参考/manifest并比较。reuse_inputs不读取reference，即使配置给了reference_path；它始终标记新实验，原参考一致性结论关闭。单轮适配器明确拒绝未展开的repeat；后续编排使用现有`single_run`并为每轮创建新引擎，不推进上一轮游标。
++
++verify_reference不允许更换行为规则；初始B、环境、N/W、统计、事件和保护条件来自记录。reuse_inputs只允许现有FCFS/fixed_resource路由及FCFS排序，目标须对全部设备合法；不开放来源/N/W/环境/seed覆盖。trace、额外预算和不变量检查为诊断选项；实际边清理仍明确拒绝，留第7步。原录制预算与额外预算取较小值，不延长原限制。
++
++完整归档始终保存拒绝、未到达和未完成者。正常停止允许未消费尾部；严格复核一个原Java完整捕获时另外要求实际消费数量及诊断event_sequence与原记录一致。录制event_sequence不会安排事件；测试将其改为999，实际调度保持原样，事后比较发现消费证据差异。
++
++`REPLAY_INPUT_INVALID`、`REPLAY_CAPTURE_INCOMPLETE`属于输入错误。`REPLAY_INPUT_EXHAUSTED`、`REPLAY_INPUT_DIVERGENCE`及既有`EVENTS_EXHAUSTED_BEFORE_TARGET`保留不同原因；后两种来源失败保存实际请求、下一record、读取/核对位置、部分事件和任务事实。换规则的来源不足/错位标记INPUT_COVERAGE_INSUFFICIENT，不断言调度错误；不自动采样或循环。complete=true仅表示捕获完整。诊断可显式`require_complete=False`加载完整attempt组成的部分捕获，但不能通过完整验收或导出正式固定投影。
++
++## V17–V19与证据
++
++最终汇总见 `outputs/step6/current-validation.json`。Python针对性127项及单元/集成797项通过，0失败/错误/跳过。跨语言V17共9例：7例NORMAL_PARITY_PASSED、2例EXPECTED_DIFFERENCE_CONFIRMED；每种语言1128事件、1008决策、96次尝试。V19为6个非空投影、10条规则路径正常通过，另1例为空投影表示限制；两个大型固定投影未执行。逐例分类以该汇总及原始报告为准。
++
++- V17：生产重放使用独立第4步Java捕获及原清单，不使用第5步sampler展开工具。Java参考来自上阶段独立原动态入口；本轮未重新导出动态Java参考。保留完整生产trace和规则全图只读保护，无test-only recorder/priority绕过。
++- V18：缺尾记录、不完整捕获、真实事件内来源错位、准备期用尽、换规则覆盖不足、无事件未达标均有测试/报告；不补输入。纯input执行、参考篡改、无RNG创建/推进、对象身份/运行图隔离、固定兼容均已核对。
++- V19：本轮实际编译并运行原Java固定适配器，六个非空小型投影在两侧运行到所有输入完成，共十条规则路径。两个native_*大型投影不在最终V19验证范围；首次扩大验证在native_multiple_types固定Python运行时手动中断，保留INTERRUPTED报告，其已完成的动态比较单独保留。FCFS及有服务器时的fixed_resource分别对照；比较loaded_model、完整固定轨迹/状态/动作/结果。投影指标只表示固定全集，绝不与原动态统计指标混比。
++
++V16历史字段`producer_device_id`明确映射为事件owner。Python raw继续分别保存owner/staging；历史参考没有staging证据，因此不能宣称逐条跨语言staging一致。第4步只有post-trigger状态，没有pre-trigger快照，本轮不伪造前态。Java jobsInSystem映射到Python按接纳顺序的pending+active；Java物理完成ID按接纳顺序观察，统计完成顺序原样保留。Java默认未完成时间0→None；Java边映射已清空、Python保留这一差异单列，不隐藏调度字段。
++
++完整正常通过要求完整capture、来源足够、受支持规则/统计条件、两侧成功、完整manifest绑定且首差为空。无参考为NOT_COMPARED；缺完整溯源绑定为NOT_EXECUTED；预期异常单列EXPECTED_DIFFERENCE_CONFIRMED，不计正常跨语言通过。浮点比较abs=1e-9/rel=1e-12，priority有符号零区分，ID/计数/顺序精确；容差不参与调度。
++
++## 实际命令及环境
++
++CPython 3.12.14、pytest 9.2.0、Ubuntu OpenJDK 17.0.20+8。测试依赖安装在工程外。当前环境Java须设置LD_LIBRARY_PATH，无javac launcher时用已有jdk.compiler；正常JDK17可直接指定`--java`。构建清单保存完整命令、JDK/模块/源码/JAR指纹、编译及JVM原始输出。
++
++```bash
++PYTHONPATH=../../test-deps:src python -m pytest -q tests/unit/test_replay.py --junitxml=outputs/step6/replay-tests.xml
++PYTHONPATH=../../test-deps:src python -m pytest -q tests/unit tests/integration --junitxml=outputs/step6/python-regression.xml
++LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib:/usr/lib/jvm/java-17-openjdk-amd64/lib/server PYTHONPATH=src python tools/check_step6.py --output outputs/step6/acceptance
++```
++
++开发初轮新测试119通过/1失败：测试错误地期待dataclass未知构造参数抛InputError（实际TypeError）；已改为通过正式配置解析器验证禁止N/W覆盖，未改旧测试预期或调度行为。新增直接输入时长转binary64及覆盖/比较诊断完善后，针对性和完整Python单元/集成均再次通过；最终小型跨语言复跑另存`outputs/step6/final-small/`，命令在`checks.json`。最终大图仅动态重放命令为`python tools/check_step6.py --output outputs/step6/large-dynamic --cases native_standard_dax --skip-fixed`（沿用上述环境变量）。工具默认跳过native_*大型固定投影；显式`--include-large-fixed`可扩大V19，但完整图保护开销很高，不默认执行。
++
++## 边界与第7步衔接
++
++未发现需要调整冻结设计的源码冲突或关键语义问题。全部接纳为空时，旧固定格式要求非空工作流集，导出明确InputError；该例只验证表示限制，不声称执行了空固定实例。固定JSON不能保存拒绝/动态调用位置/统计窗口及完整物理字段，`projection-manifest.json`列出损失；Java规则仅FCFS/fixed_resource，物理1.0占位不支持真实物理特征或GP一致性结论。
++
++未执行完整V01、96固定扫查/完整组件oracle重跑、实际边清理、完整CLI、批次编排、GP及论文实验。本轮Python回归和新投影Java对照不冒充这些门禁。第7步可直接围绕`ReplayInput.archive`保留不可变归档，新增实际清理服务/策略，再接入`simulate_replay_config`与独立游标的repeat编排，最后执行完整V01/CLI/批次门禁。
++
++相对step5的文本补丁为`CHANGES-STEP6.patch`；当前文件清单为`STEP6-FILES.json`。旧STEP1–5/RELEASE清单和输出仅表示各自历史阶段。
+diff --git a/docs/VALIDATION.md b/docs/VALIDATION.md
+index 9ef1739..36d0f11 100644
+--- a/docs/VALIDATION.md
++++ b/docs/VALIDATION.md
+@@ -1,5 +1,7 @@
+ # 0.2 固定实例完整验收记录
+ 
++> step6当前证据见 [STEP6-PROGRESS](STEP6-PROGRESS.md) 和 `outputs/step6/`：127项新增、Python单元/集成797项通过；生产重放和同投影Java固定入口的逐例结果见current-validation.json。以下旧阶段结果保留原范围。
++
+ > step5 真实证据见 [STEP5-PROGRESS](STEP5-PROGRESS.md)、`outputs/step5/` 和 `outputs/step5-final/`。80 项新增及 Python 共 670 项通过；50 项新运行原 Java 探针、9 案例受控 sampler 业务对照通过。大型 FCFS 对照使用经等价检查的诊断模式，未声称完整生产重放/任意规则保护或完整 V01 通过。
+ 
+ > step4 真实证据见 [STEP4-PROGRESS](STEP4-PROGRESS.md)、`outputs/step4/`：73 项新增及 590 项 Python 测试通过，9 个 Java V16 案例和一次故意中断检查通过。比较是 Java 观察无干扰；Python 动态重放、固定投影及完整 V01 未执行。
+diff --git a/docs/roadmap.md b/docs/roadmap.md
+index f83d5ac..323c6f3 100644
+--- a/docs/roadmap.md
++++ b/docs/roadmap.md
+@@ -1,5 +1,7 @@
+ # 进度与后续工作
+ 
++2026-11-05（step6）：生产重放、严格输入/模式/覆盖诊断、固定投影及V17–V19对照已接入。当前结果与第7步衔接见 [STEP6-PROGRESS](STEP6-PROGRESS.md)。下一步实际边清理、完整CLI/批次及完整V01；不进入GP。
++
+ 2026-11-05（step5）：动态集中接纳、Arrival、物理/Java 统计集合分离、停止/保护、Context 生命周期已实现。80 项新增及 Python 共 670 项通过；50 项原 Java 组件/生命周期、9 案例受控业务对照通过。具体诊断模式和参考字段映射见 [STEP5-PROGRESS](STEP5-PROGRESS.md)。下一步第 6 步为生产重放、覆盖不足和固定投影；实际清理/CLI/批次/完整 V01 留到第 7 步。
+ 
+ 2026-11-05（step4）：Java 动态输入完整导出、分离参考/清单、9 案例 V16 无干扰及中断检查完成；Python 共 590 项通过。当前待第 5 步集中接纳/Arrival/统计/生命周期；不是 Python 动态重放已完成。详见 [STEP4-PROGRESS](STEP4-PROGRESS.md)。
+diff --git a/docs/semantics.md b/docs/semantics.md
+index 9023044..39f223d 100644
+--- a/docs/semantics.md
++++ b/docs/semantics.md
+@@ -1,5 +1,7 @@
+ # 当前语义基线
+ 
++第6步重放复用动态集中接纳和原事件循环；逐次读取全局attempt、重算release gate，再核对观察值；不采样、不依赖参考输出。正常停止可留尾记录；参考比较在执行结束后进行。固定投影只保留成功接纳记录，固定全集指标独立于动态统计窗口。范围与错误合同见 [STEP6-PROGRESS](STEP6-PROGRESS.md)。
++
+ 第 5 步动态语义已接入：集中接纳、每 Arrival 一次后续尝试、物理 completed 与 Java recorded 集合分离、B 赋值可下降、事件后保护与最后一次归并、保留环境/B 的 reset/rerun/rotate_seed。固定路径仍保留旧语义。API、失败合同、实际验证边界及旧参考 producer 字段勘误见 [STEP5-PROGRESS](STEP5-PROGRESS.md)。
+ 
+ 第 4 步只增加 Java 导出开发工具；Python 生产语义未变。输入捕获与原生参考分离，拒绝/未到达/未完成候选均保存。capture.complete 不等于统计达标或输入无限覆盖；第 6 步才能验证 Python 动态重放。具体格式和观察边界见 [STEP4-PROGRESS](STEP4-PROGRESS.md)。
+@@ -20,6 +22,6 @@
+ 
+ 同刻比较 JA<PS<TV<PF；JA 相同工作流 ID 返回 -1，PF 相同关键编号返回 +1，PS/TV 同类返回0。使用参考 JDK 操作顺序实现堆，不正规化异常比较器，不追加稳定序号。
+ 
+-本版只支持有限固定输入、无 warm-up、非抢占、无重试、无网络排队。正常 makespan 为所有完成工作流最大完成时间减最早发布时间。领域错误为 FAILED，最终 makespan 缺失。执行计划不等于实际触发；日志不用于判断派发、就绪、开始或完成资格。
++旧固定入口只处理有限固定输入、无 warm-up、非抢占、无重试、无网络排队。正常 makespan 为所有完成工作流最大完成时间减最早发布时间。领域错误为 FAILED，最终 makespan 缺失。执行计划不等于实际触发；日志不用于判断派发、就绪、开始或完成资格。
+ 
+ 0.2.0 已完成 V2-01～05 固定实例验收，详见 VALIDATION。接受执行计划前要求 `(start+PT)+DT > start`；否则显式 FAILED，不写入索引或预约。这是针对实际精度反例新增的边界校验，不声称原 Java 具有该保护，也不将该反例判为等价。支持严格为正的总占用区间；未对单独 PT/DT 重新运算或自动取整。
+diff --git a/src/fogsim/__init__.py b/src/fogsim/__init__.py
+index 78ca02b..5875b7d 100644
+--- a/src/fogsim/__init__.py
++++ b/src/fogsim/__init__.py
+@@ -20,3 +20,10 @@ __all__ = ["RunConfig", "InstanceSpec", "load_fixed_instance", "parse_instance",
+            "sample_environment", "build_environment", "generate_workflow_input",
+            "release_rejection_reason", "materialize_workflow", "SimulationContext",
+            "create_dynamic_context", "simulate_dynamic", "DynamicRunResult", "PreparationError"]
++
++from .replay import (ReplayInput, ReplayInputError, load_replay_input, parse_replay_input,
++    create_replay_engine, simulate_replay, simulate_replay_config, export_fixed_instance,
++    fixed_projection_metadata, audit_formulas)
++__all__ += ["ReplayInput", "ReplayInputError", "load_replay_input", "parse_replay_input",
++    "create_replay_engine", "simulate_replay", "simulate_replay_config", "export_fixed_instance",
++    "fixed_projection_metadata", "audit_formulas"]
+diff --git a/src/fogsim/replay/__init__.py b/src/fogsim/replay/__init__.py
+new file mode 100644
+index 0000000..dd4c794
+--- /dev/null
++++ b/src/fogsim/replay/__init__.py
+@@ -0,0 +1,9 @@
++from .spec import ReplayInput, ReplayInputError
++from .loader import load_replay_input, parse_replay_input
++from .engine import create_replay_engine, simulate_replay, simulate_replay_config
++from .export import export_fixed_instance, fixed_projection_metadata
++from .audit import audit_formulas
++
++__all__ = ['ReplayInput', 'ReplayInputError', 'load_replay_input', 'parse_replay_input',
++           'create_replay_engine', 'simulate_replay', 'simulate_replay_config',
++           'export_fixed_instance', 'fixed_projection_metadata', 'audit_formulas']
+diff --git a/src/fogsim/replay/_decode.py b/src/fogsim/replay/_decode.py
+new file mode 100644
+index 0000000..c85a43e
+--- /dev/null
++++ b/src/fogsim/replay/_decode.py
+@@ -0,0 +1,67 @@
++"""Schema-v1 structural decoder; production has no dependency on tools/."""
++from fogsim.environment.spec import DeviceSnapshot, ServerSnapshot, EnvironmentSnapshot
++from fogsim.errors import InputError
++from fogsim.instances.generated import (TaskInput, EdgeInput, WorkflowInput, GenerationCause,
++    GenerationAttempt, CandidateRecord, AdmissionMapping, InputArchive)
++from fogsim.instances.templates import DagTaskSpec, DagDiagnostic, DagTemplate, TemplateRef
++from fogsim.instances.spec import OptionSpec
++from fogsim.instances.fixed import object_fields
++from fogsim.input_validation import finite
++
++def keys(value, required, label, optional=()):
++    object_fields(value, required, optional, label)
++
++def decode_archive(value):
++    capture = value['capture']
++    env = value['environment']
++    keys(env, {'devices','servers','parameter_source','fingerprint'}, 'environment')
++    for d in env['devices']:
++        keys(d, {'id','numeric_id','processing_rate','can_process_tasks'}, 'device')
++    for r in env['servers']:
++        keys(r, {'id','numeric_id','type','processing_rate','upload_bandwidth','download_bandwidth'}, 'server')
++    environment = EnvironmentSnapshot(tuple(DeviceSnapshot(**d) for d in env['devices']),
++        tuple(ServerSnapshot(**s) for s in env['servers']), env['parameter_source'])
++    # Exporter canonicalizes this to the existing Python snapshot fingerprint.
++    if env['fingerprint'] != environment.fingerprint:
++        raise InputError('environment fingerprint mismatch')
++    templates = []
++    for t in value['templates']:
++        keys(t, {'dag_type_id','source_name','source_sha256','tasks','dependencies','diagnostics'}, 'template')
++        for task in t['tasks']: keys(task, {'xml_id','java_index'}, 'template.task')
++        for d in t['diagnostics']: keys(d, {'code','attribute','declared_value','actual_count'}, 'diagnostic')
++        templates.append(DagTemplate(t['dag_type_id'],t['source_name'],t['source_sha256'],
++            tuple(DagTaskSpec(**x) for x in t['tasks']), tuple(tuple(x) for x in t['dependencies']),
++            tuple(DagDiagnostic(**d) for d in t['diagnostics'])))
++    candidates = []
++    for c in value['candidates']:
++        keys(c, {'record_id','workflow_input'}, 'candidate')
++        w = c['workflow_input']
++        keys(w, {'candidate_id','owner_device_id','template_ref','release_time','inter_release_time','weight','tasks','edges'}, 'workflow_input')
++        keys(w['template_ref'], {'dag_type_id','source_sha256'}, 'template_ref')
++        tasks = []
++        for t in w['tasks']:
++            keys(t, {'id','workload','data_size','total_input_data','total_output_data','options'}, 'task')
++            for o in t['options']:
++                keys(o, {'resource_id','processing_time','upload_time','download_time'}, 'option')
++            tasks.append(TaskInput(**dict(t, options=tuple(OptionSpec(
++                resource_id=o['resource_id'],
++                processing_time=finite(o['processing_time'], 'processing_time', True),
++                upload_time=finite(o['upload_time'], 'upload_time'),
++                download_time=finite(o['download_time'], 'download_time')) for o in t['options']))))
++        for e in w['edges']: keys(e, {'parent_id','child_id','data_size'}, 'edge')
++        candidates.append(CandidateRecord(c['record_id'], WorkflowInput(**dict(w,
++            template_ref=TemplateRef(**w['template_ref']),tasks=tuple(tasks),edges=tuple(EdgeInput(**e) for e in w['edges'])))))
++    attempts = []
++    for a in value['generation_attempts']:
++        keys(a, {'attempt_sequence','phase','owner_device_id','generation_clock_time','causing_workflow_id',
++                 'event_sequence','candidate_ref','observed_acceptance','rejection_reason'}, 'attempt')
++        cause = GenerationCause(a['phase'], a['owner_device_id'], a['generation_clock_time'],
++                                a['causing_workflow_id'], a['event_sequence'])
++        attempts.append(GenerationAttempt(a['attempt_sequence'], cause, a['candidate_ref'],
++                                         a['observed_acceptance'], a['rejection_reason']))
++    admissions = tuple(AdmissionMapping(c.record_id,c.workflow_input.candidate_id)
++                       for c,a in zip(candidates,attempts) if a.observed_acceptance)
++    archive = InputArchive(tuple(templates),environment,tuple(candidates),tuple(attempts),admissions)
++    if capture['complete'] and sum(a.cause.phase == 'initialize' for a in attempts) != len(environment.devices):
++        raise InputError('complete capture missing initialization attempts')
++    return archive
+diff --git a/src/fogsim/replay/audit.py b/src/fogsim/replay/audit.py
+new file mode 100644
+index 0000000..e93bf37
+--- /dev/null
++++ b/src/fogsim/replay/audit.py
+@@ -0,0 +1,32 @@
++"""Independent binary64 audit of cumulative values and formulas; never mutates inputs."""
++import struct
++from fogsim.environment.spec import DeviceSnapshot
++
++
++def audit_formulas(replay_input):
++    archive = replay_input.archive
++    resources = {r.id: r for r in (*archive.environment.devices, *archive.environment.servers)}
++    templates = {t.ref: t for t in archive.templates}
++    differences = []
++    def check(record, task, field, actual, expected):
++        if struct.pack('>d', actual) != struct.pack('>d', expected):
++            # Nonfinite derived expectations are diagnostic text, never invalid JSON.
++            differences.append(dict(record_id=record, task_id=task, field=field,
++                recorded=actual, calculated=expected if abs(expected) != float('inf') else str(expected)))
++    for record in archive.candidates:
++        w = record.workflow_input
++        parents, children = templates[w.template_ref].adjacency()
++        edges = {(e.parent_id,e.child_id):e.data_size for e in w.edges}
++        for t in w.tasks:
++            ti = to = 0.0
++            for parent in parents[t.id]: ti += edges[parent,t.id]
++            for child in children[t.id]: to += edges[t.id,child]
++            check(record.record_id,t.id,'total_input_data',t.total_input_data,ti)
++            check(record.record_id,t.id,'total_output_data',t.total_output_data,to)
++            for o in t.options:
++                r = resources[o.resource_id]
++                for field, expected in (('processing_time', t.workload/r.processing_rate),
++                    ('upload_time',0.0 if isinstance(r,DeviceSnapshot) else (t.data_size+ti)/r.upload_bandwidth),
++                    ('download_time',0.0 if isinstance(r,DeviceSnapshot) else (t.data_size+to)/r.download_bandwidth)):
++                    check(record.record_id,t.id,o.resource_id+'.'+field,getattr(o,field),expected)
++    return dict(passed=not differences, differences=differences, authority='recorded durations; audit never rewrites them')
+diff --git a/src/fogsim/replay/engine.py b/src/fogsim/replay/engine.py
+new file mode 100644
+index 0000000..2a269bd
+--- /dev/null
++++ b/src/fogsim/replay/engine.py
+@@ -0,0 +1,99 @@
++"""Replay prepares the existing DynamicEngine; it has no alternate event loop."""
++from dataclasses import replace
++from types import SimpleNamespace
++from fogsim.errors import InputError, PreparationError, StateError
++from fogsim.experiment_config import ReplayRunOptions, ExperimentConfig
++from fogsim.environment.build import build_environment
++from fogsim.input_validation import choice
++from fogsim.simulation.dynamic import DynamicEngine
++from .spec import ReplayInput
++from .source import ReplayWorkflowSource
++from .loader import load_replay_input
++
++
++class ReplayEngine(DynamicEngine):
++    def _snapshot(self):
++        value = super()._snapshot()
++        # Observation only, needed at the Java post-trigger boundary.
++        value['staged_event_counts'] = {d.id: len(self.event_queue.staging_heaps[d]) for d in self.state.mobile_devices}
++        return value
++
++    def result(self):
++        result = super().result()
++        source = self.admission.source
++        summary = result.source_summary | source.summary()
++        diagnostics = result.diagnostics | dict(comparison_status='NOT_COMPARED', replay_purpose=source.purpose,
++            original_reference_trajectory_eligible=source.purpose == 'verify_reference',
++            coverage_status=('INPUT_COVERAGE_INSUFFICIENT' if result.reason_code == 'REPLAY_INPUT_EXHAUSTED' or
++                (source.purpose == 'reuse_inputs' and result.reason_code == 'REPLAY_INPUT_DIVERGENCE') else
++                'SOURCE_DIVERGED' if result.reason_code == 'REPLAY_INPUT_DIVERGENCE' else 'AVAILABLE_FOR_OBSERVED_CALLS'),
++            recorded_behavior_config=self.replay_input.to_dict()['effective_config'])
++        return replace(result, source_summary=summary, diagnostics=diagnostics)
++
++
++def create_replay_engine(replay_input, options=None, *, purpose='verify_reference'):
++    if type(replay_input) is not ReplayInput: raise InputError('expected ReplayInput from load/parse_replay_input')
++    choice(purpose, ('verify_reference', 'reuse_inputs'), 'purpose')
++    options = ReplayRunOptions() if options is None else options
++    if type(options) is not ReplayRunOptions: raise InputError('expected ReplayRunOptions')
++    if options.edge_data_policy != 'retain': raise InputError('edge release runtime service is deferred to step7')
++    original = replay_input.run_config
++    if purpose == 'verify_reference' and (options.routing_rule is not None or options.sequencing_rule is not None):
++        if ((options.routing_rule or original.routing_rule) != original.routing_rule or
++                (options.sequencing_rule or original.sequencing_rule) != original.sequencing_rule):
++            raise InputError('verify_reference forbids changing behavior rules; choose reuse_inputs')
++    routing = options.routing_rule or original.routing_rule
++    sequencing = options.sequencing_rule or original.sequencing_rule
++    env = replay_input.archive.environment
++    if routing.kind == 'fixed_resource' and any(routing.resource_id not in env.eligible_resource_ids(d.id) for d in env.devices):
++        raise InputError('fixed resource must be eligible for every device')
++    # Extra budgets constrain execution; they do not extend recorded coverage.
++    budgets = [x for x in (original.max_events, options.max_events) if x is not None]
++    config = replace(original, routing_rule=routing, sequencing_rule=sequencing,
++        max_events=min(budgets) if budgets else None, check_invariants=options.check_invariants,
++        trace_enabled=options.trace_enabled, edge_data_policy=options.edge_data_policy)
++    initial = replay_input.initial_state
++    source = ReplayWorkflowSource(replay_input, purpose=purpose)
++    engine = ReplayEngine(build_environment(env), config, env, replay_input.archive.templates, source,
++        initial_cutoff=initial.B, public_seed=initial.public_seed, run_index=initial.run_index,
++        operation='replay_' + replay_input.to_dict()['origin']['operation'])
++    engine.replay_input = replay_input
++    try:
++        engine.initialize()
++    except StateError as exc:
++        engine._fail(exc)
++        raise PreparationError(SimpleNamespace(engine=engine), engine.result()) from exc
++    return engine
++
++
++def simulate_replay(replay_input, options=None, *, purpose='verify_reference'):
++    """Execute inputs only; no reference data are read, even during preparation."""
++    if isinstance(replay_input, (str, bytes)) or hasattr(replay_input, '__fspath__'):
++        replay_input = load_replay_input(replay_input)
++    try:
++        return create_replay_engine(replay_input, options, purpose=purpose).run()
++    except PreparationError as exc:
++        return exc.result
++
++
++def simulate_replay_config(config):
++    """Single-run config adapter; comparison is explicitly post-execution."""
++    if type(config) is not ExperimentConfig or config.mode != 'replay' or config.repeat.count != 1:
++        raise InputError('expected a single-run replay ExperimentConfig')
++    inp = load_replay_input(config.source.input_path)
++    try:
++        engine = create_replay_engine(inp, config.run, purpose=config.source.purpose)
++        result = engine.run()
++    except PreparationError as exc:
++        engine, result = exc.engine, exc.result
++    if config.source.reference_path is not None and config.source.purpose == 'verify_reference':
++        from fogsim.validation.dynamic_compare import compare_dynamic_reference
++        from .loader import read_replay_json
++        reference = read_replay_json(config.source.reference_path)
++        manifest = config.source.reference_path.with_name('manifest.json')
++        report = compare_dynamic_reference(engine, result, reference,
++            manifest_path=manifest if manifest.is_file() else None,
++            input_path=config.source.input_path, reference_path=config.source.reference_path)
++        result = replace(result, diagnostics=result.diagnostics | {'comparison': report,
++            'comparison_status': report['classification']})
++    return result
+diff --git a/src/fogsim/replay/export.py b/src/fogsim/replay/export.py
+new file mode 100644
+index 0000000..45fb4ac
+--- /dev/null
++++ b/src/fogsim/replay/export.py
+@@ -0,0 +1,31 @@
++"""Lossy fixed projection; both fixed engines must consume this same InstanceSpec."""
++from fogsim.errors import InputError
++from fogsim.instances.spec import InstanceSpec, ResourceSpec, WorkflowSpec, TaskSpec
++from .spec import ReplayInput, ReplayInputError
++
++
++def export_fixed_instance(replay_input):
++    if type(replay_input) is not ReplayInput: raise InputError('expected ReplayInput')
++    if not replay_input.capture.is_complete:
++        raise ReplayInputError('fixed acceptance requires complete capture', 'REPLAY_CAPTURE_INCOMPLETE')
++    archive = replay_input.archive
++    templates = {t.ref: t for t in archive.templates}
++    resources = tuple(ResourceSpec(d.id, 'MOBILE', d.can_process_tasks) for d in archive.environment.devices)
++    resources += tuple(ResourceSpec(s.id, s.type) for s in archive.environment.servers)
++    workflows = []
++    for record, attempt in zip(archive.candidates, archive.generation_attempts):
++        if not attempt.observed_acceptance: continue
++        w = record.workflow_input
++        workflows.append(WorkflowSpec(w.candidate_id, w.owner_device_id, w.release_time,
++            tuple(TaskSpec(t.id, t.options) for t in w.tasks), templates[w.template_ref].dependencies))
++    if not workflows: raise InputError('fixed projection has no accepted workflows; legacy fixed format requires nonempty input')
++    return InstanceSpec(resources, tuple(workflows))
++
++
++def fixed_projection_metadata(replay_input):
++    return dict(kind='fixed_projection', source_format='fogsim.dynamic-replay', schema_version=1,
++        accepted_record_ids=[a.workflow_input_ref for a in replay_input.archive.generation_attempts if a.observed_acceptance],
++        losses=['rejected_attempts', 'dynamic_generation_call_positions', 'statistical_window',
++                'physical_input_fields_not_representable_in_legacy_format'],
++        metrics_scope='all projected workflows run to completion in both fixed engines; do not compare original dynamic metrics',
++        java_adapter_scope='FCFS/fixed_resource only; physical rate/bandwidth placeholders are not validated')
+diff --git a/src/fogsim/replay/loader.py b/src/fogsim/replay/loader.py
+new file mode 100644
+index 0000000..664c1d0
+--- /dev/null
++++ b/src/fogsim/replay/loader.py
+@@ -0,0 +1,153 @@
++"""Strict self-contained schema-v1 input. Formula audits never replace durations."""
++import json
++import math
++from pathlib import Path
++from fogsim.errors import InputError
++from fogsim.instances.fixed import object_fields, items
++from fogsim.input_validation import finite, integer, text, choice, sha256
++from fogsim.experiment_config import DynamicRunConfig, RuleConfig
++from .spec import ReplayInput, ReplayInitialState, ReplayCapture, ReplayInputError
++from ._decode import decode_archive
++
++TOP = ('format', 'schema_version', 'origin', 'initial_state', 'effective_config', 'units',
++       'environment', 'templates', 'candidates', 'generation_attempts', 'capture')
++
++
++def _json_values(value):
++    if type(value) is float and not math.isfinite(value):
++        raise InputError('non-finite JSON number')
++    if isinstance(value, dict):
++        if any(type(k) is not str for k in value):
++            raise InputError('JSON object keys must be strings')
++        for x in value.values(): _json_values(x)
++    elif isinstance(value, list):
++        for x in value: _json_values(x)
++    elif value is not None and type(value) not in (str, int, float, bool):
++        raise InputError('expected JSON values')
++
++
++def read_replay_json(path):
++    def pairs(rows):
++        result = {}
++        for k, v in rows:
++            if k in result: raise InputError(f'duplicate JSON key: {k}')
++            result[k] = v
++        return result
++    def reject(value):
++        raise InputError(f'non-finite JSON literal: {value}')
++    try:
++        result = json.loads(Path(path).read_text(encoding='utf-8-sig'), object_pairs_hook=pairs, parse_constant=reject)
++        _json_values(result)
++        return result
++    except (InputError, OSError, UnicodeError, ValueError) as exc:
++        raise ReplayInputError(str(exc)) from exc
++
++
++def _rule(value):
++    if value == 'FCFS': return RuleConfig()
++    object_fields(value, ('kind',), ('resource_id',), 'recorded rule')
++    return RuleConfig(**value)
++
++
++def _config(value, origin):
++    object_fields(value, ('num_jobs_recorded', 'warmup_jobs', 'statistics_policy', 'sequencing_rule',
++        'routing_rule', 'exception_policy', 'event_order', 'guards', 'samplers', 'additional_budget'), where='effective_config')
++    # Explicit mapping of Java recording vocabulary to the frozen Python policy.
++    choice(value['statistics_policy'], ('java_jobsCompleted', 'java_legacy'), 'statistics_policy')
++    choice(value['exception_policy'], ('java_original', 'explicit_failure'), 'exception_policy')
++    choice(value['event_order'], ('java_two_level_priority_queue', 'java_compatible'), 'event_order')
++    guards = value['guards']
++    expected = dict(resource_queue_greater_than=400, stagnation_greater_than=400000, generated_greater_than_multiplier=500)
++    object_fields(guards, expected, where='guards')
++    for key, v in expected.items(): integer(guards[key], 'guards.' + key, v, v)
++    samplers = value['samplers']
++    ranges = ('workload', 'data_size', 'edge_data', 'processing_rate_device', 'processing_rate_edge', 'processing_rate_cloud')
++    profiles = dict(weight='java_TwoSixTwo', upload_bandwidth_edge='java_BandwidthEdge',
++        download_bandwidth_edge='java_BandwidthEdge', upload_bandwidth_cloud='java_BandwidthCloud',
++        download_bandwidth_cloud='java_BandwidthCloud')
++    object_fields(samplers, (*ranges, *profiles, 'workflow_type', 'inter_release_time'), where='samplers')
++    for key in (*ranges, 'workflow_type'):
++        pair = items(samplers[key], key)
++        if len(pair) != 2: raise InputError(f'{key}: expected lower/upper pair')
++        if key == 'workflow_type':
++            for x in pair: integer(x, key, 0, 19)
++            if pair[0] > pair[1]: raise InputError('invalid workflow_type range')
++        else:
++            lo, hi = [finite(x, key, key not in ('data_size', 'edge_data')) for x in pair]
++            if lo >= hi: raise InputError(f'{key}: lower must be less than upper')
++    for key, v in profiles.items(): choice(samplers[key], (v,), key)
++    interval = samplers['inter_release_time']
++    object_fields(interval, ('family', 'effective_mean'), where='inter_release_time')
++    choice(interval['family'], ('java_exponential',), 'inter_release_time.family')
++    if finite(interval['effective_mean'], 'effective_mean', True) != 100:
++        raise InputError('unsupported inter-release mean')
++    config = DynamicRunConfig(value['num_jobs_recorded'], value['warmup_jobs'],
++        routing_rule=_rule(value['routing_rule']), sequencing_rule=_rule(value['sequencing_rule']),
++        max_events=value['additional_budget'])
++    if _rule(origin['rules']['routing']) != config.routing_rule or _rule(origin['rules']['sequencing']) != config.sequencing_rule:
++        raise InputError('origin rules disagree with effective_config')
++    return config
++
++
++def _arrays(value):
++    """Validate JSON arrays before iterating or constructing immutable values."""
++    for k in ('templates', 'candidates', 'generation_attempts'):
++        items(value[k], k, nonempty=k == 'templates')
++    env = value['environment']
++    object_fields(env, ('devices', 'servers', 'parameter_source', 'fingerprint'), where='environment')
++    items(env['devices'], 'devices'); items(env['servers'], 'servers', False)
++    for t in value['templates']:
++        object_fields(t, ('dag_type_id', 'source_name', 'source_sha256', 'tasks', 'dependencies', 'diagnostics'), where='template')
++        items(t['tasks'], 'template.tasks'); items(t['dependencies'], 'template.dependencies', False)
++        items(t['diagnostics'], 'template.diagnostics', False)
++        for edge in t['dependencies']:
++            if not isinstance(edge, list) or len(edge) != 2: raise InputError('dependency must be a pair')
++    for c in value['candidates']:
++        object_fields(c, ('record_id', 'workflow_input'), where='candidate')
++        w = c['workflow_input']
++        object_fields(w, ('candidate_id','owner_device_id','template_ref','release_time','inter_release_time','weight','tasks','edges'), where='workflow_input')
++        items(w['tasks'], 'tasks'); items(w['edges'], 'edges', False)
++        for task in w['tasks']:
++            object_fields(task, ('id','workload','data_size','total_input_data','total_output_data','options'), where='task')
++            items(task['options'], 'options')
++
++
++def parse_replay_input(value, *, require_complete=True):
++    try:
++        _json_values(value)
++        object_fields(value, TOP, ('diagnostics',), 'replay input')
++        if 'diagnostics' in value: object_fields(value['diagnostics'], (), tuple(value['diagnostics']) if isinstance(value['diagnostics'], dict) else (), 'diagnostics')
++        choice(value['format'], ('fogsim.dynamic-replay',), 'format')
++        integer(value['schema_version'], 'schema_version', 1, 1)
++        origin = value['origin']
++        object_fields(origin, ('language','implementation_version','code_dependency_fingerprint','rules','operation','fixture_kind','label'), where='origin')
++        for key in ('language','implementation_version','operation','fixture_kind','label'): text(origin[key], 'origin.' + key)
++        choice(origin['language'], ('Java', 'Python'), 'origin.language')
++        choice(origin['operation'], ('fresh','reset','rerun','rotate_seed'), 'origin.operation')
++        sha256(origin['code_dependency_fingerprint'], 'code_dependency_fingerprint')
++        object_fields(origin['rules'], ('sequencing','routing'), where='origin.rules')
++        units = value['units']
++        object_fields(units, ('time','workload','data'), where='units')
++        for k, v in dict(time='s',workload='model_workload',data='model_data').items(): choice(units[k], (v,), 'units.' + k)
++        object_fields(value['initial_state'], ('B','public_seed','seed_encoding_version','run_index'), ('rng_seed_decimal',), where='initial_state')
++        initial = ReplayInitialState(**value['initial_state'])
++        object_fields(value['capture'], ('complete','complete_attempt_count','write_interrupted','process_interrupted','termination'), where='capture')
++        capture = ReplayCapture(**value['capture'])
++        if require_complete and not capture.is_complete:
++            raise ReplayInputError('capture is incomplete', 'REPLAY_CAPTURE_INCOMPLETE')
++        config = _config(value['effective_config'], origin)
++        _arrays(value)
++        archive = decode_archive(value)
++        # A fixed target must work for every device, independent of rejections.
++        if config.routing_rule.kind == 'fixed_resource' and any(config.routing_rule.resource_id not in archive.environment.eligible_resource_ids(d.id) for d in archive.environment.devices):
++            raise InputError('recorded fixed resource is not eligible for all devices')
++        return ReplayInput(archive, initial, capture, config,
++                           json.dumps(value, ensure_ascii=False, separators=(',', ':'), allow_nan=False))
++    except ReplayInputError:
++        raise
++    except InputError as exc:
++        raise ReplayInputError(str(exc)) from exc
++
++
++def load_replay_input(path, *, require_complete=True):
++    return parse_replay_input(read_replay_json(path), require_complete=require_complete)
+diff --git a/src/fogsim/replay/source.py b/src/fogsim/replay/source.py
+new file mode 100644
+index 0000000..a92fe24
+--- /dev/null
++++ b/src/fogsim/replay/source.py
+@@ -0,0 +1,56 @@
++"""A global attempt cursor called by the real dynamic admission/Arrival path."""
++from dataclasses import asdict
++from fogsim.errors import SimulationFailure
++
++
++class ReplayWorkflowSource:
++    def __init__(self, replay_input, *, purpose):
++        self.replay_input = replay_input
++        self.purpose = purpose
++        self.position = 0
++        self.validated_count = 0
++        self.last_call = None
++        self.failure = None
++
++    def _fail(self, code, message, **details):
++        self.failure = dict(reason_code=code, message=message, **details)
++        raise SimulationFailure(code, f'{code}: {message}; cursor={self.position}')
++
++    def generate(self, cause, *, candidate_id):
++        attempts = self.replay_input.archive.generation_attempts
++        self.last_call = dict(cause=asdict(cause), candidate_id=candidate_id,
++                              requested_attempt_sequence=self.position + 1)
++        if self.position == len(attempts):
++            self._fail('REPLAY_INPUT_EXHAUSTED', 'additional input required; captured stream is finite',
++                       actual=self.last_call)
++        expected = attempts[self.position]
++        record = self.replay_input.archive.candidates[self.position]
++        self.position += 1  # Exactly the next record; never search ahead or regroup.
++        # Recorded event_sequence is diagnostic only, never a scheduling input.
++        wanted = dict(phase=expected.cause.phase, owner_device_id=expected.cause.owner_device_id,
++            clock_time=expected.cause.clock_time, causing_workflow_id=expected.cause.causing_workflow_id,
++            candidate_id=record.workflow_input.candidate_id)
++        actual = dict(phase=cause.phase, owner_device_id=cause.owner_device_id, clock_time=cause.clock_time,
++            causing_workflow_id=cause.causing_workflow_id, candidate_id=candidate_id)
++        if wanted != actual:
++            self._fail('REPLAY_INPUT_DIVERGENCE', 'next attempt does not match generation call',
++                       expected=wanted, actual=actual, record_id=record.record_id)
++        return record.workflow_input
++
++    def validate_admission(self, candidate, cause, reason):
++        """Admission has independently computed release>clock before this check."""
++        expected = self.replay_input.archive.generation_attempts[self.position - 1]
++        if (reason is None) != expected.observed_acceptance or reason != expected.rejection_reason:
++            self._fail('REPLAY_INPUT_DIVERGENCE', 'observed acceptance differs from Python release gate',
++                expected=dict(accepted=expected.observed_acceptance, reason=expected.rejection_reason),
++                actual=dict(accepted=reason is None, reason=reason))
++        self.validated_count += 1
++
++    def summary(self):
++        capture = self.replay_input.capture
++        available = len(self.replay_input.archive.generation_attempts)
++        return dict(kind='replay', purpose=self.purpose, new_experiment=self.purpose == 'reuse_inputs',
++            available_attempt_count=available, consumed_record_count=self.position,
++            validated_attempt_count=self.validated_count, remaining_attempt_count=available - self.position,
++            input_capture_complete=capture.is_complete, last_call=self.last_call, failure=self.failure,
++            coverage='finite_recorded_global_attempt_stream', rng_used=False)
+diff --git a/src/fogsim/replay/spec.py b/src/fogsim/replay/spec.py
+new file mode 100644
+index 0000000..49fd8ce
+--- /dev/null
++++ b/src/fogsim/replay/spec.py
+@@ -0,0 +1,74 @@
++"""Immutable replay description; JSON metadata is stored as immutable text."""
++from dataclasses import dataclass
++import json
++from fogsim.errors import InputError
++from fogsim.experiment_config import DynamicRunConfig
++from fogsim.instances.generated import InputArchive
++from fogsim.input_validation import finite, integer, boolean, choice, text
++from fogsim.seed import encode_seed
++
++
++class ReplayInputError(InputError):
++    def __init__(self, message, reason_code="REPLAY_INPUT_INVALID"):
++        self.reason_code = reason_code
++        super().__init__(f"{reason_code}: {message}")
++
++
++@dataclass(frozen=True)
++class ReplayInitialState:
++    B: float
++    public_seed: int
++    seed_encoding_version: str
++    run_index: int
++    rng_seed_decimal: str | None = None
++
++    def __post_init__(self):
++        object.__setattr__(self, 'B', finite(self.B, 'initial_state.B'))
++        encode_seed(self.public_seed)
++        choice(self.seed_encoding_version, ('java-signed64-v1', 'signed64-bits-v1'), 'seed_encoding_version')
++        integer(self.run_index, 'run_index')
++        if self.rng_seed_decimal is not None and (type(self.rng_seed_decimal) is not str or
++                self.rng_seed_decimal != str(encode_seed(self.public_seed))):
++            raise InputError('rng_seed_decimal must exactly encode the unsigned64 public seed bit pattern')
++
++
++@dataclass(frozen=True)
++class ReplayCapture:
++    complete: bool
++    complete_attempt_count: int
++    write_interrupted: bool
++    process_interrupted: bool
++    termination: str
++
++    def __post_init__(self):
++        for key in ('complete', 'write_interrupted', 'process_interrupted'):
++            boolean(getattr(self, key), 'capture.' + key)
++        integer(self.complete_attempt_count, 'complete_attempt_count')
++        text(self.termination, 'termination')
++        if self.complete and (self.write_interrupted or self.process_interrupted):
++            raise InputError('complete capture has interruption flag')
++
++    @property
++    def is_complete(self):
++        return self.complete and not self.write_interrupted and not self.process_interrupted
++
++
++@dataclass(frozen=True)
++class ReplayInput:
++    archive: InputArchive
++    initial_state: ReplayInitialState
++    capture: ReplayCapture
++    run_config: DynamicRunConfig
++    document_json: str
++
++    def __post_init__(self):
++        for name, cls in (('archive', InputArchive), ('initial_state', ReplayInitialState),
++                          ('capture', ReplayCapture), ('run_config', DynamicRunConfig)):
++            if type(getattr(self, name)) is not cls:
++                raise InputError(f'{name}: expected {cls.__name__}')
++        if self.capture.complete_attempt_count != len(self.archive.generation_attempts):
++            raise InputError('capture attempt count mismatch')
++
++    def to_dict(self):
++        """A detached document; mutating it cannot change the replay."""
++        return json.loads(self.document_json)
+diff --git a/src/fogsim/simulation/admission.py b/src/fogsim/simulation/admission.py
+index 11f7118..ed4ea0e 100644
+--- a/src/fogsim/simulation/admission.py
++++ b/src/fogsim/simulation/admission.py
+@@ -45,6 +45,9 @@ class AdmissionService:
+         record = CandidateRecord(record_id, candidate)
+         self.partial_candidate = record
+         reason = release_rejection_reason(candidate, cause)
++        validate = getattr(self.source, 'validate_admission', None)
++        if validate is not None:
++            validate(candidate, cause, reason)
+         attempt = GenerationAttempt(len(self._attempts) + 1, cause, record_id, reason is None, reason)
+         if reason is None:
+             stats.check_acceptance_capacity(candidate.owner_device_id)
+diff --git a/src/fogsim/validation/dynamic_compare.py b/src/fogsim/validation/dynamic_compare.py
+new file mode 100644
+index 0000000..796aca3
+--- /dev/null
++++ b/src/fogsim/validation/dynamic_compare.py
+@@ -0,0 +1,212 @@
++"""Post-run V17 comparison. No reference object is reachable from scheduling rules/source."""
++from dataclasses import asdict
++import hashlib
++import math
++from pathlib import Path
++from fogsim.errors import InputError
++from fogsim.instances.fixed import object_fields, items
++from fogsim.replay.loader import read_replay_json
++from fogsim.simulation.trace import state_snapshot
++
++
++def first_difference(expected, actual, path='$'):
++    def diff(reason): return dict(path=path, expected=expected, actual=actual, reason=reason)
++    if isinstance(expected, dict) and isinstance(actual, dict):
++        for key in expected:
++            if key not in actual: return dict(path=path+'.'+key,reason='missing key')
++            d=first_difference(expected[key],actual[key],path+'.'+key)
++            if d is not None: return d
++        if expected.keys() != actual.keys(): return diff('object fields differ')
++        return None
++    if isinstance(expected, list) and isinstance(actual, list):
++        for i,(a,b) in enumerate(zip(expected,actual)):
++            d=first_difference(a,b,f'{path}[{i}]')
++            if d is not None: return d
++        return None if len(expected)==len(actual) else diff('list length differs after common prefix')
++    if type(expected) is bool or type(actual) is bool:
++        return None if type(expected) is type(actual) and expected==actual else diff('boolean differs')
++    if type(expected) is int and type(actual) is int:
++        return None if expected==actual else diff('integer differs')
++    if type(expected) in (int,float) and type(actual) in (int,float):
++        numeric_fields = ('time','clock_time','priority','available_time','completion_time','ready_time',
++            'processing_time','upload_time','download_time','release_time','inter_release_time','workload',
++            'data_size','total_input_data','total_output_data','total_processing','total_occupancy','B',
++            'makespan','mean_flow_time')
++        if type(expected) is not type(actual) and path.rsplit('.',1)[-1] not in numeric_fields:
++            return diff('identifier/count numeric type differs')
++        if not math.isfinite(expected) or not math.isfinite(actual): return diff('nonfinite comparison')
++        if path.endswith('.priority') and expected==actual==0 and math.copysign(1,expected)!=math.copysign(1,actual):
++            return diff('priority signed zero differs')
++        return None if math.isclose(expected,actual,abs_tol=1e-9,rel_tol=1e-12) else diff('numeric differs')
++    return None if type(expected) is type(actual) and expected==actual else diff('value/type differs')
++
++
++def normalize_python(engine, result):
++    """Representation mapping only; no event reordering or missing decisions added."""
++    state=engine.state
++    def opt(key,ready,priority):
++        return dict(workflow_id=key[0],task_java_index=state.tasks_by_key[key[0],key[1]].java_index,
++                    resource_id=key[2],ready_time=ready,priority=priority)
++    def event(row):
++        wid,tid=row['workflow_id'],row['task_id']
++        task=state.tasks_by_key[wid,tid] if tid is not None else None
++        ex=state.executions_by_task.get((wid,tid)) if task is not None and row['type'] in ('ProcessStartEvent','ProcessFinishEvent') else None
++        # Historical V16 producer_device_id contains event owner, not staging.
++        return dict(kind=row['type'],time=row['time'],producer_device_id=row['owner'],workflow_id=wid,
++            task_java_index=task.java_index if task else None,resource_id=row['resource_id'],
++            start_time=ex.start_time if ex else None,finish_time=ex.finish_time if ex else None)
++    decisions=[];by_sequence={}
++    for d in result.decisions:
++        options=[opt(score['option'],observation['ready_time'],score['priority'])
++            for score,observation in zip(d['candidates'],d['candidate_state'])]
++        selected=opt(d['selected'],next(o['ready_time'] for o,s in zip(d['candidate_state'],d['candidates']) if s['option']==d['selected']),
++                     next(s['priority'] for s in d['candidates'] if s['option']==d['selected']))
++        row=dict(event_sequence=d['event_sequence'],clock_time=d['time'],kind=d['kind'].lower(),options=options,selected=selected)
++        decisions.append(row);by_sequence[d['decision_sequence']]=row
++    events=[];actions=[]
++    for action in engine.initialization_actions:
++        if action['kind']=='EMIT': actions.append(dict(event_sequence=None,kind='EMIT',event=event(action['event'])))
++    for row in result.events:
++        events.append(dict(event(row),event_sequence=row['sequence']))
++        for a in row['actions']:
++            actions.append(dict(event_sequence=row['sequence'],kind=a['kind'],
++                **({'event':event(a['event'])} if a['kind']=='EMIT' else {'decision':by_sequence[a['decision']['decision_sequence']]})))
++    def snapshot(snap):
++        task_index={tuple(t['key']):t for t in snap['tasks']}
++        workflows=[]
++        for w in snap['workflows']:
++            wid=w['id'];tasks=[]
++            for task in state.workflows_by_id[wid].tasks:
++                t=task_index[wid,task.id]
++                tasks.append(dict(java_index=task.java_index,dispatched=t['dispatched'],completed=t['completed'],
++                    options=[dict(workflow_id=wid,task_java_index=task.java_index,**o) for o in t['options']]))
++            workflows.append(dict(id=wid,completion_time=w['completion_time'],tasks=tasks))
++        resources=[]
++        for r in snap['resources']:
++            queue=[]
++            for key in r['waiting_queue']:
++                option=next(o for o in task_index[key[0],key[1]]['options'] if o['resource_id']==key[2])
++                queue.append(opt(key,option['ready_time'],option['priority']))
++            item=dict(id=r['id'],available_time=r['available_time'],queue=queue,total_processing=r['queued_processing_time'],
++                total_occupancy=r['queued_total_time'],tasks_completed=r['completed_task_count'])
++            if r['id'] in snap['staged_event_counts']: item['staged_events']=snap['staged_event_counts'][r['id']]
++            resources.append(item)
++        stats=snap['dynamic_statistics'];completed=set(snap['completed_workflows'])
++        return dict(clock_time=snap['clock_time'],G=stats['generated_total'],B=stats['cutoff_release_time'],
++            statistical_workflow_ids=stats['recorded_workflow_ids'],
++            active_workflow_ids=[w['id'] for w in snap['workflows'] if w['id'] not in completed],resources=resources,workflows=workflows)
++    post=[dict(event_sequence=row['sequence'],state=snapshot(row['after'])) for row in result.events]
++    final_state=snapshot(engine._snapshot())
++    completed=state.completed_workflows
++    native=dict(clock_time=result.final_clock_time,G=result.generated_workflow_count,B=engine.statistics.cutoff_release_time,
++        R=result.recorded_workflow_count,statistical_workflow_ids=list(engine.statistics.recorded_workflows),
++        completed_workflow_ids=[wid for wid in state.workflows_by_id if wid in completed],
++        not_arrived_workflow_ids=[wid for wid in state.workflows_by_id if wid in state.pending_arrivals],
++        unfinished_workflow_ids=[wid for wid in state.workflows_by_id if wid not in completed],
++        pending_global_events=len(engine.event_queue.global_heap))
++    return dict(events=events,decisions=decisions,actions=actions,post_trigger_states=post,final_state=final_state,native=native)
++
++
++def _reference(value):
++    from copy import deepcopy
++    object_fields(value, ('format','schema_version','events','decisions','actions','post_trigger_states','native_result','final_state','diagnostics'), where='reference')
++    if value['format']!='fogsim.dynamic-reference' or type(value['schema_version']) is not int or value['schema_version']!=1:
++        raise InputError('unsupported dynamic reference')
++    for key in ('events','decisions','actions','post_trigger_states'): items(value[key],key,False)
++    if len(value['events'])!=len(value['post_trigger_states']): raise InputError('reference lacks post-trigger states')
++    expected=deepcopy(value)
++    for state in [expected['final_state'],*[s['state'] for s in expected['post_trigger_states']]]:
++        for w in state['workflows']:
++            if w['completion_time']==0.0 and not all(t['completed'] for t in w['tasks']): w['completion_time']=None
++            # Explicit retained-vs-cleared edge-map difference; verify the Java observation.
++            for t in w['tasks']:
++                if t.pop('edge_maps_cleared') is not True: raise InputError('unexpected Java edge-map state')
++    native=expected['native_result']
++    return dict(events=expected['events'],decisions=expected['decisions'],actions=expected['actions'],
++        post_trigger_states=expected['post_trigger_states'],final_state=expected['final_state'],
++        native={k:native[k] for k in ('clock_time','G','B','R','statistical_workflow_ids','completed_workflow_ids',
++            'not_arrived_workflow_ids','unfinished_workflow_ids','pending_global_events')})
++
++
++def _binding(engine, reference, manifest_path, input_path, reference_path):
++    if manifest_path is None or input_path is None or reference_path is None:
++        return dict(passed=False,reason='manifest and exact input/reference paths required for complete acceptance')
++    manifest_path=Path(manifest_path);base=manifest_path.parent.resolve();manifest=read_replay_json(manifest_path)
++    if manifest.get('format')!='fogsim.dynamic-manifest' or type(manifest.get('schema_version')) is not int or manifest['schema_version']!=1:
++        raise InputError('invalid manifest')
++    files=manifest.get('files')
++    if not isinstance(files,dict): raise InputError('manifest.files must be object')
++    for p in (Path(input_path).resolve(),Path(reference_path).resolve()):
++        if not p.is_relative_to(base) or p.relative_to(base).as_posix() not in files:
++            raise InputError('manifest does not cover exact input/reference')
++    for name,sha in files.items():
++        p=(base/name).resolve()
++        if not p.is_relative_to(base) or not p.is_file() or hashlib.sha256(p.read_bytes()).hexdigest()!=sha:
++            raise InputError(f'manifest hash mismatch: {name}')
++    if read_replay_json(input_path)!=engine.replay_input.to_dict() or read_replay_json(reference_path)!=reference:
++        raise InputError('executed input/reference differs from manifest-bound files')
++    return dict(passed=True,manifest_sha256=hashlib.sha256(manifest_path.read_bytes()).hexdigest())
++
++
++def compare_dynamic_reference(engine, result, reference, *, manifest_path=None, input_path=None, reference_path=None):
++    source=engine.admission.source
++    report=dict(passed=False,classification='FAILED',first_difference=None,
++        tolerance=dict(abs_tol=1e-9,rel_tol=1e-12),
++        mappings=['V16 producer_device_id is event owner; Python staging_device retained separately in raw trace',
++            'Java jobsInSystem includes Python pending+active in admission order',
++            'Java physical completion ID membership is observed in admission order',
++            'uncompleted Java completion_time 0 -> None'],
++        known_differences=['Java clears edge maps; Python retains immutable archive and runtime edge maps'],
++        scope='input consumption, events, decisions, chronological actions, post-trigger states, final state, statistics, normal metrics; V16 has no pre-trigger snapshots')
++    if source.purpose!='verify_reference':
++        report.update(classification='NOT_COMPARED',reason='reuse_inputs is a new experiment; original trajectory parity is disabled')
++        if result.reason_code in ('REPLAY_INPUT_EXHAUSTED','REPLAY_INPUT_DIVERGENCE'):
++            report['classification']='INPUT_COVERAGE_INSUFFICIENT'
++        return report
++    if result.reason_code=='REPLAY_INPUT_EXHAUSTED':
++        report.update(classification='INPUT_COVERAGE_INSUFFICIENT',reason=result.reason);return report
++    if not engine.replay_input.capture.is_complete:
++        report.update(reason='capture incomplete; full acceptance forbidden');return report
++    if not engine.config.trace_enabled:
++        report.update(classification='NOT_EXECUTED',reason='detailed trace disabled');return report
++    original=engine.replay_input.run_config
++    for name in ('num_jobs_recorded','warmup_jobs','statistics_policy','failure_policy','event_policy','routing_rule','sequencing_rule'):
++        if getattr(engine.config,name)!=getattr(original,name):
++            report.update(reason='active behavior config differs from recorded input: '+name);return report
++    initial=engine.replay_input.initial_state
++    if (engine.initial_cutoff!=initial.B or engine.public_seed!=initial.public_seed or
++            engine.environment.fingerprint!=engine.replay_input.archive.environment.fingerprint):
++        report.update(reason='initial B/seed/environment differs from recorded input');return report
++    report['binding']=_binding(engine,reference,manifest_path,input_path,reference_path)
++    expected=_reference(reference);actual=normalize_python(engine,result)
++    recorded=engine.replay_input.archive
++    consumed=engine.admission.archive
++    # Includes diagnostic event sequence, but only after running the real source.
++    for key in ('candidates','generation_attempts','admissions'):
++        diff=first_difference([asdict(x) for x in getattr(recorded,key)[:len(getattr(consumed,key))]],
++                              [asdict(x) for x in getattr(consumed,key)], '$.input_consumption.'+key)
++        if diff is not None: report['first_difference']=diff;return report
++    diff=first_difference(expected,actual)
++    report['first_difference']=diff
++    report['counts']=dict(events=len(result.events),decisions=len(result.decisions),attempts=len(consumed.generation_attempts))
++    if diff is not None:return report
++    if source.position!=len(recorded.generation_attempts):
++        # Unconsumed records are legal during ordinary execution, but this exact
++        # full Java run must reproduce the export's observed call count.
++        report['first_difference']=dict(path='$.input_consumption.count',expected=len(recorded.generation_attempts),actual=source.position);return report
++    native=reference['native_result']
++    if not native['target_reached']:
++        if result.status=='FAILED' and result.reason_code=='EVENTS_EXHAUSTED_BEFORE_TARGET' and result.makespan is None and result.mean_flow_time is None:
++            report.update(classification='EXPECTED_DIFFERENCE_CONFIRMED',passed=report['binding']['passed'],
++                reason='Java returned nonnormal sentinel metrics; Python explicit failure; not normal parity')
++        return report
++    if result.status!='SUCCEEDED' or not result.events:
++        report['reason']='normal parity requires both successful runs and full events';return report
++    diff=first_difference(dict(makespan=native['makespan']['value'],mean_flow_time=native['mean_flowtime']['value']),
++                          dict(makespan=result.makespan,mean_flow_time=result.mean_flow_time),'$.metrics')
++    report['first_difference']=diff
++    if diff is None and report['binding']['passed']:
++        report.update(passed=True,classification='NORMAL_PARITY_PASSED')
++    elif diff is None:
++        report.update(classification='NOT_EXECUTED',reason='trajectory comparison matched; provenance binding incomplete')
++    return report
+diff --git a/tests/unit/test_replay.py b/tests/unit/test_replay.py
+new file mode 100644
+index 0000000..c6d8d0f
+--- /dev/null
++++ b/tests/unit/test_replay.py
+@@ -0,0 +1,324 @@
++"""Production replay contracts. Historical V16/step5 expected files stay unchanged."""
++from copy import deepcopy
++from dataclasses import FrozenInstanceError, asdict, replace
++from pathlib import Path
++import json
++import random
++import pytest
++from conftest import ROOT
++from fogsim import (load_replay_input, parse_replay_input, create_replay_engine, simulate_replay,
++    export_fixed_instance, fixed_projection_metadata, audit_formulas, create_engine, simulate, parse_instance)
++from fogsim.errors import InputError, SimulationFailure, PreparationError
++from fogsim.experiment_config import ReplayRunOptions, RuleConfig
++from fogsim.instances.generated import GenerationCause
++from fogsim.replay.source import ReplayWorkflowSource
++from fogsim.replay.loader import read_replay_json
++from fogsim.validation.dynamic_compare import compare_dynamic_reference, normalize_python, first_difference
++
++CASES=ROOT/'outputs/step4/cases'
++
++@pytest.fixture
++def data(): return read_replay_json(ROOT/'tests/fixtures/dynamic_v1/input.json')
++
++
++def test_input_alone_runs_without_xml_java_reference_or_rng(data,tmp_path,monkeypatch):
++    p=tmp_path/'input.json';p.write_text(json.dumps(data))
++    def forbidden(*a,**kw): raise AssertionError('replay must not sample or construct RNG')
++    monkeypatch.setattr(random,'Random',forbidden)
++    import fogsim.randomness.samplers as s
++    for cls in (s.UniformRealSampler,s.UniformIntegerSampler,s.ExponentialSampler) if hasattr(s,'UniformRealSampler') else ():
++        monkeypatch.setattr(cls,'sample',forbidden)
++    rng_before=random.getstate()
++    inp=load_replay_input(p);engine=create_replay_engine(inp);result=engine.run()
++    assert random.getstate()==rng_before
++    assert result.status=='SUCCEEDED' and result.processed_event_count==7
++    assert result.diagnostics['comparison_status']=='NOT_COMPARED'
++    assert result.source_summary['rng_used'] is False
++    assert result.diagnostics['rng_final_fingerprint'] is None
++    assert list(tmp_path.iterdir())==[p]
++
++
++def test_immutable_document_and_run_graph_isolation(data):
++    inp=parse_replay_input(data)
++    with pytest.raises(FrozenInstanceError): inp.capture.complete=False
++    data['initial_state']['B']=10000
++    detached=inp.to_dict();detached['candidates'].clear()
++    assert inp.initial_state.B==0 and len(inp.archive.candidates)==2
++    a=create_replay_engine(inp);b=create_replay_engine(inp)
++    ta=next(iter(a.state.tasks_by_key.values()));tb=next(iter(b.state.tasks_by_key.values()))
++    assert ta is not tb and ta.workflow is not tb.workflow
++    assert all(o.task is ta and o.resource is a.state.resources_by_id[o.resource.id] for o in ta.options)
++    assert a.run().to_dict()==b.run().to_dict()
++
++
++@pytest.mark.parametrize('version',[True,0,2,'1',None])
++def test_version(data,version):
++    data['schema_version']=version
++    with pytest.raises(InputError): parse_replay_input(data)
++
++@pytest.mark.parametrize('location',['root','origin','rules','units','config','guards','samplers','interval','capture','environment',
++    'device','template','template_task','candidate','workflow','template_ref','task','option','edge','attempt','initial_state'])
++def test_unknown_fields(data,location):
++    w=data['candidates'][0]['workflow_input']
++    targets={'root':data,'origin':data['origin'],'rules':data['origin']['rules'],'units':data['units'],
++        'config':data['effective_config'],'guards':data['effective_config']['guards'],'samplers':data['effective_config']['samplers'],
++        'interval':data['effective_config']['samplers']['inter_release_time'],'capture':data['capture'],
++        'environment':data['environment'],'device':data['environment']['devices'][0], 'template':data['templates'][0],
++        'template_task':data['templates'][0]['tasks'][0],'candidate':data['candidates'][0], 'workflow':w,
++        'template_ref':w['template_ref'],'task':w['tasks'][0],'option':w['tasks'][0]['options'][0],
++        'edge':w['edges'][0],'attempt':data['generation_attempts'][0],'initial_state':data['initial_state']}
++    targets[location]['unknown']=1
++    with pytest.raises(InputError): parse_replay_input(data)
++
++@pytest.mark.parametrize('path',[
++    ('templates',),('candidates',),('generation_attempts',),('environment','devices'),('environment','servers'),
++    ('templates',0,'dependencies'),('templates',0,'diagnostics'),('templates',0,'tasks'),
++    ('candidates',0,'workflow_input','tasks'),('candidates',0,'workflow_input','edges'),
++    ('candidates',0,'workflow_input','tasks',0,'options')])
++@pytest.mark.parametrize('invalid',[None,{},'bad',7])
++def test_structure_errors_are_input_errors(data,path,invalid):
++    target=data
++    for key in path[:-1]:target=target[key]
++    target[path[-1]]=invalid
++    with pytest.raises(InputError):parse_replay_input(data)
++
++@pytest.mark.parametrize('seed',[-(1<<63),(1<<63)-1,-1,0])
++def test_exact_seed(data,seed,tmp_path):
++    data['initial_state']['public_seed']=seed;p=tmp_path/'input.json';p.write_text(json.dumps(data))
++    assert load_replay_input(p).initial_state.public_seed==seed
++
++@pytest.mark.parametrize('seed',[True,1.0,1<<63,-(1<<63)-1])
++def test_invalid_seed(data,seed):
++    data['initial_state']['public_seed']=seed
++    with pytest.raises(InputError):parse_replay_input(data)
++
++@pytest.mark.parametrize('raw',['{"a":1,"a":2}','{"a":NaN}','{"a":Infinity}','{"a":1e999}'])
++def test_strict_json(tmp_path,raw):
++    p=tmp_path/'bad.json';p.write_text(raw)
++    with pytest.raises(InputError):load_replay_input(p)
++
++@pytest.mark.parametrize('mutation',['task','edge','option','candidate','attempt','order','acceptance','id','clock',
++    'owner','fingerprint','count','numeric_bool','numeric_inf','numeric_int','init_missing'])
++def test_invalid_contracts(data,mutation):
++    w=data['candidates'][0]['workflow_input']
++    if mutation=='task':w['tasks'].pop()
++    elif mutation=='edge':w['edges'].pop()
++    elif mutation=='option':w['tasks'][0]['options'].pop()
++    elif mutation=='candidate':data['candidates'].pop()
++    elif mutation=='attempt':data['generation_attempts'].pop()
++    elif mutation=='order':data['generation_attempts'].reverse()
++    elif mutation=='acceptance':data['generation_attempts'][0]['observed_acceptance']=False
++    elif mutation=='id':w['candidate_id']=9
++    elif mutation=='clock':w['release_time']+=1
++    elif mutation=='owner':w['owner_device_id']='UNKNOWN'
++    elif mutation=='fingerprint':data['environment']['fingerprint']='0'*64
++    elif mutation=='count':data['capture']['complete_attempt_count']+=1
++    elif mutation=='numeric_bool':w['tasks'][0]['workload']=True
++    elif mutation=='numeric_inf':w['tasks'][0]['workload']=float('inf')
++    elif mutation=='numeric_int':w['candidate_id']=0.0
++    elif mutation=='init_missing':data['candidates'].clear();data['generation_attempts'].clear();data['capture']['complete_attempt_count']=0
++    with pytest.raises(InputError):parse_replay_input(data)
++
++
++def test_durations_authoritative_and_formula_audit_separate(data):
++    original=parse_replay_input(data)
++    data['candidates'][0]['workflow_input']['tasks'][0]['options'][0]['processing_time']+=5
++    inp=parse_replay_input(data)
++    before=inp.to_dict();audit=audit_formulas(inp)
++    assert not audit['passed'] and audit['differences'][0]['field']=='M0.processing_time'
++    assert inp.to_dict()==before
++    assert simulate_replay(inp).makespan==pytest.approx(simulate_replay(original).makespan+5)
++
++
++def test_missing_record_is_coverage_failure_with_partial_trace(data):
++    data['candidates'].pop();data['generation_attempts'].pop();data['capture']['complete_attempt_count']=1
++    r=simulate_replay(parse_replay_input(data))
++    assert r.status=='FAILED' and r.reason_code=='REPLAY_INPUT_EXHAUSTED'
++    assert r.makespan is None and len(r.events)==1 and r.events[0]['error']
++    assert r.source_summary['last_call']['requested_attempt_sequence']==2
++    assert r.generated_workflow_count==1 and r.source_summary['incomplete_attempt']
++
++
++def test_incomplete_capture_diagnostic_only(data):
++    data['capture'].update(complete=False,process_interrupted=True)
++    with pytest.raises(InputError,match='REPLAY_CAPTURE_INCOMPLETE'):parse_replay_input(data)
++    inp=parse_replay_input(data,require_complete=False);e=create_replay_engine(inp);r=e.run()
++    report=compare_dynamic_reference(e,r,read_replay_json(CASES/'minimal_chain/reference.json'))
++    assert not report['passed'] and not r.source_summary['input_capture_complete']
++    with pytest.raises(InputError):export_fixed_instance(inp)
++
++@pytest.mark.parametrize('change',[
++    {'phase':'after_arrival','causing_workflow_id':0,'event_sequence':1},
++    {'owner_device_id':'M9'}, {'clock_time':1,'phase':'after_arrival','causing_workflow_id':0},
++])
++def test_source_never_searches_forward(data,change):
++    source=ReplayWorkflowSource(parse_replay_input(data),purpose='verify_reference')
++    cause=dict(phase='initialize',owner_device_id='M0',clock_time=0);cause.update(change)
++    with pytest.raises(SimulationFailure,match='REPLAY_INPUT_DIVERGENCE'):source.generate(GenerationCause(**cause),candidate_id=0)
++    assert source.position==1 and source.validated_count==0
++
++
++def test_id_gate_and_acceptance_checked_independently(data):
++    inp=parse_replay_input(data);s=ReplayWorkflowSource(inp,purpose='verify_reference')
++    with pytest.raises(SimulationFailure):s.generate(GenerationCause('initialize','M0',0),candidate_id=5)
++    s=ReplayWorkflowSource(inp,purpose='verify_reference');c=s.generate(GenerationCause('initialize','M0',0),candidate_id=0)
++    with pytest.raises(SimulationFailure):s.validate_admission(c,GenerationCause('initialize','M0',0),'REJECTED_RELEASE_NOT_FUTURE')
++
++
++def test_event_sequence_is_diagnostic_and_not_schedule(data):
++    data['generation_attempts'][1]['event_sequence']=999
++    r=simulate_replay(parse_replay_input(data))
++    assert r.status=='SUCCEEDED' and r.processed_event_count==7
++    assert r.source_summary['validated_attempt_count']==2
++
++
++def test_rule_modes_and_new_experiment_coverage():
++    inp=load_replay_input(CASES/'multi_device_diamond/input.json')
++    options=ReplayRunOptions(routing_rule=RuleConfig('fixed_resource','E0'))
++    with pytest.raises(InputError,match='verify_reference'):create_replay_engine(inp,options)
++    e=create_replay_engine(inp,options,purpose='reuse_inputs');r=e.run()
++    assert r.reason_code=='REPLAY_INPUT_EXHAUSTED' and r.source_summary['new_experiment']
++    report=compare_dynamic_reference(e,r,{})
++    assert report['classification']=='INPUT_COVERAGE_INSUFFICIENT' and not report['passed']
++    assert not r.diagnostics['original_reference_trajectory_eligible']
++    with pytest.raises(InputError):create_replay_engine(inp,ReplayRunOptions(routing_rule=RuleConfig('fixed_resource','M0')),purpose='reuse_inputs')
++
++
++def test_normal_stop_allows_unused_records(data):
++    candidate=deepcopy(data['candidates'][1]);w=candidate['workflow_input'];cause=data['candidates'][1]['workflow_input']
++    candidate['record_id']='3';w['candidate_id']=2;w['release_time']=cause['release_time']+w['inter_release_time']
++    attempt=deepcopy(data['generation_attempts'][1]);attempt.update(attempt_sequence=3,candidate_ref='3',
++        causing_workflow_id=1,generation_clock_time=cause['release_time'],event_sequence=8)
++    data['candidates'].append(candidate);data['generation_attempts'].append(attempt);data['capture']['complete_attempt_count']=3
++    r=simulate_replay(parse_replay_input(data))
++    assert r.status=='SUCCEEDED' and r.source_summary['remaining_attempt_count']==1
++
++
++def test_initial_B_and_immutable_behavior_config(data):
++    data['initial_state']['B']=12
++    inp=parse_replay_input(data);e=create_replay_engine(inp)
++    assert e.initial_cutoff==12
++    with pytest.raises(InputError):create_replay_engine(inp,ReplayRunOptions(edge_data_policy='release_after_materialization'))
++    r=simulate_replay(inp,ReplayRunOptions(max_events=1,trace_enabled=False))
++    assert r.reason_code=='MAX_EVENTS_EXCEEDED' and not r.events
++    from fogsim.experiment_config import parse_experiment_config
++    with pytest.raises(InputError):
++        parse_experiment_config(dict(format='fogsim.experiment',schema_version=1,mode='replay',
++            source=dict(input_path='/input.json',purpose='reuse_inputs'),run=dict(num_jobs_recorded=3)))
++
++
++def test_fixed_projection_preserves_orders_and_values():
++    inp=load_replay_input(CASES/'first_device_rejected/input.json');fixed=export_fixed_instance(inp)
++    accepted=[c.workflow_input for c,a in zip(inp.archive.candidates,inp.archive.generation_attempts) if a.observed_acceptance]
++    assert [w.id for w in fixed.workflows]==[w.candidate_id for w in accepted]
++    assert parse_instance(fixed.to_dict())==fixed
++    for a,w in zip(accepted,fixed.workflows):
++        assert [t.id for t in w.tasks]==[t.id for t in a.tasks]
++        assert [t.options for t in w.tasks]==[t.options for t in a.tasks]
++    a=create_engine(fixed);b=create_engine(fixed)
++    assert a.state.workflows_by_id[0] is not b.state.workflows_by_id[0]
++    assert a.run()==b.run()
++    assert fixed_projection_metadata(inp)['kind']=='fixed_projection'
++    empty=load_replay_input(CASES/'all_devices_rejected/input.json')
++    with pytest.raises(InputError,match='no accepted'):export_fixed_instance(empty)
++
++@pytest.mark.parametrize('name',['minimal_chain','multi_device_diamond','pending_at_stop','first_device_rejected','local_disabled','arrival_rejected','all_devices_rejected'])
++def test_production_replay_against_independent_java_capture(name):
++    p=CASES/name;inp=load_replay_input(p/'input.json');e=create_replay_engine(inp);r=e.run()
++    report=compare_dynamic_reference(e,r,read_replay_json(p/'reference.json'),manifest_path=p/'manifest.json',input_path=p/'input.json',reference_path=p/'reference.json')
++    assert report['passed'],report
++    assert report['classification']==('EXPECTED_DIFFERENCE_CONFIRMED' if name in ('arrival_rejected','all_devices_rejected') else 'NORMAL_PARITY_PASSED')
++
++
++def test_comparison_detects_faults_and_requires_binding():
++    p=CASES/'minimal_chain';e=create_replay_engine(load_replay_input(p/'input.json'));r=e.run();ref=read_replay_json(p/'reference.json')
++    report=compare_dynamic_reference(e,r,ref)
++    assert not report['passed'] and report['classification']=='NOT_EXECUTED'
++    ref['actions'][0]['event']['producer_device_id']='M9'
++    report=compare_dynamic_reference(e,r,ref)
++    assert report['first_difference']['path'].startswith('$.actions')
++    assert first_difference({'priority':-0.0},{'priority':0.0})
++
++
++def test_runtime_global_order_divergence_keeps_failed_event_and_position(data):
++    from fogsim.environment.spec import DeviceSnapshot,EnvironmentSnapshot
++    base=deepcopy(data['candidates'][0]['workflow_input'])
++    data['environment']['devices'].append(dict(id='M1',numeric_id=1,processing_rate=200.0,can_process_tasks=True))
++    data['environment']['fingerprint']=EnvironmentSnapshot(tuple(DeviceSnapshot(**d) for d in data['environment']['devices']),(),data['environment']['parameter_source']).fingerprint
++    data['candidates']=[];data['generation_attempts']=[]
++    for i,owner in enumerate(('M0','M1','M1','M0')):
++        w=deepcopy(base);w.update(candidate_id=i,owner_device_id=owner,inter_release_time=100.0,release_time=100.0 if i<2 else 200.0)
++        for t in w['tasks']:t['options'][0]['resource_id']=owner
++        data['candidates'].append(dict(record_id=str(i+1),workflow_input=w))
++        data['generation_attempts'].append(dict(attempt_sequence=i+1,phase='initialize' if i<2 else 'after_arrival',
++            owner_device_id=owner,generation_clock_time=0.0 if i<2 else 100.0,causing_workflow_id=None if i<2 else 1 if i==2 else 0,
++            event_sequence=None if i<2 else i-1,candidate_ref=str(i+1),observed_acceptance=True,rejection_reason=None))
++    data['capture']['complete_attempt_count']=4
++    result=simulate_replay(parse_replay_input(data))
++    assert result.reason_code=='REPLAY_INPUT_DIVERGENCE'
++    assert result.source_summary['consumed_record_count']==3 and result.source_summary['validated_attempt_count']==2
++    assert result.source_summary['failure']['expected']['owner_device_id']=='M1'
++    assert result.source_summary['failure']['actual']['owner_device_id']=='M0'
++    assert len(result.events)==1 and result.generated_workflow_count==2
++
++
++def test_preparation_exhaustion_preserves_engine_and_convenience_result(data):
++    data['capture'].update(complete=False,complete_attempt_count=0,process_interrupted=True)
++    data['candidates'].clear();data['generation_attempts'].clear()
++    inp=parse_replay_input(data,require_complete=False)
++    with pytest.raises(PreparationError) as err:create_replay_engine(inp)
++    assert err.value.reason_code=='REPLAY_INPUT_EXHAUSTED'
++    assert err.value.engine.run_status=='FAILED'
++    assert simulate_replay(inp).reason_code=='REPLAY_INPUT_EXHAUSTED'
++
++
++def test_single_run_config_reference_comparison_and_reuse_ignores_reference(tmp_path):
++    from fogsim import load_experiment_config,simulate_replay_config
++    case=CASES/'minimal_chain'
++    config=dict(format='fogsim.experiment',schema_version=1,mode='replay',
++        source=dict(input_path=str(case/'input.json'),reference_path=str(case/'reference.json'),purpose='verify_reference'))
++    p=tmp_path/'config.json';p.write_text(json.dumps(config))
++    r=simulate_replay_config(load_experiment_config(p))
++    assert r.diagnostics['comparison_status']=='NORMAL_PARITY_PASSED'
++    config['source'].update(purpose='reuse_inputs',reference_path=str(tmp_path/'nonexistent-reference.json'))
++    p.write_text(json.dumps(config));r=simulate_replay_config(load_experiment_config(p))
++    assert r.status=='SUCCEEDED' and r.diagnostics['comparison_status']=='NOT_COMPARED'
++
++
++def test_reference_is_not_used_to_control_execution():
++    case=CASES/'minimal_chain';inp=load_replay_input(case/'input.json')
++    e=create_replay_engine(inp);r=e.run();ref=read_replay_json(case/'reference.json')
++    ref['native_result']['R']=999;ref['native_result']['clock_time']=0
++    report=compare_dynamic_reference(e,r,ref)
++    assert not report['passed'] and report['first_difference']
++    assert r.status=='SUCCEEDED' and r.recorded_workflow_count==1 and r.final_clock_time>0
++    assert first_difference({'count':1},{'count':1.0})
++
++
++def test_behavior_mutation_and_diagnostic_event_sequence_detected_after_run(data):
++    data['generation_attempts'][1]['event_sequence']=999
++    e=create_replay_engine(parse_replay_input(data));r=e.run()
++    report=compare_dynamic_reference(e,r,read_replay_json(CASES/'minimal_chain/reference.json'))
++    assert report['first_difference']['path'].endswith('cause.event_sequence')
++    e.config=replace(e.config,warmup_jobs=2)
++    report=compare_dynamic_reference(e,r,read_replay_json(CASES/'minimal_chain/reference.json'))
++    assert 'warmup_jobs' in report['reason']
++
++
++def test_json_integer_duration_restores_binary64(data):
++    duration=(1<<53)+1
++    data['candidates'][0]['workflow_input']['tasks'][0]['options'][0]['processing_time']=duration
++    inp=parse_replay_input(data)
++    value=inp.archive.candidates[0].workflow_input.tasks[0].options[0].processing_time
++    assert type(value) is float and value==float(1<<53)
++    assert not audit_formulas(inp)['passed']
++
++
++def test_optional_normalized_seed_decimal_is_exact_metadata(data):
++    data['initial_state'].update(public_seed=-1,seed_encoding_version='signed64-bits-v1',rng_seed_decimal='18446744073709551615')
++    inp=parse_replay_input(data)
++    assert inp.initial_state.rng_seed_decimal=='18446744073709551615'
++    assert simulate_replay(inp).status=='SUCCEEDED'
++    for value in ('-1','18446744073709551616',18446744073709551615,True):
++        data['initial_state']['rng_seed_decimal']=value
++        with pytest.raises(InputError):parse_replay_input(data)
+diff --git a/tools/check_step6.py b/tools/check_step6.py
+new file mode 100644
+index 0000000..4bd17f9
+--- /dev/null
++++ b/tools/check_step6.py
+@@ -0,0 +1,139 @@
++"""V17-V19 production replay and same-projection fixed Java/Python acceptance.
++
++V17 uses independently captured Java references from step4, hash-bound to their
++original manifests. V19 compiles and runs Java now, through the existing fixed
++adapter. No sampler patches or graph-guard bypasses are used.
++"""
++import argparse
++from dataclasses import asdict
++import hashlib
++import json
++import os
++from pathlib import Path
++import platform
++import sys
++import time
++
++ROOT=Path(__file__).resolve().parents[1]
++sys.path.insert(0,str(ROOT/'src'))
++from fogsim import (load_replay_input,create_replay_engine,export_fixed_instance,fixed_projection_metadata,
++    audit_formulas,RunConfig,create_engine,parse_replay_input,simulate_replay)
++from fogsim.experiment_config import ReplayRunOptions,RuleConfig
++from fogsim.errors import InputError,PreparationError
++from fogsim.replay.loader import read_replay_json
++from fogsim.validation.dynamic_compare import compare_dynamic_reference,normalize_python
++from fogsim.validation.trace_compare import compare_traces, normalized_result
++from java_support import prepare_and_compile,sha
++from run_fixed_parity import run_java_request,loaded_model,write_json
++
++
++def dynamic_case(case, output):
++    output.mkdir(parents=True,exist_ok=True)
++    inp=load_replay_input(case/'input.json')
++    try:
++        engine=create_replay_engine(inp);result=engine.run()
++    except PreparationError as exc:engine,result=exc.engine,exc.result
++    write_json(output/'python-result.json',result.to_dict())
++    write_json(output/'python-input-consumption.json',dict(candidates=[asdict(c) for c in engine.admission.archive.candidates],
++        attempts=[asdict(a) for a in engine.admission.archive.generation_attempts],source_summary=result.source_summary))
++    write_json(output/'python-normalized.json',normalize_python(engine,result))
++    # Only here, after execution, is the independent reference opened.
++    reference=read_replay_json(case/'reference.json')
++    report=compare_dynamic_reference(engine,result,reference,manifest_path=case/'manifest.json',
++        input_path=case/'input.json',reference_path=case/'reference.json')
++    report['formula_audit']=audit_formulas(inp)
++    report['reference_source']='independent Java step4 capture; no fresh dynamic Java export in this step'
++    report['input_sha256']=sha(case/'input.json');report['reference_sha256']=sha(case/'reference.json')
++    write_json(output/'comparison.json',report)
++    return report,inp
++
++
++def fixed_case(inp, output, java, classpath, build):
++    output.mkdir(parents=True,exist_ok=True)
++    try:spec=export_fixed_instance(inp)
++    except InputError as exc:
++        if inp.archive.admissions:
++            raise
++        report=dict(passed=True,classification='EXPECTED_DIFFERENCE_CONFIRMED',reason=str(exc),
++            scope='empty accepted set cannot be represented by legacy nonempty fixed format; no fixed execution claimed')
++        write_json(output/'comparison.json',report);return report
++    write_json(output/'fixed-input.json',spec.to_dict())
++    metadata=fixed_projection_metadata(inp)
++    metadata.update(fixed_input_sha256=sha(output/'fixed-input.json'),java_build_fingerprint=build['fingerprint'])
++    write_json(output/'projection-manifest.json',metadata)
++    reports=[]
++    for kind,target in [('fcfs',None),*([('fixed_resource',inp.archive.environment.servers[0].id)] if inp.archive.environment.servers else [])]:
++        lane=output/kind;lane.mkdir(exist_ok=True)
++        config=RunConfig(routing_kind=kind,fixed_resource_id=target)
++        engine=create_engine(spec,config);model=loaded_model(engine.state);result=engine.run()
++        python=dict(schema_version=1,language='python',input=spec.to_dict(),config=config.to_dict(),loaded_model=model,result=result.to_dict())
++        write_json(lane/'python-raw.json',python)
++        request=dict(schema_version=1,input=spec.to_dict(),config=config.to_dict(),record_trace=True)
++        other=run_java_request(java,classpath,request,lane)
++        report=compare_traces(python,other)
++        report.update(classification='NORMAL_PARITY_PASSED' if report['passed'] else 'FAILED',scope=metadata['metrics_scope'])
++        write_json(lane/'comparison.json',report);write_json(lane/'python-normalized.json',normalized_result(python))
++        write_json(lane/'java-normalized.json',normalized_result(other));reports.append(report)
++    report=dict(passed=all(r['passed'] for r in reports),classification='NORMAL_PARITY_PASSED' if all(r['passed'] for r in reports) else 'FAILED',lanes=reports)
++    write_json(output/'comparison.json',report);return report
++
++
++def negative_cases(output):
++    output.mkdir(parents=True,exist_ok=True);results=[]
++    value=read_replay_json(ROOT/'tests/fixtures/dynamic_v1/input.json')
++    value['candidates'].pop();value['generation_attempts'].pop();value['capture']['complete_attempt_count']=1
++    r=simulate_replay(parse_replay_input(value));write_json(output/'missing-record-result.json',r.to_dict())
++    results.append(dict(case='missing_record',passed=r.reason_code=='REPLAY_INPUT_EXHAUSTED',classification='INPUT_COVERAGE_INSUFFICIENT',reason_code=r.reason_code))
++    value['capture'].update(complete=False,process_interrupted=True)
++    try:parse_replay_input(value)
++    except InputError as exc:results.append(dict(case='incomplete_capture',passed=exc.reason_code=='REPLAY_CAPTURE_INCOMPLETE',classification='EXPECTED_DIFFERENCE_CONFIRMED',reason_code=exc.reason_code))
++    else:results.append(dict(case='incomplete_capture',passed=False,classification='FAILED'))
++    inp=load_replay_input(ROOT/'outputs/step4/cases/multi_device_diamond/input.json')
++    r=simulate_replay(inp,ReplayRunOptions(routing_rule=RuleConfig('fixed_resource','E0')),purpose='reuse_inputs')
++    write_json(output/'changed-rule-result.json',r.to_dict())
++    results.append(dict(case='changed_rule_coverage',passed=r.reason_code=='REPLAY_INPUT_EXHAUSTED',classification='INPUT_COVERAGE_INSUFFICIENT',reason_code=r.reason_code))
++    from fogsim.replay.source import ReplayWorkflowSource
++    from fogsim.instances.generated import GenerationCause
++    from fogsim.errors import SimulationFailure
++    s=ReplayWorkflowSource(inp,purpose='verify_reference')
++    try:s.generate(GenerationCause('initialize','M1',0),candidate_id=0)
++    except SimulationFailure as exc:
++        results.append(dict(case='wrong_call_position',passed=exc.reason_code=='REPLAY_INPUT_DIVERGENCE',classification='EXPECTED_DIFFERENCE_CONFIRMED',diagnostic=s.summary()))
++    else:results.append(dict(case='wrong_call_position',passed=False,classification='FAILED'))
++    write_json(output/'checks.json',results);return results
++
++
++def main(argv=None):
++    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--output',type=Path,default=ROOT/'outputs/step6/acceptance')
++    p.add_argument('--java');p.add_argument('--cases',nargs='*');p.add_argument('--skip-fixed',action='store_true')
++    p.add_argument('--include-large-fixed',action='store_true',help='also run native_* fixed projections (expensive full graph guards)')
++    args=p.parse_args(argv);out=args.output.resolve();out.mkdir(parents=True,exist_ok=True)
++    report=dict(passed=False,status='RUNNING',cases=[],scope=__doc__,environment=dict(python=sys.version,platform=platform.platform(),command=sys.argv,LD_LIBRARY_PATH=os.environ.get('LD_LIBRARY_PATH')))
++    write_json(out/'checks.json',report)
++    try:
++        fixed=None
++        if not args.skip_fixed:
++            fixed=prepare_and_compile(out/'fixed-build',args.java)
++            report['java_build_fingerprint']=fixed[2]['fingerprint']
++        report['negative_cases']=negative_cases(out/'negative')
++        names=args.cases or [p.name for p in sorted((ROOT/'outputs/step4/cases').iterdir())]
++        for name in names:
++            start=time.monotonic();print(name,'started',flush=True)
++            dynamic,inp=dynamic_case(ROOT/'outputs/step4/cases'/name,out/'dynamic'/name)
++            row=dict(case=name,dynamic=dynamic)
++            row['fixed_planned']=bool(fixed) and (args.include_large_fixed or not name.startswith('native_'))
++            if row['fixed_planned']:row['fixed']=fixed_case(inp,out/'fixed'/name,*fixed)
++            else:row['fixed']=dict(classification='NOT_EXECUTED',passed=False,
++                reason='outside selected fixed validation scope; enable --include-large-fixed for native large projections')
++            row['elapsed_seconds']=time.monotonic()-start;report['cases'].append(row)
++            write_json(out/'checks.json',report)
++            print(name,dynamic['classification'],row['fixed']['classification'],round(row['elapsed_seconds'],2),flush=True)
++        report['passed']=all(r['dynamic']['passed'] and (not r['fixed_planned'] or r['fixed']['passed']) for r in report['cases']) and all(r['passed'] for r in report['negative_cases'])
++        report['status']='COMPLETED'
++    except (OSError,ValueError,RuntimeError) as exc:
++        report.update(status='INFRASTRUCTURE_ERROR',error=f'{type(exc).__name__}: {exc}')
++    write_json(out/'checks.json',report)
++    print(json.dumps(dict(passed=report['passed'],status=report['status'],error=report.get('error')),indent=2),flush=True)
++    return 0 if report['passed'] else 1
++
++if __name__=='__main__':raise SystemExit(main())
+diff --git a/tools/java_support.py b/tools/java_support.py
+index f388a4a..1672413 100644
+--- a/tools/java_support.py
++++ b/tools/java_support.py
+@@ -21,7 +21,7 @@ def sha(path):
+     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+ 
+ 
+-def java_tools(explicit=None):
++def java_tools(explicit=None, *, allow_compiler_module=False):
+     java = explicit or os.environ.get("FOGSIM_JAVA")
+     if not java:
+         directory = ROOT / "references/jdk/jdk-17.0.16+8/bin"
+@@ -32,6 +32,10 @@ def java_tools(explicit=None):
+     java = Path(java).resolve()
+     javac = java.with_name("javac.exe" if java.suffix == ".exe" else "javac")
+     if not javac.is_file():
++        if allow_compiler_module and (java.parent.parent / "lib/modules").is_file():
++            # The current image has jdk.compiler but omits its javac launcher.
++            # Ordinary callers keep their existing explicit-launcher contract.
++            return java, None
+         raise RuntimeError(f"JDK compiler missing: {javac}")
+     return java, javac
+ 
+@@ -73,7 +77,7 @@ def reference_jdk(java):
+ def prepare_and_compile(output, java=None):
+     output = Path(output).resolve()
+     output.mkdir(parents=True, exist_ok=True)
+-    java, javac = java_tools(java)
++    java, javac = java_tools(java, allow_compiler_module=True)
+     reference = reference_jdk(java)
+     (output / "java-version.txt").write_text(reference["version_output"], encoding="utf-8")
+     files = {}
+@@ -108,14 +112,18 @@ def prepare_and_compile(output, java=None):
+               "adapter_sources": {str(p.relative_to(ADAPTER)).replace("\\", "/"): sha(p)
+                                   for p in sorted(ADAPTER.rglob("*")) if p.is_file()},
+               "java_version": reference["version_output"], "reference_jdk": reference,
+-              "javac_sha256": sha(javac), "overlays": patches}
++              "javac_sha256": sha(javac) if javac else None,
++              "compiler_modules_sha256": sha(java.parent.parent / "lib/modules") if javac is None else None,
++              "overlays": patches}
+     fingerprint = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode()).hexdigest()
+     # Each source snapshot has its own class directory; stale classes cannot contaminate a build.
+     classes = output / "classes" / fingerprint[:16]
+     classes.mkdir(parents=True, exist_ok=True)
+     classpath = os.pathsep.join(str(p) for p in jars)
+     sourcepath = os.pathsep.join(str(p) for p in (output / "overlay", ORIGINAL / "src", ADAPTER / "src"))
+-    command = [str(javac), "-J-Duser.language=en", "-J-Dfile.encoding=UTF-8", "-encoding", "UTF-8", "-d", str(classes), "-cp", classpath,
++    compiler = ([str(javac), "-J-Duser.language=en", "-J-Dfile.encoding=UTF-8"] if javac else
++                [str(java), "-Duser.language=en", "-Dfile.encoding=UTF-8", "-m", "jdk.compiler/com.sun.tools.javac.Main"])
++    command = [*compiler, "-encoding", "UTF-8", "-d", str(classes), "-cp", classpath,
+                "-sourcepath", sourcepath, *map(str, overlays),
+                *map(str, sorted((ADAPTER / "src").rglob("*.java")))]
+     result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace")

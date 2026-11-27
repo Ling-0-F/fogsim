@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "classification": "NORMAL_PARITY_PASSED",
+  "first_difference": null,
+  "tolerance": {
+    "abs_tol": 1e-09,
+    "rel_tol": 1e-12
+  },
+  "mappings": [
+    "V16 producer_device_id is event owner; Python staging_device retained separately in raw trace",
+    "Java jobsInSystem includes Python pending+active in admission order",
+    "Java physical completion ID membership is observed in admission order",
+    "uncompleted Java completion_time 0 -> None"
+  ],
+  "known_differences": [
+    "Java clears edge maps; Python retains immutable archive and runtime edge maps"
+  ],
+  "full_trace_available": true,
+  "full_contract_verified": true,
+  "trace_coverage": "pre/post trigger, owner/staging and errors",
+  "scope": "input consumption, events, decisions, chronological actions, post-trigger states, final state, statistics, normal metrics; legacy references have no pre-trigger/staging evidence",
+  "binding": {
+    "passed": true,
+    "manifest_sha256": "63c69016fffe38f6c459a3f5daa94600503eb4363cd3e564953e79c14147cabb"
+  },
+  "counts": {
+    "events": 7,
+    "decisions": 3,
+    "attempts": 3
+  }
+}

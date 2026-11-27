@@ -1,0 +1,301 @@
+{
+  "implementation_version": "0.1.0",
+  "python": "3.12.12 (main, Dec  2 2025, 19:43:54) [MSC v.1944 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python_executable": "C:\\Users\\Public\\Documents\\fwz\\代码编写\\.venv\\Scripts\\python.exe",
+  "pytest_version": "9.1.1",
+  "pytest_command": [
+    "C:\\Users\\Public\\Documents\\fwz\\代码编写\\.venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "-q",
+    "--junitxml=outputs/pytest-results.xml"
+  ],
+  "pytest_exit_code": 0,
+  "tests": {
+    "tests": 113,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "design_versions": "00-07 v1.1.0; 08-11 v1.0.0; incremental documents take precedence",
+  "runs": {
+    "single_local": {
+      "status": "SUCCEEDED",
+      "makespan": 3.0,
+      "final_clock_time": 3.0,
+      "processed_event_count": 4
+    },
+    "single_local_release5": {
+      "status": "SUCCEEDED",
+      "makespan": 3.0,
+      "final_clock_time": 8.0,
+      "processed_event_count": 4
+    },
+    "chain_remote": {
+      "status": "SUCCEEDED",
+      "makespan": 13.0,
+      "final_clock_time": 13.0,
+      "processed_event_count": 7
+    },
+    "chain_fcfs": {
+      "status": "SUCCEEDED",
+      "makespan": 17.0,
+      "final_clock_time": 17.0,
+      "processed_event_count": 7
+    }
+  },
+  "order_mappings": {
+    "single_local": {
+      "resources": [
+        [
+          "M0",
+          "MOBILE",
+          0
+        ],
+        [
+          "E0",
+          "EDGE",
+          0
+        ],
+        [
+          "C0",
+          "CLOUD",
+          1
+        ]
+      ],
+      "device_order": [
+        "M0"
+      ],
+      "task_order": [
+        [
+          0,
+          "A"
+        ]
+      ],
+      "candidate_order": {
+        "(0, 'A')": [
+          "M0",
+          "E0",
+          "C0"
+        ]
+      },
+      "initial_stage_order": [
+        [
+          0,
+          "M0",
+          0.0
+        ]
+      ]
+    },
+    "single_local_release5": {
+      "resources": [
+        [
+          "M0",
+          "MOBILE",
+          0
+        ],
+        [
+          "E0",
+          "EDGE",
+          0
+        ],
+        [
+          "C0",
+          "CLOUD",
+          1
+        ]
+      ],
+      "device_order": [
+        "M0"
+      ],
+      "task_order": [
+        [
+          0,
+          "A"
+        ]
+      ],
+      "candidate_order": {
+        "(0, 'A')": [
+          "M0",
+          "E0",
+          "C0"
+        ]
+      },
+      "initial_stage_order": [
+        [
+          0,
+          "M0",
+          5.0
+        ]
+      ]
+    },
+    "chain_remote": {
+      "resources": [
+        [
+          "M0",
+          "MOBILE",
+          0
+        ],
+        [
+          "E0",
+          "EDGE",
+          0
+        ],
+        [
+          "C0",
+          "CLOUD",
+          1
+        ]
+      ],
+      "device_order": [
+        "M0"
+      ],
+      "task_order": [
+        [
+          0,
+          "A"
+        ],
+        [
+          0,
+          "B"
+        ]
+      ],
+      "candidate_order": {
+        "(0, 'A')": [
+          "M0",
+          "E0",
+          "C0"
+        ],
+        "(0, 'B')": [
+          "M0",
+          "E0",
+          "C0"
+        ]
+      },
+      "initial_stage_order": [
+        [
+          0,
+          "M0",
+          0.0
+        ]
+      ]
+    },
+    "chain_fcfs": {
+      "resources": [
+        [
+          "M0",
+          "MOBILE",
+          0
+        ],
+        [
+          "E0",
+          "EDGE",
+          0
+        ],
+        [
+          "C0",
+          "CLOUD",
+          1
+        ]
+      ],
+      "device_order": [
+        "M0"
+      ],
+      "task_order": [
+        [
+          0,
+          "A"
+        ],
+        [
+          0,
+          "B"
+        ]
+      ],
+      "candidate_order": {
+        "(0, 'A')": [
+          "M0",
+          "E0",
+          "C0"
+        ],
+        "(0, 'B')": [
+          "M0",
+          "E0",
+          "C0"
+        ]
+      },
+      "initial_stage_order": [
+        [
+          0,
+          "M0",
+          0.0
+        ]
+      ]
+    }
+  },
+  "source_files": {
+    "Fog-Computing-Java-to-Python-Study-Plan-2026-10-08.md": "221353e11d7f8493d3afd9b2aa02537f0be4f4073193b45cbe161ea839589e0a",
+    "Fog-Computing-multiDeviceDebug.zip": "17a273961e66f409c4cfc8305ee31433bf7022232da3a2cbd0cc8e70e4c32c9a",
+    "prompt.txt": "353bbefa6800e4dbac8cf2caa59c3272d87fda503a6d26ca072897d9e18448f4",
+    "Xu 等 - 2023 - Genetic Programming for Dynamic Workflow Scheduling in Fog Computing.zh-CN.dual.pdf": "0fe716a44ca8d63013406d641e0b7dea652dc17f23614554f86c30b9937a9305",
+    "实现方案及详细设计.zip": "9ab607d19439cd25fe8dea60124be22651220e15e3ac34d142bd5aaaf482b42e"
+  },
+  "project_hashes": {
+    "configs/chain_fcfs.json": "7aedf10b7187472c28cff9a77f0387eebe66a098e52f40f4c565c441bf643a78",
+    "configs/chain_remote.json": "e58a0cec8788865e0290d80cb47d6d1e331514486452c6ad3a7df14b544eb3c2",
+    "configs/single_local.json": "ee509e8365e00fa765ace1aa169b4a8c2795f866da13368013ed650c23c718be",
+    "configs/single_local_release5.json": "3a9ff63ca27ce35f7635e082626cd4091c4b630712687ef8e1985bc93cc27805",
+    "data/cases/chain_remote.json": "4ed329d7af7b39cf39c4c5f9b31f56fe502807350dab25b15050415e937e33d4",
+    "data/cases/single_local.json": "cede7bb3eb9408f1990d7f3f7af35493782af7147a6812361874e9e43b3bd563",
+    "data/cases/single_local_release5.json": "e458f049bdace747da5dd4b1bafae2ad17bf445f278f94b1dfb878a17c51063f",
+    "src/fogsim/__init__.py": "83f3052b96d84fab90bb62ff6375bae6e8802cd07f051656d55c621b935768eb",
+    "src/fogsim/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "src/fogsim/cli.py": "427e2b283199a77410687adfd9043e8781be4fb08ab186ae0fe0004236452947",
+    "src/fogsim/config.py": "8094a7199358aa7786cd3a8cb4f7731598604f1afee9ed5286b9cc116fa995c5",
+    "src/fogsim/errors.py": "995a19df13d620a9d44e13490a8228998e6bc8b488592019b86d26985ca693e4",
+    "src/fogsim/instances/__init__.py": "593e1c7b0b617de52f82efa82a71f19ae5d3c5b7ae6f1e2945f67cedca129820",
+    "src/fogsim/instances/fixed.py": "e84058379b4366ba66516cd33627857b161efa5e6cf16b15b8687117977b130d",
+    "src/fogsim/instances/spec.py": "aec3d63250aa279cb687fd07a889043542ec0238c75ffd3aa7b799437b7e5b04",
+    "src/fogsim/model/__init__.py": "291841eb61ab246c2b48151ae0f13ccd5cd2fd231b5acdb9e39b6f7db0cc4d81",
+    "src/fogsim/model/execution.py": "d1a32af8fde6a2bbbf78e708c00f0c411ca5d970b612977703100e463376c154",
+    "src/fogsim/model/resource.py": "c2b2ea438f0a8083f7e7f366cfdf6ec48ba0b3b56821399fe175715c8ac2459b",
+    "src/fogsim/model/task.py": "ed615af5ae24fb35cfff6788e2a443d5d09624bebb0c03e647a6fc5e60cb8f8e",
+    "src/fogsim/model/workflow.py": "972e88ce4317f1d011783c11c7b5a1b5c65059c4e5e38bd66e5b611e24cb7343",
+    "src/fogsim/rules/__init__.py": "6b27c89cb20d8b9047befccf1a9cb5f9fb50b4c530bfc7df255ddc357229e77a",
+    "src/fogsim/rules/base.py": "5cbce49a5219110c93dc9499be4b75757261d26830330fef7d6dec2cc0a1da1e",
+    "src/fogsim/rules/baselines/__init__.py": "e80399e306b585cb61bdd5929d542ae015a6288f236cb5ef7ad68d25ac22bbc0",
+    "src/fogsim/rules/baselines/fcfs.py": "1c23054b58b78a483145d95497f16c0959567ed68f9bc6f171d3a219ff243f13",
+    "src/fogsim/rules/contexts.py": "1ced8af3c18fb93850c8210811052fd1f58dcb65ca8e78cfaeb8d78bd891bf7a",
+    "src/fogsim/rules/selection.py": "0375ca12ba140888185c69ecba074538514d07a95c8e95f1b832d97f6e4056e5",
+    "src/fogsim/simulation/__init__.py": "476acba54ae2c20fc591f610c594db2d9a719be89745846674bfd7cfff9b6f86",
+    "src/fogsim/simulation/engine.py": "d2aba975e93ef3f0c212190af249c2c3304f791f556053431e0d63b598ab2067",
+    "src/fogsim/simulation/event_queue.py": "007a7b3e7dd8465b1db0f48f6888b7c6303a26cb5a1303674f4d5c566c28e7ad",
+    "src/fogsim/simulation/events.py": "ebfb1ee1790e96da39f3facdedec925d330167fdc196c9f1c12ad7ffaea48476",
+    "src/fogsim/simulation/metrics.py": "386f0d5fa912a6c481e03957de26796feaaf8755738dbf561e8bece3b7c9aa08",
+    "src/fogsim/simulation/readiness.py": "490521615ed0f75f9670a81612d41396f5eca6ceb16f1bba30000a32b2aa2c0c",
+    "src/fogsim/simulation/state.py": "7b9d9751d52049434c169f899f6a0c190018d166c0c71dcb52f53f6a7376c19d",
+    "src/fogsim/simulation/trace.py": "31855f647a0761399bded145397fd723db62bee1c1ff353b5eafc4e8516b8000",
+    "src/fogsim_reproduction.egg-info/dependency_links.txt": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "src/fogsim_reproduction.egg-info/entry_points.txt": "bc626ac853b381a81ec7647214f357ca243221f5547a81995a88e3aba63a1ab3",
+    "src/fogsim_reproduction.egg-info/PKG-INFO": "c1b5d033ea6168846ed24c38e23a6c7e206374913ec148a448e94572ac58c8ab",
+    "src/fogsim_reproduction.egg-info/requires.txt": "05609400af41f2c6498f3cb749dea1aca78bbf2d62288376d3f837811f6bce0b",
+    "src/fogsim_reproduction.egg-info/SOURCES.txt": "40109df83aced918f8f4f2de41abb2d1c7b959f7c9da99a1c5eadbdd72c13a2e",
+    "src/fogsim_reproduction.egg-info/top_level.txt": "a2f27de54cfbc9515e25dfad32e56e09e0a207ebe41f600b52297265602bd4e6",
+    "tests/conftest.py": "688dbd38b35b2d8e8340764b19f193ad1a0281011fb2aae3275e911510cbdc96",
+    "tests/integration/test_runs.py": "91d471499047af1f35d6d9dac09ab5151ee260278612631e8937ad82a0eb57a2",
+    "tests/parity/test_java_components.py": "90c449e12ce0a0472a344913e390b286b0f2fb366d9ae5faa5d54d55e6f84456",
+    "tests/unit/test_events.py": "6936014af48e9a76b7f39e86f6e287b14aa6881361b9a4b434b6561e6ef9f8e5",
+    "tests/unit/test_input.py": "04cf5b381c50de607b081c889a6d65da67505732013f474f4fdc90fd27828f8c",
+    "tests/unit/test_model_rules.py": "8995ef0ca21d41735c1cc831fab0b83d3da96ca491a42a96e797a087496585a7",
+    "tests/unit/test_queue_lifecycle.py": "def30c9ba0e9868512d7f9b772deefe62a0def416eb5d99fa14b22fefa2ffc44",
+    "tools/build_release.py": "464709c5d71de1e87af4d1b3664d7a75ad391b65008455dd29d11f41cef39773",
+    "tools/run_java_oracle.py": "5634379cbb99c6d03bcc098ad4fb2be0adae1f7d64bd992d4e66e4bf7189c40d",
+    "tools/validate.py": "da5032e91be0882705cd6591d7827a4fc822b2c642d753b4b2b75d672854ac81"
+  },
+  "snapshot_sha256": "dd3716a6b3f94651251e82f686f6e36b680b3dbfd8e96633effe13dba514c46f",
+  "not_executed": [
+    "Full Java/Python fixed-instance scheduler parity",
+    "0.2 complex DAG/contention acceptance",
+    "DAX/RNG/GP/training/paper-scale experiments"
+  ]
+}

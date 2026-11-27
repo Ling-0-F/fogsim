@@ -1,0 +1,482 @@
+[
+  {
+    "name": "empty",
+    "text": "",
+    "expected": {
+      "code": "GP_EMPTY_EXPRESSION",
+      "token": "",
+      "start": 0,
+      "end": 0,
+      "line": 1,
+      "column": 1
+    }
+  },
+  {
+    "name": "blank",
+    "text": " \t\r\n",
+    "expected": {
+      "code": "GP_EMPTY_EXPRESSION",
+      "token": "",
+      "start": 4,
+      "end": 4,
+      "line": 2,
+      "column": 1
+    }
+  },
+  {
+    "name": "comment",
+    "text": "; PT",
+    "expected": {
+      "code": "GP_INVALID_CHARACTER",
+      "token": ";",
+      "start": 0,
+      "end": 1,
+      "line": 1,
+      "column": 1
+    }
+  },
+  {
+    "name": "comma",
+    "text": "(+ PT, UT)",
+    "expected": {
+      "code": "GP_INVALID_CHARACTER",
+      "token": ",",
+      "start": 5,
+      "end": 6,
+      "line": 1,
+      "column": 6
+    }
+  },
+  {
+    "name": "string",
+    "text": "\"PT\"",
+    "expected": {
+      "code": "GP_INVALID_CHARACTER",
+      "token": "\"",
+      "start": 0,
+      "end": 1,
+      "line": 1,
+      "column": 1
+    }
+  },
+  {
+    "name": "bracket",
+    "text": "[PT]",
+    "expected": {
+      "code": "GP_INVALID_CHARACTER",
+      "token": "[",
+      "start": 0,
+      "end": 1,
+      "line": 1,
+      "column": 1
+    }
+  },
+  {
+    "name": "nbsp",
+    "text": "PT\u00a0",
+    "expected": {
+      "code": "GP_INVALID_CHARACTER",
+      "token": "\u00a0",
+      "start": 2,
+      "end": 3,
+      "line": 1,
+      "column": 3
+    }
+  },
+  {
+    "name": "unicode-number",
+    "text": "\u0661",
+    "expected": {
+      "code": "GP_INVALID_CHARACTER",
+      "token": "\u0661",
+      "start": 0,
+      "end": 1,
+      "line": 1,
+      "column": 1
+    }
+  },
+  {
+    "name": "lexical-before-structure",
+    "text": "(if PT) ;",
+    "expected": {
+      "code": "GP_INVALID_CHARACTER",
+      "token": ";",
+      "start": 8,
+      "end": 9,
+      "line": 1,
+      "column": 9
+    }
+  },
+  {
+    "name": "unknown-function",
+    "text": "(if PT UT)",
+    "expected": {
+      "code": "GP_UNKNOWN_FUNCTION",
+      "token": "if",
+      "start": 1,
+      "end": 3,
+      "line": 1,
+      "column": 2
+    }
+  },
+  {
+    "name": "lower-max",
+    "text": "(max PT UT)",
+    "expected": {
+      "code": "GP_UNKNOWN_FUNCTION",
+      "token": "max",
+      "start": 1,
+      "end": 4,
+      "line": 1,
+      "column": 2
+    }
+  },
+  {
+    "name": "lower-min",
+    "text": "(min PT UT)",
+    "expected": {
+      "code": "GP_UNKNOWN_FUNCTION",
+      "token": "min",
+      "start": 1,
+      "end": 4,
+      "line": 1,
+      "column": 2
+    }
+  },
+  {
+    "name": "number-function",
+    "text": "(1 PT UT)",
+    "expected": {
+      "code": "GP_UNKNOWN_FUNCTION",
+      "token": "1",
+      "start": 1,
+      "end": 2,
+      "line": 1,
+      "column": 2
+    }
+  },
+  {
+    "name": "empty-call",
+    "text": "()",
+    "expected": {
+      "code": "GP_UNKNOWN_FUNCTION",
+      "token": ")",
+      "start": 1,
+      "end": 2,
+      "line": 1,
+      "column": 2
+    }
+  },
+  {
+    "name": "call-in-function",
+    "text": "((+ PT UT) DT)",
+    "expected": {
+      "code": "GP_UNKNOWN_FUNCTION",
+      "token": "(",
+      "start": 1,
+      "end": 2,
+      "line": 1,
+      "column": 2
+    }
+  },
+  {
+    "name": "unknown-feature",
+    "text": "WR",
+    "expected": {
+      "code": "GP_UNKNOWN_FEATURE",
+      "token": "WR",
+      "start": 0,
+      "end": 2,
+      "line": 1,
+      "column": 1
+    }
+  },
+  {
+    "name": "lower-feature",
+    "text": "pt",
+    "expected": {
+      "code": "GP_UNKNOWN_FEATURE",
+      "token": "pt",
+      "start": 0,
+      "end": 2,
+      "line": 1,
+      "column": 1
+    }
+  },
+  {
+    "name": "unknown-order",
+    "text": "(+ WR BAD)",
+    "expected": {
+      "code": "GP_UNKNOWN_FEATURE",
+      "token": "WR",
+      "start": 3,
+      "end": 5,
+      "line": 1,
+      "column": 4
+    }
+  },
+  {
+    "name": "leading-plus",
+    "text": "+1",
+    "expected": {
+      "code": "GP_INVALID_CONSTANT",
+      "token": "+1",
+      "start": 0,
+      "end": 2,
+      "line": 1,
+      "column": 1
+    }
+  },
+  {
+    "name": "numeric-underscore",
+    "text": "1_0",
+    "expected": {
+      "code": "GP_INVALID_CONSTANT",
+      "token": "1_0",
+      "start": 0,
+      "end": 3,
+      "line": 1,
+      "column": 1
+    }
+  },
+  {
+    "name": "invalid-octal",
+    "text": "08",
+    "expected": {
+      "code": "GP_INVALID_CONSTANT",
+      "token": "08",
+      "start": 0,
+      "end": 2,
+      "line": 1,
+      "column": 1
+    }
+  },
+  {
+    "name": "one-arg",
+    "text": "(+ PT)",
+    "expected": {
+      "code": "GP_ARITY_ERROR",
+      "token": ")",
+      "start": 5,
+      "end": 6,
+      "line": 1,
+      "column": 6
+    }
+  },
+  {
+    "name": "no-args",
+    "text": "(+)",
+    "expected": {
+      "code": "GP_ARITY_ERROR",
+      "token": ")",
+      "start": 2,
+      "end": 3,
+      "line": 1,
+      "column": 3
+    }
+  },
+  {
+    "name": "third-arg",
+    "text": "(+ PT UT DT)",
+    "expected": {
+      "code": "GP_ARITY_ERROR",
+      "token": "DT",
+      "start": 9,
+      "end": 11,
+      "line": 1,
+      "column": 10
+    }
+  },
+  {
+    "name": "third-call",
+    "text": "(+ PT UT (+ 1 2))",
+    "expected": {
+      "code": "GP_ARITY_ERROR",
+      "token": "(",
+      "start": 9,
+      "end": 10,
+      "line": 1,
+      "column": 10
+    }
+  },
+  {
+    "name": "lone-right",
+    "text": ")",
+    "expected": {
+      "code": "GP_UNBALANCED_PARENTHESES",
+      "token": ")",
+      "start": 0,
+      "end": 1,
+      "line": 1,
+      "column": 1
+    }
+  },
+  {
+    "name": "lone-left",
+    "text": "(",
+    "expected": {
+      "code": "GP_UNBALANCED_PARENTHESES",
+      "token": "",
+      "start": 1,
+      "end": 1,
+      "line": 1,
+      "column": 2
+    }
+  },
+  {
+    "name": "missing-close-before-arity",
+    "text": "(+ PT",
+    "expected": {
+      "code": "GP_UNBALANCED_PARENTHESES",
+      "token": "",
+      "start": 5,
+      "end": 5,
+      "line": 1,
+      "column": 6
+    }
+  },
+  {
+    "name": "missing-nested-close",
+    "text": "(+ PT (* UT DT)",
+    "expected": {
+      "code": "GP_UNBALANCED_PARENTHESES",
+      "token": "",
+      "start": 15,
+      "end": 15,
+      "line": 1,
+      "column": 16
+    }
+  },
+  {
+    "name": "trailing-leaf",
+    "text": "PT UT",
+    "expected": {
+      "code": "GP_TRAILING_INPUT",
+      "token": "UT",
+      "start": 3,
+      "end": 5,
+      "line": 1,
+      "column": 4
+    }
+  },
+  {
+    "name": "trailing-close",
+    "text": "PT)",
+    "expected": {
+      "code": "GP_TRAILING_INPUT",
+      "token": ")",
+      "start": 2,
+      "end": 3,
+      "line": 1,
+      "column": 3
+    }
+  },
+  {
+    "name": "trailing-root",
+    "text": "(+ PT UT) 2",
+    "expected": {
+      "code": "GP_TRAILING_INPUT",
+      "token": "2",
+      "start": 10,
+      "end": 11,
+      "line": 1,
+      "column": 11
+    }
+  },
+  {
+    "name": "crlf-tab",
+    "text": "(+ PT\r\n\tWR)",
+    "expected": {
+      "code": "GP_UNKNOWN_FEATURE",
+      "token": "WR",
+      "start": 8,
+      "end": 10,
+      "line": 2,
+      "column": 2
+    }
+  },
+  {
+    "name": "cr-only",
+    "text": "(+ PT\rWR)",
+    "expected": {
+      "code": "GP_UNKNOWN_FEATURE",
+      "token": "WR",
+      "start": 6,
+      "end": 8,
+      "line": 2,
+      "column": 1
+    }
+  },
+  {
+    "name": "lf-only",
+    "text": "(+ PT\nWR)",
+    "expected": {
+      "code": "GP_UNKNOWN_FEATURE",
+      "token": "WR",
+      "start": 6,
+      "end": 8,
+      "line": 2,
+      "column": 1
+    }
+  },
+  {
+    "name": "eof-crlf",
+    "text": "(+\r\n\t",
+    "expected": {
+      "code": "GP_UNBALANCED_PARENTHESES",
+      "token": "",
+      "start": 5,
+      "end": 5,
+      "line": 2,
+      "column": 2
+    }
+  },
+  {
+    "name": "bad-function-before-unclosed",
+    "text": "(bad",
+    "expected": {
+      "code": "GP_UNKNOWN_FUNCTION",
+      "token": "bad",
+      "start": 1,
+      "end": 4,
+      "line": 1,
+      "column": 2
+    }
+  },
+  {
+    "name": "arity-before-unclosed",
+    "text": "(+ PT UT DT",
+    "expected": {
+      "code": "GP_ARITY_ERROR",
+      "token": "DT",
+      "start": 9,
+      "end": 11,
+      "line": 1,
+      "column": 10
+    }
+  },
+  {
+    "name": "vertical-tab",
+    "text": "(+ PT\u000bWR)",
+    "expected": {
+      "code": "GP_UNKNOWN_FEATURE",
+      "token": "WR",
+      "start": 6,
+      "end": 8,
+      "line": 1,
+      "column": 7
+    }
+  },
+  {
+    "name": "form-feed",
+    "text": "(+ PT\fWR)",
+    "expected": {
+      "code": "GP_UNKNOWN_FEATURE",
+      "token": "WR",
+      "start": 6,
+      "end": 8,
+      "line": 1,
+      "column": 7
+    }
+  }
+]

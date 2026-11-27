@@ -1,0 +1,77 @@
+{
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "packages": {
+    "deap": {
+      "version": "1.4.4",
+      "requires": [
+        "numpy",
+        "moocore"
+      ]
+    },
+    "numpy": {
+      "version": "2.3.5",
+      "requires": null
+    },
+    "moocore": {
+      "version": "0.3.2",
+      "requires": [
+        "cffi>=1.17.1",
+        "numpy>=1.24",
+        "platformdirs",
+        "botorch; extra == \"benchmarks\"",
+        "desdeo; extra == \"benchmarks\"",
+        "fast-pareto; extra == \"benchmarks\"",
+        "jmetalpy>=1.8; extra == \"benchmarks\"",
+        "matplotlib; extra == \"benchmarks\"",
+        "moarchiving>=1.1; extra == \"benchmarks\"",
+        "nevergrad; extra == \"benchmarks\"",
+        "numba; extra == \"benchmarks\"",
+        "numpy; extra == \"benchmarks\"",
+        "optuna; extra == \"benchmarks\"",
+        "pandas>=2; extra == \"benchmarks\"",
+        "paretoset; extra == \"benchmarks\"",
+        "patatune; extra == \"benchmarks\"",
+        "py-cpuinfo; extra == \"benchmarks\"",
+        "pymoo; extra == \"benchmarks\"",
+        "coverage[toml]; extra == \"coverage\"",
+        "gcovr; extra == \"coverage\"",
+        "pre-commit>=3.3.2; extra == \"dev\"",
+        "ruff>=0.11.2; extra == \"dev\"",
+        "tox>=4.6.2; extra == \"dev\"",
+        "ipykernel; extra == \"docs\"",
+        "ipywidgets; extra == \"docs\"",
+        "jupyter; extra == \"docs\"",
+        "jupyterlab; extra == \"docs\"",
+        "kaleido; extra == \"docs\"",
+        "pandas>=2; extra == \"docs\"",
+        "plotly; extra == \"docs\"",
+        "pydata-sphinx-theme>=0.16; extra == \"docs\"",
+        "seaborn; extra == \"docs\"",
+        "sphinx>=6; extra == \"docs\"",
+        "sphinx-autodoc-typehints; extra == \"docs\"",
+        "sphinx-copybutton; extra == \"docs\"",
+        "sphinx-design; extra == \"docs\"",
+        "sphinx-gallery>=0.19; extra == \"docs\"",
+        "sphinxcontrib-bibtex; extra == \"docs\"",
+        "sphinxcontrib-napoleon; extra == \"docs\"",
+        "pandas>=2; extra == \"test\"",
+        "pytest>7; extra == \"test\""
+      ]
+    },
+    "cffi": {
+      "version": "2.1.1",
+      "requires": [
+        "pycparser; implementation_name != \"PyPy\""
+      ]
+    },
+    "platformdirs": {
+      "version": "4.14.5",
+      "requires": null
+    },
+    "pycparser": {
+      "version": "3.12",
+      "requires": null
+    }
+  }
+}

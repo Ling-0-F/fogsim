@@ -1,0 +1,361 @@
+{
+  "time_unit": "s",
+  "resources": [
+    {
+      "id": "M0",
+      "type": "MOBILE",
+      "can_process_tasks": true
+    },
+    {
+      "id": "M1",
+      "type": "MOBILE",
+      "can_process_tasks": true
+    },
+    {
+      "id": "E0",
+      "type": "EDGE"
+    },
+    {
+      "id": "C0",
+      "type": "CLOUD"
+    }
+  ],
+  "workflows": [
+    {
+      "id": -14,
+      "owner_device_id": "M1",
+      "release_time": 0.3,
+      "tasks": [
+        {
+          "id": "T0",
+          "execution_times": {
+            "M1": {
+              "upload_time": 0,
+              "processing_time": 4,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 1,
+              "processing_time": 5,
+              "download_time": 1
+            },
+            "C0": {
+              "upload_time": 0,
+              "processing_time": 3,
+              "download_time": 1
+            }
+          }
+        },
+        {
+          "id": "T1",
+          "execution_times": {
+            "M1": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 0,
+              "processing_time": 3,
+              "download_time": 2
+            },
+            "C0": {
+              "upload_time": 1,
+              "processing_time": 3,
+              "download_time": 2
+            }
+          }
+        },
+        {
+          "id": "T2",
+          "execution_times": {
+            "M1": {
+              "upload_time": 0,
+              "processing_time": 4,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 2,
+              "processing_time": 1,
+              "download_time": 0
+            },
+            "C0": {
+              "upload_time": 1,
+              "processing_time": 3,
+              "download_time": 0
+            }
+          }
+        },
+        {
+          "id": "T3",
+          "execution_times": {
+            "M1": {
+              "upload_time": 0,
+              "processing_time": 1,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 0,
+              "processing_time": 3,
+              "download_time": 0
+            },
+            "C0": {
+              "upload_time": 2,
+              "processing_time": 2,
+              "download_time": 2
+            }
+          }
+        }
+      ],
+      "dependencies": [
+        [
+          "T0",
+          "T2"
+        ],
+        [
+          "T1",
+          "T2"
+        ]
+      ]
+    },
+    {
+      "id": 31,
+      "owner_device_id": "M0",
+      "release_time": 3,
+      "tasks": [
+        {
+          "id": "T0",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 4,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 1,
+              "processing_time": 2,
+              "download_time": 0
+            },
+            "C0": {
+              "upload_time": 0,
+              "processing_time": 1,
+              "download_time": 0
+            }
+          }
+        },
+        {
+          "id": "T1",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 1,
+              "processing_time": 1,
+              "download_time": 0
+            },
+            "C0": {
+              "upload_time": 0,
+              "processing_time": 4,
+              "download_time": 0
+            }
+          }
+        },
+        {
+          "id": "T2",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 5,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 2,
+              "processing_time": 1,
+              "download_time": 0
+            },
+            "C0": {
+              "upload_time": 1,
+              "processing_time": 1,
+              "download_time": 1
+            }
+          }
+        },
+        {
+          "id": "T3",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 3,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 2,
+              "processing_time": 4,
+              "download_time": 0
+            },
+            "C0": {
+              "upload_time": 1,
+              "processing_time": 3,
+              "download_time": 1
+            }
+          }
+        }
+      ],
+      "dependencies": [
+        [
+          "T0",
+          "T2"
+        ]
+      ]
+    },
+    {
+      "id": 25,
+      "owner_device_id": "M0",
+      "release_time": 0.3,
+      "tasks": [
+        {
+          "id": "T0",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 5,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 1,
+              "processing_time": 5,
+              "download_time": 1
+            },
+            "C0": {
+              "upload_time": 2,
+              "processing_time": 2,
+              "download_time": 0
+            }
+          }
+        },
+        {
+          "id": "T1",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 3,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 1,
+              "processing_time": 1,
+              "download_time": 2
+            },
+            "C0": {
+              "upload_time": 0,
+              "processing_time": 4,
+              "download_time": 2
+            }
+          }
+        },
+        {
+          "id": "T2",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 3,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 2,
+              "processing_time": 4,
+              "download_time": 2
+            },
+            "C0": {
+              "upload_time": 2,
+              "processing_time": 2,
+              "download_time": 2
+            }
+          }
+        },
+        {
+          "id": "T3",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 1,
+              "processing_time": 4,
+              "download_time": 2
+            },
+            "C0": {
+              "upload_time": 1,
+              "processing_time": 5,
+              "download_time": 2
+            }
+          }
+        }
+      ],
+      "dependencies": [
+        [
+          "T1",
+          "T2"
+        ]
+      ]
+    },
+    {
+      "id": -17,
+      "owner_device_id": "M1",
+      "release_time": 2,
+      "tasks": [
+        {
+          "id": "T0",
+          "execution_times": {
+            "M1": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 2,
+              "processing_time": 1,
+              "download_time": 2
+            },
+            "C0": {
+              "upload_time": 2,
+              "processing_time": 2,
+              "download_time": 0
+            }
+          }
+        },
+        {
+          "id": "T1",
+          "execution_times": {
+            "M1": {
+              "upload_time": 0,
+              "processing_time": 5,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 0,
+              "processing_time": 1,
+              "download_time": 1
+            },
+            "C0": {
+              "upload_time": 1,
+              "processing_time": 1,
+              "download_time": 2
+            }
+          }
+        }
+      ],
+      "dependencies": [
+        [
+          "T0",
+          "T1"
+        ]
+      ]
+    }
+  ]
+}

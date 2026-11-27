@@ -1,0 +1,1146 @@
+{
+  "format": "fogsim.training-acceptance",
+  "schema_version": 1,
+  "batch": "S9-B04",
+  "version": "0.4.0",
+  "design": "S9-frozen-1",
+  "acceptance_passed": true,
+  "source": {
+    "source_id": "sha256:3fceb2d86aefa3a35ccfe831f5abf343bfe6c2745eda156be6c8a7b627035dee",
+    "source_files": {
+      "__init__.py": "2d83833b7dcec735a44284a769d24708450e9dcbb440db7f7f1b2b18ac8e2fd1",
+      "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+      "cli.py": "ffc2b6732976d673c11e14a70c88320c13cdc217dfccae7cfecd7e5bbbeea1a7",
+      "config.py": "b404a2d3abdb80a20edaba36fe9dee7ee47f7fd1374d1a6164dd0bc88ad82e8e",
+      "environment/__init__.py": "385eb34eca03bd5aee21d998338878a6df4417d93cd8edb3700c47367b2e0dd7",
+      "environment/build.py": "1d5fecb33a46e86c27ba8352ee7dbf86d31b9b198d1aaf3e88392156ef67d8fb",
+      "environment/spec.py": "7761ef45ecd94ec88c2e4ac89a24b4b0a32dc02fed5d82e653cbd4e66e229811",
+      "errors.py": "1340bac50f0fa1f850e9359f435af1918db77ca3f08aee5d0c52a44e4c99f3d6",
+      "experiment_config.py": "5af760c44f3c434c647e734a4b6d3c62b20b181d7011bfc5611423921a812af4",
+      "experiments/__init__.py": "d94a09a7f6cba5e369848676f012e18d1f4f1a02f70219d8e48adf3b2545994a",
+      "experiments/runner.py": "b76ad41e538bc4666d5c0a93591583c8d3ff5f04ceb8ca6fcfd7c857a853af41",
+      "gp/__init__.py": "15fcff69f12506d9c6c38a1c5576ee6efc4df852ef782c5bff5f8d9360fc7554",
+      "gp/ast.py": "13dff9e17b8307d787e2ff085f139a3e0e8a36561a2618319d1717a74f374434",
+      "gp/diagnostics.py": "56a33dc43fd604c6e7e2d817b0c346dd0a82e5c751f897ef9266de11d0c678f9",
+      "gp/evaluator.py": "7ec6aef3f7316aeab63ed8b376ee2c43ffb2b6b8363d6fe25e7b87187ae4849c",
+      "gp/features.py": "57d25ba7fd65659fe50f50ba6599851aaa96b26d1271de03927e1f2d415c52c4",
+      "gp/identity.py": "538ff6e3d885991796d3d7bb169d74678c4cfeb4588a6fee443dd365434070ad",
+      "gp/numerics.py": "945d9a929f1aebdf072c14a93ab960511aab95e0ad40cf817857116ec2c1f5b9",
+      "gp/parser.py": "71681dccc5b78ca5424bab29105a87f62a40b038bb098fa3d3758607a4755db4",
+      "gp/program.py": "5b5384748122466c58b6af4ba64f5e3ac2bac408f7f4a57bfd5f1cf2a24c54be",
+      "input_validation.py": "cf4fc1183a415c427be27c2af46de2410c8ba2accfbcb3f46aab47281305d61a",
+      "instances/__init__.py": "593e1c7b0b617de52f82efa82a71f19ae5d3c5b7ae6f1e2945f67cedca129820",
+      "instances/catalog.py": "41773b264d08a2e27a6629073106b23c0481198f582360d96718a2a4aa295668",
+      "instances/dax.py": "08ea512e7be420f2206c2989eda0861a5ec61d64f6f631155aa02af1e2f6328d",
+      "instances/fixed.py": "e84058379b4366ba66516cd33627857b161efa5e6cf16b15b8687117977b130d",
+      "instances/generated.py": "dcabbde99c13a210c1e7641e741797286e11357cfdc4b8d0a458c2858c6e32f7",
+      "instances/generation.py": "e79e1f43148a6f57b0130a3e9849116a13e826c7bc891f4da521168d9b0982eb",
+      "instances/identity.py": "38b84680ace8f50dc173eedbdd0ba21f5c21d41d1338c85c291e40945379a904",
+      "instances/materialize.py": "0007b527caf640734dd7db22854878d8cb228fd4f8f8ec32dfed7df8fd12ebfb",
+      "instances/source.py": "b28f486d50673dd9f1f78faafc968f24a7fdf002840a26868873bcde2b688aa3",
+      "instances/spec.py": "aec3d63250aa279cb687fd07a889043542ec0238c75ffd3aa7b799437b7e5b04",
+      "instances/templates.py": "acc3a2cabf16ecf1a9066d2b0dda7a0ff4e78b5cc4d7e367b9f82d8998a1318e",
+      "io.py": "a9f3420f930f4e649d061c4dcbe0b1c8e0539aff6a984494c103bbdb5d48675d",
+      "model/__init__.py": "291841eb61ab246c2b48151ae0f13ccd5cd2fd231b5acdb9e39b6f7db0cc4d81",
+      "model/execution.py": "16a61ec7127bbec713c11beb3fb75d4e66aad741319b4c7f968e49f3436c73f5",
+      "model/resource.py": "c2b2ea438f0a8083f7e7f366cfdf6ec48ba0b3b56821399fe175715c8ac2459b",
+      "model/task.py": "53223addb1bdfa0ce5328a6d1baedf119865178b9fdbd0de64c74c42c9995e1b",
+      "model/workflow.py": "e8297d5b9d46f874e917fb9eddb760b5f8adfce2f98fa09ae25d45bee7d8a853",
+      "numerics.py": "325b1504e3ce596da46c240b07b9252a085a2db9fbc984a8e20ecaf52b6107cb",
+      "randomness/__init__.py": "3f90a24abad96c2d13a6046f43016a23099c3acf338114b6d348c7a2ea793f27",
+      "randomness/samplers.py": "6bd1e7b47407b31f5fbdfce45637060ba93d24486d9fa8b6ff81f52734384902",
+      "randomness/state.py": "ea3b529771f7af3b9310c1a3bf61d73b64667e4a965e309ed6a68ae75e135269",
+      "replay/__init__.py": "3e83af74092f2339fbffad78b9d9a650b5259a46f17e66de7591cde670e6e2f5",
+      "replay/_decode.py": "95855f3c9344fa4bc4aa1ce42c0053ddc9c7f2c48149690d4eb5e573e7fa198f",
+      "replay/audit.py": "686e2897d8da904d5c93c5aff29f4da90f49b5b477b4ef88dad1bccc85590e96",
+      "replay/engine.py": "1e04466bf74702d4a3a64ccddfd2a8fa097c7b43ee3605d53ca5e3649f3432ce",
+      "replay/export.py": "7fe7489da4d8be82fcfb9bdf76bb7e5547ff8bc9e9c7daab62bf91a633b2bc09",
+      "replay/export_input.py": "647688a32969605aedc8596117c0a520e818c5228a91c3a75c26ece12b3067c6",
+      "replay/loader.py": "acd15edbc59c27ad854e9dd5dd27bc46006e6e87e5a5ca4c6761d7ecd07b1779",
+      "replay/native.py": "955a03781a64d4d5e733d1485e09a092b0dc904aaa88549ea5e3d48107646ad1",
+      "replay/source.py": "0d75b90b7bcf1bc11249f27e13b549c1d31c8cd88e9df9442eedec99f32c07bc",
+      "replay/spec.py": "b43aef400f59a48ffe59586dcfc5caa6479f780f5e34beda25463a49a2e2ff89",
+      "rules/__init__.py": "6b27c89cb20d8b9047befccf1a9cb5f9fb50b4c530bfc7df255ddc357229e77a",
+      "rules/base.py": "5cbce49a5219110c93dc9499be4b75757261d26830330fef7d6dec2cc0a1da1e",
+      "rules/baselines/__init__.py": "e80399e306b585cb61bdd5929d542ae015a6288f236cb5ef7ad68d25ac22bbc0",
+      "rules/baselines/fcfs.py": "1c23054b58b78a483145d95497f16c0959567ed68f9bc6f171d3a219ff243f13",
+      "rules/contexts.py": "1ced8af3c18fb93850c8210811052fd1f58dcb65ca8e78cfaeb8d78bd891bf7a",
+      "rules/factory.py": "ee2d4a8a2a58f0a25c6340e7ca5e7d6cdcd150697b7711d45d46204af7646e21",
+      "rules/gp.py": "6b34f9a09c7aa944fb62ad84f5eb5e678f6d3dce4d5c7ec8bda96313d4619c64",
+      "rules/selection.py": "2011fb47ca0c3ab6f1d84ba01f88d61e7bab4c5206617226bca619f89362cf73",
+      "rules/specs.py": "5a7b53096fa4f4a195f1ffbd799c51e22b5f26c7eb82710528fb775eecc14d5b",
+      "seed.py": "b5433f5f78b55252d5625e94e84d28f03a7a626cc56bd87b8184043d117ba191",
+      "serialization/__init__.py": "b5717e29562b85fbb71fc1818be8fda60346d8da7c0a90720dac329c76fdd331",
+      "serialization/f64.py": "c354fc72fa02c3e6512a2b007c780e0badeb402813be7605718cfc93256e1e10",
+      "serialization/result.py": "6147b00a36abe2b5b2301d2feb654cf8c551ebc527a9f2834cff45ebcd3bbd19",
+      "simulation/__init__.py": "476acba54ae2c20fc591f610c594db2d9a719be89745846674bfd7cfff9b6f86",
+      "simulation/admission.py": "3d3a35b53e4bf5aa90e7f6c87b6179703d343fd4127424d9da5af8ba1429b2b0",
+      "simulation/cleanup.py": "bc24e10601243e1f1a5dd7fc0154dd1ea7303db6354962015c767398085213d8",
+      "simulation/context.py": "ad41b478d562780645a43e3889bb0d169a739090da580ceef4ce5b386b7c91a5",
+      "simulation/dynamic.py": "ba1ec196bccbf61838384eba6cd9abf8a55d3615bd9f25ff41139b83a60a6a26",
+      "simulation/dynamic_result.py": "1c6228ed9127370eeb661bab4a044d5f2d34b617e9d41a22c4a4576d15bc2d0a",
+      "simulation/engine.py": "8b0173028a2eb2ec012c85e8cca512c2b6c6b65c077a13881c06a2e71cf8d04f",
+      "simulation/event_queue.py": "9601bcf8839dc4fc46ad10bd6472ac2215b5ce89e49d245c7cb26fbd2b168521",
+      "simulation/events.py": "c0409bb234cb102b1c38efb87c117cc852addc892363a9bb8e637ebe96695b98",
+      "simulation/metrics.py": "148c4b80a1a632c507ff54110a456dde7b48763c1a89bf5b4b644dbee9d62af1",
+      "simulation/readiness.py": "490521615ed0f75f9670a81612d41396f5eca6ceb16f1bba30000a32b2aa2c0c",
+      "simulation/state.py": "1874ad760f1e1a76348b81fe47aecda1e13738749cf70b0f7f6e10be9f701744",
+      "simulation/statistics.py": "0691f4645c407edb4c154ef1be77a640b437b69f5615ec4a204aecd33cc832aa",
+      "simulation/trace.py": "a675265928667ba4babe6d88e680e937198a90de26f1c1f745fc91833ff74a7a",
+      "training/__init__.py": "d5a6e8e64938518f440ce150d0bcaf39ec23da09fe1693d8d458fe9635a903d3",
+      "training/cli.py": "a15801b18696749b9408000841c3be857e400a77615dfa1756150b2161939b42",
+      "training/config.py": "00314095c232aad3a2a2cf80e9011595c4dea0d520be5f0b543d67e232ef1ebf",
+      "training/deap_adapter.py": "757083a66e25c87bae58675d6f16bae0f9150824335d15ad01ec4006ed238db9",
+      "training/dual_operators.py": "6504629491111df6417c24d06f66867cd9434dec3068b221f7d66d1d3ecd8bd3",
+      "training/evaluation.py": "190abb0d0c8115123fc2a3b66dd9122778eef51bc1e3f80f3335c0aa0c17ae93",
+      "training/evolution.py": "05b15a5f121c59c13decfe09ada4dd3180ba247f9162dfef7b3aaa0237152d1d",
+      "training/fitness.py": "2a33e0b1ae8069c45b996c253f337197b6728a44be8e27e59fa3f7e5e780d11c",
+      "training/operators.py": "b0c002530a1c7bf1575eaa8870c593ec19062a81a25bc848938647b493c8ffad",
+      "training/plans.py": "e1161195380316d0a6140e21e1b2fa3dd2b509dec96142436abb3fb35d71d81c",
+      "training/preflight.py": "2dbc3fdc03f3f16a45a5533cd95010210e3858d479555373aa65dbd2cc258b0f",
+      "training/protocols.py": "8831a45caf0d9be4cd8da865d1a3ae57b8aa12a7e31fed589de8677c30678209",
+      "training/runtime.py": "0159286e555be2c5b71eaaa9d0dfa1da53e891511dc659605025e8cf1197eb28",
+      "training/selection.py": "9b3de43c877dceebd039935adf4a066e20d3c0fae828aa33e217f95e24c1df82",
+      "training/trainer.py": "78369dcee3aa9658dbf3a7fb558e564cff3767e917f51d3cdd95c6d8d32ca7a4",
+      "training/worker.py": "200615b93f1ce143ab66c84a8d2db7dbeb9ff760ca21ad8d47a41ba8a0a7fe99",
+      "validation/__init__.py": "063a04ebca7b4326fa66b86fcd5fb869ff04ea033e02ffc387239602dd0619cf",
+      "validation/dynamic_compare.py": "5bba33282015cb6547505ee7a3a12ebd118b35fc28bf3b1ccaf5e5c58b506784",
+      "validation/gp_compare.py": "c3cac54bb775c02ae456a690172336155d511e7b1d1ebcc536d414adab5f5553",
+      "validation/gp_normalize.py": "dcdebad57f52c6cd460abbf1748ef96ee53605df051a675a6fc4cce53978f92b",
+      "validation/gp_observe.py": "92160acda6ccfb91b7ad896d6bb8d42cf725c90dbf17d9da1458b76de1bee3af",
+      "validation/trace_compare.py": "d581da92b967174ace9f6613aa80de188318442a9d734504f2c2c4656e792aa4"
+    }
+  },
+  "source_freeze_id": "sha256:0a4e70d105912f6fd27afbddc87cea7ae14ee2d757bfc45b91231b3166e88071",
+  "unit_tests": {
+    "tests": 147,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 40.704
+  },
+  "combined_regression": {
+    "tests": 5956,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 194.174
+  },
+  "gates": {
+    "S01": {
+      "status": "PASSED",
+      "scope": "configuration, plans, split, signed64 and seed rotation",
+      "current_tests": [
+        "tests/training/test_b01.py"
+      ],
+      "inherited_batches": [
+        "B01"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B01/acceptance.json"
+      ]
+    },
+    "S02": {
+      "status": "PASSED",
+      "scope": "DEAP/B08 ordered identities, Java grow, full, node roles and clone isolation",
+      "current_tests": [
+        "tests/training/test_b02.py",
+        "tests/training/test_b03.py"
+      ],
+      "inherited_batches": [
+        "B02",
+        "B03"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B02/acceptance.json",
+        "outputs/step9/B03/acceptance.json"
+      ]
+    },
+    "S03": {
+      "status": "PASSED",
+      "scope": "D03 full-plan equal-run mean and denominators",
+      "current_tests": [
+        "tests/training/test_b01.py"
+      ],
+      "inherited_batches": [
+        "B01"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B01/acceptance.json"
+      ]
+    },
+    "S04": {
+      "status": "PASSED",
+      "scope": "domain continuation versus program/input/interruption failures",
+      "current_tests": [
+        "tests/training/test_b01.py",
+        "tests/training/test_b02.py"
+      ],
+      "inherited_batches": [
+        "B01",
+        "B02"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B01/acceptance.json",
+        "outputs/step9/B02/acceptance.json"
+      ]
+    },
+    "S05": {
+      "status": "PASSED",
+      "scope": "NaN/infinity/signed-zero rule score and identity compatibility",
+      "current_tests": [
+        "tests/training/test_b01.py",
+        "tests/training/test_b02.py",
+        "tests/training/test_b03.py"
+      ],
+      "inherited_batches": [
+        "B01",
+        "B02",
+        "B03"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B01/acceptance.json",
+        "outputs/step9/B02/acceptance.json",
+        "outputs/step9/B03/acceptance.json"
+      ]
+    },
+    "S06": {
+      "status": "PASSED",
+      "scope": "fresh context/objects/queue/B order isolation",
+      "current_tests": [
+        "tests/training/test_b01.py"
+      ],
+      "inherited_batches": [
+        "B01"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B01/acceptance.json"
+      ]
+    },
+    "S07": {
+      "status": "PASSED",
+      "scope": "evolution versus simulator/caller RNG isolation",
+      "current_tests": [
+        "tests/training/test_b01.py",
+        "tests/training/test_b02.py"
+      ],
+      "inherited_batches": [
+        "B01",
+        "B02"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B01/acceptance.json",
+        "outputs/step9/B02/acceptance.json"
+      ]
+    },
+    "S08": {
+      "status": "PASSED",
+      "scope": "plan rotation, elite/copy re-evaluation, actual counts, final-generation stop",
+      "current_tests": [
+        "tests/training/test_b02.py",
+        "tests/training/test_b03.py"
+      ],
+      "inherited_batches": [
+        "B02",
+        "B03"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B02/acceptance.json",
+        "outputs/step9/B03/acceptance.json"
+      ]
+    },
+    "S09": {
+      "status": "PASSED",
+      "scope": "single routing/explicit FCFS real decisions, controlled operators and full closure",
+      "current_tests": [
+        "tests/training/test_b02.py"
+      ],
+      "inherited_batches": [
+        "B02"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B02/acceptance.json"
+      ]
+    },
+    "S10": {
+      "status": "PASSED",
+      "scope": "dual roles real decisions, four branches/tail/retries/source and clones",
+      "current_tests": [
+        "tests/training/test_b03.py"
+      ],
+      "inherited_batches": [
+        "B03"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B03/acceptance.json"
+      ]
+    },
+    "S11": {
+      "status": "PASSED",
+      "scope": "executed independent J01-J06 local Java cases and lifecycle; original evidence retained",
+      "current_tests": [],
+      "inherited_batches": [
+        "B01",
+        "B02",
+        "B03"
+      ],
+      "current_evidence": [],
+      "inherited_evidence": [
+        "outputs/step9/B01/acceptance.json",
+        "outputs/step9/B02/acceptance.json",
+        "outputs/step9/B03/acceptance.json"
+      ]
+    },
+    "S12": {
+      "status": "PASSED",
+      "scope": "dedup/all occurrences, fixed validation, pre-test freeze and no candidate switching",
+      "current_tests": [
+        "tests/training/test_b02.py",
+        "tests/training/test_b03.py"
+      ],
+      "inherited_batches": [
+        "B02",
+        "B03"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B02/acceptance.json",
+        "outputs/step9/B03/acceptance.json"
+      ]
+    },
+    "S13": {
+      "status": "PASSED",
+      "scope": "single and dual two seeds plus complete same-config repeats; semantic comparison",
+      "current_tests": [],
+      "inherited_batches": [
+        "B02",
+        "B03"
+      ],
+      "current_evidence": [],
+      "inherited_evidence": [
+        "outputs/step9/B02/acceptance.json",
+        "outputs/step9/B03/acceptance.json"
+      ]
+    },
+    "S14": {
+      "status": "PASSED",
+      "scope": "height/nodes/mutation/init/event/wallclock/EOF-exit evidence",
+      "current_tests": [
+        "tests/training/test_b01.py",
+        "tests/training/test_b02.py",
+        "tests/training/test_b03.py",
+        "tests/training/test_b04.py"
+      ],
+      "inherited_batches": [
+        "B01",
+        "B02",
+        "B03"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B01/acceptance.json",
+        "outputs/step9/B02/acceptance.json",
+        "outputs/step9/B03/acceptance.json"
+      ]
+    },
+    "S15": {
+      "status": "PASSED",
+      "scope": "CLI/API/protocols/source/lineage/independent freeze loading and output protection",
+      "current_tests": [
+        "tests/training/test_b04.py"
+      ],
+      "inherited_batches": [
+        "B01",
+        "B02",
+        "B03"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B01/acceptance.json",
+        "outputs/step9/B02/acceptance.json",
+        "outputs/step9/B03/acceptance.json"
+      ]
+    },
+    "S16": {
+      "status": "PASSED",
+      "scope": "final combined legacy/training regression, DEAP-free paths and pinned dependencies",
+      "current_tests": [
+        "tests"
+      ],
+      "inherited_batches": [
+        "B01",
+        "B02",
+        "B03"
+      ],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": [
+        "outputs/step9/B01/acceptance.json",
+        "outputs/step9/B02/acceptance.json",
+        "outputs/step9/B03/acceptance.json"
+      ]
+    },
+    "S17": {
+      "status": "PASSED",
+      "scope": "editable large templates preflight, budget/retention/versions, default validate entry and small explicit runs",
+      "current_tests": [
+        "tests/training/test_b04.py"
+      ],
+      "inherited_batches": [],
+      "current_evidence": [
+        "outputs/step9/B04/unit-final.xml",
+        "outputs/step9/B04/regression.xml"
+      ],
+      "inherited_evidence": []
+    }
+  },
+  "legacy_contract_count": 149,
+  "unresolved_contracts": [],
+  "source_retention": {
+    "passed": true,
+    "baseline": "fogsim-0.4.0-B03.zip",
+    "files_checked": 39520,
+    "historical_members_checked": 39064,
+    "changed": [
+      {
+        "path": "README.md",
+        "before": "3d9be194a680413b46f031b4546b03ec56e30490a6e7cb50d3ca6f8ea8a75e25",
+        "after": "168e9b2bfee1a43ab0b51441a653f0e72c375008240d6c2f7a351ae5cb26573a"
+      },
+      {
+        "path": "docs/SOURCE-DISTRIBUTION.md",
+        "before": "05faa7ed2effc622173d49edb1615e6b288c25c09390d7cb57cfd6ad158c516e",
+        "after": "e00b69842d290984070515610580883baad3e3c827691455223336ff205c1ec9"
+      },
+      {
+        "path": "src/fogsim/training/cli.py",
+        "before": "00c8e1a88cb69029a40381f294efff4b3767f209a8288f69e7a9ea8f06e0359b",
+        "after": "a15801b18696749b9408000841c3be857e400a77615dfa1756150b2161939b42"
+      },
+      {
+        "path": "src/fogsim/training/evaluation.py",
+        "before": "95165bd7d4a84b454c3198ec21e1d166e03a77c1763d4abe83a7a4aa3131e952",
+        "after": "190abb0d0c8115123fc2a3b66dd9122778eef51bc1e3f80f3335c0aa0c17ae93"
+      },
+      {
+        "path": "src/fogsim/training/trainer.py",
+        "before": "b45dc81393e2539a24e934a4f021a9408c23655fbb4e890a258d57c4bde061b1",
+        "after": "78369dcee3aa9658dbf3a7fb558e564cff3767e917f51d3cdd95c6d8d32ca7a4"
+      }
+    ],
+    "missing": [],
+    "unexpected": [],
+    "production_source_delta": [
+      "training/cli.py",
+      "training/evaluation.py",
+      "training/preflight.py",
+      "training/trainer.py"
+    ],
+    "algorithms_unchanged": true,
+    "scope": "B04 cumulative byte-retention/impact audit; no historical result re-execution",
+    "source": {
+      "source_id": "sha256:3fceb2d86aefa3a35ccfe831f5abf343bfe6c2745eda156be6c8a7b627035dee",
+      "source_files": {
+        "__init__.py": "2d83833b7dcec735a44284a769d24708450e9dcbb440db7f7f1b2b18ac8e2fd1",
+        "__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+        "cli.py": "ffc2b6732976d673c11e14a70c88320c13cdc217dfccae7cfecd7e5bbbeea1a7",
+        "config.py": "b404a2d3abdb80a20edaba36fe9dee7ee47f7fd1374d1a6164dd0bc88ad82e8e",
+        "environment/__init__.py": "385eb34eca03bd5aee21d998338878a6df4417d93cd8edb3700c47367b2e0dd7",
+        "environment/build.py": "1d5fecb33a46e86c27ba8352ee7dbf86d31b9b198d1aaf3e88392156ef67d8fb",
+        "environment/spec.py": "7761ef45ecd94ec88c2e4ac89a24b4b0a32dc02fed5d82e653cbd4e66e229811",
+        "errors.py": "1340bac50f0fa1f850e9359f435af1918db77ca3f08aee5d0c52a44e4c99f3d6",
+        "experiment_config.py": "5af760c44f3c434c647e734a4b6d3c62b20b181d7011bfc5611423921a812af4",
+        "experiments/__init__.py": "d94a09a7f6cba5e369848676f012e18d1f4f1a02f70219d8e48adf3b2545994a",
+        "experiments/runner.py": "b76ad41e538bc4666d5c0a93591583c8d3ff5f04ceb8ca6fcfd7c857a853af41",
+        "gp/__init__.py": "15fcff69f12506d9c6c38a1c5576ee6efc4df852ef782c5bff5f8d9360fc7554",
+        "gp/ast.py": "13dff9e17b8307d787e2ff085f139a3e0e8a36561a2618319d1717a74f374434",
+        "gp/diagnostics.py": "56a33dc43fd604c6e7e2d817b0c346dd0a82e5c751f897ef9266de11d0c678f9",
+        "gp/evaluator.py": "7ec6aef3f7316aeab63ed8b376ee2c43ffb2b6b8363d6fe25e7b87187ae4849c",
+        "gp/features.py": "57d25ba7fd65659fe50f50ba6599851aaa96b26d1271de03927e1f2d415c52c4",
+        "gp/identity.py": "538ff6e3d885991796d3d7bb169d74678c4cfeb4588a6fee443dd365434070ad",
+        "gp/numerics.py": "945d9a929f1aebdf072c14a93ab960511aab95e0ad40cf817857116ec2c1f5b9",
+        "gp/parser.py": "71681dccc5b78ca5424bab29105a87f62a40b038bb098fa3d3758607a4755db4",
+        "gp/program.py": "5b5384748122466c58b6af4ba64f5e3ac2bac408f7f4a57bfd5f1cf2a24c54be",
+        "input_validation.py": "cf4fc1183a415c427be27c2af46de2410c8ba2accfbcb3f46aab47281305d61a",
+        "instances/__init__.py": "593e1c7b0b617de52f82efa82a71f19ae5d3c5b7ae6f1e2945f67cedca129820",
+        "instances/catalog.py": "41773b264d08a2e27a6629073106b23c0481198f582360d96718a2a4aa295668",
+        "instances/dax.py": "08ea512e7be420f2206c2989eda0861a5ec61d64f6f631155aa02af1e2f6328d",
+        "instances/fixed.py": "e84058379b4366ba66516cd33627857b161efa5e6cf16b15b8687117977b130d",
+        "instances/generated.py": "dcabbde99c13a210c1e7641e741797286e11357cfdc4b8d0a458c2858c6e32f7",
+        "instances/generation.py": "e79e1f43148a6f57b0130a3e9849116a13e826c7bc891f4da521168d9b0982eb",
+        "instances/identity.py": "38b84680ace8f50dc173eedbdd0ba21f5c21d41d1338c85c291e40945379a904",
+        "instances/materialize.py": "0007b527caf640734dd7db22854878d8cb228fd4f8f8ec32dfed7df8fd12ebfb",
+        "instances/source.py": "b28f486d50673dd9f1f78faafc968f24a7fdf002840a26868873bcde2b688aa3",
+        "instances/spec.py": "aec3d63250aa279cb687fd07a889043542ec0238c75ffd3aa7b799437b7e5b04",
+        "instances/templates.py": "acc3a2cabf16ecf1a9066d2b0dda7a0ff4e78b5cc4d7e367b9f82d8998a1318e",
+        "io.py": "a9f3420f930f4e649d061c4dcbe0b1c8e0539aff6a984494c103bbdb5d48675d",
+        "model/__init__.py": "291841eb61ab246c2b48151ae0f13ccd5cd2fd231b5acdb9e39b6f7db0cc4d81",
+        "model/execution.py": "16a61ec7127bbec713c11beb3fb75d4e66aad741319b4c7f968e49f3436c73f5",
+        "model/resource.py": "c2b2ea438f0a8083f7e7f366cfdf6ec48ba0b3b56821399fe175715c8ac2459b",
+        "model/task.py": "53223addb1bdfa0ce5328a6d1baedf119865178b9fdbd0de64c74c42c9995e1b",
+        "model/workflow.py": "e8297d5b9d46f874e917fb9eddb760b5f8adfce2f98fa09ae25d45bee7d8a853",
+        "numerics.py": "325b1504e3ce596da46c240b07b9252a085a2db9fbc984a8e20ecaf52b6107cb",
+        "randomness/__init__.py": "3f90a24abad96c2d13a6046f43016a23099c3acf338114b6d348c7a2ea793f27",
+        "randomness/samplers.py": "6bd1e7b47407b31f5fbdfce45637060ba93d24486d9fa8b6ff81f52734384902",
+        "randomness/state.py": "ea3b529771f7af3b9310c1a3bf61d73b64667e4a965e309ed6a68ae75e135269",
+        "replay/__init__.py": "3e83af74092f2339fbffad78b9d9a650b5259a46f17e66de7591cde670e6e2f5",
+        "replay/_decode.py": "95855f3c9344fa4bc4aa1ce42c0053ddc9c7f2c48149690d4eb5e573e7fa198f",
+        "replay/audit.py": "686e2897d8da904d5c93c5aff29f4da90f49b5b477b4ef88dad1bccc85590e96",
+        "replay/engine.py": "1e04466bf74702d4a3a64ccddfd2a8fa097c7b43ee3605d53ca5e3649f3432ce",
+        "replay/export.py": "7fe7489da4d8be82fcfb9bdf76bb7e5547ff8bc9e9c7daab62bf91a633b2bc09",
+        "replay/export_input.py": "647688a32969605aedc8596117c0a520e818c5228a91c3a75c26ece12b3067c6",
+        "replay/loader.py": "acd15edbc59c27ad854e9dd5dd27bc46006e6e87e5a5ca4c6761d7ecd07b1779",
+        "replay/native.py": "955a03781a64d4d5e733d1485e09a092b0dc904aaa88549ea5e3d48107646ad1",
+        "replay/source.py": "0d75b90b7bcf1bc11249f27e13b549c1d31c8cd88e9df9442eedec99f32c07bc",
+        "replay/spec.py": "b43aef400f59a48ffe59586dcfc5caa6479f780f5e34beda25463a49a2e2ff89",
+        "rules/__init__.py": "6b27c89cb20d8b9047befccf1a9cb5f9fb50b4c530bfc7df255ddc357229e77a",
+        "rules/base.py": "5cbce49a5219110c93dc9499be4b75757261d26830330fef7d6dec2cc0a1da1e",
+        "rules/baselines/__init__.py": "e80399e306b585cb61bdd5929d542ae015a6288f236cb5ef7ad68d25ac22bbc0",
+        "rules/baselines/fcfs.py": "1c23054b58b78a483145d95497f16c0959567ed68f9bc6f171d3a219ff243f13",
+        "rules/contexts.py": "1ced8af3c18fb93850c8210811052fd1f58dcb65ca8e78cfaeb8d78bd891bf7a",
+        "rules/factory.py": "ee2d4a8a2a58f0a25c6340e7ca5e7d6cdcd150697b7711d45d46204af7646e21",
+        "rules/gp.py": "6b34f9a09c7aa944fb62ad84f5eb5e678f6d3dce4d5c7ec8bda96313d4619c64",
+        "rules/selection.py": "2011fb47ca0c3ab6f1d84ba01f88d61e7bab4c5206617226bca619f89362cf73",
+        "rules/specs.py": "5a7b53096fa4f4a195f1ffbd799c51e22b5f26c7eb82710528fb775eecc14d5b",
+        "seed.py": "b5433f5f78b55252d5625e94e84d28f03a7a626cc56bd87b8184043d117ba191",
+        "serialization/__init__.py": "b5717e29562b85fbb71fc1818be8fda60346d8da7c0a90720dac329c76fdd331",
+        "serialization/f64.py": "c354fc72fa02c3e6512a2b007c780e0badeb402813be7605718cfc93256e1e10",
+        "serialization/result.py": "6147b00a36abe2b5b2301d2feb654cf8c551ebc527a9f2834cff45ebcd3bbd19",
+        "simulation/__init__.py": "476acba54ae2c20fc591f610c594db2d9a719be89745846674bfd7cfff9b6f86",
+        "simulation/admission.py": "3d3a35b53e4bf5aa90e7f6c87b6179703d343fd4127424d9da5af8ba1429b2b0",
+        "simulation/cleanup.py": "bc24e10601243e1f1a5dd7fc0154dd1ea7303db6354962015c767398085213d8",
+        "simulation/context.py": "ad41b478d562780645a43e3889bb0d169a739090da580ceef4ce5b386b7c91a5",
+        "simulation/dynamic.py": "ba1ec196bccbf61838384eba6cd9abf8a55d3615bd9f25ff41139b83a60a6a26",
+        "simulation/dynamic_result.py": "1c6228ed9127370eeb661bab4a044d5f2d34b617e9d41a22c4a4576d15bc2d0a",
+        "simulation/engine.py": "8b0173028a2eb2ec012c85e8cca512c2b6c6b65c077a13881c06a2e71cf8d04f",
+        "simulation/event_queue.py": "9601bcf8839dc4fc46ad10bd6472ac2215b5ce89e49d245c7cb26fbd2b168521",
+        "simulation/events.py": "c0409bb234cb102b1c38efb87c117cc852addc892363a9bb8e637ebe96695b98",
+        "simulation/metrics.py": "148c4b80a1a632c507ff54110a456dde7b48763c1a89bf5b4b644dbee9d62af1",
+        "simulation/readiness.py": "490521615ed0f75f9670a81612d41396f5eca6ceb16f1bba30000a32b2aa2c0c",
+        "simulation/state.py": "1874ad760f1e1a76348b81fe47aecda1e13738749cf70b0f7f6e10be9f701744",
+        "simulation/statistics.py": "0691f4645c407edb4c154ef1be77a640b437b69f5615ec4a204aecd33cc832aa",
+        "simulation/trace.py": "a675265928667ba4babe6d88e680e937198a90de26f1c1f745fc91833ff74a7a",
+        "training/__init__.py": "d5a6e8e64938518f440ce150d0bcaf39ec23da09fe1693d8d458fe9635a903d3",
+        "training/cli.py": "a15801b18696749b9408000841c3be857e400a77615dfa1756150b2161939b42",
+        "training/config.py": "00314095c232aad3a2a2cf80e9011595c4dea0d520be5f0b543d67e232ef1ebf",
+        "training/deap_adapter.py": "757083a66e25c87bae58675d6f16bae0f9150824335d15ad01ec4006ed238db9",
+        "training/dual_operators.py": "6504629491111df6417c24d06f66867cd9434dec3068b221f7d66d1d3ecd8bd3",
+        "training/evaluation.py": "190abb0d0c8115123fc2a3b66dd9122778eef51bc1e3f80f3335c0aa0c17ae93",
+        "training/evolution.py": "05b15a5f121c59c13decfe09ada4dd3180ba247f9162dfef7b3aaa0237152d1d",
+        "training/fitness.py": "2a33e0b1ae8069c45b996c253f337197b6728a44be8e27e59fa3f7e5e780d11c",
+        "training/operators.py": "b0c002530a1c7bf1575eaa8870c593ec19062a81a25bc848938647b493c8ffad",
+        "training/plans.py": "e1161195380316d0a6140e21e1b2fa3dd2b509dec96142436abb3fb35d71d81c",
+        "training/preflight.py": "2dbc3fdc03f3f16a45a5533cd95010210e3858d479555373aa65dbd2cc258b0f",
+        "training/protocols.py": "8831a45caf0d9be4cd8da865d1a3ae57b8aa12a7e31fed589de8677c30678209",
+        "training/runtime.py": "0159286e555be2c5b71eaaa9d0dfa1da53e891511dc659605025e8cf1197eb28",
+        "training/selection.py": "9b3de43c877dceebd039935adf4a066e20d3c0fae828aa33e217f95e24c1df82",
+        "training/trainer.py": "78369dcee3aa9658dbf3a7fb558e564cff3767e917f51d3cdd95c6d8d32ca7a4",
+        "training/worker.py": "200615b93f1ce143ab66c84a8d2db7dbeb9ff760ca21ad8d47a41ba8a0a7fe99",
+        "validation/__init__.py": "063a04ebca7b4326fa66b86fcd5fb869ff04ea033e02ffc387239602dd0619cf",
+        "validation/dynamic_compare.py": "5bba33282015cb6547505ee7a3a12ebd118b35fc28bf3b1ccaf5e5c58b506784",
+        "validation/gp_compare.py": "c3cac54bb775c02ae456a690172336155d511e7b1d1ebcc536d414adab5f5553",
+        "validation/gp_normalize.py": "dcdebad57f52c6cd460abbf1748ef96ee53605df051a675a6fc4cce53978f92b",
+        "validation/gp_observe.py": "92160acda6ccfb91b7ad896d6bb8d42cf725c90dbf17d9da1458b76de1bee3af",
+        "validation/trace_compare.py": "d581da92b967174ace9f6613aa80de188318442a9d734504f2c2c4656e792aa4"
+      }
+    }
+  },
+  "schema_audit": {
+    "checked": 828,
+    "references": 696,
+    "passed": true
+  },
+  "inherited_java_evidence": {
+    "B01": {
+      "passed": true,
+      "checks": 68,
+      "evidence": "outputs/step9/B01/lifecycle-final"
+    },
+    "B02": {
+      "executed": 45,
+      "passed": true,
+      "evidence": "java-final/checks.json"
+    },
+    "B03": {
+      "executed": 38,
+      "passed": true,
+      "evidence": "java-final/checks.json"
+    }
+  },
+  "inherited_closure_simulations": {
+    "B02": 416,
+    "B03": 424
+  },
+  "historical_closure_budget_upper_bound": 848,
+  "closure_reexecuted_in_B04": false,
+  "source_independent_evaluations": {
+    "passed": true,
+    "runs": [
+      {
+        "mode": "single",
+        "completed_runs": 2,
+        "matched": true,
+        "result_bytes_equal": true,
+        "input_semantic_equal": true,
+        "origin_changes": [
+          {
+            "path": "/origin/code_dependency_fingerprint",
+            "historical": "fe37d06e16de3bcb51bb88100e820e4a9ad4bf96f39feb25f771b7f35266a489",
+            "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+          },
+          {
+            "path": "/origin/code_dependency_fingerprint",
+            "historical": "fe37d06e16de3bcb51bb88100e820e4a9ad4bf96f39feb25f771b7f35266a489",
+            "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+          }
+        ],
+        "source_evidence": "outputs/step9/B02/single-first/trial-0001/test",
+        "current_evidence": "outputs/step9/B04/independent-selected-single"
+      },
+      {
+        "mode": "dual",
+        "completed_runs": 2,
+        "matched": true,
+        "result_bytes_equal": true,
+        "input_semantic_equal": true,
+        "origin_changes": [
+          {
+            "path": "/origin/code_dependency_fingerprint",
+            "historical": "54109fd9b6f7795b760fd60c03f8ce529234c7cfc3e696e45a9e287bf33afc0e",
+            "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+          },
+          {
+            "path": "/origin/code_dependency_fingerprint",
+            "historical": "54109fd9b6f7795b760fd60c03f8ce529234c7cfc3e696e45a9e287bf33afc0e",
+            "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+          }
+        ],
+        "source_evidence": "outputs/step9/B03/dual-first/trial-0001/test",
+        "current_evidence": "outputs/step9/B04/independent-selected-dual"
+      }
+    ],
+    "completed_runs": 4
+  },
+  "wheel_independent_evaluations": {
+    "passed": true,
+    "wheel": "development/S9-B04/dist/fogsim_reproduction-0.4.0-py3-none-any.whl",
+    "source_mismatches": [],
+    "import_location": "/workspace/scratch/611ce7af9894/runtime/b04-wheel-install-final/fogsim/__init__.py",
+    "independent_evaluations": [
+      {
+        "mode": "single",
+        "completed_runs": 2,
+        "matched": true,
+        "result_bytes_equal": true,
+        "input_semantic_equal": true,
+        "origin_changes": [
+          {
+            "path": "/origin/code_dependency_fingerprint",
+            "historical": "fe37d06e16de3bcb51bb88100e820e4a9ad4bf96f39feb25f771b7f35266a489",
+            "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+          },
+          {
+            "path": "/origin/code_dependency_fingerprint",
+            "historical": "fe37d06e16de3bcb51bb88100e820e4a9ad4bf96f39feb25f771b7f35266a489",
+            "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+          }
+        ],
+        "source_evidence": "outputs/step9/B02/single-first/trial-0001/test",
+        "current_evidence": "outputs/step9/B04/wheel-selected-single"
+      },
+      {
+        "mode": "dual",
+        "completed_runs": 2,
+        "matched": true,
+        "result_bytes_equal": true,
+        "input_semantic_equal": true,
+        "origin_changes": [
+          {
+            "path": "/origin/code_dependency_fingerprint",
+            "historical": "54109fd9b6f7795b760fd60c03f8ce529234c7cfc3e696e45a9e287bf33afc0e",
+            "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+          },
+          {
+            "path": "/origin/code_dependency_fingerprint",
+            "historical": "54109fd9b6f7795b760fd60c03f8ce529234c7cfc3e696e45a9e287bf33afc0e",
+            "current": "1b70f0d39fd5aaa096abf50cf5c3ea9332b1cd50b1c82410555d85b5a8ce6298"
+          }
+        ],
+        "source_evidence": "outputs/step9/B03/dual-first/trial-0001/test",
+        "current_evidence": "outputs/step9/B04/wheel-selected-dual"
+      }
+    ],
+    "completed_runs": 4
+  },
+  "large_templates": {
+    "executed_simulations": 0,
+    "preflights": {
+      "single": {
+        "format": "fogsim.training-preflight",
+        "schema_version": 1,
+        "status": "PREFLIGHT_ONLY",
+        "simulations_executed": 0,
+        "mode": "single_routing",
+        "closed_loop_budget": {
+          "trials": 5,
+          "training_per_trial": 10000,
+          "validation_upper_bound_per_trial": 100,
+          "test_per_trial": 2,
+          "total_upper_bound": 50510
+        },
+        "training_simulation_upper_bound": 50000,
+        "event_budgets": [
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000
+        ],
+        "processed_event_upper_bound": 101020000,
+        "wallclock_seconds_per_run": null,
+        "retention": {
+          "save_input_archives": true,
+          "save_run_results": true,
+          "trace": "none"
+        },
+        "semantics": {
+          "language_version": "fogsim-gp-lisp-v1",
+          "feature_semantics_version": "fogsim-features-java-v1",
+          "numeric_semantics_version": "fogsim-gp-f64-dual-zero-v1",
+          "selection_policy_version": "fogsim-selection-java-v1",
+          "identity_encoding_version": "fogsim-rule-identity-v1"
+        },
+        "versions": {
+          "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+          "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+          "dependencies": {
+            "deap": "1.4.4",
+            "numpy": "2.3.5",
+            "moocore": "0.3.2",
+            "cffi": "2.1.1",
+            "platformdirs": "4.14.5",
+            "pycparser": "3.12"
+          }
+        },
+        "plan_ids": [
+          "sha256:c3a9dc4a0eed2ec1cdc11f5e1b6bfa5dcebb5f53c5bb31e0e2a51e28b8989407",
+          "sha256:ad1affe8d3c5d900385aa2d912a1a8bd1a802329302dbd8facd2e862cc0943d7",
+          "sha256:b39eb34e0fabe5ac539d3a49a36185af42d876d7ac08a5478d9592543a684499",
+          "sha256:07d283f034ac1024fa7060f3e9a89b75c7bc1ace9108f0c007183e0f5fa0bcf6",
+          "sha256:378475512046da35822ae94091f534975a0023cf79b7b2c1239fb49f96e9b5a2",
+          "sha256:8a33d5986e9392a05a0c5da558d8a5e6f4a7ddefcd87017ca1c453398bed657c",
+          "sha256:40f2b333dcbb5ada338ec28d9f2794f474f3c511a1917b544840b68f7b512392",
+          "sha256:c033280533db5335c83418c3114e65411700f55cfaf50537b23db12e94638075",
+          "sha256:229f109fc41d459c6bf0f87a0d5d7883998e950d5dd9732ae6a6ad55659e14fd",
+          "sha256:371107657e52e04de275a7bf3def97651e598dfaf8ff2b29e3460463991d6bb8",
+          "sha256:2b94b1d825559da68614d0285c093bd9a4607beadb00bd0a453cd4154e303762",
+          "sha256:730b781b80cc3e23d1f7b9d6bd5d231427070091dfbf8bcf8a2abf97f4443bee",
+          "sha256:c552ef9cd02108bf5b6c9a2ebc7fedad8dbd818dcc8d9798b49ed979d850f3e2",
+          "sha256:9b19810f9d11c1427ac2b6031233fe29f351857e567a3056d8a48cc535b90266",
+          "sha256:cc2773430b2821d0e91b5246c1c973287b6f25e0f9b82439134e164f8b95e702",
+          "sha256:f7507dd13cdc7b5c7c14845fa2b5c13178ed60f3f84f8f2cae73279e5ac47136",
+          "sha256:70d17ad21c8c74043c21c9a3b404c691d6b43f0ef2cc2f8e7537bd85bf098336",
+          "sha256:2ba2cce253cf1e80c5000b6d945e7f57e44268b19ca91b6b7483c16ce1fe78f8",
+          "sha256:0ed3a81dca557ea87015e35387dc87b534b951fe37f8d8ff89d1f355ff79d045",
+          "sha256:d7cb404f87a70772217b242334b790e4780aacbd38edb39cf05a333d2a166f12",
+          "sha256:1accba2b0d27954896e1e46777a57f72ff56f3bdf4abc2b92a5200d2536dfce1",
+          "sha256:88da9b352efb9c80286b7520d34ee71ed23bda56fa187241a117093a274c4a96",
+          "sha256:d9e203b6aee4fcf3c4d9b70cdbc3a9a22f86c35cd8f6e35537977c7f6a548a26",
+          "sha256:f6546d71b2d272ba1cfac67cc3ed89d90f5ed39ef9dfcd8ff1eea17321e4ccd7",
+          "sha256:76b5180bda0eea8a7f556263050faff30404bffd8c8a5492bfe615169e7ba081",
+          "sha256:6158077a03b867b887af98ac36fa58de743bd6ca103892a3f49f3289a2005533",
+          "sha256:f2e9c5713d88ff8f324438bc014e937c8bc0a258a7417924c92e782d88c18bc1",
+          "sha256:5a366e9783b5be22156061916a17e07530adb53d80c37b0c7181234433e7335c",
+          "sha256:2046d7c95d826e94c5cdfb1f1e48b14de023b6e11f68246017fbf0cf87fdb49b",
+          "sha256:f27b7aa6ea4e892a26afffdc98bd8aac7c9cab81b0ed4e985ac7980b6b5872d3",
+          "sha256:fde56dc6609d6da1e82a348a26f5bb488bfc7757fd6b31c9a70af1669d2caa47",
+          "sha256:712b96de6cc0cabc3fbfd865f70827e8ac011291487c97d5a74c576821103d00",
+          "sha256:f5f84137a7b89dd857b7e83b17e8601ee3122b19eb9d597d0f667784e945c9c1",
+          "sha256:250ae3d32168eeee76b2cedeb61116789d5e380e2cf525b15b669a768e0b0b1b",
+          "sha256:c9fd615d56e77403ff44008ec0d68ec3de9356f35d75c6e604f402d0a8d71257",
+          "sha256:0a988b565a6b54c70744b54bc3833066bf11502de6780266f6419334971113fc",
+          "sha256:346d4318051a0d68eecc9f1710657de6f9c5e547de5c5c43e7ede09a16880a9a",
+          "sha256:a6867126153742155bbc90deaa0e2e13a9ccf8551f5ad2573a2fe98b55cd9ae3",
+          "sha256:3041e3f9d8aee67f8141b8ff000ae2232292c63c92db54cace6bac9c76f8ec47",
+          "sha256:b0468cd71a0967366e70d541e5dc2daf769d72ced0c0ac4c129d40dc4c6a179f",
+          "sha256:0acaf2a36b007bc9b5c5f7824576baa1bbe1b212bd2e3f190862a10258c4c9f7",
+          "sha256:ea210634f88f90fedced272b6d78b27c766e27a3254142dc035c32da67f3a723",
+          "sha256:2412754e1ff2faf25324c5252e99d3555f21d2f43e9f2805ae5a3c9d922adb90",
+          "sha256:680a4f5b861eb97ae6e04a8801d8902a061f7ad389d069498776f2f3d9b53458",
+          "sha256:a9cde2cf828197f2640b70426cd47d0b3f1e52058c1c515a5a794e4fb065ba8a",
+          "sha256:bb2592752f3dbb5811fe308b1cb45115cbce2f014b41e2cf2c5c8cc342db54c5",
+          "sha256:c27905019c92ecc6a49b5542d99a4d7075378bb314f09e947a3737e1ccbbe32b",
+          "sha256:9af5d4b3ff43566f080ae1333385c77e489e6c79bc455f1e24a56453e61b500a",
+          "sha256:2d32f6420c9e76eb548b0d0e8c043e82408b4e96cc7d0d5494a049638d2b2212",
+          "sha256:d2d14b3029411f51bae7d0f21f3ac80d5dd5fe00aa0be4435ffc949ecda40f37",
+          "sha256:dea4113871f0225ac8206373b287a1d423c6ab0bb0c29805d8b17dbbf07ef691",
+          "sha256:40346e3c84f49e69878e8a5c3229cabbca85646d72ee160cc63c87116659272e"
+        ],
+        "deferred": "Preflight performs no simulation. Use train or --execute to run the configured experiment.",
+        "cost_note": "Bounds cover one configured execution; candidate deduplication or interruption can reduce runs. No time, memory or byte estimate is inferred from event counts."
+      },
+      "dual": {
+        "format": "fogsim.training-preflight",
+        "schema_version": 1,
+        "status": "PREFLIGHT_ONLY",
+        "simulations_executed": 0,
+        "mode": "dual_tree",
+        "closed_loop_budget": {
+          "trials": 5,
+          "training_per_trial": 10000,
+          "validation_upper_bound_per_trial": 100,
+          "test_per_trial": 2,
+          "total_upper_bound": 50510
+        },
+        "training_simulation_upper_bound": 50000,
+        "event_budgets": [
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000
+        ],
+        "processed_event_upper_bound": 101020000,
+        "wallclock_seconds_per_run": null,
+        "retention": {
+          "save_input_archives": true,
+          "save_run_results": true,
+          "trace": "none"
+        },
+        "semantics": {
+          "language_version": "fogsim-gp-lisp-v1",
+          "feature_semantics_version": "fogsim-features-java-v1",
+          "numeric_semantics_version": "fogsim-gp-f64-dual-zero-v1",
+          "selection_policy_version": "fogsim-selection-java-v1",
+          "identity_encoding_version": "fogsim-rule-identity-v1"
+        },
+        "versions": {
+          "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+          "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+          "dependencies": {
+            "deap": "1.4.4",
+            "numpy": "2.3.5",
+            "moocore": "0.3.2",
+            "cffi": "2.1.1",
+            "platformdirs": "4.14.5",
+            "pycparser": "3.12"
+          }
+        },
+        "plan_ids": [
+          "sha256:c3a9dc4a0eed2ec1cdc11f5e1b6bfa5dcebb5f53c5bb31e0e2a51e28b8989407",
+          "sha256:ad1affe8d3c5d900385aa2d912a1a8bd1a802329302dbd8facd2e862cc0943d7",
+          "sha256:b39eb34e0fabe5ac539d3a49a36185af42d876d7ac08a5478d9592543a684499",
+          "sha256:07d283f034ac1024fa7060f3e9a89b75c7bc1ace9108f0c007183e0f5fa0bcf6",
+          "sha256:378475512046da35822ae94091f534975a0023cf79b7b2c1239fb49f96e9b5a2",
+          "sha256:8a33d5986e9392a05a0c5da558d8a5e6f4a7ddefcd87017ca1c453398bed657c",
+          "sha256:40f2b333dcbb5ada338ec28d9f2794f474f3c511a1917b544840b68f7b512392",
+          "sha256:c033280533db5335c83418c3114e65411700f55cfaf50537b23db12e94638075",
+          "sha256:229f109fc41d459c6bf0f87a0d5d7883998e950d5dd9732ae6a6ad55659e14fd",
+          "sha256:371107657e52e04de275a7bf3def97651e598dfaf8ff2b29e3460463991d6bb8",
+          "sha256:2b94b1d825559da68614d0285c093bd9a4607beadb00bd0a453cd4154e303762",
+          "sha256:730b781b80cc3e23d1f7b9d6bd5d231427070091dfbf8bcf8a2abf97f4443bee",
+          "sha256:c552ef9cd02108bf5b6c9a2ebc7fedad8dbd818dcc8d9798b49ed979d850f3e2",
+          "sha256:9b19810f9d11c1427ac2b6031233fe29f351857e567a3056d8a48cc535b90266",
+          "sha256:cc2773430b2821d0e91b5246c1c973287b6f25e0f9b82439134e164f8b95e702",
+          "sha256:f7507dd13cdc7b5c7c14845fa2b5c13178ed60f3f84f8f2cae73279e5ac47136",
+          "sha256:70d17ad21c8c74043c21c9a3b404c691d6b43f0ef2cc2f8e7537bd85bf098336",
+          "sha256:2ba2cce253cf1e80c5000b6d945e7f57e44268b19ca91b6b7483c16ce1fe78f8",
+          "sha256:0ed3a81dca557ea87015e35387dc87b534b951fe37f8d8ff89d1f355ff79d045",
+          "sha256:d7cb404f87a70772217b242334b790e4780aacbd38edb39cf05a333d2a166f12",
+          "sha256:1accba2b0d27954896e1e46777a57f72ff56f3bdf4abc2b92a5200d2536dfce1",
+          "sha256:88da9b352efb9c80286b7520d34ee71ed23bda56fa187241a117093a274c4a96",
+          "sha256:d9e203b6aee4fcf3c4d9b70cdbc3a9a22f86c35cd8f6e35537977c7f6a548a26",
+          "sha256:f6546d71b2d272ba1cfac67cc3ed89d90f5ed39ef9dfcd8ff1eea17321e4ccd7",
+          "sha256:76b5180bda0eea8a7f556263050faff30404bffd8c8a5492bfe615169e7ba081",
+          "sha256:6158077a03b867b887af98ac36fa58de743bd6ca103892a3f49f3289a2005533",
+          "sha256:f2e9c5713d88ff8f324438bc014e937c8bc0a258a7417924c92e782d88c18bc1",
+          "sha256:5a366e9783b5be22156061916a17e07530adb53d80c37b0c7181234433e7335c",
+          "sha256:2046d7c95d826e94c5cdfb1f1e48b14de023b6e11f68246017fbf0cf87fdb49b",
+          "sha256:f27b7aa6ea4e892a26afffdc98bd8aac7c9cab81b0ed4e985ac7980b6b5872d3",
+          "sha256:fde56dc6609d6da1e82a348a26f5bb488bfc7757fd6b31c9a70af1669d2caa47",
+          "sha256:712b96de6cc0cabc3fbfd865f70827e8ac011291487c97d5a74c576821103d00",
+          "sha256:f5f84137a7b89dd857b7e83b17e8601ee3122b19eb9d597d0f667784e945c9c1",
+          "sha256:250ae3d32168eeee76b2cedeb61116789d5e380e2cf525b15b669a768e0b0b1b",
+          "sha256:c9fd615d56e77403ff44008ec0d68ec3de9356f35d75c6e604f402d0a8d71257",
+          "sha256:0a988b565a6b54c70744b54bc3833066bf11502de6780266f6419334971113fc",
+          "sha256:346d4318051a0d68eecc9f1710657de6f9c5e547de5c5c43e7ede09a16880a9a",
+          "sha256:a6867126153742155bbc90deaa0e2e13a9ccf8551f5ad2573a2fe98b55cd9ae3",
+          "sha256:3041e3f9d8aee67f8141b8ff000ae2232292c63c92db54cace6bac9c76f8ec47",
+          "sha256:b0468cd71a0967366e70d541e5dc2daf769d72ced0c0ac4c129d40dc4c6a179f",
+          "sha256:0acaf2a36b007bc9b5c5f7824576baa1bbe1b212bd2e3f190862a10258c4c9f7",
+          "sha256:ea210634f88f90fedced272b6d78b27c766e27a3254142dc035c32da67f3a723",
+          "sha256:2412754e1ff2faf25324c5252e99d3555f21d2f43e9f2805ae5a3c9d922adb90",
+          "sha256:680a4f5b861eb97ae6e04a8801d8902a061f7ad389d069498776f2f3d9b53458",
+          "sha256:a9cde2cf828197f2640b70426cd47d0b3f1e52058c1c515a5a794e4fb065ba8a",
+          "sha256:bb2592752f3dbb5811fe308b1cb45115cbce2f014b41e2cf2c5c8cc342db54c5",
+          "sha256:c27905019c92ecc6a49b5542d99a4d7075378bb314f09e947a3737e1ccbbe32b",
+          "sha256:9af5d4b3ff43566f080ae1333385c77e489e6c79bc455f1e24a56453e61b500a",
+          "sha256:2d32f6420c9e76eb548b0d0e8c043e82408b4e96cc7d0d5494a049638d2b2212",
+          "sha256:d2d14b3029411f51bae7d0f21f3ac80d5dd5fe00aa0be4435ffc949ecda40f37",
+          "sha256:dea4113871f0225ac8206373b287a1d423c6ab0bb0c29805d8b17dbbf07ef691",
+          "sha256:40346e3c84f49e69878e8a5c3229cabbca85646d72ee160cc63c87116659272e"
+        ],
+        "deferred": "Preflight performs no simulation. Use train or --execute to run the configured experiment.",
+        "cost_note": "Bounds cover one configured execution; candidate deduplication or interruption can reduce runs. No time, memory or byte estimate is inferred from event counts."
+      }
+    }
+  },
+  "impact": "Current-source preflight observations and evaluation EOF exit evidence only; unchanged training/simulator algorithms inherit accepted closure/Java semantics. Historical source IDs remain historical; not claimed as new current-source trials.",
+  "limitations": [
+    "No paper-scale training or paper-table/numerical reproduction.",
+    "No numeric ERC search, parallel speedup or arbitrary checkpoint resume.",
+    "Java/Python native RNG streams may differ; controlled local alignment is not arbitrary-input equivalence.",
+    "Two optional old large native fixed projections remain NOT_EXECUTED and are outside required minimum scope.",
+    "JDK17 is an external environment requirement, not bundled. Offline dependency wheels target CPython3.12/Linux x86_64.",
+    "Legacy JUnit case count is not an instrumented simulation total."
+  ]
+}

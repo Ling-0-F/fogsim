@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "record_trace": true,
+  "input": {
+    "time_unit": "s",
+    "resources": [
+      {
+        "id": "M0",
+        "type": "MOBILE",
+        "can_process_tasks": true
+      },
+      {
+        "id": "E0",
+        "type": "EDGE"
+      },
+      {
+        "id": "C0",
+        "type": "CLOUD"
+      }
+    ],
+    "workflows": [
+      {
+        "id": 0,
+        "owner_device_id": "M0",
+        "release_time": 0.0,
+        "tasks": [
+          {
+            "id": "A",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 10.0,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 2.0,
+                "processing_time": 3.0,
+                "download_time": 1.0
+              },
+              "C0": {
+                "upload_time": 5.0,
+                "processing_time": 1.0,
+                "download_time": 4.0
+              }
+            }
+          },
+          {
+            "id": "B",
+            "execution_times": {
+              "M0": {
+                "upload_time": 0.0,
+                "processing_time": 12.0,
+                "download_time": 0.0
+              },
+              "E0": {
+                "upload_time": 1.0,
+                "processing_time": 4.0,
+                "download_time": 2.0
+              },
+              "C0": {
+                "upload_time": 4.0,
+                "processing_time": 2.0,
+                "download_time": 3.0
+              }
+            }
+          }
+        ],
+        "dependencies": [
+          [
+            "A",
+            "B"
+          ]
+        ]
+      }
+    ]
+  },
+  "config": {
+    "max_events": 1000,
+    "event_policy": "java_compatible",
+    "routing_kind": "gp",
+    "sequencing_kind": "gp",
+    "routing_rule": {
+      "kind": "gp",
+      "expression": "(+ MRT (+ PT TWT))"
+    },
+    "sequencing_rule": {
+      "kind": "gp",
+      "expression": "(- 0 (+ NTR PT))"
+    }
+  }
+}

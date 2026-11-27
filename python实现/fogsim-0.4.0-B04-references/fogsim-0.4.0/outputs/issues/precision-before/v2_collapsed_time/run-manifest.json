@@ -1,0 +1,134 @@
+{
+  "instance_path": "/workspace/scratch/f39adb5078d7/work/fogsim-0.2.0a1/data/cases/v2_collapsed_time.json",
+  "instance_sha256": "0158259e4f113a2e58ffb81dd745dd171fc25febc5338ca517ea5f624e294a46",
+  "config_path": "/workspace/scratch/f39adb5078d7/work/fogsim-0.2.0a1/configs/v2_collapsed_time.json",
+  "config_file_sha256": "e49e50c95dc48a82b0b452f22f952bc60b5e8c1be462282496ab380aa041ee10",
+  "effective_config": {
+    "routing_kind": "fixed_resource",
+    "fixed_resource_id": "M0",
+    "sequencing_kind": "fcfs",
+    "trace_enabled": true,
+    "event_policy": "java_compatible",
+    "max_events": 100000,
+    "check_invariants": true
+  },
+  "java_build_fingerprint": "7cdcdf7f95691a741966f2de5d7d36e332355aaed15920b74846fb2870c27c3c",
+  "resource_ids": [
+    [
+      "M0",
+      "MOBILE",
+      0
+    ],
+    [
+      "E0",
+      "EDGE",
+      0
+    ],
+    [
+      "C0",
+      "CLOUD",
+      1
+    ]
+  ],
+  "devices": [
+    "M0"
+  ],
+  "task_ids": [
+    {
+      "workflow_id": 0,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 1,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 2,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 5,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 3,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    },
+    {
+      "workflow_id": 4,
+      "string_id": "A",
+      "java_numeric_id": 0,
+      "candidate_order": [
+        "M0",
+        "E0",
+        "C0"
+      ]
+    }
+  ],
+  "initial_stage_order": [
+    [
+      0,
+      "M0",
+      9007199254740988.0
+    ],
+    [
+      1,
+      "M0",
+      9007199254740990.0
+    ],
+    [
+      2,
+      "M0",
+      9007199254740990.0
+    ],
+    [
+      5,
+      "M0",
+      9007199254740990.0
+    ],
+    [
+      3,
+      "M0",
+      9007199254740992.0
+    ],
+    [
+      4,
+      "M0",
+      9007199254740992.0
+    ]
+  ],
+  "raw_trace_sha256": {
+    "python-raw.json": "241ea62370928518ecb4e02b160412e388dea6f92aeeb254c4c1abe41fce1efc",
+    "java-raw.json": "f051ec0e495025ebbfc16ebc5ecf42e945860ce8c0967aecc7e3ee0c06dcee82"
+  }
+}

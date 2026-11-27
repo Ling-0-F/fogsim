@@ -1,0 +1,201 @@
+{
+  "baseline_sha256": "6c2e6d4f65c3be158f9090bda3413f778f0e4f745eae02f89b1b8f6c9843f8f2",
+  "files": [
+    {
+      "path": "README.md",
+      "change": "modified",
+      "before_sha256": "a3460a47800539abc007134c23fe68116570691f9d734c453cd07174e6a9ed4a",
+      "bytes": 1158,
+      "sha256": "39d5bf119ea7edf1b825938b618a340d12bb0e4dea9ff2a88969a6d2276435e2"
+    },
+    {
+      "path": "configs/training/B02-test-b.json",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 1239,
+      "sha256": "33f2696f68eed60353c938fa85d55b02588d7c8516cba02a159d413455be2e59"
+    },
+    {
+      "path": "configs/training/B02-test-sources.json",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 228,
+      "sha256": "6c7f225837dc73c9cd6f2d6b0bc005fb0f7fc3b8183cb2cf1c47706817c5e5e7"
+    },
+    {
+      "path": "configs/training/B02-validation-b.json",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 1239,
+      "sha256": "c338dfb96012ea49897a86a209f04cffc39238e85c423d146210bdf86a0a30cf"
+    },
+    {
+      "path": "configs/training/B02-validation-sources.json",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 252,
+      "sha256": "7b36e5f68678e20d65516d85c1942fcf424a6b6b01a338a62629b26aa4adc55d"
+    },
+    {
+      "path": "configs/training/smoke-single.json",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 334,
+      "sha256": "4b1708ecbb18743b5fff987dffdc4823507120236b3b63c4e5da972d77cb7d5c"
+    },
+    {
+      "path": "docs/RUNNING-S9-B02.md",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 2170,
+      "sha256": "697eacb9e5d4277c8ce75855370181bec45e6f28c5185ec8c015ebff995de941"
+    },
+    {
+      "path": "docs/SOURCE-DISTRIBUTION.md",
+      "change": "modified",
+      "before_sha256": "29145bbd6527b7f202423380c861d12f01387ad813498e98d9a462000bf9067a",
+      "bytes": 1738,
+      "sha256": "7fef87220cb652bb94faff7e87f947e49731c4d219beb99e2f7b13aeb41474b7"
+    },
+    {
+      "path": "docs/TRAINING-PROTOCOL-B02.md",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 4959,
+      "sha256": "6c697d4786e181a6c169c1517ae9efe7b9db807b3628bc5d5e07d7099cbe7a8b"
+    },
+    {
+      "path": "schemas/training/candidate-archive.schema.json",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 443,
+      "sha256": "cca77589d83b08e3ef7055365e4889b394383a7f97bc840bba72a9ae5f6089a2"
+    },
+    {
+      "path": "schemas/training/evolution-result.schema.json",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 2118,
+      "sha256": "f1ff000e5a3f1773ec889badc3bfb0fdad11f3ad9695d2b8a094ab997d4a9fde"
+    },
+    {
+      "path": "schemas/training/selected-rule.schema.json",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 1261,
+      "sha256": "313d4bba052ef435f35414f581ce84fa5b42485690a190d6699558a368b8b97b"
+    },
+    {
+      "path": "schemas/training/training-result.schema.json",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 679,
+      "sha256": "5f990abbd42b14266b7d31fd61147e2883cbb830f9759c61fecf61cdf2d4792c"
+    },
+    {
+      "path": "src/fogsim/training/__init__.py",
+      "change": "modified",
+      "before_sha256": "cd2f5a6efe889a5eee51675e4df9df1c2774c3fb18d94ace5c833f47ee631330",
+      "bytes": 844,
+      "sha256": "d5a6e8e64938518f440ce150d0bcaf39ec23da09fe1693d8d458fe9635a903d3"
+    },
+    {
+      "path": "src/fogsim/training/cli.py",
+      "change": "modified",
+      "before_sha256": "81d8700914dbd30378e7178634b9e412c90e3d7c56c9c42160274403348b58e7",
+      "bytes": 4375,
+      "sha256": "c786c9119eb5a26f39ad1078e725e894f5c233ce73c68f440f5d4ef4291ba197"
+    },
+    {
+      "path": "src/fogsim/training/deap_adapter.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 4587,
+      "sha256": "c4552ce10ec092aba1bd1c28ab355ea1cfd43ecdf5955c9233d9700f268afee2"
+    },
+    {
+      "path": "src/fogsim/training/evolution.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 12631,
+      "sha256": "d7e00eada79164c94b6f04a09fb9bd51cb3b216f0077808ab051aa7575bac79e"
+    },
+    {
+      "path": "src/fogsim/training/operators.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 5560,
+      "sha256": "b0c002530a1c7bf1575eaa8870c593ec19062a81a25bc848938647b493c8ffad"
+    },
+    {
+      "path": "src/fogsim/training/selection.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 5329,
+      "sha256": "9b3de43c877dceebd039935adf4a066e20d3c0fae828aa33e217f95e24c1df82"
+    },
+    {
+      "path": "src/fogsim/training/trainer.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 7910,
+      "sha256": "db342c461881ce156df551ecedaec269ab9fe1ce7c4a59a91a14753a15ddca42"
+    },
+    {
+      "path": "tests/training/test_b02.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 19152,
+      "sha256": "86fec9ab17f39bc386a3c6e09460c8a442c73c9cb2a05ad22e38380ff27060b7"
+    },
+    {
+      "path": "tools/accept_s9_b02.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 7685,
+      "sha256": "42587bb4370966f9f26f7d7ffc2090d81b8dfdb7ecbe1798b43cd14fb970930f"
+    },
+    {
+      "path": "tools/build_s9_b02.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 3315,
+      "sha256": "c270ce123350f520a19c37a00425311a69d45b183309c47002e9eae826173e49"
+    },
+    {
+      "path": "tools/check_s9_b02_java.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 9834,
+      "sha256": "ac5c8d19f417b98c0cbfd8c07745a4d7e16c9bcf2cb101125d5bc27db6280e07"
+    },
+    {
+      "path": "tools/compare_s9_b02.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 1994,
+      "sha256": "8409fe75260b351f69b7a109ca6b374870a2e78b4d4a42bd80725c014562b2b0"
+    },
+    {
+      "path": "tools/freeze_s9_b02.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 1635,
+      "sha256": "d36015d5200a48ec64595d07746d5da66478687be17f08ae27dc58de53a3cfd0"
+    },
+    {
+      "path": "tools/java/s9/fogsim/adapter/S9Operators.java",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 12787,
+      "sha256": "80415da4c7678a75808d28be0c33d50ea042286c6932c00d7c5662f985127cb2"
+    },
+    {
+      "path": "tools/run_s9_b02_command.py",
+      "change": "added",
+      "before_sha256": null,
+      "bytes": 1296,
+      "sha256": "aa772373e31e04e2d69dcb8c5b36f897534ab4aebd4530bd160c2d4043f0020b"
+    }
+  ]
+}

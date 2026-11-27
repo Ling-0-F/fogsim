@@ -1,0 +1,75 @@
+{
+  "name": "normal",
+  "environment": {
+    "num_mobile_devices": 2,
+    "num_edge_servers": 2,
+    "num_cloud_servers": 2,
+    "can_mobile_devices_process_tasks": true
+  },
+  "extra_clock": null,
+  "xml": "<adag><job id=\"Z\"/><job id=\"A\"/><job id=\"join\"/><child ref=\"join\"><parent ref=\"A\"/><parent ref=\"Z\"/></child></adag>",
+  "role_values": {
+    "processing_rate_device": [
+      125,
+      150
+    ],
+    "processing_rate_edge": [
+      250,
+      300
+    ],
+    "processing_rate_cloud": [
+      500,
+      600
+    ],
+    "upload_bandwidth_edge": [
+      1024,
+      1024
+    ],
+    "download_bandwidth_edge": [
+      1024,
+      1024
+    ],
+    "upload_bandwidth_cloud": [
+      256,
+      512
+    ],
+    "download_bandwidth_cloud": [
+      128,
+      256
+    ],
+    "workflow_type": [
+      0,
+      0
+    ],
+    "inter_release_time": [
+      2,
+      3
+    ],
+    "weight": [
+      4,
+      2
+    ],
+    "workload": [
+      5000,
+      5137,
+      5274,
+      5411,
+      5548,
+      5685
+    ],
+    "data_size": [
+      5120,
+      5137,
+      5154,
+      5171,
+      5188,
+      5205
+    ],
+    "edge_data": [
+      100,
+      107,
+      114,
+      121
+    ]
+  }
+}

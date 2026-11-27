@@ -1,0 +1,103 @@
+{
+  "time_unit": "s",
+  "resources": [
+    {
+      "id": "C0",
+      "type": "CLOUD"
+    },
+    {
+      "id": "M0",
+      "type": "MOBILE"
+    },
+    {
+      "id": "E0",
+      "type": "EDGE"
+    }
+  ],
+  "workflows": [
+    {
+      "id": 9,
+      "owner_device_id": "M0",
+      "release_time": 2,
+      "tasks": [
+        {
+          "id": "A",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            },
+            "C0": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            }
+          }
+        }
+      ],
+      "dependencies": []
+    },
+    {
+      "id": -3,
+      "owner_device_id": "M0",
+      "release_time": 0,
+      "tasks": [
+        {
+          "id": "A",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            },
+            "C0": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            }
+          }
+        }
+      ],
+      "dependencies": []
+    },
+    {
+      "id": 2,
+      "owner_device_id": "M0",
+      "release_time": 0,
+      "tasks": [
+        {
+          "id": "A",
+          "execution_times": {
+            "M0": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            },
+            "E0": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            },
+            "C0": {
+              "upload_time": 0,
+              "processing_time": 2,
+              "download_time": 0
+            }
+          }
+        }
+      ],
+      "dependencies": []
+    }
+  ]
+}

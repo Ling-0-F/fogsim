@@ -1,0 +1,130 @@
+{
+  "passed": true,
+  "first_difference": null,
+  "event_count": {
+    "python": 27,
+    "java": 27
+  },
+  "decision_count": {
+    "python": 14,
+    "java": 14
+  },
+  "tolerance": {
+    "abs_tol": 1e-09,
+    "rel_tol": 1e-12
+  },
+  "representation_mappings": [
+    "unregistered Java workflow completion_time==0.0 -> Python None; nonzero values are not hidden",
+    "Python pending_start -> zero/one item list; Java pending starts are observed event references only",
+    "Java accepted Process plans/completed ProcessFinishEvent history -> task-keyed execution observations"
+  ],
+  "comparison_order": "input, config, loaded model; each event header, before, chronological actions, emitted, after, error; final records",
+  "java_observations": {
+    "suppressed_generation_calls": 3,
+    "anomalies": [],
+    "pending_is_observed_only": true,
+    "reservation_checks": [
+      {
+        "event_sequence": 2,
+        "time": 0.1,
+        "task": [
+          -18,
+          "T0"
+        ],
+        "resource_id": "M0",
+        "available_time": 0.0,
+        "original_allowed": true,
+        "observed_pending_starts": [],
+        "global_root": {
+          "type": "JobArrivalEvent",
+          "time": 1.0,
+          "owner": "M0",
+          "workflow_id": -16,
+          "task_id": null,
+          "resource_id": null
+        }
+      },
+      {
+        "event_sequence": 5,
+        "time": 1.0,
+        "task": [
+          -16,
+          "T0"
+        ],
+        "resource_id": "E0",
+        "available_time": 0.0,
+        "original_allowed": true,
+        "observed_pending_starts": [],
+        "global_root": {
+          "type": "TaskVisitEvent",
+          "time": 1.0,
+          "owner": "M0",
+          "workflow_id": -16,
+          "task_id": "T3",
+          "resource_id": "E0"
+        }
+      },
+      {
+        "event_sequence": 10,
+        "time": 3.0,
+        "task": [
+          1,
+          "T0"
+        ],
+        "resource_id": "C0",
+        "available_time": 0.0,
+        "original_allowed": true,
+        "observed_pending_starts": [],
+        "global_root": {
+          "type": "ProcessFinishEvent",
+          "time": 5.0,
+          "owner": "M0",
+          "workflow_id": -16,
+          "task_id": "T0",
+          "resource_id": "E0"
+        }
+      },
+      {
+        "event_sequence": 16,
+        "time": 6.0,
+        "task": [
+          1,
+          "T1"
+        ],
+        "resource_id": "C0",
+        "available_time": 5.0,
+        "original_allowed": true,
+        "observed_pending_starts": [],
+        "global_root": {
+          "type": "TaskVisitEvent",
+          "time": 6.0,
+          "owner": "M0",
+          "workflow_id": -16,
+          "task_id": "T4",
+          "resource_id": "E0"
+        }
+      },
+      {
+        "event_sequence": 24,
+        "time": 12.0,
+        "task": [
+          -16,
+          "T2"
+        ],
+        "resource_id": "M0",
+        "available_time": 5.1,
+        "original_allowed": true,
+        "observed_pending_starts": [],
+        "global_root": {
+          "type": "ProcessFinishEvent",
+          "time": 15.0,
+          "owner": "M0",
+          "workflow_id": -16,
+          "task_id": "T4",
+          "resource_id": "E0"
+        }
+      }
+    ],
+    "random_generator_is_null": true
+  }
+}

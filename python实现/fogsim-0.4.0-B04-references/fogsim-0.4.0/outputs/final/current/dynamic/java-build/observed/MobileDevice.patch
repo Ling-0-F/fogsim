@@ -1,0 +1,31 @@
+--- original/mengxu/taskscheduling/MobileDevice.java
++++ overlay/mengxu/taskscheduling/MobileDevice.java
+@@ -412,6 +412,7 @@
+         }
+ 
+ //        int jobID = numJobsReleased;
++        fogsim.adapter.DynamicCapture.beforeClear(this, DAGTypeID, daxpath, releaseTime, weight, taskList);
+         int jobID = systemState.getAllNumJobsReleased();
+         Job job = new Job(jobID, releaseTime, weight,this,taskList, JobType.DAG);
+         for(Task task:taskList){
+@@ -421,10 +422,12 @@
+ //        jobList.add(job);
+         //modified by mengxu 2022.08.03
+         boolean couldAdd = systemState.addJobToSystem(job);
++        fogsim.adapter.DynamicCapture.afterAdmission(this, job, couldAdd);
+         if(couldAdd){
+             numJobsReleased++;
+ //        this.systemState.addAllNumJobsReleased();
+             eventQueue.add(new JobArrivalEvent(job,this));
++            fogsim.adapter.DynamicCapture.afterGeneratedArrival(this, job);
+         }
+ 
+         //original for TSC
+@@ -755,6 +758,7 @@
+ 
+     public void addEvent(AbstractEvent event){
+         this.eventQueue.add(event);
++        fogsim.adapter.DynamicCapture.afterStage(this, event);
+     }
+ 
+     public void setNumJobsRecorded(int numJobsRecorded) {

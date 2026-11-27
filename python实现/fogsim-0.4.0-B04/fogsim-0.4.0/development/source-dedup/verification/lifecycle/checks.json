@@ -1,0 +1,544 @@
+{
+  "format": "fogsim.s9-lifecycle-checks",
+  "schema_version": 1,
+  "checks": [
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "environment retained throughout",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "construction consumes resource prefix",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rerun clears runtime before input",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rerun retains B before generation",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rerun input consumes RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rerun no resource resampling",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rerun continues RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rerun B updated by new input",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "reset clears runtime before input",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "reset retains B before generation",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "reset input consumes RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "reset no resource resampling",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "reset resets RNG at independent seed origin",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "reset B updated by new input",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rotateSeed clears runtime before input",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rotateSeed retains B before generation",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rotateSeed input consumes RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rotateSeed no resource resampling",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rotateSeed resets RNG at independent seed origin",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "rotateSeed B updated by new input",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "Java long rotation",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        2
+      ],
+      "name": "each run observed on both boundaries",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "environment retained throughout",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "construction consumes resource prefix",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rerun clears runtime before input",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rerun retains B before generation",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rerun input consumes RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rerun no resource resampling",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rerun continues RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rerun sentinel B retained after setup",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "reset clears runtime before input",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "reset retains B before generation",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "reset input consumes RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "reset no resource resampling",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "reset resets RNG at independent seed origin",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "reset sentinel B retained after setup",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rotateSeed clears runtime before input",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rotateSeed retains B before generation",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rotateSeed input consumes RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rotateSeed no resource resampling",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rotateSeed resets RNG at independent seed origin",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "rotateSeed sentinel B retained after setup",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "Java long rotation",
+      "passed": true
+    },
+    {
+      "case": [
+        7,
+        1
+      ],
+      "name": "each run observed on both boundaries",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "environment retained throughout",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "construction consumes resource prefix",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rerun clears runtime before input",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rerun retains B before generation",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rerun input consumes RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rerun no resource resampling",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rerun continues RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rerun sentinel B retained after setup",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "reset clears runtime before input",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "reset retains B before generation",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "reset input consumes RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "reset no resource resampling",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "reset resets RNG at independent seed origin",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "reset sentinel B retained after setup",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rotateSeed clears runtime before input",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rotateSeed retains B before generation",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rotateSeed input consumes RNG",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rotateSeed no resource resampling",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rotateSeed resets RNG at independent seed origin",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "rotateSeed sentinel B retained after setup",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "Java long rotation",
+      "passed": true
+    },
+    {
+      "case": [
+        9223372036854775807,
+        1
+      ],
+      "name": "each run observed on both boundaries",
+      "passed": true
+    },
+    {
+      "name": "Python fresh starts B=0 and runtime RNG consumes",
+      "passed": true
+    },
+    {
+      "name": "Python environment retained in lifecycle",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "scope": "J05 only; Java/Python native random values are intentionally not compared"
+}

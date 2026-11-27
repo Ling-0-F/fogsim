@@ -1,0 +1,22 @@
+{
+  "case": "native_multiple_types",
+  "passed": true,
+  "priority_guard": "trusted_existing_fcfs_body",
+  "trace_recorder": "oracle_without_duplicate_state_snapshots",
+  "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+  "classification": "NORMAL_PARITY_PASSED",
+  "comparisons": {
+    "generated_inputs": null,
+    "attempts": null,
+    "script_calls": null,
+    "trace_and_final": null,
+    "metrics": null
+  },
+  "counts": {
+    "events": 598,
+    "decisions": 549,
+    "attempts": 26
+  },
+  "python_status": "SUCCEEDED",
+  "python_reason_code": null
+}

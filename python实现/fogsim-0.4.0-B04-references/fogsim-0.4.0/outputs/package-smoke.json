@@ -1,0 +1,67 @@
+{
+  "version": "0.2.0a1",
+  "passed": true,
+  "isolated_python": "C:\\Users\\Borde\\.local\\bin\\python.exe",
+  "imported_module": "C:\\Users\\Public\\Documents\\fwz\\\u4ee3\u7801\u7f16\u5199\\outputs\\package_smoke\\fogsim-0.2.0a1\\src\\fogsim\\__init__.py",
+  "compiled_sources_root": "C:\\Users\\Public\\Documents\\fwz\\\u4ee3\u7801\u7f16\u5199\\outputs\\package_smoke\\fogsim-0.2.0a1\\references\\java\\Fog-Computing-multiDeviceDebug",
+  "all_classpath_entries_inside_extracted_package": true,
+  "external_reference_jdk": "C:\\Users\\Public\\Documents\\fwz\\\u4ee3\u7801\u7f16\u5199\\references\\jdk\\jdk-17.0.16+8\\bin\\java.exe",
+  "cases": [
+    {
+      "case": "single_local",
+      "passed": true,
+      "events": {
+        "python": 4,
+        "java": 4
+      },
+      "decisions": {
+        "python": 1,
+        "java": 1
+      },
+      "first_difference": null,
+      "report": "single_local/comparison.json"
+    },
+    {
+      "case": "single_local_release5",
+      "passed": true,
+      "events": {
+        "python": 4,
+        "java": 4
+      },
+      "decisions": {
+        "python": 1,
+        "java": 1
+      },
+      "first_difference": null,
+      "report": "single_local_release5/comparison.json"
+    },
+    {
+      "case": "chain_remote",
+      "passed": true,
+      "events": {
+        "python": 7,
+        "java": 7
+      },
+      "decisions": {
+        "python": 3,
+        "java": 3
+      },
+      "first_difference": null,
+      "report": "chain_remote/comparison.json"
+    },
+    {
+      "case": "chain_fcfs",
+      "passed": true,
+      "events": {
+        "python": 7,
+        "java": 7
+      },
+      "decisions": {
+        "python": 3,
+        "java": 3
+      },
+      "first_difference": null,
+      "report": "chain_fcfs/comparison.json"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="14" time="2.038" timestamp="2026-11-05T01:00:44.017258-08:00" hostname="991b6b8c19ff"><testcase classname="tests.unit.test_dynamic_admission" name="test_two_workflows_share_servers_but_no_tasks_or_edge_storage" time="0.004" /><testcase classname="tests.unit.test_dynamic_admission" name="test_all_entry_dispatches_precede_one_generation_and_finish_never_generates" time="0.005" /><testcase classname="tests.unit.test_dynamic_admission" name="test_rejection_does_not_take_id_or_interrupt_other_device[values0-0-2]" time="0.002" /><testcase classname="tests.unit.test_dynamic_admission" name="test_rejection_does_not_take_id_or_interrupt_other_device[values1-2-1]" time="0.003" /><testcase classname="tests.unit.test_dynamic_admission" name="test_rejection_does_not_take_id_or_interrupt_other_device[values2-2-1]" time="0.003" /><testcase classname="tests.unit.test_dynamic_admission" name="test_zero_interval_still_consumes_full_generation_and_leaves_B_unchanged" time="0.001" /><testcase classname="tests.unit.test_dynamic_admission" name="test_positive_interval_rounds_to_current_clock_without_redraw" time="0.003" /><testcase classname="tests.unit.test_dynamic_admission" name="test_normal_stop_merges_once_but_does_not_poll_same_time_events" time="0.005" /><testcase classname="tests.unit.test_dynamic_admission" name="test_generation_continues_beyond_N_plus_W" time="1.850" /><testcase classname="tests.unit.test_dynamic_admission" name="test_trace_disabled_preserves_facts_and_same_schedule" time="0.053"><failure message="AssertionError: assert InputArchive(...rkflow_id=3))) == InputArchive(...rkflow_id=3)))&#10;  &#10;  Omitting 4 identical items, use -vv to show&#10;  Differing attributes:&#10;  ['environment']&#10;  &#10;  Drill down into differing attribute environment:&#10;[+3 more lines; full report in element text]">tmp_path = PosixPath('/workspace/scratch/23903c29f5ca/work/step5/fogsim-0.2.1-step5/pytest-of-root/pytest-2/test_trace_disabled_preserves_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f9539cb28d0&gt;
+
+    def test_trace_disabled_preserves_facts_and_same_schedule(tmp_path,monkeypatch):
+        cfg=config(tmp_path,devices=2,edges=1,xml=DIAMOND,N=2,W=2)
+        enabled=create_dynamic_context(cfg);a=enabled.run()
+        disabled=create_dynamic_context(replace(cfg,run=replace(cfg.run,trace_enabled=False)));b=disabled.run()
+        assert not b.events and not b.decisions
+        assert b.task_records==a.task_records and b.workflow_records==a.workflow_records
+        assert (a.status,a.final_clock_time,a.makespan,a.mean_flow_time)==(b.status,b.final_clock_time,b.makespan,b.mean_flow_time)
+&gt;       assert enabled.input_archive==disabled.input_archive
+E       AssertionError: assert InputArchive(...rkflow_id=3))) == InputArchive(...rkflow_id=3)))
+E         
+E         Omitting 4 identical items, use -vv to show
+E         Differing attributes:
+E         ['environment']
+E         
+E         Drill down into differing attribute environment:
+E           environment: EnvironmentSnapshot(devices=(DeviceSnapshot(id='M0', numeric_id=0, processing_rate=13.238327648331623, can_process_tasks=True), DeviceSnapshot(id='M1', numeric_id=1, processing_rate=11.508491739245018, can_process_tasks=True)), servers=(ServerSnapshot(id='E0', numeric_id=0, type='EDGE', processing_rate=26.50934473039854, upload_bandwidth=1024.0, download_bandwidth=1024.0),), parameter_source='5ed45050a5e86bca4da17ba3645ae4fe8f3b05...
+E         
+E         ...Full output truncated, use '-vv' to show
+
+tests/unit/test_dynamic_admission.py:129: AssertionError</failure></testcase><testcase classname="tests.unit.test_dynamic_admission" name="test_rule_view_has_no_future_or_archive_backreferences" time="0.004"><failure message="assert 'source' not in &quot;('StateView...22389824))))&quot;&#10;  &#10;  'source' is contained here:&#10;  ?           ^^^^^^^^^^^^&#10;[+3 more lines; full report in element text]">tmp_path = PosixPath('/workspace/scratch/23903c29f5ca/work/step5/fogsim-0.2.1-step5/pytest-of-root/pytest-2/test_rule_view_has_no_future_o0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f9539ae21e0&gt;
+
+    def test_rule_view_has_no_future_or_archive_backreferences(tmp_path,monkeypatch):
+        intervals(monkeypatch,[10])
+        ctx=create_dynamic_context(config(tmp_path,xml=CHAIN))
+        view=StateView.from_state(ctx.engine.state)
+        assert not view.active_workflows and not view.completed_workflows
+        assert not hasattr(view,'context') and not hasattr(view,'input_archive')
+&gt;       assert 'source' not in str(graph_fingerprint(view))
+E       assert 'source' not in "('StateView...22389824))))"
+E         
+E         'source' is contained here:
+E         ?           ^^^^^^^^^^^^
+E           ')), ('resources', ('tuple', 140278894562464, (('MobileDevice', 140278894569488, (('id', 'M0'), ('numeric_id', 0), ('resource_type', &lt;ResourceType.MOBILE: 'MOBILE'&gt;), ('available_time', ('float', b'\x00\x00\x00\x00\x00\x00\x00\x00')), ('waiting_queue', ('list', 140278895257280, ())), ('queued_processing_time', ('float', b'\x00\x00\x00\x00\x00\x00\x00\x00')), ('queued_total_time', ('float', b'\x00\x00\x00\x00\x00\x00\x00\x00')), ('completed_task_count', 0), ('pending_start', None), ('processing_rate', ('float', b'@*z\x06\x14\xde\xa2B')), ...
+E         
+E         ...Full output truncated, use '-vv' to show
+
+tests/unit/test_dynamic_admission.py:139: AssertionError</failure></testcase><testcase classname="tests.unit.test_dynamic_admission" name="test_capacity_error_before_any_graph_commit" time="0.002" /><testcase classname="tests.unit.test_dynamic_admission" name="test_runtime_source_unknown_identity_is_explicit_failure" time="0.003" /><testcase classname="tests.unit.test_dynamic_admission" name="test_cross_owner_server_queue_continuation_uses_current_producer" time="0.007"><failure message="AssertionError: assert ('M0' == 'M1'&#10;  &#10;  - M1&#10;  + M0)">tmp_path = PosixPath('/workspace/scratch/23903c29f5ca/work/step5/fogsim-0.2.1-step5/pytest-of-root/pytest-2/test_cross_owner_server_queue_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f95399fd460&gt;
+
+    def test_cross_owner_server_queue_continuation_uses_current_producer(tmp_path,monkeypatch):
+        intervals(monkeypatch,[1,1,100,100])
+        ctx=create_dynamic_context(config(tmp_path,devices=2,edges=1,local=False,target='E0',N=2,W=2))
+        r=ctx.run()
+        transitions=[e for row in r.events for e in row['emitted'] if e['type']=='ProcessStartEvent' and e['owner']!=e['staging_device']]
+        assert transitions
+&gt;       assert transitions[0]['owner']=='M1' and transitions[0]['staging_device']=='M0'
+E       AssertionError: assert ('M0' == 'M1'
+E         
+E         - M1
+E         + M0)
+
+tests/unit/test_dynamic_admission.py:173: AssertionError</failure></testcase></testsuite></testsuites>

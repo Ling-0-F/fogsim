@@ -1,0 +1,210 @@
+{
+  "passed": true,
+  "scope": "V09-V15 components and scripted dynamic business input; production replay/V17-V19 NOT_EXECUTED",
+  "cases": [
+    {
+      "case": "all_devices_rejected",
+      "passed": true,
+      "priority_guard": "production_full",
+      "trace_recorder": "oracle_without_duplicate_state_snapshots",
+      "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+      "classification": "EXPECTED_DIFFERENCE_CONFIRMED",
+      "comparisons": {
+        "generated_inputs": null,
+        "attempts": null,
+        "script_calls": null,
+        "trace_and_final": null,
+        "explicit_failure": null
+      },
+      "counts": {
+        "events": 0,
+        "decisions": 0,
+        "attempts": 2
+      },
+      "python_status": "FAILED",
+      "python_reason_code": "EVENTS_EXHAUSTED_BEFORE_TARGET"
+    },
+    {
+      "case": "arrival_rejected",
+      "passed": true,
+      "priority_guard": "production_full",
+      "trace_recorder": "oracle_without_duplicate_state_snapshots",
+      "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+      "classification": "EXPECTED_DIFFERENCE_CONFIRMED",
+      "comparisons": {
+        "generated_inputs": null,
+        "attempts": null,
+        "script_calls": null,
+        "trace_and_final": null,
+        "explicit_failure": null
+      },
+      "counts": {
+        "events": 7,
+        "decisions": 3,
+        "attempts": 2
+      },
+      "python_status": "FAILED",
+      "python_reason_code": "EVENTS_EXHAUSTED_BEFORE_TARGET"
+    },
+    {
+      "case": "first_device_rejected",
+      "passed": true,
+      "priority_guard": "production_full",
+      "trace_recorder": "oracle_without_duplicate_state_snapshots",
+      "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+      "classification": "NORMAL_PARITY_PASSED",
+      "comparisons": {
+        "generated_inputs": null,
+        "attempts": null,
+        "script_calls": null,
+        "trace_and_final": null,
+        "metrics": null
+      },
+      "counts": {
+        "events": 7,
+        "decisions": 3,
+        "attempts": 3
+      },
+      "python_status": "SUCCEEDED",
+      "python_reason_code": null
+    },
+    {
+      "case": "local_disabled",
+      "passed": true,
+      "priority_guard": "production_full",
+      "trace_recorder": "oracle_without_duplicate_state_snapshots",
+      "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+      "classification": "NORMAL_PARITY_PASSED",
+      "comparisons": {
+        "generated_inputs": null,
+        "attempts": null,
+        "script_calls": null,
+        "trace_and_final": null,
+        "metrics": null
+      },
+      "counts": {
+        "events": 63,
+        "decisions": 52,
+        "attempts": 12
+      },
+      "python_status": "SUCCEEDED",
+      "python_reason_code": null
+    },
+    {
+      "case": "minimal_chain",
+      "passed": true,
+      "priority_guard": "production_full",
+      "trace_recorder": "oracle_without_duplicate_state_snapshots",
+      "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+      "classification": "NORMAL_PARITY_PASSED",
+      "comparisons": {
+        "generated_inputs": null,
+        "attempts": null,
+        "script_calls": null,
+        "trace_and_final": null,
+        "metrics": null
+      },
+      "counts": {
+        "events": 7,
+        "decisions": 3,
+        "attempts": 2
+      },
+      "python_status": "SUCCEEDED",
+      "python_reason_code": null
+    },
+    {
+      "case": "multi_device_diamond",
+      "passed": true,
+      "priority_guard": "production_full",
+      "trace_recorder": "oracle_without_duplicate_state_snapshots",
+      "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+      "classification": "NORMAL_PARITY_PASSED",
+      "comparisons": {
+        "generated_inputs": null,
+        "attempts": null,
+        "script_calls": null,
+        "trace_and_final": null,
+        "metrics": null
+      },
+      "counts": {
+        "events": 77,
+        "decisions": 61,
+        "attempts": 14
+      },
+      "python_status": "SUCCEEDED",
+      "python_reason_code": null
+    },
+    {
+      "case": "native_multiple_types",
+      "passed": true,
+      "priority_guard": "trusted_existing_fcfs_body",
+      "trace_recorder": "oracle_without_duplicate_state_snapshots",
+      "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+      "classification": "NORMAL_PARITY_PASSED",
+      "comparisons": {
+        "generated_inputs": null,
+        "attempts": null,
+        "script_calls": null,
+        "trace_and_final": null,
+        "metrics": null
+      },
+      "counts": {
+        "events": 598,
+        "decisions": 549,
+        "attempts": 26
+      },
+      "python_status": "SUCCEEDED",
+      "python_reason_code": null
+    },
+    {
+      "case": "native_standard_dax",
+      "passed": true,
+      "priority_guard": "trusted_existing_fcfs_body",
+      "trace_recorder": "oracle_without_duplicate_state_snapshots",
+      "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+      "classification": "NORMAL_PARITY_PASSED",
+      "comparisons": {
+        "generated_inputs": null,
+        "attempts": null,
+        "script_calls": null,
+        "trace_and_final": null,
+        "metrics": null
+      },
+      "counts": {
+        "events": 362,
+        "decisions": 334,
+        "attempts": 32
+      },
+      "python_status": "SUCCEEDED",
+      "python_reason_code": null
+    },
+    {
+      "case": "pending_at_stop",
+      "passed": true,
+      "priority_guard": "production_full",
+      "trace_recorder": "oracle_without_duplicate_state_snapshots",
+      "scope": "scripted business samplers through production generation/admission/events; archived Java facts",
+      "classification": "NORMAL_PARITY_PASSED",
+      "comparisons": {
+        "generated_inputs": null,
+        "attempts": null,
+        "script_calls": null,
+        "trace_and_final": null,
+        "metrics": null
+      },
+      "counts": {
+        "events": 7,
+        "decisions": 3,
+        "attempts": 3
+      },
+      "python_status": "SUCCEEDED",
+      "python_reason_code": null
+    }
+  ],
+  "java_probes": {
+    "passed": true,
+    "checks": 50,
+    "scope": "original Java lifecycle and manually injected component probes; no Python RNG value parity"
+  },
+  "classification": "NORMAL_PARITY_PASSED"
+}

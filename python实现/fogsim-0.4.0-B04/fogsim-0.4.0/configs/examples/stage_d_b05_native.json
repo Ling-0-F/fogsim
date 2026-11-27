@@ -1,0 +1,58 @@
+{
+  "format": "fogsim.experiment",
+  "schema_version": 2,
+  "mode": "dynamic",
+  "source": {
+    "seed": 7,
+    "dag_root": "../../development/b05/fixtures/dax",
+    "workflow_types": {
+      "lower": 0,
+      "upper": 0
+    },
+    "environment": {
+      "num_mobile_devices": 2,
+      "num_edge_servers": 1,
+      "num_cloud_servers": 0,
+      "can_mobile_devices_process_tasks": false
+    },
+    "samplers": {
+      "workload": {
+        "lower": 5000,
+        "upper": 15000
+      },
+      "data_size": {
+        "lower": 0,
+        "upper": 1
+      },
+      "edge_data": {
+        "lower": 0,
+        "upper": 1
+      },
+      "processing_rate_device": {
+        "lower": 10,
+        "upper": 20
+      },
+      "processing_rate_edge": {
+        "lower": 20,
+        "upper": 30
+      },
+      "processing_rate_cloud": {
+        "lower": 30,
+        "upper": 40
+      }
+    }
+  },
+  "run": {
+    "num_jobs_recorded": 1,
+    "warmup_jobs": 1,
+    "max_events": 100,
+    "routing_rule": {
+      "kind": "gp",
+      "expression": "(+ PT MRT)"
+    },
+    "sequencing_rule": {
+      "kind": "gp",
+      "expression": "(- 0 PT)"
+    }
+  }
+}

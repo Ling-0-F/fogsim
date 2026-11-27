@@ -1,0 +1,475 @@
+{
+  "format": "fogsim.dynamic-replay",
+  "schema_version": 2,
+  "origin": {
+    "language": "Java",
+    "implementation_version": "multiDeviceDebug+stage-d-b06",
+    "code_dependency_fingerprint": "a171b8019e860a9e3dd9473655913b63e90bcbf7e0223001d1119352e229e851",
+    "rules": {
+      "routing": {
+        "kind": "gp",
+        "expression": "(+ MRT (+ PT TWT))"
+      },
+      "sequencing": {
+        "kind": "gp",
+        "expression": "(- 0 (+ NTR PT))"
+      }
+    },
+    "operation": "fresh",
+    "fixture_kind": "native_random",
+    "label": "B06_dynamic_adapter_bootstrap"
+  },
+  "initial_state": {
+    "B": 0.0,
+    "public_seed": 31,
+    "seed_encoding_version": "java-signed64-v1",
+    "run_index": 0
+  },
+  "effective_config": {
+    "num_jobs_recorded": 2,
+    "warmup_jobs": 1,
+    "statistics_policy": "java_jobsCompleted",
+    "sequencing_rule": {
+      "kind": "gp",
+      "expression": "(- 0 (+ NTR PT))"
+    },
+    "routing_rule": {
+      "kind": "gp",
+      "expression": "(+ MRT (+ PT TWT))"
+    },
+    "exception_policy": "java_original",
+    "event_order": "java_two_level_priority_queue",
+    "guards": {
+      "resource_queue_greater_than": 400,
+      "stagnation_greater_than": 400000,
+      "generated_greater_than_multiplier": 500
+    },
+    "samplers": {
+      "workload": [
+        5000.0,
+        15000.0
+      ],
+      "data_size": [
+        5120.0,
+        20480.0
+      ],
+      "edge_data": [
+        100.0,
+        200.0
+      ],
+      "inter_release_time": {
+        "family": "java_exponential",
+        "effective_mean": 100.0
+      },
+      "weight": "java_TwoSixTwo",
+      "upload_bandwidth_edge": "java_BandwidthEdge",
+      "download_bandwidth_edge": "java_BandwidthEdge",
+      "upload_bandwidth_cloud": "java_BandwidthCloud",
+      "download_bandwidth_cloud": "java_BandwidthCloud",
+      "processing_rate_device": [
+        125.0,
+        250.0
+      ],
+      "processing_rate_edge": [
+        250.0,
+        500.0
+      ],
+      "processing_rate_cloud": [
+        500.0,
+        1000.0
+      ],
+      "workflow_type": [
+        0,
+        0
+      ]
+    },
+    "additional_budget": null,
+    "trace_enabled": true,
+    "check_invariants": true,
+    "edge_data_policy": "release_after_materialization"
+  },
+  "units": {
+    "time": "s",
+    "workload": "model_workload",
+    "data": "model_data"
+  },
+  "environment": {
+    "devices": [
+      {
+        "id": "M0",
+        "numeric_id": 0,
+        "processing_rate": 154.42852063840837,
+        "can_process_tasks": true
+      }
+    ],
+    "servers": [
+      {
+        "id": "E0",
+        "numeric_id": 0,
+        "type": "EDGE",
+        "processing_rate": 495.2132180277085,
+        "upload_bandwidth": 1024.0,
+        "download_bandwidth": 1024.0
+      },
+      {
+        "id": "C0",
+        "numeric_id": 1,
+        "type": "CLOUD",
+        "processing_rate": 510.00841192769116,
+        "upload_bandwidth": 512.0,
+        "download_bandwidth": 512.0
+      }
+    ],
+    "parameter_source": "java-recorded",
+    "fingerprint": "1560c2a41594be57a177a81379b90809c47257bcdf91402d6db0d03ef90b92f0"
+  },
+  "templates": [
+    {
+      "dag_type_id": 0,
+      "source_name": "CyberShake_30.xml",
+      "source_sha256": "3113ce35b6facc0f29eb42b4747e4566a226dacd7c58153b918641d4928d764b",
+      "tasks": [
+        {
+          "xml_id": "T",
+          "java_index": 0
+        }
+      ],
+      "dependencies": [],
+      "diagnostics": []
+    }
+  ],
+  "candidates": [
+    {
+      "record_id": "1",
+      "workflow_input": {
+        "candidate_id": 0,
+        "owner_device_id": "M0",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "3113ce35b6facc0f29eb42b4747e4566a226dacd7c58153b918641d4928d764b"
+        },
+        "release_time": 20.214868231817462,
+        "inter_release_time": 20.214868231817462,
+        "weight": 2.0,
+        "tasks": [
+          {
+            "id": "T",
+            "workload": 10187.5047640894,
+            "data_size": 7038.638839106829,
+            "total_input_data": 0.0,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "M0",
+                "processing_time": 65.96906272218499,
+                "upload_time": 0.0,
+                "download_time": 0.0
+              },
+              {
+                "resource_id": "E0",
+                "processing_time": 20.571956468898986,
+                "upload_time": 6.873670741315263,
+                "download_time": 6.873670741315263
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 19.975170067457206,
+                "upload_time": 13.747341482630526,
+                "download_time": 13.747341482630526
+              }
+            ]
+          }
+        ],
+        "edges": []
+      }
+    },
+    {
+      "record_id": "2",
+      "workflow_input": {
+        "candidate_id": 1,
+        "owner_device_id": "M0",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "3113ce35b6facc0f29eb42b4747e4566a226dacd7c58153b918641d4928d764b"
+        },
+        "release_time": 55.894429658918824,
+        "inter_release_time": 35.67956142710136,
+        "weight": 4.0,
+        "tasks": [
+          {
+            "id": "T",
+            "workload": 13163.873277370241,
+            "data_size": 10691.246395004586,
+            "total_input_data": 0.0,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "M0",
+                "processing_time": 85.24250069191051,
+                "upload_time": 0.0,
+                "download_time": 0.0
+              },
+              {
+                "resource_id": "E0",
+                "processing_time": 26.582233264689812,
+                "upload_time": 10.440670307621666,
+                "download_time": 10.440670307621666
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 25.811090502633927,
+                "upload_time": 20.88134061524333,
+                "download_time": 20.88134061524333
+              }
+            ]
+          }
+        ],
+        "edges": []
+      }
+    },
+    {
+      "record_id": "3",
+      "workflow_input": {
+        "candidate_id": 2,
+        "owner_device_id": "M0",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "3113ce35b6facc0f29eb42b4747e4566a226dacd7c58153b918641d4928d764b"
+        },
+        "release_time": 67.95360470722247,
+        "inter_release_time": 12.059175048303644,
+        "weight": 2.0,
+        "tasks": [
+          {
+            "id": "T",
+            "workload": 6805.31162544437,
+            "data_size": 11304.229157906477,
+            "total_input_data": 0.0,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "M0",
+                "processing_time": 44.067712345563976,
+                "upload_time": 0.0,
+                "download_time": 0.0
+              },
+              {
+                "resource_id": "E0",
+                "processing_time": 13.74218493712257,
+                "upload_time": 11.039286287018044,
+                "download_time": 11.039286287018044
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 13.343528197352999,
+                "upload_time": 22.078572574036087,
+                "download_time": 22.078572574036087
+              }
+            ]
+          }
+        ],
+        "edges": []
+      }
+    },
+    {
+      "record_id": "4",
+      "workflow_input": {
+        "candidate_id": 3,
+        "owner_device_id": "M0",
+        "template_ref": {
+          "dag_type_id": 0,
+          "source_sha256": "3113ce35b6facc0f29eb42b4747e4566a226dacd7c58153b918641d4928d764b"
+        },
+        "release_time": 465.0296104895358,
+        "inter_release_time": 397.0760057823133,
+        "weight": 1.0,
+        "tasks": [
+          {
+            "id": "T",
+            "workload": 9847.128857654665,
+            "data_size": 14361.500465956564,
+            "total_input_data": 0.0,
+            "total_output_data": 0.0,
+            "options": [
+              {
+                "resource_id": "M0",
+                "processing_time": 63.76496269566385,
+                "upload_time": 0.0,
+                "download_time": 0.0
+              },
+              {
+                "resource_id": "E0",
+                "processing_time": 19.884624438889052,
+                "upload_time": 14.024902798785707,
+                "download_time": 14.024902798785707
+              },
+              {
+                "resource_id": "C0",
+                "processing_time": 19.307777337309464,
+                "upload_time": 28.049805597571414,
+                "download_time": 28.049805597571414
+              }
+            ]
+          }
+        ],
+        "edges": []
+      }
+    }
+  ],
+  "generation_attempts": [
+    {
+      "attempt_sequence": 1,
+      "phase": "initialize",
+      "owner_device_id": "M0",
+      "generation_clock_time": 0.0,
+      "causing_workflow_id": null,
+      "event_sequence": null,
+      "candidate_ref": "1",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 2,
+      "phase": "after_arrival",
+      "owner_device_id": "M0",
+      "generation_clock_time": 20.214868231817462,
+      "causing_workflow_id": 0,
+      "event_sequence": 1,
+      "candidate_ref": "2",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 3,
+      "phase": "after_arrival",
+      "owner_device_id": "M0",
+      "generation_clock_time": 55.894429658918824,
+      "causing_workflow_id": 1,
+      "event_sequence": 4,
+      "candidate_ref": "3",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    },
+    {
+      "attempt_sequence": 4,
+      "phase": "after_arrival",
+      "owner_device_id": "M0",
+      "generation_clock_time": 67.95360470722247,
+      "causing_workflow_id": 2,
+      "event_sequence": 8,
+      "candidate_ref": "4",
+      "observed_acceptance": true,
+      "rejection_reason": null
+    }
+  ],
+  "capture": {
+    "complete": true,
+    "complete_attempt_count": 4,
+    "write_interrupted": false,
+    "process_interrupted": false,
+    "termination": "JAVA_RUN_RETURNED"
+  },
+  "rule_manifest": {
+    "identity_encoding_version": "fogsim-rule-identity-v1",
+    "expressions": [
+      {
+        "identity_encoding_version": "fogsim-rule-identity-v1",
+        "language_version": "fogsim-gp-lisp-v1",
+        "feature_semantics_version": "fogsim-features-java-v1",
+        "numeric_semantics_version": "fogsim-gp-f64-dual-zero-v1",
+        "ast": {
+          "root": 0,
+          "nodes": [
+            {
+              "kind": "binary",
+              "op": "+",
+              "left": 1,
+              "right": 2
+            },
+            {
+              "kind": "feature",
+              "name": "MRT"
+            },
+            {
+              "kind": "binary",
+              "op": "+",
+              "left": 3,
+              "right": 4
+            },
+            {
+              "kind": "feature",
+              "name": "PT"
+            },
+            {
+              "kind": "feature",
+              "name": "TWT"
+            }
+          ]
+        },
+        "expression_id": "sha256:1709b459dea08f50adedb53b709bdbddc0c9b635eaa36dce6f88f6ebe069aeb6"
+      },
+      {
+        "identity_encoding_version": "fogsim-rule-identity-v1",
+        "language_version": "fogsim-gp-lisp-v1",
+        "feature_semantics_version": "fogsim-features-java-v1",
+        "numeric_semantics_version": "fogsim-gp-f64-dual-zero-v1",
+        "ast": {
+          "root": 0,
+          "nodes": [
+            {
+              "kind": "binary",
+              "op": "-",
+              "left": 1,
+              "right": 2
+            },
+            {
+              "kind": "constant",
+              "bits": "0000000000000000"
+            },
+            {
+              "kind": "binary",
+              "op": "+",
+              "left": 3,
+              "right": 4
+            },
+            {
+              "kind": "feature",
+              "name": "NTR"
+            },
+            {
+              "kind": "feature",
+              "name": "PT"
+            }
+          ]
+        },
+        "expression_id": "sha256:ba0128b7cd519841f35631f7971b6dc2171cb03a7130f0074abc6444104c92fe"
+      }
+    ],
+    "bindings": {
+      "routing": {
+        "role": "routing",
+        "kind": "gp",
+        "selection_policy_version": "fogsim-selection-java-v1",
+        "expression_id": "sha256:1709b459dea08f50adedb53b709bdbddc0c9b635eaa36dce6f88f6ebe069aeb6",
+        "rule_id": "sha256:039f1b9a0b87a1133ef5cc6a605286cc38173da11d7ab369be69f74f5f335338",
+        "source": {
+          "expression": "(+ MRT (+ PT TWT))",
+          "source_sha256": "sha256:80de094eb90c4e2a20ffb71c3ca9ce7e7813da035ca90a2197cac0322648dc08"
+        }
+      },
+      "sequencing": {
+        "role": "sequencing",
+        "kind": "gp",
+        "selection_policy_version": "fogsim-selection-java-v1",
+        "expression_id": "sha256:ba0128b7cd519841f35631f7971b6dc2171cb03a7130f0074abc6444104c92fe",
+        "rule_id": "sha256:3918c12231121e2cfa65d7db2cc03a55570a550b3bcd2d5f79b2d05522790529",
+        "source": {
+          "expression": "(- 0 (+ NTR PT))",
+          "source_sha256": "sha256:3008f6f1740a167143a922bbc51ba3898674c1828edf6dd8e051a1ca15b8090e"
+        }
+      }
+    },
+    "rule_pair_id": "sha256:42f93aadbb073ca51fa7f6c16fce9bcb8911a0483758a006278768da59f99069"
+  },
+  "score_encoding_version": "ieee754-binary64-hex-v1"
+}

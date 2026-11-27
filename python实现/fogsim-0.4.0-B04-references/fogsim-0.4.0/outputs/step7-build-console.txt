@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/tools/build_release.py", line 71, in <module>
+    if __name__=="__main__":main()
+                            ^^^^^^
+  File "/workspace/scratch/0bfe123a8a5d/step7-work/fogsim-0.2.1-step7/tools/build_release.py", line 36, in main
+    if any(not p.is_file() for p in files):raise RuntimeError("missing release input")
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: missing release input

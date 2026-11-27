@@ -1,0 +1,42 @@
+{
+  "new_files": [
+    "configs/training/B01.json",
+    "configs/training/rules.json",
+    "configs/training/test-sources.json",
+    "configs/training/test.json",
+    "configs/training/train-a.json",
+    "configs/training/train-b.json",
+    "configs/training/train-sources.json",
+    "configs/training/validation-sources.json",
+    "configs/training/validation.json",
+    "docs/RUNNING-S9-B01.md",
+    "docs/TRAINING-PROTOCOL-B01.md",
+    "schemas/training/config.schema.json",
+    "schemas/training/evaluation.schema.json",
+    "schemas/training/plan.schema.json",
+    "schemas/training/source-plan.schema.json",
+    "src/fogsim/training/__init__.py",
+    "src/fogsim/training/cli.py",
+    "src/fogsim/training/config.py",
+    "src/fogsim/training/evaluation.py",
+    "src/fogsim/training/fitness.py",
+    "src/fogsim/training/plans.py",
+    "src/fogsim/training/protocols.py",
+    "src/fogsim/training/runtime.py",
+    "src/fogsim/training/worker.py",
+    "tests/training/test_b01.py",
+    "tools/accept_s9_b01.py",
+    "tools/build_s9_b01.py",
+    "tools/check_s9_lifecycle.py",
+    "tools/java/s9/fogsim/adapter/S9LifeObserver.java",
+    "tools/verify_s9_b01_package.py"
+  ],
+  "modified_files": [
+    "README.md",
+    "pyproject.toml",
+    "src/fogsim/__init__.py",
+    "tests/unit/test_final_contracts.py"
+  ],
+  "baseline_zip_sha256": "61c4b14bf2305a9bbc2821ebbe85949e27ba45c8472005d8e5bfe7cbba967ecc",
+  "source_id": "sha256:22cea74fc0da75ca9c780d8c77443a34ac9085e4b9533caca46d58ab56ae2e33"
+}

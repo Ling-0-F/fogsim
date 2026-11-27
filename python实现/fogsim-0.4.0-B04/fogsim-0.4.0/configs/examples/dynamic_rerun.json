@@ -1,0 +1,34 @@
+{
+  "format": "fogsim.experiment",
+  "schema_version": 1,
+  "mode": "dynamic",
+  "source": {
+    "seed": 7,
+    "dag_root": "../../examples/step5/dax",
+    "workflow_types": {
+      "lower": 0,
+      "upper": 0
+    },
+    "environment": {
+      "num_mobile_devices": 1,
+      "num_edge_servers": 1,
+      "num_cloud_servers": 1,
+      "can_mobile_devices_process_tasks": true
+    }
+  },
+  "run": {
+    "num_jobs_recorded": 1,
+    "warmup_jobs": 1,
+    "max_events": 1000,
+    "check_invariants": true,
+    "trace_enabled": true,
+    "edge_data_policy": "release_after_materialization"
+  },
+  "repeat": {
+    "count": 3,
+    "mode": "java_rerun"
+  },
+  "output": {
+    "dataset_role": "debug"
+  }
+}
