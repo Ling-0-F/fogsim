@@ -1,0 +1,1082 @@
+{
+  "scale": "large",
+  "devices": 3,
+  "trial": 16,
+  "evolution_seed": 50016,
+  "population": 1000,
+  "generations": 51,
+  "elites": 10,
+  "history": [
+    {
+      "generation": 0,
+      "instance_seed": 2500000,
+      "best": [
+        "(Max (- DT NIQ) (Min UT NTR))",
+        "(Max (Min (* DT WIQ) (/ UT DT)) (Max (Max WIQ DT) (/ NIQ MRT)))"
+      ],
+      "makespan": 4157.303087575464,
+      "unique": 1000
+    },
+    {
+      "generation": 1,
+      "instance_seed": 2500001,
+      "best": [
+        "(Max (+ NIQ WIQ) (Max (/ (Max (Min DT MRT) (/ TWT DT)) (- (* UT TIS) (- MRT DT))) (- TIS (- (+ UT DT) NTR))))",
+        "(- (- (+ (+ (+ PT DT) (- MRT TWT)) WIQ) (Min TIS (/ (/ NTR PT) (Max UT TWT)))) MRT)"
+      ],
+      "makespan": 4074.8884603372485,
+      "unique": 919
+    },
+    {
+      "generation": 2,
+      "instance_seed": 2500002,
+      "best": [
+        "(Min (- (- (- WIQ UT) (- PT UT)) (Min (Min PT PT) PT)) (/ (* (* WIQ UT) (/ TTIQ UT)) (- (Max NTR WIQ) (* NTR TWT))))",
+        "(+ (Max (* (+ WIQ TTIQ) PT) (* (/ NTR TTIQ) (Max PT NTR))) (Max (+ (+ TWT NTR) WIQ) (+ (- TWT PT) (Max TIS (+ (- NIQ DT) (/ MRT DT))))))"
+      ],
+      "makespan": 3594.6052520679023,
+      "unique": 878
+    },
+    {
+      "generation": 3,
+      "instance_seed": 2500003,
+      "best": [
+        "(* (/ (- WIQ MRT) (Min NTR PT)) (Min (* TWT TIS) (- NIQ WIQ)))",
+        "(Max (- (- (* NTR DT) (+ NIQ PT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespan": 3699.281520880172,
+      "unique": 885
+    },
+    {
+      "generation": 4,
+      "instance_seed": 2500004,
+      "best": [
+        "(* WIQ TIS)",
+        "(Max (- (- (* NTR DT) (/ TTIQ PT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespan": 2867.83264137198,
+      "unique": 907
+    },
+    {
+      "generation": 5,
+      "instance_seed": 2500005,
+      "best": [
+        "(* WIQ TIS)",
+        "(Max (- (- (* NTR DT) (Min PT DT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespan": 3156.4799929098535,
+      "unique": 907
+    },
+    {
+      "generation": 6,
+      "instance_seed": 2500006,
+      "best": [
+        "(* (/ (- WIQ MRT) NTR) (Min (* TWT TIS) (- NIQ WIQ)))",
+        "(Max (- (- (* NTR DT) (/ (+ (Min TIS TWT) (/ WIQ WIQ)) (Max (Max PT NIQ) (+ WIQ DT)))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (/ TTIQ PT)))"
+      ],
+      "makespan": 3092.944283823179,
+      "unique": 929
+    },
+    {
+      "generation": 7,
+      "instance_seed": 2500007,
+      "best": [
+        "(* WIQ TIS)",
+        "(Max (- (- (* NTR DT) (+ NIQ PT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (- (* NTR DT) (+ NIQ PT)) (+ (Min PT DT) (- WIQ PT)))) (/ TTIQ PT)))"
+      ],
+      "makespan": 3326.473948378526,
+      "unique": 901
+    },
+    {
+      "generation": 8,
+      "instance_seed": 2500008,
+      "best": [
+        "(Max (/ (Max (Min DT MRT) (Min DT MRT)) (* WIQ TIS)) (- TIS (- (+ UT DT) (Max MRT WIQ))))",
+        "(Max (- (- (* NTR DT) (Min PT DT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespan": 2876.558682599153,
+      "unique": 931
+    },
+    {
+      "generation": 9,
+      "instance_seed": 2500009,
+      "best": [
+        "(* NIQ TIS)",
+        "(Max (- (- (Max DT (Min (Min NIQ NIQ) (* WIQ DT))) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR)))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespan": 2784.1301769166203,
+      "unique": 945
+    },
+    {
+      "generation": 10,
+      "instance_seed": 2500010,
+      "best": [
+        "(- (- (* WIQ TIS) NTR) (Min UT (- (- (/ MRT NTR) DT) (* NIQ NIQ))))",
+        "(Max (- (- (+ PT DT) (+ NIQ PT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespan": 2801.9675310324656,
+      "unique": 948
+    },
+    {
+      "generation": 11,
+      "instance_seed": 2500011,
+      "best": [
+        "(Max PT TIS)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespan": 2420.9951854915516,
+      "unique": 929
+    },
+    {
+      "generation": 12,
+      "instance_seed": 2500012,
+      "best": [
+        "(Max (- (/ MRT TWT) (+ TWT TIS)) (Min (/ DT PT) (- NIQ TIS)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespan": 2362.277774180051,
+      "unique": 931
+    },
+    {
+      "generation": 13,
+      "instance_seed": 2500013,
+      "best": [
+        "(- (- (* WIQ TIS) NTR) (Min UT (/ MRT TWT)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespan": 2628.3574964706377,
+      "unique": 928
+    },
+    {
+      "generation": 14,
+      "instance_seed": 2500014,
+      "best": [
+        "(Max PT TIS)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespan": 2309.134557567563,
+      "unique": 931
+    },
+    {
+      "generation": 15,
+      "instance_seed": 2500015,
+      "best": [
+        "(- (- (* WIQ TIS) NTR) (Min (Max PT TIS) (- (/ TIS (Max (+ TIS WIQ) (* TWT PT))) (+ (+ TIS NIQ) (/ NTR TTIQ)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespan": 2407.289022078531,
+      "unique": 921
+    },
+    {
+      "generation": 16,
+      "instance_seed": 2500016,
+      "best": [
+        "(- (* (/ (* MRT NTR) (* TTIQ PT)) (+ (/ TWT UT) (- TWT MRT))) (Min (Min (* WIQ TIS) (+ PT NTR)) (- (Max MRT WIQ) (+ (Max PT TIS) (* NIQ MRT)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (+ NIQ PT))))) (+ (Min PT DT) (- WIQ PT))) (* NTR WIQ))"
+      ],
+      "makespan": 2586.008773793295,
+      "unique": 926
+    },
+    {
+      "generation": 17,
+      "instance_seed": 2500017,
+      "best": [
+        "(- (* WIQ TIS) (Min (* WIQ TIS) (- (Max MRT WIQ) (/ (* (* TTIQ PT) TIS) (+ (Max PT TIS) WIQ)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (+ (Min PT DT) (- WIQ PT)) (Max UT TWT)))))"
+      ],
+      "makespan": 2531.2947590208573,
+      "unique": 919
+    },
+    {
+      "generation": 18,
+      "instance_seed": 2500018,
+      "best": [
+        "(* (Max (Min (Max (/ (- NTR NTR) (- (+ TIS WIQ) (- MRT DT))) (- TIS (- (+ UT DT) NTR))) (+ NTR TIS)) TIS) (* (/ (* MRT NTR) (* TTIQ PT)) (+ (/ TWT UT) (- TWT MRT))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (- (- (* (- WIQ PT) DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR)))))))"
+      ],
+      "makespan": 2617.759861127805,
+      "unique": 925
+    },
+    {
+      "generation": 19,
+      "instance_seed": 2500019,
+      "best": [
+        "(* (Max (- PT TTIQ) (- PT TWT)) (+ (/ TTIQ MRT) (Max UT WIQ)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespan": 2273.2763580013698,
+      "unique": 931
+    },
+    {
+      "generation": 20,
+      "instance_seed": 2500020,
+      "best": [
+        "(Min (- MRT WIQ) (- (+ TIS NIQ) (Max PT TIS)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespan": 2622.774131530198,
+      "unique": 923
+    },
+    {
+      "generation": 21,
+      "instance_seed": 2500021,
+      "best": [
+        "(Max (/ (Min MRT NIQ) (* NIQ MRT)) (Max (- (* NIQ MRT) NTR) (/ (+ TIS (Min (/ (Max NIQ TWT) (/ TTIQ TWT)) (/ (Max UT WIQ) (/ UT UT)))) (+ TIS WIQ))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespan": 2521.4943980806293,
+      "unique": 908
+    },
+    {
+      "generation": 22,
+      "instance_seed": 2500022,
+      "best": [
+        "TIS",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- NTR (- (* NTR DT) (/ (Min TTIQ MRT) (* NTR DT)))))"
+      ],
+      "makespan": 2238.9224435045226,
+      "unique": 930
+    },
+    {
+      "generation": 23,
+      "instance_seed": 2500023,
+      "best": [
+        "(- (- NTR NTR) (Min (Max PT TIS) (- (/ TIS (Max (+ TIS WIQ) (* TWT PT))) (+ (- (Max PT TIS) NTR) (/ NTR TTIQ)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- WIQ PT)))))"
+      ],
+      "makespan": 2632.6664978658678,
+      "unique": 937
+    },
+    {
+      "generation": 24,
+      "instance_seed": 2500024,
+      "best": [
+        "(- (- (Min UT (/ TIS (+ TIS WIQ))) (* NIQ (+ (+ (/ TWT MRT) (- NTR DT)) (Min (Min MRT WIQ) (Max MRT TWT))))) NTR)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ WIQ (+ (Min PT DT) (- WIQ PT))))))"
+      ],
+      "makespan": 2367.7104561915544,
+      "unique": 935
+    },
+    {
+      "generation": 25,
+      "instance_seed": 2500025,
+      "best": [
+        "(* (Max (- NTR NTR) (* TIS NIQ)) (+ TIS UT))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (Min (* DT TWT) (+ MRT TIS)) (Max (Min TTIQ PT) (+ TIS TIS)))))))"
+      ],
+      "makespan": 2336.699373718573,
+      "unique": 910
+    },
+    {
+      "generation": 26,
+      "instance_seed": 2500026,
+      "best": [
+        "(* (Max (- (+ (Min DT NIQ) (- TIS TTIQ)) NTR) (/ (Min (Min DT NIQ) (+ MRT WIQ)) (Min TTIQ TTIQ))) (+ TIS TIS))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) PT)))))"
+      ],
+      "makespan": 2222.486643041356,
+      "unique": 932
+    },
+    {
+      "generation": 27,
+      "instance_seed": 2500027,
+      "best": [
+        "(Max (/ (Max (- TIS (- (+ UT DT) NTR)) (/ TWT (Min (- NTR (/ NTR NIQ)) (- (Max PT TIS) NTR)))) (Min (+ TIS TIS) (/ TIS (/ TIS (Max TIS TIS))))) (- TIS WIQ))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespan": 2320.461809101653,
+      "unique": 913
+    },
+    {
+      "generation": 28,
+      "instance_seed": 2500028,
+      "best": [
+        "(- TIS (/ UT TIS))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespan": 2314.506787605757,
+      "unique": 913
+    },
+    {
+      "generation": 29,
+      "instance_seed": 2500029,
+      "best": [
+        "TIS",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespan": 2470.643998675546,
+      "unique": 936
+    },
+    {
+      "generation": 30,
+      "instance_seed": 2500030,
+      "best": [
+        "(- TIS (/ UT (- (Max (Min NIQ TIS) (/ TIS UT)) (+ (/ DT TWT) (* WIQ NTR)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- TWT (* (Min PT TTIQ) (- TIS TWT)))))))"
+      ],
+      "makespan": 2288.0382306154415,
+      "unique": 921
+    },
+    {
+      "generation": 31,
+      "instance_seed": 2500031,
+      "best": [
+        "(- TIS (/ UT (- (Max NIQ (/ TIS UT)) (+ (/ DT TWT) (* WIQ NTR)))))",
+        "(- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT)))"
+      ],
+      "makespan": 2131.3967784421075,
+      "unique": 935
+    },
+    {
+      "generation": 32,
+      "instance_seed": 2500032,
+      "best": [
+        "(+ (/ TTIQ MRT) (- (- (* WIQ TIS) NTR) (/ TIS (- TIS (- (+ UT DT) NTR)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* (- WIQ PT) WIQ) (- (Max (- (- PT NTR) (+ TIS UT)) (/ (- PT TTIQ) (* MRT NIQ))) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespan": 2346.8530032641565,
+      "unique": 930
+    },
+    {
+      "generation": 33,
+      "instance_seed": 2500033,
+      "best": [
+        "(- TIS (- (Max MRT WIQ) NTR))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ (- PT NTR))) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR (+ NIQ PT)) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespan": 2269.4447718561273,
+      "unique": 926
+    },
+    {
+      "generation": 34,
+      "instance_seed": 2500034,
+      "best": [
+        "(Max TTIQ (/ PT (/ (+ UT TWT) (* WIQ TIS))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespan": 2455.5698505876107,
+      "unique": 937
+    },
+    {
+      "generation": 35,
+      "instance_seed": 2500035,
+      "best": [
+        "(* (Max (- (+ (Min DT NIQ) (- TIS (+ UT DT))) NTR) (Min (- NTR NTR) (+ (- MRT TTIQ) (Max TIS NTR)))) (+ (+ TIS WIQ) (- TIS (/ TIS (- TIS (+ TIS TIS))))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (Min TTIQ MRT) (- (* NTR WIQ) DT)) (- (Min TWT (+ (/ MRT PT) TTIQ)) PT)))"
+      ],
+      "makespan": 2288.391883779092,
+      "unique": 921
+    },
+    {
+      "generation": 36,
+      "instance_seed": 2500036,
+      "best": [
+        "(Max (Max (/ UT (- (* WIQ TIS) (* NTR DT))) (- MRT NTR)) (- TIS (/ MRT (Max NIQ TIS))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min PT DT) (Max UT TWT)))))"
+      ],
+      "makespan": 2190.432551613803,
+      "unique": 913
+    },
+    {
+      "generation": 37,
+      "instance_seed": 2500037,
+      "best": [
+        "(* (Max (- (+ (Min DT NIQ) (- TIS (+ UT DT))) NTR) (Min (- NTR NTR) (+ (- MRT TTIQ) (Max TIS NTR)))) (+ (+ TIS WIQ) (- TIS (/ (- TIS TTIQ) (Max NIQ TIS)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- DT (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespan": 2859.77825057231,
+      "unique": 908
+    },
+    {
+      "generation": 38,
+      "instance_seed": 2500038,
+      "best": [
+        "(Max (/ (Min MRT NIQ) TIS) (Max (- (+ (Min NTR NIQ) (- TIS TTIQ)) NTR) (/ (+ TIS (Min (/ NIQ (Min WIQ PT)) (/ (/ TIS MRT) (/ UT UT)))) (- (- (/ PT NTR) NTR) NTR))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR)))) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespan": 2315.7315420510545,
+      "unique": 922
+    },
+    {
+      "generation": 39,
+      "instance_seed": 2500039,
+      "best": [
+        "(Max TTIQ (/ PT (/ (/ PT PT) (* WIQ TIS))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (- PT NTR) DT)) (- (Min PT DT) (+ (Min PT DT) (- WIQ PT)))))"
+      ],
+      "makespan": 2296.223371108894,
+      "unique": 925
+    },
+    {
+      "generation": 40,
+      "instance_seed": 2500040,
+      "best": [
+        "(- TIS (+ NIQ DT))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- WIQ PT) (- (* NTR DT) (/ (Min TTIQ MRT) (Max (* (* TIS NTR) (Max PT UT)) (* (Min WIQ TWT) (+ UT PT)))))))"
+      ],
+      "makespan": 2368.235685196124,
+      "unique": 927
+    },
+    {
+      "generation": 41,
+      "instance_seed": 2500041,
+      "best": [
+        "(- TIS (Min (+ (Min NTR NIQ) (- TIS TTIQ)) NTR))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespan": 2481.562136127463,
+      "unique": 924
+    },
+    {
+      "generation": 42,
+      "instance_seed": 2500042,
+      "best": [
+        "(Max (/ (/ (Max (- PT TWT) UT) (/ (- (Max TWT TWT) (/ TIS NIQ)) (+ (* UT WIQ) (Max TTIQ NIQ)))) (* NIQ MRT)) (Max (- (+ (+ (Min (Min DT UT) (+ NIQ MRT)) (* (Max MRT NTR) (+ MRT WIQ))) (/ NIQ (Max PT DT))) NTR) (/ (Max NIQ PT) UT)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespan": 2101.006702920185,
+      "unique": 909
+    },
+    {
+      "generation": 43,
+      "instance_seed": 2500043,
+      "best": [
+        "(Max (/ (/ (Max (Min (- (* WIQ TIS) (* NTR DT)) NTR) UT) (- (+ TIS WIQ) (- NTR (- TIS TTIQ)))) (* NIQ MRT)) (Max (- (+ (Min DT NIQ) (+ UT DT)) NTR) (Max (/ UT TWT) NIQ)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- WIQ PT) (- (* NTR DT) (- (+ PT DT) (+ NIQ PT)))))"
+      ],
+      "makespan": 2104.3655237636094,
+      "unique": 906
+    },
+    {
+      "generation": 44,
+      "instance_seed": 2500044,
+      "best": [
+        "(- (/ (+ TIS TIS) NTR) NTR)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (+ (Min PT DT) (- PT NTR))))))"
+      ],
+      "makespan": 2179.1159604681443,
+      "unique": 910
+    },
+    {
+      "generation": 45,
+      "instance_seed": 2500045,
+      "best": [
+        "(- (+ (Min DT NIQ) (Min (/ PT (- (* WIQ TIS) NTR)) (* DT NIQ))) NTR)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- WIQ PT) (- (* NTR DT) (+ (Min PT DT) (- WIQ PT)))))"
+      ],
+      "makespan": 2152.800268382818,
+      "unique": 928
+    },
+    {
+      "generation": 46,
+      "instance_seed": 2500046,
+      "best": [
+        "(/ (- TIS (/ (Min (* DT (+ DT NIQ)) (Min (+ TWT TWT) (- (Max PT DT) NTR))) (+ (Min DT NIQ) (- TIS TTIQ)))) NTR)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max (* UT WIQ) (+ (* UT TTIQ) (+ DT NIQ)))))))"
+      ],
+      "makespan": 2174.9313089237316,
+      "unique": 916
+    },
+    {
+      "generation": 47,
+      "instance_seed": 2500047,
+      "best": [
+        "(/ (/ NIQ (Max PT DT)) NTR)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (- (+ PT DT) (+ NIQ PT)))))))"
+      ],
+      "makespan": 2469.9878642952362,
+      "unique": 910
+    },
+    {
+      "generation": 48,
+      "instance_seed": 2500048,
+      "best": [
+        "(Max (/ (Min MRT NIQ) (* NIQ MRT)) (Max (- (- DT NTR) NTR) (/ (+ TIS (Min (Max PT DT) (/ (- MRT TTIQ) (/ UT UT)))) (+ TIS WIQ))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- WIQ PT) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespan": 2086.9779933054942,
+      "unique": 920
+    },
+    {
+      "generation": 49,
+      "instance_seed": 2500049,
+      "best": [
+        "(/ (- (+ TIS (+ (Min NIQ NTR) (- TIS TTIQ))) NTR) (Max TTIQ (/ (+ UT TWT) (* WIQ TTIQ))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ (Min PT DT) (- WIQ PT)) (+ NIQ PT))))))"
+      ],
+      "makespan": 2763.579532604954,
+      "unique": 919
+    },
+    {
+      "generation": 50,
+      "instance_seed": 2500050,
+      "best": [
+        "(- (+ TIS (Min (/ NIQ TIS) (/ (+ UT TWT) (* WIQ TIS)))) DT)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (* (/ (- WIQ PT) (- NTR MRT)) DT) (- (* NTR DT) (/ (Min TTIQ MRT) (Min TTIQ MRT)))))"
+      ],
+      "makespan": 2596.6639347766854,
+      "unique": 926
+    }
+  ],
+  "validation_seeds": [
+    80000,
+    80001,
+    80002
+  ],
+  "validation": [
+    {
+      "pair": [
+        "(Max (- DT NIQ) (Min UT NTR))",
+        "(Max (Min (* DT WIQ) (/ UT DT)) (Max (Max WIQ DT) (/ NIQ MRT)))"
+      ],
+      "makespans": [
+        7880.398393607141,
+        4632.305657893067,
+        5551.882075528914
+      ]
+    },
+    {
+      "pair": [
+        "(Max (+ NIQ WIQ) (Max (/ (Max (Min DT MRT) (/ TWT DT)) (- (* UT TIS) (- MRT DT))) (- TIS (- (+ UT DT) NTR))))",
+        "(- (- (+ (+ (+ PT DT) (- MRT TWT)) WIQ) (Min TIS (/ (/ NTR PT) (Max UT TWT)))) MRT)"
+      ],
+      "makespans": [
+        4704.952861197946,
+        4440.722939207927,
+        4793.938220438612
+      ]
+    },
+    {
+      "pair": [
+        "(Min (- (- (- WIQ UT) (- PT UT)) (Min (Min PT PT) PT)) (/ (* (* WIQ UT) (/ TTIQ UT)) (- (Max NTR WIQ) (* NTR TWT))))",
+        "(+ (Max (* (+ WIQ TTIQ) PT) (* (/ NTR TTIQ) (Max PT NTR))) (Max (+ (+ TWT NTR) WIQ) (+ (- TWT PT) (Max TIS (+ (- NIQ DT) (/ MRT DT))))))"
+      ],
+      "makespans": [
+        6091.147909260571,
+        8813.441079142247,
+        10204.197177996084
+      ]
+    },
+    {
+      "pair": [
+        "(* (/ (- WIQ MRT) (Min NTR PT)) (Min (* TWT TIS) (- NIQ WIQ)))",
+        "(Max (- (- (* NTR DT) (+ NIQ PT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespans": [
+        4328.753050014548,
+        4395.927826066071,
+        5310.816751705342
+      ]
+    },
+    {
+      "pair": [
+        "(* WIQ TIS)",
+        "(Max (- (- (* NTR DT) (/ TTIQ PT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespans": [
+        3945.5558286573278,
+        3068.51084439046,
+        3909.239672911609
+      ]
+    },
+    {
+      "pair": [
+        "(* WIQ TIS)",
+        "(Max (- (- (* NTR DT) (Min PT DT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespans": [
+        4021.2585775258704,
+        3150.7745593528703,
+        6160.368453796436
+      ]
+    },
+    {
+      "pair": [
+        "(* (/ (- WIQ MRT) NTR) (Min (* TWT TIS) (- NIQ WIQ)))",
+        "(Max (- (- (* NTR DT) (/ (+ (Min TIS TWT) (/ WIQ WIQ)) (Max (Max PT NIQ) (+ WIQ DT)))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (/ TTIQ PT)))"
+      ],
+      "makespans": [
+        4961.8777228938725,
+        3017.870289314779,
+        5202.468045520375
+      ]
+    },
+    {
+      "pair": [
+        "(* WIQ TIS)",
+        "(Max (- (- (* NTR DT) (+ NIQ PT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (- (* NTR DT) (+ NIQ PT)) (+ (Min PT DT) (- WIQ PT)))) (/ TTIQ PT)))"
+      ],
+      "makespans": [
+        6104.7369913001885,
+        3218.986080327268,
+        3206.8890613800613
+      ]
+    },
+    {
+      "pair": [
+        "(Max (/ (Max (Min DT MRT) (Min DT MRT)) (* WIQ TIS)) (- TIS (- (+ UT DT) (Max MRT WIQ))))",
+        "(Max (- (- (* NTR DT) (Min PT DT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespans": [
+        3713.931612754878,
+        2823.6773009807953,
+        4335.187208570144
+      ]
+    },
+    {
+      "pair": [
+        "(* NIQ TIS)",
+        "(Max (- (- (Max DT (Min (Min NIQ NIQ) (* WIQ DT))) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR)))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespans": [
+        4035.582542748114,
+        3544.9851896293453,
+        3950.6142926245866
+      ]
+    },
+    {
+      "pair": [
+        "(- (- (* WIQ TIS) NTR) (Min UT (- (- (/ MRT NTR) DT) (* NIQ NIQ))))",
+        "(Max (- (- (+ PT DT) (+ NIQ PT)) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (/ UT WIQ) (- PT NTR))))"
+      ],
+      "makespans": [
+        3700.527188259086,
+        3332.8400239253738,
+        3624.3031850547122
+      ]
+    },
+    {
+      "pair": [
+        "(Max PT TIS)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespans": [
+        2869.8453822847605,
+        2645.237399869866,
+        2365.328790645148
+      ]
+    },
+    {
+      "pair": [
+        "(Max (- (/ MRT TWT) (+ TWT TIS)) (Min (/ DT PT) (- NIQ TIS)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespans": [
+        3070.259428362726,
+        3326.0779326579855,
+        2502.275097863006
+      ]
+    },
+    {
+      "pair": [
+        "(- (- (* WIQ TIS) NTR) (Min UT (/ MRT TWT)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespans": [
+        2990.9374243829925,
+        3019.0438904005277,
+        2363.6634688781633
+      ]
+    },
+    {
+      "pair": [
+        "(- (- (* WIQ TIS) NTR) (Min (Max PT TIS) (- (/ TIS (Max (+ TIS WIQ) (* TWT PT))) (+ (+ TIS NIQ) (/ NTR TTIQ)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespans": [
+        3780.7366682030333,
+        3064.78104786809,
+        2658.576348440628
+      ]
+    },
+    {
+      "pair": [
+        "(- (* (/ (* MRT NTR) (* TTIQ PT)) (+ (/ TWT UT) (- TWT MRT))) (Min (Min (* WIQ TIS) (+ PT NTR)) (- (Max MRT WIQ) (+ (Max PT TIS) (* NIQ MRT)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (+ NIQ PT))))) (+ (Min PT DT) (- WIQ PT))) (* NTR WIQ))"
+      ],
+      "makespans": [
+        3739.661753993625,
+        2469.1005355057464,
+        3187.6712171840613
+      ]
+    },
+    {
+      "pair": [
+        "(- (* WIQ TIS) (Min (* WIQ TIS) (- (Max MRT WIQ) (/ (* (* TTIQ PT) TIS) (+ (Max PT TIS) WIQ)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (+ (Min PT DT) (- WIQ PT)) (Max UT TWT)))))"
+      ],
+      "makespans": [
+        2875.8177128967045,
+        2564.978337252195,
+        2385.5889986254997
+      ]
+    },
+    {
+      "pair": [
+        "(* (Max (Min (Max (/ (- NTR NTR) (- (+ TIS WIQ) (- MRT DT))) (- TIS (- (+ UT DT) NTR))) (+ NTR TIS)) TIS) (* (/ (* MRT NTR) (* TTIQ PT)) (+ (/ TWT UT) (- TWT MRT))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (- (- (* (- WIQ PT) DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR)))))))"
+      ],
+      "makespans": [
+        2963.8279527111436,
+        2529.908199095636,
+        2594.965714745698
+      ]
+    },
+    {
+      "pair": [
+        "(* (Max (- PT TTIQ) (- PT TWT)) (+ (/ TTIQ MRT) (Max UT WIQ)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespans": [
+        2604.97982568378,
+        2496.017271972563,
+        2356.169594603925
+      ]
+    },
+    {
+      "pair": [
+        "(Min (- MRT WIQ) (- (+ TIS NIQ) (Max PT TIS)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespans": [
+        2685.156332358036,
+        2609.3747872425597,
+        2459.360507835269
+      ]
+    },
+    {
+      "pair": [
+        "(Max (/ (Min MRT NIQ) (* NIQ MRT)) (Max (- (* NIQ MRT) NTR) (/ (+ TIS (Min (/ (Max NIQ TWT) (/ TTIQ TWT)) (/ (Max UT WIQ) (/ UT UT)))) (+ TIS WIQ))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2501.274547814894,
+        2461.7152096818295,
+        3749.3316069281636
+      ]
+    },
+    {
+      "pair": [
+        "TIS",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- (/ UT WIQ) (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- NTR (- (* NTR DT) (/ (Min TTIQ MRT) (* NTR DT)))))"
+      ],
+      "makespans": [
+        2660.8337002427133,
+        2532.8528987167856,
+        2346.952166885476
+      ]
+    },
+    {
+      "pair": [
+        "(- (- NTR NTR) (Min (Max PT TIS) (- (/ TIS (Max (+ TIS WIQ) (* TWT PT))) (+ (- (Max PT TIS) NTR) (/ NTR TTIQ)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- WIQ PT)))))"
+      ],
+      "makespans": [
+        2898.6304437399567,
+        2458.6493129557193,
+        3836.4246035490805
+      ]
+    },
+    {
+      "pair": [
+        "(- (- (Min UT (/ TIS (+ TIS WIQ))) (* NIQ (+ (+ (/ TWT MRT) (- NTR DT)) (Min (Min MRT WIQ) (Max MRT TWT))))) NTR)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ WIQ (+ (Min PT DT) (- WIQ PT))))))"
+      ],
+      "makespans": [
+        2973.778226696773,
+        2775.925036571515,
+        2434.6674699384475
+      ]
+    },
+    {
+      "pair": [
+        "(* (Max (- NTR NTR) (* TIS NIQ)) (+ TIS UT))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (* NTR PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (Min (* DT TWT) (+ MRT TIS)) (Max (Min TTIQ PT) (+ TIS TIS)))))))"
+      ],
+      "makespans": [
+        4428.789386330846,
+        2541.0824311877627,
+        2616.7012480128715
+      ]
+    },
+    {
+      "pair": [
+        "(* (Max (- (+ (Min DT NIQ) (- TIS TTIQ)) NTR) (/ (Min (Min DT NIQ) (+ MRT WIQ)) (Min TTIQ TTIQ))) (+ TIS TIS))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) PT)))))"
+      ],
+      "makespans": [
+        2601.164875746696,
+        2430.1223685072064,
+        2413.079656588579
+      ]
+    },
+    {
+      "pair": [
+        "(Max (/ (Max (- TIS (- (+ UT DT) NTR)) (/ TWT (Min (- NTR (/ NTR NIQ)) (- (Max PT TIS) NTR)))) (Min (+ TIS TIS) (/ TIS (/ TIS (Max TIS TIS))))) (- TIS WIQ))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2491.1261302543935,
+        2441.7299512847685,
+        2731.333004886455
+      ]
+    },
+    {
+      "pair": [
+        "(- TIS (/ UT TIS))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2727.5773817612903,
+        2514.722685007442,
+        2288.5419608037937
+      ]
+    },
+    {
+      "pair": [
+        "TIS",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2968.0508819469624,
+        2575.819499599927,
+        2287.0473322406524
+      ]
+    },
+    {
+      "pair": [
+        "(- TIS (/ UT (- (Max (Min NIQ TIS) (/ TIS UT)) (+ (/ DT TWT) (* WIQ NTR)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- TWT (* (Min PT TTIQ) (- TIS TWT)))))))"
+      ],
+      "makespans": [
+        2573.3720034082617,
+        2527.77251186018,
+        3171.512765072583
+      ]
+    },
+    {
+      "pair": [
+        "(- TIS (/ UT (- (Max NIQ (/ TIS UT)) (+ (/ DT TWT) (* WIQ NTR)))))",
+        "(- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT)))"
+      ],
+      "makespans": [
+        2958.9891506750187,
+        2443.3035025972376,
+        4469.066778022749
+      ]
+    },
+    {
+      "pair": [
+        "(+ (/ TTIQ MRT) (- (- (* WIQ TIS) NTR) (/ TIS (- TIS (- (+ UT DT) NTR)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* (- WIQ PT) WIQ) (- (Max (- (- PT NTR) (+ TIS UT)) (/ (- PT TTIQ) (* MRT NIQ))) DT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max UT TWT)))))"
+      ],
+      "makespans": [
+        2776.6533487407273,
+        2431.1521034408574,
+        2320.916611830024
+      ]
+    },
+    {
+      "pair": [
+        "(- TIS (- (Max MRT WIQ) NTR))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ (- PT NTR))) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR (+ NIQ PT)) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2426.531139342785,
+        2421.4244142536227,
+        2393.0051505127944
+      ]
+    },
+    {
+      "pair": [
+        "(Max TTIQ (/ PT (/ (+ UT TWT) (* WIQ TIS))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2384.266144935161,
+        2386.0276536103142,
+        2291.7351197366893
+      ]
+    },
+    {
+      "pair": [
+        "(* (Max (- (+ (Min DT NIQ) (- TIS (+ UT DT))) NTR) (Min (- NTR NTR) (+ (- MRT TTIQ) (Max TIS NTR)))) (+ (+ TIS WIQ) (- TIS (/ TIS (- TIS (+ TIS TIS))))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (Min TTIQ MRT) (- (* NTR WIQ) DT)) (- (Min TWT (+ (/ MRT PT) TTIQ)) PT)))"
+      ],
+      "makespans": [
+        2673.1254811010162,
+        2629.49077812901,
+        2724.576501454913
+      ]
+    },
+    {
+      "pair": [
+        "(Max (Max (/ UT (- (* WIQ TIS) (* NTR DT))) (- MRT NTR)) (- TIS (/ MRT (Max NIQ TIS))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (* NTR WIQ) DT)) (- (* NTR DT) (/ (Min PT DT) (Max UT TWT)))))"
+      ],
+      "makespans": [
+        2501.274547814894,
+        2453.5090103379225,
+        2369.1004394405813
+      ]
+    },
+    {
+      "pair": [
+        "(* (Max (- (+ (Min DT NIQ) (- TIS (+ UT DT))) NTR) (Min (- NTR NTR) (+ (- MRT TTIQ) (Max TIS NTR)))) (+ (+ TIS WIQ) (- TIS (/ (- TIS TTIQ) (Max NIQ TIS)))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- DT (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2541.9828512817003,
+        2563.4593543106957,
+        2344.311594546891
+      ]
+    },
+    {
+      "pair": [
+        "(Max (/ (Min MRT NIQ) TIS) (Max (- (+ (Min NTR NIQ) (- TIS TTIQ)) NTR) (/ (+ TIS (Min (/ NIQ (Min WIQ PT)) (/ (/ TIS MRT) (/ UT UT)))) (- (- (/ PT NTR) NTR) NTR))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR)))) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2260.136584344453,
+        2569.76722448243,
+        2307.800630238407
+      ]
+    },
+    {
+      "pair": [
+        "(Max TTIQ (/ PT (/ (/ PT PT) (* WIQ TIS))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (+ NIQ PT)) (+ (+ (Min PT DT) (- WIQ PT)) (- NIQ (- PT NTR))))) (+ (Min PT DT) (- WIQ PT))) (- (- (* NTR WIQ) (- (- PT NTR) DT)) (- (Min PT DT) (+ (Min PT DT) (- WIQ PT)))))"
+      ],
+      "makespans": [
+        2905.166776382998,
+        2505.4649372296485,
+        2592.094758227545
+      ]
+    },
+    {
+      "pair": [
+        "(- TIS (+ NIQ DT))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- WIQ PT) (- (* NTR DT) (/ (Min TTIQ MRT) (Max (* (* TIS NTR) (Max PT UT)) (* (Min WIQ TWT) (+ UT PT)))))))"
+      ],
+      "makespans": [
+        2629.8155434569426,
+        2435.6148716138673,
+        2222.6579471683663
+      ]
+    },
+    {
+      "pair": [
+        "(- TIS (Min (+ (Min NTR NIQ) (- TIS TTIQ)) NTR))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2401.512527166598,
+        2428.9338227667663,
+        2266.6560990885373
+      ]
+    },
+    {
+      "pair": [
+        "(Max (/ (/ (Max (- PT TWT) UT) (/ (- (Max TWT TWT) (/ TIS NIQ)) (+ (* UT WIQ) (Max TTIQ NIQ)))) (* NIQ MRT)) (Max (- (+ (+ (Min (Min DT UT) (+ NIQ MRT)) (* (Max MRT NTR) (+ MRT WIQ))) (/ NIQ (Max PT DT))) NTR) (/ (Max NIQ PT) UT)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2345.60073991784,
+        2414.155798144283,
+        2359.3365569690254
+      ]
+    },
+    {
+      "pair": [
+        "(Max (/ (/ (Max (Min (- (* WIQ TIS) (* NTR DT)) NTR) UT) (- (+ TIS WIQ) (- NTR (- TIS TTIQ)))) (* NIQ MRT)) (Max (- (+ (Min DT NIQ) (+ UT DT)) NTR) (Max (/ UT TWT) NIQ)))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- WIQ PT) (- (* NTR DT) (- (+ PT DT) (+ NIQ PT)))))"
+      ],
+      "makespans": [
+        2417.967918723738,
+        2408.8167046754675,
+        2359.27243016498
+      ]
+    },
+    {
+      "pair": [
+        "(- (/ (+ TIS TIS) NTR) NTR)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (+ (Min PT DT) (- PT NTR))))))"
+      ],
+      "makespans": [
+        2370.837225340169,
+        2444.3538659440765,
+        2350.970272733219
+      ]
+    },
+    {
+      "pair": [
+        "(- (+ (Min DT NIQ) (Min (/ PT (- (* WIQ TIS) NTR)) (* DT NIQ))) NTR)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- WIQ PT) (- (* NTR DT) (+ (Min PT DT) (- WIQ PT)))))"
+      ],
+      "makespans": [
+        2388.173370057162,
+        2349.441061435497,
+        2317.785418552946
+      ]
+    },
+    {
+      "pair": [
+        "(/ (- TIS (/ (Min (* DT (+ DT NIQ)) (Min (+ TWT TWT) (- (Max PT DT) NTR))) (+ (Min DT NIQ) (- TIS TTIQ)))) NTR)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max (* UT WIQ) (+ (* UT TTIQ) (+ DT NIQ)))))))"
+      ],
+      "makespans": [
+        2318.2063151015,
+        2345.3877395227787,
+        2291.8026120351956
+      ]
+    },
+    {
+      "pair": [
+        "(/ (/ NIQ (Max PT DT)) NTR)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (Min PT DT) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (- (+ PT DT) (+ NIQ PT)))))))"
+      ],
+      "makespans": [
+        2383.9094824995354,
+        2360.8701713111204,
+        2218.7973606423775
+      ]
+    },
+    {
+      "pair": [
+        "(Max (/ (Min MRT NIQ) (* NIQ MRT)) (Max (- (- DT NTR) NTR) (/ (+ TIS (Min (Max PT DT) (/ (- MRT TTIQ) (/ UT UT)))) (+ TIS WIQ))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (- WIQ PT) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ PT DT) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2368.126865152245,
+        2455.665539986007,
+        2237.90911343039
+      ]
+    },
+    {
+      "pair": [
+        "(/ (- (+ TIS (+ (Min NIQ NTR) (- TIS TTIQ))) NTR) (Max TTIQ (/ (+ UT TWT) (* WIQ TTIQ))))",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (- (+ (Min PT DT) (- WIQ PT)) (+ NIQ PT))))))"
+      ],
+      "makespans": [
+        2526.046134341772,
+        2436.6768301283755,
+        2243.4769998717566
+      ]
+    },
+    {
+      "pair": [
+        "(- (+ TIS (Min (/ NIQ TIS) (/ (+ UT TWT) (* WIQ TIS)))) DT)",
+        "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (* (/ (- WIQ PT) (- NTR MRT)) DT) (- (* NTR DT) (/ (Min TTIQ MRT) (Min TTIQ MRT)))))"
+      ],
+      "makespans": [
+        2395.470356690014,
+        2496.7457784632757,
+        2289.5606666781277
+      ]
+    }
+  ],
+  "selected": {
+    "sequencing": "(/ (- TIS (/ (Min (* DT (+ DT NIQ)) (Min (+ TWT TWT) (- (Max PT DT) NTR))) (+ (Min DT NIQ) (- TIS TTIQ)))) NTR)",
+    "routing": "(Max (- (- (* NTR DT) (- (- (* NTR DT) (- PT NTR)) (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)))) (+ (Min PT DT) (- WIQ PT))) (- (+ (+ (Min PT DT) (- WIQ PT)) (- WIQ PT)) (- (* NTR DT) (/ (Min TTIQ MRT) (Max (* UT WIQ) (+ (* UT TTIQ) (+ DT NIQ)))))))"
+  }
+}
