@@ -1,0 +1,87 @@
+2026-11-27T13:00:46+08:00
+autodl-container-b3m8avbhrp-b0ebaa69
+Linux autodl-container-b3m8avbhrp-b0ebaa69 5.15.0-78-generic #85-Ubuntu SMP Fri Jul 7 15:25:09 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux
+Architecture:                    x86_64
+CPU op-mode(s):                  32-bit, 64-bit
+Address sizes:                   46 bits physical, 48 bits virtual
+Byte Order:                      Little Endian
+CPU(s):                          80
+On-line CPU(s) list:             0-79
+Vendor ID:                       GenuineIntel
+Model name:                      Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz
+CPU family:                      6
+Model:                           85
+Thread(s) per core:              2
+Core(s) per socket:              20
+Socket(s):                       2
+Stepping:                        7
+CPU max MHz:                     3900.0000
+CPU min MHz:                     1000.0000
+BogoMIPS:                        5000.00
+Flags:                           fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cdp_l3 invpcid_single intel_ppin ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow vnmi flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm mpx rdt_a avx512f avx512dq rdseed adx smap clflushopt clwb intel_pt avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local dtherm ida arat pln pts pku ospke avx512_vnni md_clear flush_l1d arch_capabilities
+Virtualization:                  VT-x
+L1d cache:                       1.3 MiB (40 instances)
+L1i cache:                       1.3 MiB (40 instances)
+L2 cache:                        40 MiB (40 instances)
+L3 cache:                        55 MiB (2 instances)
+NUMA node(s):                    2
+NUMA node0 CPU(s):               0-19,40-59
+NUMA node1 CPU(s):               20-39,60-79
+Vulnerability Itlb multihit:     KVM: Mitigation: VMX disabled
+Vulnerability L1tf:              Not affected
+Vulnerability Mds:               Not affected
+Vulnerability Meltdown:          Not affected
+Vulnerability Mmio stale data:   Mitigation; Clear CPU buffers; SMT vulnerable
+Vulnerability Retbleed:          Mitigation; Enhanced IBRS
+Vulnerability Spec store bypass: Mitigation; Speculative Store Bypass disabled via prctl and seccomp
+Vulnerability Spectre v1:        Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:        Mitigation; Enhanced IBRS, IBPB conditional, RSB filling, PBRSB-eIBRS SW sequence
+Vulnerability Srbds:             Not affected
+Vulnerability Tsx async abort:   Mitigation; TSX disabled
+               total        used        free      shared  buff/cache   available
+Mem:           125Gi        17Gi        47Gi        20Mi        61Gi       107Gi
+Swap:             0B          0B          0B
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          30G   53M   30G   1% /
+tmpfs            64M     0   64M   0% /dev
+/dev/sdb        150M     0  150M   0% /init
+AutoFS:fs1      4.0T  1.4T  2.6T  35% /autodl-pub/data
+shm              15G     0   15G   0% /dev/shm
+/dev/sda2       116G   18G   92G  17% /usr/bin/nvidia-smi
+tmpfs           4.0K  4.0K     0 100% /run/nvidia-ctk-hook
+tmpfs           4.0K     0  4.0K   0% /proc/acpi
+20
+gcc (Ubuntu 11.3.0-1ubuntu1~22.04) 11.3.0
+Copyright (C) 2021 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Fri Nov 27 13:00:46 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.71.05              Driver Version: 595.71.05      CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 3080 Ti     On  |   00000000:40:00.0 Off |                  N/A |
+| 30%   29C    P8             18W /  350W |       1MiB /  12288MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+NVIDIA GeForce RTX 3080 Ti, 595.71.05, 12288 MiB, 8.6
+conda 22.11.1
+nvcc:
+/usr/local/cuda/bin/nvcc
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2022 NVIDIA Corporation
+Built on Wed_Sep_21_10:33:58_PDT_2022
+Cuda compilation tools, release 11.8, V11.8.89
+Build cuda_11.8.r11.8/compiler.31833905_0
